@@ -28,6 +28,7 @@ pack_type GetHealthPackType(IClientEntity* ent);
 pack_type GetAmmoPackType(IClientEntity* ent);
 powerup_type GetPowerupType(IClientEntity* ent);
 powerup_type GetPowerupOnPlayer(IClientEntity* player);
+item_type GetItemType(IClientEntity* entity);
 const char* GetModelPath(IClientEntity* entity);
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out);
 

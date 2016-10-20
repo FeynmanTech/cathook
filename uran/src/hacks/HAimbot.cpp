@@ -147,6 +147,8 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	if (v_iMinRange->GetInt() > 0) {
 		if ((enemy_pos - my_pos).Length() > v_iMinRange->GetInt()) return false;
 	}
+	int econd = GetEntityValue<int>(entity, entityvars.iCond1);
+	if ((econd & cond_ex::vacc_bullet)) return false;
 	return this->IsVisible(entity);
 }
 

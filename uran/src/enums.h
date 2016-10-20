@@ -100,6 +100,7 @@ enum powerup_type {
 	king,
 	plague,
 	supernova,
+	crits,
 	POWERUP_COUNT
 };
 
@@ -107,6 +108,32 @@ enum powerup_owner {
 	neutral = 0,
 	red = 1,
 	blue = 2
+};
+
+enum item_type {
+	item_null = -1,
+	item_medkit_small,
+	item_medkit_medium,
+	item_medkit_large,
+	item_ammo_small,
+	item_ammo_medium,
+	item_ammo_large,
+	item_mp_strength,
+	item_mp_resistance,
+	item_mp_vampire,
+	item_mp_reflect,
+	item_mp_haste,
+	item_mp_regeneration,
+	item_mp_precision,
+	item_mp_agility,
+	item_mp_knockout,
+	item_mp_king,
+	item_mp_plague,
+	item_mp_supernova,
+	item_mp_crit,
+	item_mp_uber, /* this exists for some reason */
+	item_mp_warlock, /* never seen that powerup, but the model exists */
+	item_mp_thorns /* and this one */
 };
 
 enum pack_type {

@@ -4,5 +4,25 @@
 ESP: Box, bones
 ESP: Uber n stuff
 TRIGGER: Amby
-TRIGGER: Ignore uber; vacc; etc.
-AIMBOT
+TRIGGER: Ignore VACC
+
+Priority FIX
+OPTIMIZE
+Buildings aimbot
+
+
+priority system
+ proper player struct 
+  optimize 
+  buildings aim
+   no autoshoot consumable
+    no autoshoot disg
+     amby body
+     
+Entity::AddEntityString
+
+Glow Objects
+
+actual ammo box esp 
+no trigger/aim vacc uber
+LINES

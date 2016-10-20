@@ -56,6 +56,62 @@ const char* GetModelPath(IClientEntity* entity) {
 	return interfaces::model->GetModelName(model);
 }
 
+/* Takes CBaseAnimating entity as input */
+item_type GetItemType(IClientEntity* entity) {
+	if (entity == 0) return item_type::item_null;
+	const char* path = GetModelPath(entity); /* SDK function */
+	size_t length = strlen(path);
+	/* Default/Festive medkits */
+	if (length >= 29 && path[16] == 'k') {
+		if (path[20] == 's') return item_type::item_medkit_small;
+		if (path[20] == 'm') return item_type::item_medkit_medium;
+		if (path[20] == 'l') return item_type::item_medkit_large;
+	}
+	/* Sandwich/Steak */
+	if (length >= 22 && path[13] == 'p' && path[14] == 'l') {
+		return item_type::item_medkit_medium;
+	}
+	/* Medieval meat */
+	if (length == 39 && path[31] == 'm' && path[29] == 'l') {
+		return item_type::item_medkit_medium;
+	}
+	/* Halloween medkits */
+	if (length >= 49 && path[33] == 'm' && path[36] == 'k') {
+		if (path[20] == 's') return item_type::item_medkit_small;
+		if (path[40] == 'm') return item_type::item_medkit_medium;
+		if (path[40] == 'l') return item_type::item_medkit_large;
+	}
+	/* Ammo packs */
+	if (length >= 31 && path[14] == 'm' && path[15] == 'm') {
+		if (path[22] == 's') return item_type::item_ammo_small;
+		if (path[22] == 'm') return item_type::item_ammo_medium;
+		if (path[22] == 'l') return item_type::item_ammo_large;
+	}
+	/* Powerups */
+	if (length >= 38 && path[20] == 'p' && path[24] == 'w') {
+		if (path[30] == 'h') return item_type::item_mp_haste;
+		if (path[30] == 'v') return item_type::item_mp_vampire;
+		if (path[30] == 'u') return item_type::item_mp_uber;
+		if (path[32] == 'e') return item_type::item_mp_precision;
+		if (path[30] == 'w') return item_type::item_mp_warlock;
+		if (path[32] == 'r') return item_type::item_mp_strength;
+		if (path[32] == 'g') return item_type::item_mp_regeneration;
+		if (path[37] == 'v') return item_type::item_mp_supernova;
+		/* looks like resistance.mdl is unused and replaced with defense.mdl? idk */
+		if (path[37] == 'n') return item_type::item_mp_resistance;
+		if (path[34] == 'k') return item_type::item_mp_knockout;
+		/* actually this one is 'defense' but it's used for resistance powerup */
+		if (path[35] == 's') return item_type::item_mp_resistance;
+		if (path[30] == 'c') return item_type::item_mp_crit;
+		if (path[30] == 'a') return item_type::item_mp_agility;
+		if (path[31] == 'i') return item_type::item_mp_king;
+		if (path[33] == 'g') return item_type::item_mp_plague;
+		if (path[36] == 't') return item_type::item_mp_reflect;
+		if (path[30] == 't') return item_type::item_mp_thorns;
+	}
+	return item_type::item_null;
+}
+
 pack_type GetHealthPackType(IClientEntity* ent) {
 	if (!ent) return pack_type::not_pack;
 	const char* name = GetModelPath(ent);
@@ -172,7 +228,8 @@ const char* powerups[] = {
 	"KNOCKOUT",
 	"KING",
 	"PLAGUE",
-	"SUPERNOVA"
+	"SUPERNOVA",
+	"CRITS"
 };
 
 const char* packs[] = {

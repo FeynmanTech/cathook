@@ -81,21 +81,25 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 	switch (ClassID) {
 	case 1: {
 		if (!this->v_bItemESP->GetBool()) break;
-		powerup_type type = GetPowerupType(ent);
-		if (type >= 0) {
+		item_type type = GetItemType(ent);
+		if (type == item_type::item_null) break;
+		if (type >= item_medkit_small && type <= item_medkit_large) {
+			draw::DrawString(scr.x, scr.y, draw::white, true, "%s HEALTH", packs[type - item_medkit_small]);
+			scr.y += 16;
+		} else if (type >= item_ammo_small && type <= item_ammo_large) {
+			draw::DrawString(scr.x, scr.y, draw::white, true, "%s AMMO", packs[type - item_ammo_small]);
+			scr.y += 16;
+		} else if (type >= item_mp_strength && type <= item_mp_crit) {
 			int skin = ent->GetSkin();
-			Color clr = (skin == 0 ? draw::yellow : (skin == 1 ? draw::red : draw::blue));
-			draw::DrawString(scr.x, scr.y, clr, true, "POWERUP %s", powerups[type]);
-			scr.y += 16;
-		}
-		pack_type health = GetHealthPackType(ent);
-		if (health >= 0) {
-			draw::DrawString(scr.x, scr.y, draw::white, true, "%s HEALTH", packs[health]);
-			scr.y += 16;
-		}
-		pack_type ammo = GetAmmoPackType(ent);
-		if (ammo >= 0) {
-			draw::DrawString(scr.x, scr.y, draw::white, true, "%s AMMO", packs[ammo]);
+			Color pickupColor;
+			if (skin == 1) {
+				pickupColor = draw::red;
+			} else if (skin == 2) {
+				pickupColor = draw::blue;
+			} else {
+				pickupColor = draw::yellow;
+			}
+			draw::DrawString(scr.x, scr.y, pickupColor, true, "%s PICKUP", powerups[type - item_mp_strength]);
 			scr.y += 16;
 		}
 	} break;
@@ -114,7 +118,7 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		 * only if bTeammatePowerup or bTeammates is true */
 		if (power >= 0 && (!teammate || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			Color clr = (team == 3 ? draw::blue : (team == 2 ? draw::red : draw::white));
-			draw::DrawString(scr.x, scr.y, clr, true, "%s", powerups[power]);
+			draw::DrawString(scr.x, scr.y, clr, true, "HAS [%s]", powerups[power]);
 			scr.y += 16;
 		}
 		if (teammate && !this->v_bTeammates->GetBool()) return;

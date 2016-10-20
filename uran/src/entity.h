@@ -14,6 +14,8 @@ class IClientEntity;
 
 template<typename T>
 inline T GetEntityValue(IClientEntity* ent, unsigned int offset) {
+	int null = 0;
+	if (ent == 0) return *(reinterpret_cast<T*>(&null));
 	//logging::Info("GetEntityValue 0x%08x, 0x%08x", ent, offset);
 	return *(reinterpret_cast<T*>((unsigned int)ent + offset));
 }
