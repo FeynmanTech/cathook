@@ -99,12 +99,24 @@ void hack::AddHack(IHack* hack) {
 
 ICvar* g_pCVar = 0;
 
+class CGlowObject {
+public:
+	void* handle;
+	float r, g, b, a;
+	bool p1, p2;
+	int p3, p4;
+};
+
 void hack::Initialize() {
 	logging::Initialize();
 	std::string test = "";
 	logging::Info("Build: " __DATE__ " " __TIME__);
 	logging::Info("Loading shared objects...");
 	sharedobj::LoadAllSharedObjects();
+	/* TODO */
+	//logging::Info("TRYIN' SHIT");
+	//CGlowObject* gom = (CGlowObject*)((uintptr_t)sharedobj::client->lmap->l_addr + 0x01FC6260);
+	//logging::Info("MANAGER?? 0x%08f", gom);
 	logging::Info("Creating interfaces...");
 	interfaces::CreateInterfaces();
 	logging::Info("Interfaces created!");

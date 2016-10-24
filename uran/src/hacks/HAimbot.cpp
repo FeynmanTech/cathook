@@ -41,15 +41,24 @@ void HAimbot::Create() {
 	this->v_bAutoShoot = CreateConVar("u_aimbot_autoshoot", "1", "Autoshoot");
 	this->v_bSilent = CreateConVar("u_aimbot_silent", "1", "'Silent' mode");
 	this->v_bZoomedOnly = CreateConVar("u_aimbot_zoomed", "1", "Only acitve with zoomed rifle");
-	this->v_bAutoShootCharge = CreateConVar("u_aimbot_autoshoot_charge", "1", "Charge is needed for autoshoot");
+	this->v_iAutoShootCharge = CreateConVar("u_aimbot_autoshoot_charge", "15.0", "Minimal charge for autoshoot");
 	this->v_iMinRange = CreateConVar("u_aimbot_minrange", "0", "Minimum range to aim");
 	this->v_bPriority = CreateConVar("u_aimbot_priority", "1", "Use priority system");
 	this->v_bRespectCloak = CreateConVar("u_aimbot_respect_cloak", "1", "Will not shoot cloaked spies.");
+	this->v_bCharge = CreateConVar("u_aimbot_charge", "1", "Autoshoot only with charge ready");
+	this->v_bEnabledAttacking = CreateConVar("u_aimbot_enable_attack_only", "0", "Aimbot only active with attack key held");
+	this->v_bStrictAttack = CreateConVar("u_aimbot_strict_attack", "0", "Not attacking unless target is locked");
 	aim_filter = new trace::FilterDefault();
 	fix_silent = false;
 }
 
 bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
+	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
+		return true;
+	}
+	if (this->v_bStrictAttack->GetBool() ) {
+		cmd->buttons = cmd->buttons &~ IN_ATTACK;
+	}
 	int local = interfaces::engineClient->GetLocalPlayer();
 	IClientEntity* player = interfaces::entityList->GetClientEntity(local);
 	if (!player) return true;
@@ -140,6 +149,13 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	char life_state = GetEntityValue<char>(entity, entityvars.iLifeState);
 	if (life_state) return false; // TODO magic number: life state
 	if (!player) return false;
+	int health = GetEntityValue<int>(entity, entityvars.iHealth);
+	if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, entityvars.iClass) == 2)) {
+		int rifleHandle = GetEntityValue<int>(player, entityvars.hActiveWeapon);
+		IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
+		float bdmg = GetEntityValue<float>(rifle, entityvars.flChargedDamage);
+		if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
+	}
 	int team_my = GetEntityValue<int>(player, entityvars.iTeamNum);
 	if (team == team_my) return false;
 	Vector enemy_pos = entity->GetAbsOrigin();
@@ -248,11 +264,11 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	fClampAngle(angles);
 	cmd->viewangles = angles;
 	if (this->v_bAutoShoot->GetBool()) {
-		if (this->v_bAutoShootCharge->GetBool() && (GetEntityValue<int>(local, entityvars.iClass) == 2)) {
+		if (this->v_iAutoShootCharge->GetBool() && (GetEntityValue<int>(local, entityvars.iClass) == 2)) {
 			int rifleHandle = GetEntityValue<int>(local, entityvars.hActiveWeapon);
 			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
 			float bdmg = GetEntityValue<float>(rifle, entityvars.flChargedDamage);
-			if (bdmg < 15.0f) return true;
+			if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
 		}
 		cmd->buttons |= IN_ATTACK;
 	}

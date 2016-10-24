@@ -1,15 +1,12 @@
-5. Implement KillSay
-6. Implement Aimbot (silent)
+killsay
 
 ESP: Box, bones
-ESP: Uber n stuff
-TRIGGER: Amby
-TRIGGER: Ignore VACC
+TRIGGER: Amby charge
+TRIGGER: Ignore vaccinator
 
 Priority FIX
 OPTIMIZE
 Buildings aimbot
-
 
 priority system
  proper player struct 
@@ -20,9 +17,11 @@ priority system
      amby body
      
 Entity::AddEntityString
-
+optimize
 Glow Objects
-
+remove magic numbers
 actual ammo box esp 
 no trigger/aim vacc uber
-LINES
+LINES (trace crshr->enemy)
+
+SPY ALERT

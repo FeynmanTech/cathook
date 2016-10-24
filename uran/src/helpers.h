@@ -31,6 +31,7 @@ powerup_type GetPowerupOnPlayer(IClientEntity* player);
 item_type GetItemType(IClientEntity* entity);
 const char* GetModelPath(IClientEntity* entity);
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out);
+void FixMovement(float& forwardmove, float& sidemove, float& upmove, Vector& viewangles, Vector& angles);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
