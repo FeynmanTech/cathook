@@ -13,6 +13,7 @@
 #include "../enums.h"
 #include "../helpers.h"
 #include "../entity.h"
+#include "../targethelper.h"
 #include <client_class.h>
 #include <icliententitylist.h>
 #include <cdll_int.h>
@@ -51,6 +52,7 @@ void HEsp::Create() {
 	this->v_bItemESP = CreateConVar("u_esp_item", "1", "Item ESP (powerups, health packs, etc)");
 	this->v_bTeammatePowerup = CreateConVar("u_esp_powerup_team", "1", "Show powerups on teammates if u_esp_teammates is 0");
 	this->v_bShowHead = CreateConVar("u_esp_head", "0", "Shows head (EXPERIMENTAL)");
+	this->v_bShowTargetScore = CreateConVar("u_esp_threat", "1", "Shows target score aka threat value");
 	//this->v_bModelInfo = CreateConVar("u_esp_model", "0", "ESP model info");
 	/*this->v_bEnabled = new ConVar("u_esp_enabled", "1");
 	this->v_bShowPacks = new ConVar("u_esp_showpacks", "1");
@@ -65,7 +67,7 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 	int local = interfaces::engineClient->GetLocalPlayer();
 	IClientEntity* me = interfaces::entityList->GetClientEntity(local);
 
-	int my_team = GetEntityValue<int>(me, entityvars.iTeamNum);
+	int my_team = GetEntityValue<int>(me, eoffsets.iTeamNum);
 
 	Vector world;
 	Vector min, max;
@@ -104,11 +106,11 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		}
 	} break;
 	case 241: {
-		int team = GetEntityValue<int>(ent, entityvars.iTeamNum);
-		int health = GetEntityValue<int>(ent, entityvars.iHealth);
-		int pclass = GetEntityValue<int>(ent, entityvars.iClass);
-		int pcond = GetEntityValue<int>(ent, entityvars.iCond);
-		if (GetEntityValue<char>(ent, entityvars.iLifeState) || (team != 2 && team != 3)) return;
+		int team = GetEntityValue<int>(ent, eoffsets.iTeamNum);
+		int health = GetEntityValue<int>(ent, eoffsets.iHealth);
+		int pclass = GetEntityValue<int>(ent, eoffsets.iClass);
+		int pcond = GetEntityValue<int>(ent, eoffsets.iCond);
+		if (GetEntityValue<char>(ent, eoffsets.iLifeState) || (team != 2 && team != 3)) return;
 		Color clr = ((team == 2) ? draw::red : (team == 3 ? draw::blue : draw::white));
 		player_info_t info;
 		if (!interfaces::engineClient->GetPlayerInfo(idx, &info)) return;
@@ -122,6 +124,10 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 			scr.y += 16;
 		}
 		if (teammate && !this->v_bTeammates->GetBool()) return;
+		if (v_bShowTargetScore->GetBool()) {
+			draw::DrawString(scr.x, scr.y, clr, true, "Threat: %i", GetScoreForEntity(ent));
+			scr.y += 16;
+		}
 		if (v_bShowHead->GetBool()) {
 			Vector pos_head;
 			int ret = GetHitboxPosition(ent, hitbox::hb_head, pos_head);
@@ -159,10 +165,10 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 	case 89:
 	case 88:
 	case 86: { /* Engi Buildings */
-		int team = GetEntityValue<int>(ent, entityvars.iTeamNum);
+		int team = GetEntityValue<int>(ent, eoffsets.iTeamNum);
 		if (team == my_team && !this->v_bTeammates->GetBool()) return;
-		int health = GetEntityValue<int>(ent, entityvars.iBuildingHealth);
-		int level = GetEntityValue<int>(ent, entityvars.iUpgradeLevel);
+		int health = GetEntityValue<int>(ent, eoffsets.iBuildingHealth);
+		int level = GetEntityValue<int>(ent, eoffsets.iUpgradeLevel);
 		const char* name = (ClassID == 89 ? "Teleporter" : (ClassID == 88 ? "Sentry Gun" : "Dispenser"));
 		Color clr = ((team == 2) ? draw::red : (team == 3 ? draw::blue : draw::white));
 		draw::DrawString(scr.x, scr.y, clr, true, "LV %i %s HP %i", level, name, health);
@@ -171,9 +177,9 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		scr.y += 16;
 	} break;
 	case 212: { /* Pipes and Stickies */
-		int team = GetEntityValue<int>(ent, entityvars.iTeamNum);
+		int team = GetEntityValue<int>(ent, eoffsets.iTeamNum);
 		if (team == my_team && !this->v_bTeammates->GetBool()) return;
-		int type = GetEntityValue<int>(ent, entityvars.iPipeType);
+		int type = GetEntityValue<int>(ent, eoffsets.iPipeType);
 		Color clr = ((team == 2) ? draw::red : (team == 3 ? draw::blue : draw::white));
 		draw::DrawString(scr.x, scr.y, clr, true, type ? "STICKY" : "PIPE", type);
 		scr.y += 16;

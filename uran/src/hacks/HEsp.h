@@ -27,6 +27,7 @@ public:
 	ConVar* v_bItemESP;
 	ConVar* v_bTeammatePowerup;
 	ConVar* v_bShowHead;
+	ConVar* v_bShowTargetScore;
 	//ConVar* v_bModelInfo;
 };
 

@@ -15,8 +15,6 @@
 #include "../targethelper.h"
 #include "../localplayer.h"
 
-#define PI 3.14159265358979323846f
-
 #include "../fixsdk.h"
 #include <client_class.h>
 #include <inetchannelinfo.h>
@@ -63,8 +61,8 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	IClientEntity* player = interfaces::entityList->GetClientEntity(local);
 	if (!player) return true;
 	if (player->IsDormant()) return true;
-	if ((GetEntityValue<int>(player, entityvars.iClass) == 2) && this->v_bZoomedOnly->GetBool() &&
-		!(GetEntityValue<int>(player, entityvars.iCond) & cond::zoomed)) {
+	if ((GetEntityValue<int>(player, eoffsets.iClass) == 2) && this->v_bZoomedOnly->GetBool() &&
+		!(GetEntityValue<int>(player, eoffsets.iCond) & cond::zoomed)) {
 		return true;
 	}
 	if (g_pLocalPlayer->weapon) {
@@ -128,7 +126,7 @@ bool HAimbot::IsVisible(IClientEntity* entity) {
 		//logging::Info("ERROR %i", ret);
 		return false;
 	}
-	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, entityvars.vViewOffset), hit);
+	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, aim_filter, &aim_trace);
 	if (aim_trace.m_pEnt) {
 		//return (aim_trace.m_pEnt == (CBaseEntity*)(entity));
@@ -143,27 +141,27 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
 	if (IsPlayerInvulnerable(entity)) return false;
-	int team = GetEntityValue<int>(entity, entityvars.iTeamNum);
+	int team = GetEntityValue<int>(entity, eoffsets.iTeamNum);
 	int local = interfaces::engineClient->GetLocalPlayer();
 	IClientEntity* player = interfaces::entityList->GetClientEntity(local);
-	char life_state = GetEntityValue<char>(entity, entityvars.iLifeState);
+	char life_state = GetEntityValue<char>(entity, eoffsets.iLifeState);
 	if (life_state) return false; // TODO magic number: life state
 	if (!player) return false;
-	int health = GetEntityValue<int>(entity, entityvars.iHealth);
-	if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, entityvars.iClass) == 2)) {
-		int rifleHandle = GetEntityValue<int>(player, entityvars.hActiveWeapon);
+	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
+	if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
+		int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
 		IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-		float bdmg = GetEntityValue<float>(rifle, entityvars.flChargedDamage);
+		float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
 		if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
 	}
-	int team_my = GetEntityValue<int>(player, entityvars.iTeamNum);
+	int team_my = GetEntityValue<int>(player, eoffsets.iTeamNum);
 	if (team == team_my) return false;
 	Vector enemy_pos = entity->GetAbsOrigin();
 	Vector my_pos = player->GetAbsOrigin();
 	if (v_iMinRange->GetInt() > 0) {
 		if ((enemy_pos - my_pos).Length() > v_iMinRange->GetInt()) return false;
 	}
-	int econd = GetEntityValue<int>(entity, entityvars.iCond1);
+	int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
 	if ((econd & cond_ex::vacc_bullet)) return false;
 	return this->IsVisible(entity);
 }
@@ -213,38 +211,10 @@ void fClampAngle(Vector& qaAng) {
 }
 
 void PredictPosition(Vector vec, IClientEntity* ent) {
-	Vector vel = GetEntityValue<Vector>(ent, entityvars.vVelocity);
+	Vector vel = GetEntityValue<Vector>(ent, eoffsets.vVelocity);
 	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
 			interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
 	vec += vel * latency;
-}
-
-void VectorAngles(Vector &forward, Vector &angles) {
-	float tmp, yaw, pitch;
-
-	if(forward[1] == 0 && forward[0] == 0)
-	{
-		yaw = 0;
-		if(forward[2] > 0)
-			pitch = 270;
-		else
-			pitch = 90;
-	}
-	else
-	{
-		yaw = (atan2(forward[1], forward[0]) * 180 / PI);
-		if(yaw < 0)
-			yaw += 360;
-
-		tmp = sqrt((forward[0] * forward[0] + forward[1] * forward[1]));
-		pitch = (atan2(-forward[2], tmp) * 180 / PI);
-		if(pitch < 0)
-			pitch += 360;
-	}
-
-	angles[0] = pitch;
-	angles[1] = yaw;
-	angles[2] = 0;
 }
 
 float deg2rad(float deg) {
@@ -259,27 +229,28 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		PredictPosition(hit, entity);
 	}
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
-	Vector tr = (hit - (local->GetAbsOrigin() + GetEntityValue<Vector>(local, entityvars.vViewOffset)));
+	Vector tr = (hit - (local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset)));
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);
 	cmd->viewangles = angles;
 	if (this->v_bAutoShoot->GetBool()) {
-		if (this->v_iAutoShootCharge->GetBool() && (GetEntityValue<int>(local, entityvars.iClass) == 2)) {
-			int rifleHandle = GetEntityValue<int>(local, entityvars.hActiveWeapon);
+		if (this->v_iAutoShootCharge->GetBool() && (GetEntityValue<int>(local, eoffsets.iClass) == 2)) {
+			int rifleHandle = GetEntityValue<int>(local, eoffsets.hActiveWeapon);
 			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-			float bdmg = GetEntityValue<float>(rifle, entityvars.flChargedDamage);
+			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
 			if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
 		}
 		cmd->buttons |= IN_ATTACK;
 	}
 	if (this->v_bSilent->GetBool()) {
-		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+		FixMovement(*cmd, viewangles_old);
+		/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
 		VectorAngles(vsilent, ang);
 		float yaw = deg2rad(ang.y - viewangles_old.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
-		cmd->sidemove = sin(yaw) * speed;
+		cmd->sidemove = sin(yaw) * speed;*/
 	}
 	if (!this->v_bSilent->GetBool()) {
 		QAngle a;

@@ -12,6 +12,8 @@
 
 class IClientEntity;
 
+typedef unsigned int offset_t;
+
 template<typename T>
 inline T GetEntityValue(IClientEntity* ent, unsigned int offset) {
 	int null = 0;
@@ -19,30 +21,38 @@ inline T GetEntityValue(IClientEntity* ent, unsigned int offset) {
 	//logging::Info("GetEntityValue 0x%08x, 0x%08x", ent, offset);
 	return *(reinterpret_cast<T*>((unsigned int)ent + offset));
 }
+
+template<typename T>
+void SetEntityValue(IClientEntity* ent, unsigned int offset, T value) {
+	*(reinterpret_cast<T*>((unsigned int)ent + offset)) = value;
+}
+
 void InitEntityOffsets();
 
 class EntityVariables {
 public:
 	void Init();
-	unsigned int iTeamNum;
-	unsigned int iFlags;
-	unsigned int iHealth;
-	unsigned int iLifeState;
-	unsigned int iCond;
-	unsigned int iCond1;
-	unsigned int iCond2;
-	unsigned int iCond3;
-	unsigned int iClass;
-	unsigned int vViewOffset;
-	unsigned int hActiveWeapon;
-	unsigned int flChargedDamage;
-	unsigned int iUpgradeLevel;
-	unsigned int iPipeType;
-	unsigned int iBuildingHealth;
-	unsigned int iHitboxSet;
-	unsigned int vVelocity;
+	offset_t iTeamNum;
+	offset_t iFlags;
+	offset_t iHealth;
+	offset_t iLifeState;
+	offset_t iCond;
+	offset_t iCond1;
+	offset_t iCond2;
+	offset_t iCond3;
+	offset_t iClass;
+	offset_t vViewOffset;
+	offset_t hActiveWeapon;
+	offset_t flChargedDamage;
+	offset_t iUpgradeLevel;
+	offset_t iPipeType;
+	offset_t iBuildingHealth;
+	offset_t iHitboxSet;
+	offset_t vVelocity;
+	offset_t bGlowEnabled;
+	offset_t iGlowIndex;
 };
 
-extern EntityVariables entityvars;
+extern EntityVariables eoffsets;
 
 #endif /* ENTITY_H_ */

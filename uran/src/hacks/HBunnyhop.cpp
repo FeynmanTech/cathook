@@ -30,9 +30,9 @@ bool HBunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	int player = interfaces::engineClient->GetLocalPlayer();
 	IClientEntity* entity = interfaces::entityList->GetClientEntity(player);
-	int cond3 = GetEntityValue<int>(entity, entityvars.iCond3);
+	int cond3 = GetEntityValue<int>(entity, eoffsets.iCond3);
 	if (cond3 & cond_ex3::grappling) return true;
-	int flags = GetEntityValue<int>(entity, entityvars.iFlags);
+	int flags = GetEntityValue<int>(entity, eoffsets.iFlags);
 	bool ground = (flags & (1 << 0));
 	bool jump = (cmd->buttons & IN_JUMP);
 

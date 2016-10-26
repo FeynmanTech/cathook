@@ -9,6 +9,7 @@
 #include "interfaces.h"
 #include "entity.h"
 #include "logging.h"
+#include "usercmd.h"
 
 #include "fixsdk.h"
 #include <tier1/convar.h>
@@ -18,8 +19,8 @@
 #include <studio.h>
 
 bool IsPlayerInvulnerable(IClientEntity* player) {
-	int cond1 = GetEntityValue<int>(player, entityvars.iCond);
-	int cond2 = GetEntityValue<int>(player, entityvars.iCond1);
+	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
+	int cond2 = GetEntityValue<int>(player, eoffsets.iCond1);
 	int uber_mask_1 = (cond::uber | cond::uber_expiration | cond::bonk);
 	int uber_mask_2 = (cond_ex::hidden_uber | cond_ex::canteen_uber | cond_ex::misc_uber | cond_ex::phlog_uber);
 	if ((cond1 & uber_mask_1) || (cond2 & uber_mask_2)) return true;
@@ -27,9 +28,9 @@ bool IsPlayerInvulnerable(IClientEntity* player) {
 }
 
 bool IsPlayerCritBoosted(IClientEntity* player) {
-	int cond1 = GetEntityValue<int>(player, entityvars.iCond);
-	int cond2 = GetEntityValue<int>(player, entityvars.iCond1);
-	int cond4 = GetEntityValue<int>(player, entityvars.iCond3);
+	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
+	int cond2 = GetEntityValue<int>(player, eoffsets.iCond1);
+	int cond4 = GetEntityValue<int>(player, eoffsets.iCond3);
 	int crit_mask_1 = (cond::kritzkrieg);
 	int crit_mask_2 = (cond_ex::halloween_crit | cond_ex::canteen_crit | cond_ex::first_blood_crit | cond_ex::winning_crit |
 			cond_ex::intelligence_crit | cond_ex::on_kill_crit | cond_ex::phlog_crit | cond_ex::misc_crit);
@@ -168,8 +169,8 @@ powerup_type GetPowerupType(IClientEntity* ent) {
 
 powerup_type GetPowerupOnPlayer(IClientEntity* player) {
 	if (!player) return powerup_type::not_powerup;
-	uint32_t cond2 = GetEntityValue<uint32_t>(player, entityvars.iCond2);
-	uint32_t cond3 = GetEntityValue<uint32_t>(player, entityvars.iCond3);
+	uint32_t cond2 = GetEntityValue<uint32_t>(player, eoffsets.iCond2);
+	uint32_t cond3 = GetEntityValue<uint32_t>(player, eoffsets.iCond3);
 	//if (!(cond2 & cond_ex2::powerup_generic)) return powerup_type::not_powerup;
 	if (cond2 & cond_ex2::powerup_strength) return powerup_type::strength;
 	if (cond2 & cond_ex2::powerup_haste) return powerup_type::haste;
@@ -201,7 +202,7 @@ int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
 	if (!shdr) return 2;
 	// TODO rewrite
 
-	mstudiohitboxset_t* set = shdr->pHitboxSet(GetEntityValue<int>(entity, entityvars.iHitboxSet));
+	mstudiohitboxset_t* set = shdr->pHitboxSet(GetEntityValue<int>(entity, eoffsets.iHitboxSet));
 	if (!set) return 4;
 	mstudiobbox_t* box = set->pHitbox(hb);
 	if (!box) return 5;
@@ -214,6 +215,51 @@ int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
 	out = (min + max) / 2;
 
 	return 0;
+}
+
+void VectorAngles(Vector &forward, Vector &angles) {
+	float tmp, yaw, pitch;
+
+	if(forward[1] == 0 && forward[0] == 0)
+	{
+		yaw = 0;
+		if(forward[2] > 0)
+			pitch = 270;
+		else
+			pitch = 90;
+	}
+	else
+	{
+		yaw = (atan2(forward[1], forward[0]) * 180 / PI);
+		if(yaw < 0)
+			yaw += 360;
+
+		tmp = sqrt((forward[0] * forward[0] + forward[1] * forward[1]));
+		pitch = (atan2(-forward[2], tmp) * 180 / PI);
+		if(pitch < 0)
+			pitch += 360;
+	}
+
+	angles[0] = pitch;
+	angles[1] = yaw;
+	angles[2] = 0;
+}
+
+void FixMovement(CUserCmd& cmd, Vector& viewangles) {
+	Vector movement(cmd.forwardmove, cmd.sidemove, cmd.upmove);
+	float speed = sqrt(movement.x * movement.x + movement.y * movement.y);
+	Vector ang;
+	VectorAngles(movement, ang);
+	float yaw = DEG2RAD(ang.y - viewangles.y + cmd.viewangles.y);
+	cmd.forwardmove = cos(yaw) * speed;
+	cmd.sidemove = sin(yaw) * speed;
+	/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+	float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
+	Vector ang;
+	VectorAngles(vsilent, ang);
+	float yaw = deg2rad(ang.y - viewangles_old.y + cmd->viewangles.y);
+	cmd->forwardmove = cos(yaw) * speed;
+	cmd->sidemove = sin(yaw) * speed;*/
 }
 
 const char* powerups[] = {

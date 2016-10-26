@@ -87,7 +87,7 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	return true;
 	}; // TODO magic number
 	int team = g_pLocalPlayer->team;
-	int eteam = GetEntityValue<int>(entity, entityvars.iTeamNum);
+	int eteam = GetEntityValue<int>(entity, eoffsets.iTeamNum);
 	if (team == eteam) return true;
 	Vector enemy_pos = entity->GetAbsOrigin();
 	Vector my_pos = g_pLocalPlayer->entity->GetAbsOrigin();
@@ -100,8 +100,8 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	}
 	if (IsPlayerInvulnerable(entity)) return true;
 	if (!this->v_bIgnoreCloak->GetBool() &&
-		((GetEntityValue<int>(entity, entityvars.iCond)) & cond::cloaked)) return true;
-	int health = GetEntityValue<int>(entity, entityvars.iHealth);
+		((GetEntityValue<int>(entity, eoffsets.iCond)) & cond::cloaked)) return true;
+	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
 	bool bodyshot = false;
 	if (g_pLocalPlayer->clazz == 2) {
 		// If sniper..
@@ -110,9 +110,9 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		}
 		// If we need charge...
 		if (!bodyshot && this->v_bBodyshot->GetBool()) {
-			int rifleHandle = GetEntityValue<int>(g_pLocalPlayer->entity, entityvars.hActiveWeapon);
+			int rifleHandle = GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.hActiveWeapon);
 			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-			float bdmg = GetEntityValue<float>(rifle, entityvars.flChargedDamage);
+			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
 			if (bdmg >= 15.0f && (bdmg) >= health) {
 				bodyshot = true;
 			}

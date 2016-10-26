@@ -9,7 +9,7 @@ a * entity.cpp
 #include "copypasted/Netvar.h"
 #include "logging.h"
 
-EntityVariables entityvars;
+EntityVariables eoffsets;
 
 void EntityVariables::Init() {
 	this->iCond = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCond");
@@ -29,8 +29,9 @@ void EntityVariables::Init() {
 	this->iCond3 = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCondEx3");
 	this->iHitboxSet = gNetvars.get_offset("DT_BaseAnimating", "m_nHitboxSet");
 	this->vVelocity = gNetvars.get_offset("DT_BasePlayer", "localdata", "m_vecVelocity[0]");
+	this->bGlowEnabled = gNetvars.get_offset("DT_TFPlayer", "m_bGlowEnabled");
 }
 
 void InitEntityOffsets() {
-	entityvars.Init();
+	eoffsets.Init();
 }

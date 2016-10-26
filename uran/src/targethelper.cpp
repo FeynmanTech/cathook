@@ -24,12 +24,12 @@
 
 /* Assuming given entity is a valid target range 0 to 100 */
 int GetScoreForEntity(IClientEntity* entity) {
-	int clazz = GetEntityValue<int>(entity, entityvars.iClass);
-	int health = GetEntityValue<int>(entity, entityvars.iHealth);
+	int clazz = GetEntityValue<int>(entity, eoffsets.iClass);
+	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
 	float distance = (g_pLocalPlayer->v_Origin - entity->GetAbsOrigin()).Length();
-	bool zoomed = (GetEntityValue<int>(entity, entityvars.iCond) & cond::zoomed);
-	int condx = (GetEntityValue<int>(entity, entityvars.iCond1));
-	int condx2 = (GetEntityValue<int>(entity, entityvars.iCond2));
+	bool zoomed = (GetEntityValue<int>(entity, eoffsets.iCond) & cond::zoomed);
+	int condx = (GetEntityValue<int>(entity, eoffsets.iCond1));
+	int condx2 = (GetEntityValue<int>(entity, eoffsets.iCond2));
 	bool pbullet = (condx & cond_ex::vacc_pbullet);
 	bool special = false;
 	bool kritz = IsPlayerCritBoosted(entity);
@@ -56,17 +56,17 @@ int GetScoreForEntity(IClientEntity* entity) {
 	break;
 	}
 	if (!special) {
-		if (kritz) {
+		if (pbullet) {
 			total += 50;
 		}
+		if (kritz) {
+			total += 99;
+		}
 		if (distance != 0) {
-			int distance_factor = (4096 / distance);
-			if (clazz == tf_class::tf_scout) {
-				distance_factor *= 2;
-			}
+			int distance_factor = (4096 / distance) * 8;
 			total += distance_factor;
 			if (health != 0) {
-				int health_factor = (450 / health);
+				int health_factor = (450 / health) * 4;
 				if (health_factor > 30) health_factor = 30;
 				total += health_factor;
 			}

@@ -16,6 +16,9 @@ priority system
     no autoshoot disg
      amby body
      
+Target system respect mannpower powerups
+Aimbot charge detection respect powerups     
+
 Entity::AddEntityString
 optimize
 Glow Objects

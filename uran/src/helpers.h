@@ -11,13 +11,16 @@
 class IClientEntity;
 class ConVar;
 class ConCommand;
+class CUserCmd;
+class Vector;
+
+#define PI 3.14159265358979323846f
+#define DEG2RAD(x) x * (PI / 180.0f)
 
 #include "enums.h"
 
 #include "fixsdk.h"
 #include <tier1/convar.h>
-
-class Vector;
 
 bool IsPlayerCritBoosted(IClientEntity* player);
 bool IsPlayerInvulnerable(IClientEntity* player);
@@ -31,7 +34,8 @@ powerup_type GetPowerupOnPlayer(IClientEntity* player);
 item_type GetItemType(IClientEntity* entity);
 const char* GetModelPath(IClientEntity* entity);
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out);
-void FixMovement(float& forwardmove, float& sidemove, float& upmove, Vector& viewangles, Vector& angles);
+void FixMovement(CUserCmd& cmd, Vector& viewangles);
+void VectorAngles(Vector &forward, Vector &angles);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
