@@ -36,6 +36,10 @@ const char* GetModelPath(IClientEntity* entity);
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out);
 void FixMovement(CUserCmd& cmd, Vector& viewangles);
 void VectorAngles(Vector &forward, Vector &angles);
+bool IsEntityVisible(IClientEntity* entity, int hb);
+float DistToSqr(IClientEntity* entity);
+void fClampAngle(Vector& qaAng);
+void fVectorAngles(Vector &forward, Vector &angles);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];

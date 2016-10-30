@@ -10,12 +10,15 @@
 
 #include "IHack.h"
 
+class ConVar;
+
 class AntiAim : public IHack {
 public:
 	void Create();
 	bool CreateMove(void*, float, CUserCmd*);
 	void Destroy();
 	void PaintTraverse(void*, unsigned int, bool, bool);
+	ConVar* v_bEnabled;
 };
 
 #endif /* ANTIAIM_H_ */

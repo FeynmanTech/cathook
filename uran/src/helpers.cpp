@@ -10,6 +10,8 @@
 #include "entity.h"
 #include "logging.h"
 #include "usercmd.h"
+#include "trace.h"
+#include "localplayer.h"
 
 #include "fixsdk.h"
 #include <tier1/convar.h>
@@ -17,6 +19,10 @@
 #include <icliententity.h>
 #include <cmodel.h>
 #include <studio.h>
+#include <gametrace.h>
+#include <icliententitylist.h>
+#include <cdll_int.h>
+#include <engine/IEngineTrace.h>
 
 bool IsPlayerInvulnerable(IClientEntity* player) {
 	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
@@ -196,6 +202,7 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 }
 
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
+	if (!entity) return 1;
 	if (entity->IsDormant()) return 1;
 	const model_t* model = entity->GetModel();
 	studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);
@@ -260,6 +267,76 @@ void FixMovement(CUserCmd& cmd, Vector& viewangles) {
 	float yaw = deg2rad(ang.y - viewangles_old.y + cmd->viewangles.y);
 	cmd->forwardmove = cos(yaw) * speed;
 	cmd->sidemove = sin(yaw) * speed;*/
+}
+
+trace::FilterDefault* trace_filter;
+bool IsEntityVisible(IClientEntity* entity, int hb) {
+	if (!trace_filter) {
+		trace_filter = new trace::FilterDefault();
+	}
+	trace_t trace_visible;
+	Ray_t ray;
+	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
+	trace_filter->SetSelf(local);
+	Vector hit;
+	int ret = GetHitboxPosition(entity, hb, hit);
+	if (ret) {
+		return false;
+	}
+	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);
+	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
+	if (trace_visible.m_pEnt) {
+		return ((IClientEntity*)trace_visible.m_pEnt) == entity;
+	}
+	return false;
+}
+
+void fVectorAngles(Vector &forward, Vector &angles) {
+	float tmp, yaw, pitch;
+
+	if(forward[1] == 0 && forward[0] == 0)
+	{
+		yaw = 0;
+		if(forward[2] > 0)
+			pitch = 270;
+		else
+			pitch = 90;
+	}
+	else
+	{
+		yaw = (atan2(forward[1], forward[0]) * 180 / PI);
+		if(yaw < 0)
+			yaw += 360;
+
+		tmp = sqrt((forward[0] * forward[0] + forward[1] * forward[1]));
+		pitch = (atan2(-forward[2], tmp) * 180 / PI);
+		if(pitch < 0)
+			pitch += 360;
+	}
+
+	angles[0] = pitch;
+	angles[1] = yaw;
+	angles[2] = 0;
+}
+
+void fClampAngle(Vector& qaAng) {
+	while(qaAng[0] > 89)
+		qaAng[0] -= 180;
+
+	while(qaAng[0] < -89)
+		qaAng[0] += 180;
+
+	while(qaAng[1] > 180)
+		qaAng[1] -= 360;
+
+	while(qaAng[1] < -180)
+		qaAng[1] += 360;
+
+	qaAng.z = 0;
+}
+
+float DistToSqr(IClientEntity* entity) {
+	return g_pLocalPlayer->v_Origin.DistToSqr(entity->GetAbsOrigin());
 }
 
 const char* powerups[] = {

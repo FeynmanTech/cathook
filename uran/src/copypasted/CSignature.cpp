@@ -62,6 +62,7 @@ Elf32_Shdr *getSectionHeader(void *module, const char *sectionName)
 
 uintptr_t CSignature::dwFindPattern(uintptr_t dwAddress, uintptr_t dwLength, const char* szPattern)
 {
+	logging::Info("Seaching for pattern from 0x%08x, len 0x%08x", dwAddress, dwLength);
 	const char* pat = szPattern;
 	uintptr_t firstMatch = NULL;
 	for (uintptr_t pCur = dwAddress; pCur < dwLength; pCur++)
@@ -101,7 +102,7 @@ uintptr_t CSignature::GetClientSignature(char* chPattern)
 	// into memory, meaning that we cannot get the string table from the module.
 	static int fd = open(sharedobj::client->path, O_RDONLY);
 	static void *module = mmap(NULL, lseek(fd, 0, SEEK_END), PROT_READ, MAP_SHARED, fd, 0);
-	static link_map *moduleMap = (link_map *)GetModuleHandleSafe("./tf/bin/client.so");
+	static link_map *moduleMap = sharedobj::client->lmap;
 
 	//static void *module = (void *)moduleMap->l_addr;
 	

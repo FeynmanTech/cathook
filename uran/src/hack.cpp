@@ -24,6 +24,8 @@
 #include "hacks/HBunnyhop.h"
 #include "hacks/HTrigger.h"
 #include "hacks/HEsp.h"
+#include "hacks/HGlow.h"
+#include "hacks/HPyroBot.h"
 #include "hacks/HAimbot.h"
 #include "usercmd.h"
 #include "drawing.h"
@@ -99,13 +101,6 @@ void hack::AddHack(IHack* hack) {
 
 ICvar* g_pCVar = 0;
 
-class CGlowObject {
-public:
-	void* handle;
-	float r, g, b, a;
-	bool p1, p2;
-	int p3, p4;
-};
 
 void hack::Initialize() {
 	logging::Initialize();
@@ -146,6 +141,8 @@ void hack::Initialize() {
 	hack::AddHack(new HTrigger());
 	hack::AddHack(new HEsp());
 	hack::AddHack(new HAimbot());
+	hack::AddHack(new HGlow());
+	hack::AddHack(new HPyroBot());
 	ConVar_Register();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();

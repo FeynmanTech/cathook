@@ -46,19 +46,20 @@ void HEsp::PaintTraverse(void*, unsigned int, bool, bool) {
 
 void HEsp::Create() {
 	this->v_bEnabled = CreateConVar("u_esp_enabled", "1", "Enables ESP");
-	this->v_bBoxESP = CreateConVar("u_esp_box", "0", "Box ESP (NOT IMPLEMENTED)");
 	this->v_bEntityESP = CreateConVar("u_esp_entity", "0", "Entity ESP (dev)");
 	this->v_bTeammates = CreateConVar("u_esp_teammates", "0", "ESP own team");
 	this->v_bItemESP = CreateConVar("u_esp_item", "1", "Item ESP (powerups, health packs, etc)");
 	this->v_bTeammatePowerup = CreateConVar("u_esp_powerup_team", "1", "Show powerups on teammates if u_esp_teammates is 0");
-	this->v_bShowHead = CreateConVar("u_esp_head", "0", "Shows head (EXPERIMENTAL)");
 	this->v_bShowTargetScore = CreateConVar("u_esp_threat", "1", "Shows target score aka threat value");
+	this->v_bShowEntityID = CreateConVar("u_esp_entity_id", "0", "Shows EID");
 	//this->v_bModelInfo = CreateConVar("u_esp_model", "0", "ESP model info");
 	/*this->v_bEnabled = new ConVar("u_esp_enabled", "1");
 	this->v_bShowPacks = new ConVar("u_esp_showpacks", "1");
 	interfaces::cvar->RegisterConCommand(v_bEnabled);
 	interfaces::cvar->RegisterConCommand(v_bShowPacks);*/
 }
+
+#define ESP_HEIGHT 14
 
 void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 	if (!this->v_bEnabled->GetBool()) return;
@@ -80,6 +81,10 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 	// 89 tele 88 sentry 86 disp
 	int ClassID = ent->GetClientClass()->m_ClassID;
 	scr.y -= 32;
+	if (v_bShowEntityID->GetBool()) {
+		draw::DrawString(scr.x, scr.y, draw::white, true, "IDX %i CLASS %i", idx, ent->GetClientClass()->m_ClassID);
+		scr.y += ESP_HEIGHT;
+	}
 	switch (ClassID) {
 	case 1: {
 		if (!this->v_bItemESP->GetBool()) break;
@@ -87,10 +92,10 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		if (type == item_type::item_null) break;
 		if (type >= item_medkit_small && type <= item_medkit_large) {
 			draw::DrawString(scr.x, scr.y, draw::white, true, "%s HEALTH", packs[type - item_medkit_small]);
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		} else if (type >= item_ammo_small && type <= item_ammo_large) {
 			draw::DrawString(scr.x, scr.y, draw::white, true, "%s AMMO", packs[type - item_ammo_small]);
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		} else if (type >= item_mp_strength && type <= item_mp_crit) {
 			int skin = ent->GetSkin();
 			Color pickupColor;
@@ -102,7 +107,7 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 				pickupColor = draw::yellow;
 			}
 			draw::DrawString(scr.x, scr.y, pickupColor, true, "%s PICKUP", powerups[type - item_mp_strength]);
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		}
 	} break;
 	case 241: {
@@ -121,45 +126,29 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		if (power >= 0 && (!teammate || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			Color clr = (team == 3 ? draw::blue : (team == 2 ? draw::red : draw::white));
 			draw::DrawString(scr.x, scr.y, clr, true, "HAS [%s]", powerups[power]);
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		}
 		if (teammate && !this->v_bTeammates->GetBool()) return;
 		if (v_bShowTargetScore->GetBool()) {
 			draw::DrawString(scr.x, scr.y, clr, true, "Threat: %i", GetScoreForEntity(ent));
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		}
-		if (v_bShowHead->GetBool()) {
-			Vector pos_head;
-			int ret = GetHitboxPosition(ent, hitbox::hb_head, pos_head);
-			if (ret) {
-				draw::DrawString(scr.x, scr.y, clr, true, "FAILED TO GET HEAD POSITION: %i", ret);
-				scr.y += 16;
-			} else {
-				//draw::DrawString(scr.x, scr.y, clr, true, "HEAD: %f %f %f", pos_head.x, pos_head.y, pos_head.z);
-				scr.y += 16;
-				Vector screen_head;
-				if (draw::WorldToScreen(pos_head, screen_head)) {
-					draw::DrawString(screen_head.x, screen_head.y, clr, true, "HEAD");
-					//draw::DrawString(screen_head.x, screen_head.y, 32, 32, clr);
-				}
-			}
-		}
-		draw::DrawString(scr.x, scr.y, clr, true, "%iu %s", (int)distance, info.name);
-		scr.y += 16;
+		draw::DrawString(scr.x, scr.y, clr, true, "%im %s", (int)(distance / 64 * 1.22f), info.name);
+		scr.y += ESP_HEIGHT;
 		if (pclass < 10 && pclass > 0)
 			draw::DrawString(scr.x, scr.y, clr, true, "%s - %i HP", classes[pclass - 1], health);
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		if (pcond & cond::cloaked) {
 			draw::DrawString(scr.x, scr.y, clr, true, "CLOAKED");
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		}
 		if (IsPlayerInvulnerable(ent)) {
 			draw::DrawString(scr.x, scr.y, clr, true, "INVULNERABLE");
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		}
 		if (IsPlayerCritBoosted(ent)) {
 			draw::DrawString(scr.x, scr.y, clr, true, "CRIT BOOSTED");
-			scr.y += 16;
+			scr.y += ESP_HEIGHT;
 		}
 	} break;
 	case 89:
@@ -172,9 +161,9 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		const char* name = (ClassID == 89 ? "Teleporter" : (ClassID == 88 ? "Sentry Gun" : "Dispenser"));
 		Color clr = ((team == 2) ? draw::red : (team == 3 ? draw::blue : draw::white));
 		draw::DrawString(scr.x, scr.y, clr, true, "LV %i %s HP %i", level, name, health);
-		scr.y += 16;
+		scr.y += ESP_HEIGHT;
 		draw::DrawString(scr.x, scr.y, clr, true, "%iu", (int)distance);
-		scr.y += 16;
+		scr.y += ESP_HEIGHT;
 	} break;
 	case 212: { /* Pipes and Stickies */
 		int team = GetEntityValue<int>(ent, eoffsets.iTeamNum);
@@ -182,16 +171,16 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		int type = GetEntityValue<int>(ent, eoffsets.iPipeType);
 		Color clr = ((team == 2) ? draw::red : (team == 3 ? draw::blue : draw::white));
 		draw::DrawString(scr.x, scr.y, clr, true, type ? "STICKY" : "PIPE", type);
-		scr.y += 16;
+		scr.y += ESP_HEIGHT;
 		draw::DrawString(scr.x, scr.y, clr, true, "%iu", (int)distance);
-		scr.y += 16;
+		scr.y += ESP_HEIGHT;
 	} break;
 	}
 	if (this->v_bEntityESP->GetBool()) {
 		draw::DrawString(scr.x, scr.y, draw::white, true, "%s [%i]", ent->GetClientClass()->GetName(), ent->GetClientClass()->m_ClassID);
-		scr.y += 16;
+		scr.y += ESP_HEIGHT;
 		draw::DrawString(scr.x, scr.y, draw::white, true, "%s %iu", GetModelPath(ent), (int)distance);
-		scr.y += 16;
+		scr.y += ESP_HEIGHT;
 	}
 }
 

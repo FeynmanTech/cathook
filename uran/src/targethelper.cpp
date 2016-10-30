@@ -63,7 +63,7 @@ int GetScoreForEntity(IClientEntity* entity) {
 			total += 99;
 		}
 		if (distance != 0) {
-			int distance_factor = (4096 / distance) * 8;
+			int distance_factor = (4096 / distance) * 4;
 			total += distance_factor;
 			if (health != 0) {
 				int health_factor = (450 / health) * 4;

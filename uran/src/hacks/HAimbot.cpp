@@ -30,8 +30,6 @@ bool fix_silent;
 
 int target_lock;
 
-trace::FilterDefault* aim_filter;
-
 void HAimbot::Create() {
 	this->v_bEnabled = CreateConVar("u_aimbot_enabled", "0", "Enables aimbot. EXPERIMENTAL AND TOTALLY NOT LEGIT");
 	this->v_iHitbox = CreateConVar("u_aimbot_hitbox", "0", "Hitbox");
@@ -46,7 +44,6 @@ void HAimbot::Create() {
 	this->v_bCharge = CreateConVar("u_aimbot_charge", "1", "Autoshoot only with charge ready");
 	this->v_bEnabledAttacking = CreateConVar("u_aimbot_enable_attack_only", "0", "Aimbot only active with attack key held");
 	this->v_bStrictAttack = CreateConVar("u_aimbot_strict_attack", "0", "Not attacking unless target is locked");
-	aim_filter = new trace::FilterDefault();
 	fix_silent = false;
 }
 
@@ -114,29 +111,6 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 void HAimbot::Destroy() {}
 void HAimbot::PaintTraverse(void*, unsigned int, bool, bool) {}
 
-bool HAimbot::IsVisible(IClientEntity* entity) {
-	//logging::Info("visible??");
-	trace_t aim_trace;
-	Ray_t ray;
-	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
-	aim_filter->SetSelf(local);
-	Vector hit;
-	int ret = GetHitboxPosition(entity, v_iHitbox->GetInt(), hit);
-	if (ret) {
-		//logging::Info("ERROR %i", ret);
-		return false;
-	}
-	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);
-	interfaces::trace->TraceRay(ray, 0x4200400B, aim_filter, &aim_trace);
-	if (aim_trace.m_pEnt) {
-		//return (aim_trace.m_pEnt == (CBaseEntity*)(entity));
-		//return (aim_trace.m_pEnt == entity);
-		return ((IClientEntity*)aim_trace.m_pEnt) == entity;
-	}
-	//logging::Info("nO");
-	return false;
-}
-
 bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
@@ -163,51 +137,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	}
 	int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
 	if ((econd & cond_ex::vacc_bullet)) return false;
-	return this->IsVisible(entity);
-}
-
-void fVectorAngles(Vector &forward, Vector &angles) {
-	float tmp, yaw, pitch;
-
-	if(forward[1] == 0 && forward[0] == 0)
-	{
-		yaw = 0;
-		if(forward[2] > 0)
-			pitch = 270;
-		else
-			pitch = 90;
-	}
-	else
-	{
-		yaw = (atan2(forward[1], forward[0]) * 180 / PI);
-		if(yaw < 0)
-			yaw += 360;
-
-		tmp = sqrt((forward[0] * forward[0] + forward[1] * forward[1]));
-		pitch = (atan2(-forward[2], tmp) * 180 / PI);
-		if(pitch < 0)
-			pitch += 360;
-	}
-
-	angles[0] = pitch;
-	angles[1] = yaw;
-	angles[2] = 0;
-}
-
-void fClampAngle(Vector& qaAng) {
-	while(qaAng[0] > 89)
-		qaAng[0] -= 180;
-
-	while(qaAng[0] < -89)
-		qaAng[0] += 180;
-
-	while(qaAng[1] > 180)
-		qaAng[1] -= 360;
-
-	while(qaAng[1] < -180)
-		qaAng[1] += 360;
-
-	qaAng.z = 0;
+	return IsEntityVisible(entity, v_iHitbox->GetInt());
 }
 
 void PredictPosition(Vector vec, IClientEntity* ent) {
@@ -243,14 +173,14 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		cmd->buttons |= IN_ATTACK;
 	}
 	if (this->v_bSilent->GetBool()) {
-		FixMovement(*cmd, viewangles_old);
-		/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+		//FixMovement(*cmd, viewangles_old);
+		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
 		VectorAngles(vsilent, ang);
 		float yaw = deg2rad(ang.y - viewangles_old.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
-		cmd->sidemove = sin(yaw) * speed;*/
+		cmd->sidemove = sin(yaw) * speed;
 	}
 	if (!this->v_bSilent->GetBool()) {
 		QAngle a;

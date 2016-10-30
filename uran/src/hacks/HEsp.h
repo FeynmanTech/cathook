@@ -28,6 +28,7 @@ public:
 	ConVar* v_bTeammatePowerup;
 	ConVar* v_bShowHead;
 	ConVar* v_bShowTargetScore;
+	ConVar* v_bShowEntityID;
 	//ConVar* v_bModelInfo;
 };
 

@@ -19,7 +19,6 @@ public:
 	void Destroy();
 	bool CreateMove(void*, float, CUserCmd*);
 	void PaintTraverse(void*, unsigned int, bool, bool);
-	bool IsVisible(IClientEntity* entity);
 	bool ShouldTarget(IClientEntity* entity);
 	bool Aim(IClientEntity* entity, CUserCmd* cmd);
 	ConVar* v_bEnabled;

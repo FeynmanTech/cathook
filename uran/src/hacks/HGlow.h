@@ -13,16 +13,8 @@
 #include "../fixsdk.h"
 #include "basehandle.h"
 
-class CGlowObject {
-	CBaseHandle handle;
-	float r, g, b, a;
-	unsigned char padding[0x20 - 0x14];
-};
-
-class CGlowManager {
-public:
-	CGlowObject objects[1];
-};
+class ConVar;
+class ConCommand;
 
 class HGlow : public IHack {
 public:
@@ -30,7 +22,10 @@ public:
 	bool CreateMove(void*, float, CUserCmd*);
 	void Destroy();
 	void PaintTraverse(void*, unsigned int, bool, bool);
-	CGlowManager* m_pGlowManager;
+	ConVar* v_bEnabled;
+	ConVar* v_bEnemyOnly;
+	ConVar* v_bHealthColor;
+	ConCommand* cmd_scan;
 };
 
 

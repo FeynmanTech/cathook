@@ -20,14 +20,14 @@ unsigned long draw::font_handle_large = 0;
 int draw::width = 0;
 int draw::height = 0;
 Color draw::white(255, 255, 255, 255);
-Color draw::red(255, 64, 64, 255);
-Color draw::blue(64, 64, 255, 255);
+Color draw::red(184, 56, 59, 255);
+Color draw::blue(88, 133, 162, 255);
 Color draw::yellow(255, 255, 0, 255);
 
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
 	draw::font_handle_large = interfaces::surface->CreateFont();
-	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Tahoma", 19, 500, 0, 0, 0x200);
+	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Tahoma", 15, 500, 0, 0, 0x010 | 0x200);
 	interfaces::surface->SetFontGlyphSet(draw::font_handle_large, "Tahoma", 32, 500, 0, 0, 0x200);
 }
 
