@@ -27,11 +27,15 @@ bool bFollowingTeammate;
 unsigned long nPilotSearch = 0;
 
 void SetTarget(IClientEntity* ent) {
-	if (!ent) return;
+	if (!ent) {
+		g_nTargetID = -1;
+		return;
+	}
 	g_nTargetID = ent->entindex();
 }
 
 IClientEntity* GetTarget() {
+	if (g_nTargetID == -1) return 0;
 	return interfaces::entityList->GetClientEntity(g_nTargetID);
 }
 
@@ -53,7 +57,7 @@ void HPyroBot::ProcessEntity(IClientEntity* entity, bool enemy) {
 		}
 		bFollowingTeammate = false;
 	} else {
-		if (nPilotSearch < 100) return;
+		//if (nPilotSearch < 100) return;
 		if (v_iForceFollow->GetInt() != -1) {
 			if (bFollowingTeammate && entity->entindex() == v_iForceFollow->GetInt()) {
 				target = entity;
@@ -92,8 +96,9 @@ bool HPyroBot::ShouldTarget(IClientEntity* ent) {
 	if (enemy) {
 		if (IsPlayerInvulnerable(ent)) return false;
 	}
-	if (DistToSqr(ent) > v_iMaxDistance->GetInt() * v_iMaxDistance->GetInt()) return false;
+	if (DistToSqr(ent) > (v_iMaxDistance->GetInt() * v_iMaxDistance->GetInt())) return false;
 	if (!IsEntityVisible(ent, 4)) return false;
+	if (abs(ent->GetAbsOrigin().z - g_pLocalPlayer->v_Origin.z) > v_iMaxDeltaY->GetInt()) return false;
 	return true;
 }
 
@@ -102,22 +107,23 @@ void HPyroBot::Tick(CUserCmd* cmd) {
 	if (g_pLocalPlayer->life_state) return;
 	IClientEntity* target = GetTarget();
 	IClientEntity* target_old = target;
-	if (!ShouldTarget(target)) {
+	if (!ShouldTarget(target) && !bFollowingTeammate) {
+		//logging::Info("Current target lost.");
 		SetTarget(0);
 		target = 0;
 	}
-	if (!target) {
+	if (!ShouldTarget(target) && bFollowingTeammate) {
 		nPilotSearch++;
-		/*if (nPilotSearch >= 100) {
+		if (nPilotSearch >= 100) {
 			interfaces::engineClient->ExecuteClientCmd("-forward");
 			interfaces::engineClient->ExecuteClientCmd("-attack");
-		}*/
-	} else {
-		nPilotSearch = 0;
-		interfaces::engineClient->ExecuteClientCmd("+forward");
+		}
 	}
-	if (g_nTick % 150 == 0 || !target) {
-		SetTarget(0);
+	nPilotSearch = 0;
+	interfaces::engineClient->ExecuteClientCmd("+forward");
+	if ((g_nTick % 150 == 0) || !target) {
+		bFollowingTeammate = true;
+		//SetTarget(0);
 		for (int i = 0; i < 64 && i < interfaces::entityList->GetMaxEntities(); i++) {
 			IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
 			if (!ShouldTarget(ent)) continue;
@@ -128,7 +134,7 @@ void HPyroBot::Tick(CUserCmd* cmd) {
 	target = GetTarget();
 	if (!target) {
 		if (target_old != 0) {
-			logging::Info("Target lost!");
+			//logging::Info("Target lost!");
 			if (v_bChat->GetBool()) {
 				interfaces::engineClient->ServerCmd("say Target lost!");
 			}
