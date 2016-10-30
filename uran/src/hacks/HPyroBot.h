@@ -22,7 +22,7 @@ public:
 	void PaintTraverse(void*, unsigned int, bool, bool);
 	void ProcessEntity(IClientEntity* entity, bool enemy);
 	void Tick(CUserCmd*);
-	bool ShouldTarget(IClientEntity* ent);
+	int ShouldTarget(IClientEntity* ent);
 	ConCommand* cmd_Status;
 	ConVar* v_bEnabled;
 	ConVar* v_iForceFollow;

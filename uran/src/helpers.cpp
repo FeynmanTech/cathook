@@ -281,6 +281,7 @@ bool IsEntityVisible(IClientEntity* entity, int hb) {
 	Vector hit;
 	int ret = GetHitboxPosition(entity, hb, hit);
 	if (ret) {
+		logging::Info("Couldn't get hitbox position: %i", hb);
 		return false;
 	}
 	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);
