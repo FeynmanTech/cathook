@@ -9,6 +9,7 @@ a * entity.cpp
 #include "copypasted/Netvar.h"
 #include "logging.h"
 
+// TODO globals
 EntityVariables eoffsets;
 
 void EntityVariables::Init() {

@@ -92,6 +92,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	return ret;
 }
 
+// TODO globals
 std::vector<IHack*> hack::hacks;
 
 void hack::AddHack(IHack* hack) {
@@ -99,6 +100,7 @@ void hack::AddHack(IHack* hack) {
 	hack::hacks.push_back(hack);
 }
 
+// TODO globals
 ICvar* g_pCVar = 0;
 
 

@@ -13,6 +13,7 @@
 #include "fixsdk.h"
 #include <tier1/convar.h>
 
+// TODO globals
 pthread_mutex_t mutex_quit;
 pthread_t thread_main;
 

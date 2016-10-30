@@ -12,6 +12,7 @@
 
 class ConVar;
 class IClientEntity;
+class ConCommand;
 
 class HPyroBot : public IHack {
 public:
@@ -22,6 +23,7 @@ public:
 	void ProcessEntity(IClientEntity* entity, bool enemy);
 	void Tick(CUserCmd*);
 	bool ShouldTarget(IClientEntity* ent);
+	ConCommand* cmd_Status;
 	ConVar* v_bEnabled;
 	ConVar* v_iForceFollow;
 	ConVar* v_bForceFollowOnly;

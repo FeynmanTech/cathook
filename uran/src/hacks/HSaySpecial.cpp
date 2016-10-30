@@ -14,6 +14,7 @@
 #include "../usercmd.h"
 #include "../interfaces.h"
 #include "../helpers.h"
+#include "../hack.h"
 
 #include "../fixsdk.h"
 #include <cdll_int.h>
@@ -27,9 +28,14 @@ void CC_SayLines(const CCommand& args) {
 	interfaces::engineClient->ServerCmd(str.c_str());
 }
 
+void CC_Shutdown(const CCommand& args) {
+	hack::Shutdown();
+}
+
 void HSaySpecial::Create() {
 	logging::Info("Setting up command");
 	this->c_SayLine = CreateConCommand("u_say_lines", CC_SayLines, "Uses ^ as a newline character");
+	this->c_Shutdown = CreateConCommand("u_shutdown", CC_Shutdown, "Detaches the hack");
 }
 
 bool HSaySpecial::CreateMove(void*, float, CUserCmd*) { return true; }

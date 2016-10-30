@@ -12,6 +12,7 @@
 
 class IClientEntity;
 
+// TODO globals
 typedef unsigned int offset_t;
 
 template<typename T>
@@ -53,6 +54,7 @@ public:
 	offset_t iGlowIndex;
 };
 
+// TODO globals
 extern EntityVariables eoffsets;
 
 #endif /* ENTITY_H_ */

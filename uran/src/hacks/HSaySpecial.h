@@ -21,6 +21,7 @@ public:
 	void Create();
 	void Destroy();
 	ConCommand* c_SayLine;
+	ConCommand* c_Shutdown;
 };
 
 #endif /* HSAYSPECIAL_H_ */

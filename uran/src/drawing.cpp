@@ -14,6 +14,7 @@
 #include <cdll_int.h>
 #include <mathlib/vmatrix.h>
 
+// TODO globals
 unsigned long draw::font_handle = 0;
 unsigned long draw::panel_top = 0;
 unsigned long draw::font_handle_large = 0;
