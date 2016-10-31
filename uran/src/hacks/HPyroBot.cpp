@@ -122,7 +122,7 @@ void AimAt(IClientEntity* entity, CUserCmd* cmd) {
  *  shoot
  */
 
-int HPyroBot::ShouldTarget(IClientEntity* ent) {
+int HPyroBot::ShouldTarget(IClientEntity* ent, bool notrace) {
 	if (!ent || ent->IsDormant()) return 1;
 	if (ent->GetClientClass()->m_ClassID != 241) return 2;
 	if (GetEntityValue<char>(ent, eoffsets.iLifeState)) return 3;
@@ -131,11 +131,14 @@ int HPyroBot::ShouldTarget(IClientEntity* ent) {
 		if (IsPlayerInvulnerable(ent)) return 4;
 	}
 	if (DistToSqr(ent) > (v_iMaxDistance->GetInt() * v_iMaxDistance->GetInt())) return 5;
-	bool a = false;
-	for (int i = 0; i < 17; i++) {
-		if (IsEntityVisible(ent, i)) a = true;
+	if (!notrace) {
+		bool a = false;
+		for (int i = 0; i < 17; i++) {
+			if (IsEntityVisible(ent, i)) a = true;
+		}
+		if (!a) return 6;
 	}
-	if (!a) return 6;
+
 	if (abs(ent->GetAbsOrigin().z - g_pLocalPlayer->v_Origin.z) > v_iMaxDeltaY->GetInt()) return 7;
 	return 0;
 }
@@ -147,9 +150,10 @@ void HPyroBot::Tick(CUserCmd* cmd) {
 	IClientEntity* target = GetTarget();
 	IClientEntity* target_old = target;
 
-	bool target_lost = (!target || ShouldTarget(target) || (g_bState != bot_state_t::FOLLOWING_ENEMY && g_bState != bot_state_t::FOLLOWING_TEAMMATE));
+	//bool target_lost = (!target || ShouldTarget(target) || (g_bState != bot_state_t::FOLLOWING_ENEMY && g_bState != bot_state_t::FOLLOWING_TEAMMATE));
+	bool target_lost = (!target || ShouldTarget(target, true) || (g_bState != bot_state_t::FOLLOWING_ENEMY && g_bState != bot_state_t::FOLLOWING_TEAMMATE));
 
-	if (target_lost && g_bState != bot_state_t::PILOT_SEARCH) logging::Info("Target lost! Target: %i, State: %i, ShouldTarget: %i", target, g_bState, ShouldTarget(target));
+	if (target_lost && g_bState != bot_state_t::PILOT_SEARCH) logging::Info("Target lost! Target: %i, State: %i, ShouldTarget: %i", target, g_bState, ShouldTarget(target, true));
 
 	if (target_lost && g_bState == bot_state_t::FOLLOWING_ENEMY) {
 		g_bState = bot_state_t::PILOT_SEARCH;
@@ -173,17 +177,17 @@ void HPyroBot::Tick(CUserCmd* cmd) {
 	}
 
 
-	if ((g_nTick % 400 == 0) || target_lost) {
+	if ((g_nTick % 300 == 0) || target_lost) {
 		for (int i = 0; i < 64 && i < interfaces::entityList->GetMaxEntities(); i++) {
 			IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
-			if (ShouldTarget(ent)) continue;
+			if (ShouldTarget(ent, false)) continue;
 			bool enemy = GetEntityValue<int>(ent, eoffsets.iTeamNum) != g_pLocalPlayer->team;
 			ProcessEntity(ent, enemy);
 		}
 	}
 
 	target = GetTarget();
-	target_lost = (!target || ShouldTarget(target) || g_bState == bot_state_t::IDLE || g_bState == bot_state_t::PILOT_SEARCH || g_bState == bot_state_t::TARGET_LOST);
+	target_lost = (!target || ShouldTarget(target, true) || g_bState == bot_state_t::IDLE || g_bState == bot_state_t::PILOT_SEARCH || g_bState == bot_state_t::TARGET_LOST);
 
 	if (target_lost) {
 		if (target_old != 0) {
@@ -196,7 +200,7 @@ void HPyroBot::Tick(CUserCmd* cmd) {
 				//logging::Info("Target lost! State: %i, %i", !!target, !!ShouldTarget(target));
 			}
 		}
-		if (ShouldTarget(target) != 6 && (nPilotSearch < 100)) return;
+		if (ShouldTarget(target, true) != 6 && (nPilotSearch < 100)) return;
 	}
 
 	if (target != target_old) {
