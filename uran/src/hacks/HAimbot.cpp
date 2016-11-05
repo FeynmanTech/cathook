@@ -44,6 +44,7 @@ void HAimbot::Create() {
 	this->v_bCharge = CreateConVar("u_aimbot_charge", "1", "Autoshoot only with charge ready");
 	this->v_bEnabledAttacking = CreateConVar("u_aimbot_enable_attack_only", "0", "Aimbot only active with attack key held");
 	this->v_bStrictAttack = CreateConVar("u_aimbot_strict_attack", "0", "Not attacking unless target is locked");
+	this->v_bProjectileAimbot = CreateConVar("u_aimbot_projectile", "1", "Projectile aimbot (EXPERIMENTAL)");
 	fix_silent = false;
 }
 
@@ -155,7 +156,16 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	Vector hit;
 	Vector angles;
 	GetHitboxPosition(entity, v_iHitbox->GetInt(), hit);
-	if (v_bPrediction->GetBool()) {
+	bool proj = false;
+	if (v_bProjectileAimbot->GetBool()) {
+		float speed;
+		bool arc;
+		if (GetProjectileData(g_pLocalPlayer->weapon, speed, arc)) {
+			proj = true;
+			hit = PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), speed, arc);
+		}
+	}
+	if (!proj && v_bPrediction->GetBool()) {
 		PredictPosition(hit, entity);
 	}
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());

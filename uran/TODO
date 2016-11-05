@@ -19,8 +19,6 @@ priority system
 Target system respect mannpower powerups
 Aimbot charge detection respect powerups
 
-FIX UNLOAD     
-
 Entity::AddEntityString
 optimize
 Glow Objects

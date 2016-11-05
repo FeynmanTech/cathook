@@ -41,6 +41,9 @@ float DistToSqr(IClientEntity* entity);
 void fClampAngle(Vector& qaAng);
 void fVectorAngles(Vector &forward, Vector &angles);
 
+bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
+Vector PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc);
+
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
 

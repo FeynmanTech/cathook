@@ -23,6 +23,11 @@ void LocalPlayer::Update() {
 	v_ViewOffset = GetEntityValue<Vector>(entity, eoffsets.vViewOffset);
 	v_Origin = entity->GetAbsOrigin();
 	v_Eye = v_Origin + v_ViewOffset;
+	int hWeapon = GetEntityValue<int>(entity, eoffsets.hActiveWeapon);
+	if (hWeapon)
+		weapon = interfaces::entityList->GetClientEntity(hWeapon & 0xFFF);
+	else weapon = 0;
+
 }
 
 LocalPlayer* g_pLocalPlayer = 0;

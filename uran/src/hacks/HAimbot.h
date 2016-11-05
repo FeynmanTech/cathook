@@ -34,6 +34,7 @@ public:
 	ConVar* v_bCharge;
 	ConVar* v_bEnabledAttacking;
 	ConVar* v_bStrictAttack;
+	ConVar* v_bProjectileAimbot;
 };
 
 

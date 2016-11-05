@@ -164,4 +164,12 @@ enum hitbox {
 	hb_head = 0
 };
 
+enum weapons {
+	WP_SNIPERRIFLE = 295,
+	WP_ROCKET_LAUNCHER = 282,
+	WP_DIRECT_HIT = 284,
+	WP_GRENADE_LAUNCHER = 211,
+	WP_HUNTSMAN = 197
+};
+
 #endif /* ENUMS_H_ */

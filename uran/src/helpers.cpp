@@ -23,6 +23,8 @@
 #include <icliententitylist.h>
 #include <cdll_int.h>
 #include <engine/IEngineTrace.h>
+#include <client_class.h>
+#include <inetchannelinfo.h>
 
 bool IsPlayerInvulnerable(IClientEntity* player) {
 	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
@@ -337,7 +339,50 @@ void fClampAngle(Vector& qaAng) {
 }
 
 float DistToSqr(IClientEntity* entity) {
+	if (entity == 0) return 0.0f;
 	return g_pLocalPlayer->v_Origin.DistToSqr(entity->GetAbsOrigin());
+}
+
+bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc) {
+	if (!weapon) return false;
+	switch (weapon->GetClientClass()->m_ClassID) {
+	case weapons::WP_DIRECT_HIT:
+		speed = 1980;
+		arc = false;
+	break;
+	case weapons::WP_ROCKET_LAUNCHER:
+		speed = 1100;
+		arc = false;
+	break;
+	case weapons::WP_GRENADE_LAUNCHER:
+		speed = 1217.5f;
+		arc = true;
+	break;
+	case weapons::WP_HUNTSMAN:
+		speed = 2600.0f;
+		arc = true;
+	break;
+	default:
+		return false;
+	}
+	return true;
+}
+
+Vector PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc) {
+	Vector result = target->GetAbsOrigin();
+	int flags = GetEntityValue<int>(target, eoffsets.iFlags);
+	bool ground = (flags & (1 << 0));
+	float distance = origin.DistTo(result);
+	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
+		interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
+	float time = distance / speed + latency;
+	if (!ground) {
+		result.z -= (400 * time * time);
+	}
+	result += GetEntityValue<Vector>(target, eoffsets.vVelocity) * time;
+	if (arc)
+		result.z += (400 * time * time);
+	return result;
 }
 
 const char* powerups[] = {

@@ -200,7 +200,9 @@ void HPyroBot::Tick(CUserCmd* cmd) {
 				//logging::Info("Target lost! State: %i, %i", !!target, !!ShouldTarget(target));
 			}
 		}
-		if (ShouldTarget(target, true) != 6 && (nPilotSearch < 100)) return;
+		//if (ShouldTarget(target, true) != 6 && (nPilotSearch < 100)) return;
+		interfaces::engineClient->ExecuteClientCmd("-attack");
+		return;
 	}
 
 	if (target != target_old) {

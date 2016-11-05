@@ -27,6 +27,7 @@
 #include "hacks/HGlow.h"
 #include "hacks/HPyroBot.h"
 #include "hacks/HAimbot.h"
+#include "hacks/Misc.h"
 #include "usercmd.h"
 #include "drawing.h"
 #include "entity.h"
@@ -81,9 +82,8 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 }
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
-	((CreateMove_t*)hooks::hkCreateMove->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+	bool ret = ((CreateMove_t*)hooks::hkCreateMove->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 	g_pLocalPlayer->Update();
-	bool ret = true;
 	for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
@@ -146,6 +146,7 @@ void hack::Initialize() {
 	hack::AddHack(new HAimbot());
 	hack::AddHack(new HGlow());
 	hack::AddHack(new HPyroBot());
+	hack::AddHack(new Misc());
 	ConVar_Register();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();
