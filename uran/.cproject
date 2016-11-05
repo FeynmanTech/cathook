@@ -60,6 +60,8 @@
 							<tool command="g++" id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.344565173" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 								<option id="gnu.cpp.link.option.libs.1198519366" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="vstdlib"/>
+									<listOptionValue builtIn="false" value=":libc.so.6"/>
+									<listOptionValue builtIn="false" value=":libstdc++.so.6"/>
 									<listOptionValue builtIn="false" value="tier0"/>
 								</option>
 								<option defaultValue="true" id="gnu.cpp.link.option.shared.1427554773" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" useByScannerDiscovery="false" valueType="boolean"/>
@@ -67,6 +69,8 @@
 								<option id="gnu.cpp.link.option.paths.2112746191" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;/home/nullifiedcat/Desktop/hacks/Team Fortress 2/bin&quot;"/>
 								</option>
+								<option id="gnu.cpp.link.option.nodeflibs.746396171" name="Do not use default libraries (-nodefaultlibs)" superClass="gnu.cpp.link.option.nodeflibs" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.link.option.nostdlibs.1450809542" name="No startup or default libs (-nostdlib)" superClass="gnu.cpp.link.option.nostdlibs" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.770541288" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -78,12 +82,19 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.1168214098.2143201182" name="/" resourcePath="src/copypasted">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.1480738202" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.2140030157" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.782611349"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1333576273" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.883030293"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.368176576" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1506529605"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1391204391" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug.622955675"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1826976692" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.344565173"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1803573818" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug.1494960833"/>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
 						<entry excluding="copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="hacks|copypasted|mem|sdk" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/copypasted"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/hacks"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/sdk"/>
+						<entry excluding="mem" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -134,9 +145,6 @@
 					<sourceEntries>
 						<entry excluding="copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="hacks|copypasted|mem|sdk" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/copypasted"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/hacks"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/sdk"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

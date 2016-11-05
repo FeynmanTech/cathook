@@ -1,18 +1,39 @@
 #pragma once
 
 #include <unordered_map>
-#include <cstring>
+//#include <cstring>
+#include <string.h>
 #include <memory>
+#include "../logging.h"
 
 // this and the cpp are creds to "Altimor"
 
 class RecvTable;
 class RecvProp;
 
+class equal_char {
+public:
+	bool operator() (const char* const& v1, const char* const& v2) const {
+		return !strcmp(v1, v2);
+	}
+};
+
+struct hash_char {
+public:
+	size_t operator()(const char* obj) const {
+		size_t res = 0;
+		const size_t prime = 31;
+		for (size_t i = 0; i < strlen(obj); ++i) {
+			res = obj[i] + (res * prime);
+		}
+		return res;
+	}
+};
+
 class netvar_tree
 {
 	struct node;
-	using map_type = std::unordered_map<std::string, std::shared_ptr<node>>;
+	using map_type = std::unordered_map<const char*, std::shared_ptr<node>, hash_char, equal_char>;
 
 	struct node
 	{
@@ -88,6 +109,10 @@ public:
 	int get_offset(const char *name, args_t... args)
 	{
 		const auto &node = nodes[name];
+		if (node == 0) {
+			logging::Info("Confused: %s", name);
+			return 0;
+		}
 		return get_offset_recursive(node->nodes, node->offset, args...);
 	}
 
