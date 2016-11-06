@@ -40,9 +40,9 @@ bool IsEntityVisible(IClientEntity* entity, int hb);
 float DistToSqr(IClientEntity* entity);
 void fClampAngle(Vector& qaAng);
 void fVectorAngles(Vector &forward, Vector &angles);
-
+float deg2rad(float deg);
 bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
-Vector PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc);
+bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];

@@ -31,6 +31,10 @@ public:
 	int entity_idx;
 	IClientEntity* entity;
 	IClientEntity* weapon;
+	Vector v_OrigViewangles;
+	Vector v_SilentAngles;
+	bool bUseSilentAngles;
+	bool bAttackLastTick;
 };
 
 extern LocalPlayer* g_pLocalPlayer;

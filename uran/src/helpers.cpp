@@ -271,6 +271,10 @@ void FixMovement(CUserCmd& cmd, Vector& viewangles) {
 	cmd->sidemove = sin(yaw) * speed;*/
 }
 
+float deg2rad(float deg) {
+	return deg * (PI / 180);
+}
+
 trace::FilterDefault* trace_filter;
 bool IsEntityVisible(IClientEntity* entity, int hb) {
 	if (!trace_filter) {
@@ -362,14 +366,25 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc) {
 		speed = 2600.0f;
 		arc = true;
 	break;
+	case weapons::WP_SANDMAN:
+		speed = 3000.0f;
+		arc = true;
+	break;
+	case weapons::WP_FLAREGUN:
+		speed = 2000.0f;
+		arc = true;
+	break;
 	default:
 		return false;
 	}
 	return true;
 }
 
-Vector PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc) {
-	Vector result = target->GetAbsOrigin();
+bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result) {
+	if (!target) return false;
+	if (GetHitboxPosition(target, hb, result)) {
+		result = target->GetAbsOrigin();
+	}
 	int flags = GetEntityValue<int>(target, eoffsets.iFlags);
 	bool ground = (flags & (1 << 0));
 	float distance = origin.DistTo(result);
@@ -381,8 +396,8 @@ Vector PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, flo
 	}
 	result += GetEntityValue<Vector>(target, eoffsets.vVelocity) * time;
 	if (arc)
-		result.z += (400 * time * time);
-	return result;
+		result.z += (800 * 0.5 * 0.1 * time * time);
+	return true;
 }
 
 const char* powerups[] = {

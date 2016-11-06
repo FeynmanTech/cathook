@@ -6,17 +6,37 @@
  */
 
 #include "Misc.h"
+
+#include "../hack.h"
 #include "../helpers.h"
 #include "../drawing.h"
 #include "../localplayer.h"
+#include "../interfaces.h"
 
 #include "../fixsdk.h"
 #include <icliententity.h>
 #include <client_class.h>
 #include <Color.h>
+#include <cdll_int.h>
+
+void CC_SayLines(const CCommand& args) {
+	char cmd[256];
+	sprintf(cmd, "say %s", args.ArgS());
+	for (int i = 0; i < strlen(cmd); i++) {
+		if (cmd[i] == '^') cmd[i] = '\n';
+	}
+	interfaces::engineClient->ServerCmd(cmd);
+}
+
+void CC_Shutdown(const CCommand& args) {
+	hack::Shutdown();
+}
 
 void Misc::Create() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
+	c_SayLine = CreateConCommand("u_say_lines", CC_SayLines, "Uses ^ as a newline character");
+	c_Shutdown = CreateConCommand("u_shutdown", CC_Shutdown, "Stops the hack");
+
 }
 
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {

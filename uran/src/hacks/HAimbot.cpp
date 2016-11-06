@@ -30,6 +30,7 @@ bool fix_silent;
 
 int target_lock;
 
+/* null-safe */
 void HAimbot::Create() {
 	this->v_bEnabled = CreateConVar("u_aimbot_enabled", "0", "Enables aimbot. EXPERIMENTAL AND TOTALLY NOT LEGIT");
 	this->v_iHitbox = CreateConVar("u_aimbot_hitbox", "0", "Hitbox");
@@ -45,6 +46,7 @@ void HAimbot::Create() {
 	this->v_bEnabledAttacking = CreateConVar("u_aimbot_enable_attack_only", "0", "Aimbot only active with attack key held");
 	this->v_bStrictAttack = CreateConVar("u_aimbot_strict_attack", "0", "Not attacking unless target is locked");
 	this->v_bProjectileAimbot = CreateConVar("u_aimbot_projectile", "1", "Projectile aimbot (EXPERIMENTAL)");
+	this->v_iOverrideProjSpeed = CreateConVar("u_aimbot_proj_speed", "0", "Override proj speed");
 	fix_silent = false;
 }
 
@@ -55,18 +57,16 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (this->v_bStrictAttack->GetBool() ) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
 	}
-	int local = interfaces::engineClient->GetLocalPlayer();
-	IClientEntity* player = interfaces::entityList->GetClientEntity(local);
+	IClientEntity* player = g_pLocalPlayer->entity;
 	if (!player) return true;
 	if (player->IsDormant()) return true;
-	if ((GetEntityValue<int>(player, eoffsets.iClass) == 2) && this->v_bZoomedOnly->GetBool() &&
-		!(GetEntityValue<int>(player, eoffsets.iCond) & cond::zoomed)) {
+	if (g_pLocalPlayer->clazz == 2 && this->v_bZoomedOnly->GetBool() &&
+		!(g_pLocalPlayer->cond_0 & cond::zoomed)) {
 		return true;
 	}
 	if (g_pLocalPlayer->weapon) {
 		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == 210) return true;
 	} /* Grappling hook */
-	viewangles_old = cmd->viewangles;
 	if (!this->v_bEnabled->GetBool()) return true;
 	//logging::Info("Creating move.. aimbot");
 	if (!this->v_bPriority->GetBool()) {
@@ -148,24 +148,23 @@ void PredictPosition(Vector vec, IClientEntity* ent) {
 	vec += vel * latency;
 }
 
-float deg2rad(float deg) {
-	return deg * (PI / 180);
-}
-
 bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	Vector hit;
 	Vector angles;
-	GetHitboxPosition(entity, v_iHitbox->GetInt(), hit);
 	bool proj = false;
+	if (!entity) return false;
+	GetHitboxPosition(entity, v_iHitbox->GetInt(), hit);
 	if (v_bProjectileAimbot->GetBool()) {
 		float speed;
 		bool arc;
 		if (GetProjectileData(g_pLocalPlayer->weapon, speed, arc)) {
-			proj = true;
-			hit = PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), speed, arc);
+			if (v_iOverrideProjSpeed->GetBool())
+				speed = v_iOverrideProjSpeed->GetFloat();
+			proj = PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), speed, arc, hit);
 		}
 	}
 	if (!proj && v_bPrediction->GetBool()) {
+
 		PredictPosition(hit, entity);
 	}
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
@@ -184,20 +183,21 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	}
 	if (this->v_bSilent->GetBool()) {
 		//FixMovement(*cmd, viewangles_old);
-		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+		g_pLocalPlayer->bUseSilentAngles = true;
+		/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
 		VectorAngles(vsilent, ang);
-		float yaw = deg2rad(ang.y - viewangles_old.y + cmd->viewangles.y);
+		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
-		cmd->sidemove = sin(yaw) * speed;
+		cmd->sidemove = sin(yaw) * speed;*/
 	}
-	if (!this->v_bSilent->GetBool()) {
+	/*if (!this->v_bSilent->GetBool()) {
 		QAngle a;
 		a.x = angles.x;
 		a.y = angles.y;
 		a.z = angles.z;
 		interfaces::engineClient->SetViewAngles(a);
-	}
+	}*/
 	return true;
 }

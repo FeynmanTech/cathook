@@ -27,7 +27,6 @@ void LocalPlayer::Update() {
 	if (hWeapon)
 		weapon = interfaces::entityList->GetClientEntity(hWeapon & 0xFFF);
 	else weapon = 0;
-
 }
 
 LocalPlayer* g_pLocalPlayer = 0;

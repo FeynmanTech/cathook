@@ -6,6 +6,7 @@
  */
 
 #include "trace.h"
+#include "logging.h"
 
 #include <cstdint>
 
@@ -21,6 +22,9 @@ trace::FilterDefault::FilterDefault() {
 trace::FilterDefault::~FilterDefault() {};
 
 void trace::FilterDefault::SetSelf(IClientEntity* self) {
+	if (self == nullptr) {
+		logging::Info("nullptr in FilterDefault::SetSelf");
+	}
 	m_pSelf = self;
 }
 

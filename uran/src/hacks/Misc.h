@@ -11,6 +11,7 @@
 #include "IHack.h"
 
 class ConVar;
+class ConCommand;
 
 class Misc : public IHack {
 public:
@@ -19,6 +20,8 @@ public:
 	void Destroy();
 	void PaintTraverse(void*, unsigned int, bool, bool);
 	ConVar* v_bDbWeaponInfo;
+	ConCommand* c_SayLine;
+	ConCommand* c_Shutdown;
 };
 
 #endif /* HACKS_MISC_H_ */

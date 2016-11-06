@@ -18,15 +18,18 @@
 
 #include "interfaces.h"
 #include "sharedobj.h"
+#include "sdk/in_buttons.h"
 #include "logging.h"
 #include "hooks.h"
 #include "hacks/IHack.h"
+#include "helpers.h"
 #include "hacks/HBunnyhop.h"
 #include "hacks/HTrigger.h"
 #include "hacks/HEsp.h"
 #include "hacks/HGlow.h"
 #include "hacks/HPyroBot.h"
 #include "hacks/HAimbot.h"
+#include "hacks/AntiAim.h"
 #include "hacks/Misc.h"
 #include "usercmd.h"
 #include "drawing.h"
@@ -51,7 +54,6 @@
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
-#include "hacks/HSaySpecial.h"
 
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
@@ -83,12 +85,25 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	bool ret = ((CreateMove_t*)hooks::hkCreateMove->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+	if (!cmd) return ret;
+	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
+	g_pLocalPlayer->bUseSilentAngles = false;
 	g_pLocalPlayer->Update();
 	for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
 		}
 	}
+	if (g_pLocalPlayer->bUseSilentAngles) {
+		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
+		Vector ang;
+		VectorAngles(vsilent, ang);
+		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
+		cmd->forwardmove = cos(yaw) * speed;
+		cmd->sidemove = sin(yaw) * speed;
+	}
+	g_pLocalPlayer->bAttackLastTick = (cmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_USE));
 	return ret;
 }
 
@@ -136,10 +151,9 @@ void hack::Initialize() {
 	logging::Info("Hooked!");
 	logging::Info("Initializing surface...");
 	draw::Initialize();
-	logging::Info("testing string...");
 	logging::Info("Adding hacks...");
 	SetCVarInterface(interfaces::cvar);
-	hack::AddHack(new HSaySpecial());
+	hack::AddHack(new AntiAim());
 	hack::AddHack(new HBunnyhop());
 	hack::AddHack(new HTrigger());
 	hack::AddHack(new HEsp());
