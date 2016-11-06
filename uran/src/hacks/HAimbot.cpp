@@ -151,27 +151,26 @@ void PredictPosition(Vector vec, IClientEntity* ent) {
 bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	Vector hit;
 	Vector angles;
-	bool proj = false;
 	if (!entity) return false;
 	GetHitboxPosition(entity, v_iHitbox->GetInt(), hit);
+	//logging::Info("Predicting.. entity: 0x%08f", entity);
+	PredictPosition(hit, entity);
 	if (v_bProjectileAimbot->GetBool()) {
-		float speed;
-		bool arc;
+		float speed = 0.0f;
+		bool arc = false;
 		if (GetProjectileData(g_pLocalPlayer->weapon, speed, arc)) {
 			if (v_iOverrideProjSpeed->GetBool())
 				speed = v_iOverrideProjSpeed->GetFloat();
-			proj = PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), speed, arc, hit);
+			PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), speed, arc, hit);
 		}
 	}
-	if (!proj && v_bPrediction->GetBool()) {
-
-		PredictPosition(hit, entity);
-	}
+	//logging::Info("Hit: %f %f %f", hit.x, hit.y, hit.z);
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
-	Vector tr = (hit - (local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset)));
+	Vector tr = (hit - g_pLocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);
 	cmd->viewangles = angles;
+	//logging::Info("Angles: %f %f %f", angles.x, angles.y, angles.z);
 	if (this->v_bAutoShoot->GetBool()) {
 		if (this->v_iAutoShootCharge->GetBool() && (GetEntityValue<int>(local, eoffsets.iClass) == 2)) {
 			int rifleHandle = GetEntityValue<int>(local, eoffsets.hActiveWeapon);
@@ -181,9 +180,9 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		}
 		cmd->buttons |= IN_ATTACK;
 	}
-	if (this->v_bSilent->GetBool()) {
+	//if (this->v_bSilent->GetBool()) {
 		//FixMovement(*cmd, viewangles_old);
-		g_pLocalPlayer->bUseSilentAngles = true;
+		//g_pLocalPlayer->bUseSilentAngles = true;
 		/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
@@ -191,7 +190,7 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
 		cmd->sidemove = sin(yaw) * speed;*/
-	}
+	//}
 	/*if (!this->v_bSilent->GetBool()) {
 		QAngle a;
 		a.x = angles.x;

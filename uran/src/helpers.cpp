@@ -382,21 +382,25 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc) {
 
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result) {
 	if (!target) return false;
+	Vector res1 = result;
 	if (GetHitboxPosition(target, hb, result)) {
-		result = target->GetAbsOrigin();
+		res1 = target->GetAbsOrigin();
 	}
 	int flags = GetEntityValue<int>(target, eoffsets.iFlags);
 	bool ground = (flags & (1 << 0));
-	float distance = origin.DistTo(result);
+	float distance = origin.DistTo(res1);
 	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
 		interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
+	if (speed == 0) return false;
 	float time = distance / speed + latency;
 	if (!ground) {
-		result.z -= (400 * time * time);
+		res1.z -= (400 * time * time);
 	}
-	result += GetEntityValue<Vector>(target, eoffsets.vVelocity) * time;
+	res1 += GetEntityValue<Vector>(target, eoffsets.vVelocity) * time;
 	if (arc)
-		result.z += (800 * 0.5 * 0.1 * time * time);
+		res1.z += (800 * 0.5 * 0.1 * time * time);
+	result = res1;
+	//if (!IsVisible())
 	return true;
 }
 
