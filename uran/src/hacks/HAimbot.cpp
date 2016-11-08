@@ -15,6 +15,8 @@
 #include "../targethelper.h"
 #include "../localplayer.h"
 
+//typedef int CBaseEntity;
+
 #include "../fixsdk.h"
 #include <client_class.h>
 #include <inetchannelinfo.h>
@@ -179,6 +181,23 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 			if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
 		}
 		cmd->buttons |= IN_ATTACK;
+	}
+	if (this->v_bSilent->GetBool()) {
+		//FixMovement(*cmd, viewangles_old);
+		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
+		Vector ang;
+		VectorAngles(vsilent, ang);
+		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
+		cmd->forwardmove = cos(yaw) * speed;
+		cmd->sidemove = sin(yaw) * speed;
+	}
+	if (!this->v_bSilent->GetBool()) {
+		QAngle a;
+		a.x = angles.x;
+		a.y = angles.y;
+		a.z = angles.z;
+		interfaces::engineClient->SetViewAngles(a);
 	}
 	//if (this->v_bSilent->GetBool()) {
 		//FixMovement(*cmd, viewangles_old);

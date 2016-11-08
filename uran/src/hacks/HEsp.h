@@ -10,8 +10,8 @@
 
 #include "IHack.h"
 
-class IClientEntity;
 class ConVar;
+class CachedEntity;
 
 class HEsp : public IHack {
 public:
@@ -19,7 +19,7 @@ public:
 	void PaintTraverse(void*, unsigned int, bool, bool);
 	void Create();
 	void Destroy();
-	void ProcessEntity(IClientEntity* ent, int idx);
+	void ProcessEntity(CachedEntity* ent);
 	ConVar* v_bEnabled;
 	ConVar* v_bBoxESP;
 	ConVar* v_bEntityESP;

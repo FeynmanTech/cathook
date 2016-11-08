@@ -13,6 +13,7 @@
 #include "../enums.h"
 #include "../helpers.h"
 #include "../entity.h"
+#include "../entitycache.h"
 #include "../targethelper.h"
 #include <client_class.h>
 #include <icliententitylist.h>
@@ -34,15 +35,7 @@ const char* classes[] = {
 	"Engineer"
 };
 
-void HEsp::PaintTraverse(void*, unsigned int, bool, bool) {
-	for (int i = 0; i < interfaces::entityList->GetHighestEntityIndex(); i++) {
-		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
-		if (ent != 0 && i != interfaces::engineClient->GetLocalPlayer()) {
-			//if (ent->GetClientClass()->m_ClassID == 241)
-			this->ProcessEntity(ent, i);
-		}
-	}
-}
+void HEsp::PaintTraverse(void*, unsigned int, bool, bool) {}
 
 void HEsp::Create() {
 	this->v_bEnabled = CreateConVar("u_esp_enabled", "1", "Enables ESP");
@@ -52,18 +45,52 @@ void HEsp::Create() {
 	this->v_bTeammatePowerup = CreateConVar("u_esp_powerup_team", "1", "Show powerups on teammates if u_esp_teammates is 0");
 	this->v_bShowTargetScore = CreateConVar("u_esp_threat", "1", "Shows target score aka threat value");
 	this->v_bShowEntityID = CreateConVar("u_esp_entity_id", "0", "Shows EID");
-	//this->v_bModelInfo = CreateConVar("u_esp_model", "0", "ESP model info");
-	/*this->v_bEnabled = new ConVar("u_esp_enabled", "1");
-	this->v_bShowPacks = new ConVar("u_esp_showpacks", "1");
-	interfaces::cvar->RegisterConCommand(v_bEnabled);
-	interfaces::cvar->RegisterConCommand(v_bShowPacks);*/
 }
 
 #define ESP_HEIGHT 14
 
-void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
+void HEsp::ProcessEntity(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
-	if (!ent) return;
+	if (ent->m_bNULL) return;
+	if (ent->m_bDormant) return;
+
+	switch (ent->m_iClassID) {
+	case ClassID::CBaseAnimating: {
+		if (!this->v_bItemESP->GetBool()) break;
+		item_type type = GetItemType(ent->m_pEntity);
+		if (type == item_type::item_null) break;
+		if (type >= item_medkit_small && type <= item_medkit_large) {
+			ent->AddESPString(draw::white, cstr("%s HEALTH", packs[type - item_medkit_small]));
+		} else if (type >= item_ammo_small && type <= item_ammo_large) {
+			ent->AddESPString(draw::white, cstr("%s AMMO", packs[type - item_ammo_small]));
+		} else if (type >= item_mp_strength && type <= item_mp_crit) {
+			int skin = ent->m_pEntity->GetSkin();
+			Color pickupColor;
+			if (skin == 1) {
+				pickupColor = draw::red;
+			} else if (skin == 2) {
+				pickupColor = draw::blue;
+			} else {
+				pickupColor = draw::yellow;
+			}
+			ent->AddESPString(pickupColor, cstr("%s PICKUP", powerups[type - item_mp_strength]));
+		}
+		break;
+	}
+	case ClassID::CTFPlayer: {
+
+		break;
+	}
+	case ClassID::CObjectSentrygun:
+	case ClassID::CObjectDispenser:
+	case ClassID::CObjectTeleporter: {
+		break;
+	}
+
+	}
+
+
+	/*if (!ent) return;
 	if (ent->IsDormant()) return;
 	int local = interfaces::engineClient->GetLocalPlayer();
 	IClientEntity* me = interfaces::entityList->GetClientEntity(local);
@@ -82,34 +109,10 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 	int ClassID = ent->GetClientClass()->m_ClassID;
 	scr.y -= 32;
 	if (v_bShowEntityID->GetBool()) {
-		draw::DrawString(scr.x, scr.y, draw::white, true, "IDX %i CLASS %i", idx, ent->GetClientClass()->m_ClassID);
-		scr.y += ESP_HEIGHT;
+		//draw::DrawString(scr.x, scr.y, draw::white, true, "IDX %i CLASS %i", idx, ent->GetClientClass()->m_ClassID);
+		//scr.y += ESP_HEIGHT;
 	}
 	switch (ClassID) {
-	case 1: {
-		if (!this->v_bItemESP->GetBool()) break;
-		item_type type = GetItemType(ent);
-		if (type == item_type::item_null) break;
-		if (type >= item_medkit_small && type <= item_medkit_large) {
-			draw::DrawString(scr.x, scr.y, draw::white, true, "%s HEALTH", packs[type - item_medkit_small]);
-			scr.y += ESP_HEIGHT;
-		} else if (type >= item_ammo_small && type <= item_ammo_large) {
-			draw::DrawString(scr.x, scr.y, draw::white, true, "%s AMMO", packs[type - item_ammo_small]);
-			scr.y += ESP_HEIGHT;
-		} else if (type >= item_mp_strength && type <= item_mp_crit) {
-			int skin = ent->GetSkin();
-			Color pickupColor;
-			if (skin == 1) {
-				pickupColor = draw::red;
-			} else if (skin == 2) {
-				pickupColor = draw::blue;
-			} else {
-				pickupColor = draw::yellow;
-			}
-			draw::DrawString(scr.x, scr.y, pickupColor, true, "%s PICKUP", powerups[type - item_mp_strength]);
-			scr.y += ESP_HEIGHT;
-		}
-	} break;
 	case 241: {
 		int team = GetEntityValue<int>(ent, eoffsets.iTeamNum);
 		int health = GetEntityValue<int>(ent, eoffsets.iHealth);
@@ -121,8 +124,8 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		if (!interfaces::engineClient->GetPlayerInfo(idx, &info)) return;
 		powerup_type power = GetPowerupOnPlayer(ent);
 		bool teammate = (team == my_team);
-		/* If target is enemy, always show powerups, if player is teammate, show powerups
-		 * only if bTeammatePowerup or bTeammates is true */
+		// If target is enemy, always show powerups, if player is teammate, show powerups
+		// only if bTeammatePowerup or bTeammates is true
 		if (power >= 0 && (!teammate || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			Color clr = (team == 3 ? draw::blue : (team == 2 ? draw::red : draw::white));
 			draw::DrawString(scr.x, scr.y, clr, true, "HAS [%s]", powerups[power]);
@@ -153,7 +156,7 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 	} break;
 	case 89:
 	case 88:
-	case 86: { /* Engi Buildings */
+	case 86: { // builds
 		int team = GetEntityValue<int>(ent, eoffsets.iTeamNum);
 		if (team == my_team && !this->v_bTeammates->GetBool()) return;
 		int health = GetEntityValue<int>(ent, eoffsets.iBuildingHealth);
@@ -165,7 +168,7 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		draw::DrawString(scr.x, scr.y, clr, true, "%iu", (int)distance);
 		scr.y += ESP_HEIGHT;
 	} break;
-	case 212: { /* Pipes and Stickies */
+	case 212: { // pipes
 		int team = GetEntityValue<int>(ent, eoffsets.iTeamNum);
 		if (team == my_team && !this->v_bTeammates->GetBool()) return;
 		int type = GetEntityValue<int>(ent, eoffsets.iPipeType);
@@ -181,10 +184,16 @@ void HEsp::ProcessEntity(IClientEntity* ent, int idx) {
 		scr.y += ESP_HEIGHT;
 		draw::DrawString(scr.x, scr.y, draw::white, true, "%s %iu", GetModelPath(ent), (int)distance);
 		scr.y += ESP_HEIGHT;
-	}
+	}*/
 }
 
-bool HEsp::CreateMove(void*, float, CUserCmd*) { return true; };
+bool HEsp::CreateMove(void*, float, CUserCmd*) {
+	for (int i = 0; i < gEntityCache.m_nMax; i++) {
+		ProcessEntity(gEntityCache.GetEntity(i));
+	}
+	return true;
+};
+
 void HEsp::Destroy() {};
 
 

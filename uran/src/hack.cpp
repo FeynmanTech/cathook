@@ -18,6 +18,7 @@
 
 #include "interfaces.h"
 #include "sharedobj.h"
+#include "entitycache.h"
 #include "sdk/in_buttons.h"
 #include "logging.h"
 #include "hooks.h"
@@ -26,7 +27,7 @@
 #include "hacks/HBunnyhop.h"
 #include "hacks/HTrigger.h"
 #include "hacks/HEsp.h"
-#include "hacks/HGlow.h"
+//#include "hacks/HGlow.h"
 #include "hacks/HPyroBot.h"
 #include "hacks/HAimbot.h"
 #include "hacks/AntiAim.h"
@@ -50,6 +51,7 @@
 #include <vgui/ISurface.h>
 #include <vgui/IPanel.h>
 #include <convar.h>
+#include <Color.h>
 #include <icvar.h>
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
@@ -81,24 +83,35 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 			i_hack->PaintTraverse(p, vp, fr, ar);
 		}
 	}
+	Vector screen;
+	for (int i = 0; i < gEntityCache.m_nMax; i++) {
+		CachedEntity* ce = gEntityCache.GetEntity(i);
+		if (ce->m_bNULL) continue;
+		if (!draw::EntityCenterToScreen(ce->m_pEntity, screen)) continue;
+		for (int j = 0; j < ce->m_nESPStrings; j++) {
+			draw::DrawString(screen.x, screen.y, *(ce->m_Strings[j].m_Color), true, ce->m_Strings[j].m_String);
+			screen.z += 14;
+		}
+	}
 }
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	bool ret = ((CreateMove_t*)hooks::hkCreateMove->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+	gEntityCache.Update();
 	if (!cmd) return ret;
 	//logging::Info("Inside CreateMove");
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
-	g_pLocalPlayer->bUseSilentAngles = false;
+	//g_pLocalPlayer->bUseSilentAngles = false;
 	g_pLocalPlayer->Update();
 	//logging::Info("Inside CreateMove #1");
 	for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
-			g_pLocalPlayer->bUseSilentAngles = true;
+			//g_pLocalPlayer->bUseSilentAngles = true;
 		}
 	}
 	//logging::Info("Inside CreateMove #2");
-	if (g_pLocalPlayer->bUseSilentAngles) {
+	/*if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
@@ -106,15 +119,15 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
 		cmd->sidemove = sin(yaw) * speed;
-	}
+	}*/
 	//logging::Info("Inside CreateMove #3");
 	//logging::Info("viewangles: %f, %f, %f", cmd->viewangles.x, cmd->viewangles.y, cmd->viewangles.z);
-	QAngle a;
-	a.x = g_pLocalPlayer->v_OrigViewangles.x;
-	a.y = g_pLocalPlayer->v_OrigViewangles.y;
-	a.z = g_pLocalPlayer->v_OrigViewangles.z;
-	interfaces::engineClient->SetViewAngles(a);
-	g_pLocalPlayer->bAttackLastTick = (cmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_USE));
+	//QAngle a;
+	//a.x = g_pLocalPlayer->v_OrigViewangles.x;
+	//a.y = g_pLocalPlayer->v_OrigViewangles.y;
+	//a.z = g_pLocalPlayer->v_OrigViewangles.z;
+	//interfaces::engineClient->SetViewAngles(a);
+	//g_pLocalPlayer->bAttackLastTick = (cmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_USE));
 	//logging::Info("Inside CreateMove #4");
 	return ret;
 }

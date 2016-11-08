@@ -13,6 +13,8 @@
 #include <Color.h>
 #include <cdll_int.h>
 #include <mathlib/vmatrix.h>
+#include <cassert>
+#include <icliententity.h>
 
 // TODO globals
 unsigned long draw::font_handle = 0;
@@ -24,6 +26,11 @@ Color draw::white(255, 255, 255, 255);
 Color draw::red(184, 56, 59, 255);
 Color draw::blue(88, 133, 162, 255);
 Color draw::yellow(255, 255, 0, 255);
+
+ESPStringCompound::ESPStringCompound() {
+	m_Color = nullptr;
+	m_String = nullptr;
+}
 
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
@@ -53,6 +60,17 @@ void draw::DrawString(int x, int y, Color color, bool center, const char* text, 
 		x -= (l / 2);
 	}
 	draw::DrawString(draw::font_handle, x, y, color, string);
+}
+
+bool draw::EntityCenterToScreen(IClientEntity* entity, Vector& out) {
+	if (!entity) return false;
+	Vector world;
+	Vector min, max;
+	entity->GetRenderBounds(min, max);
+	world = entity->GetAbsOrigin();
+	world.z += (min.z + max.z) / 2;
+	Vector scr;
+	return draw::WorldToScreen(world, scr);
 }
 
 bool draw::WorldToScreen(Vector& origin, Vector& screen) {

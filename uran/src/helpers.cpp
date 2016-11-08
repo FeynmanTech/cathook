@@ -404,6 +404,15 @@ bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float
 	return true;
 }
 
+char* cstr(const char* fmt, ...) {
+	char buffer[1024];
+	va_list list;
+	va_start(list, fmt);
+	vsprintf(buffer, fmt, list);
+	va_end(list);
+	return buffer;
+}
+
 const char* powerups[] = {
 	"STRENGTH",
 	"RESISTANCE",

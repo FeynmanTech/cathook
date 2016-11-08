@@ -10,6 +10,13 @@
 
 class Color;
 class Vector;
+class IClientEntity;
+
+struct ESPStringCompound {
+	ESPStringCompound();
+	char* m_String;
+	Color* m_Color;
+};
 
 namespace draw {
 
@@ -27,6 +34,7 @@ void Initialize();
 void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);
 void DrawString(int x, int y, Color color, bool center, const char* text, ...);
 bool WorldToScreen(Vector &origin, Vector &screen);
+bool EntityCenterToScreen(IClientEntity* entity, Vector& out);
 void OutlineRect(int x, int y, int w, int h, Color color);
 void GetStringLength(wchar_t* string, int& length, int& height);
 

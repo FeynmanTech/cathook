@@ -43,6 +43,7 @@ void fVectorAngles(Vector &forward, Vector &angles);
 float deg2rad(float deg);
 bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
+char* cstr(const char* fmt, ...);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
