@@ -42,10 +42,12 @@ void fClampAngle(Vector& qaAng);
 void fVectorAngles(Vector &forward, Vector &angles);
 float deg2rad(float deg);
 bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
+bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
-char* cstr(const char* fmt, ...);
+bool IsFriend(IClientEntity* ent);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
+extern uint32 friends[1];
 
 #endif /* HELPERS_H_ */

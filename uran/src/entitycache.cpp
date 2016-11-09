@@ -11,6 +11,7 @@
 #include "logging.h"
 #include "enums.h"
 #include "entity.h"
+#include "localplayer.h"
 
 #include "fixsdk.h"
 #include <icliententitylist.h>
@@ -28,32 +29,51 @@ CachedEntity::~CachedEntity() {
 	delete m_Strings;
 }
 
+template<typename T>
+T CachedEntity::Var(unsigned int offset) {
+	if (m_bNULL) {
+		logging::Info("Trying to get netvar of NULL entity!");
+		return reinterpret_cast<T>(0);
+	}
+	return GetEntityValue<T>(m_pEntity, offset);
+}
+
 void CachedEntity::Update(int idx) {
+	m_ESPOrigin.Zero();
+	m_nESPStrings = 0;
+	m_IDX = idx;
 	m_pEntity = interfaces::entityList->GetClientEntity(idx);
 	if (!m_pEntity) {
 		//logging::Info("Tried to cache entity with index %i, null");
 		m_bNULL = true;
 		return;
+	} else {
+		m_bNULL = false;
 	}
-	m_nESPStrings = 0;
 
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
 	m_bDormant = m_pEntity->IsDormant();
 
-	if (m_iClassID == ClassID::CTFPlayer
-		|| m_iClassID == ClassID::CObjectSentrygun
-		|| m_iClassID == ClassID::CObjectDispenser
-		|| m_iClassID == ClassID::CObjectTeleporter
-		|| m_iClassID == ClassID::CTFStickBomb
-		|| m_iClassID == ClassID::CTFGrenadePipebombProjectile) {
-
-		m_iTeam = GetEntityValue<int>(m_pEntity, eoffsets.iTeamNum);
+	if (g_pLocalPlayer->entity) {
+		m_flDistance = (g_pLocalPlayer->entity->GetAbsOrigin().DistTo(m_pEntity->GetAbsOrigin()));
+	}
+	m_bAlivePlayer = false;
+	if (m_iClassID == ClassID::CTFPlayer) {
+		m_bAlivePlayer = !(m_bNULL || m_bDormant || GetEntityValue<char>(m_pEntity, eoffsets.iLifeState));
+		m_iTeam = Var<int>(eoffsets.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
-		m_iHealth = GetEntityValue<int>(m_pEntity, eoffsets.iHealth);
 	}
 }
 
-void CachedEntity::AddESPString(Color color, const char* string) {
+void CachedEntity::AddESPString(Color color, const char* fmt, ...) {
+	if (m_Strings[m_nESPStrings].m_String) {
+		delete m_Strings[m_nESPStrings].m_String;
+	}
+	char* buffer = new char[1024]();
+	va_list list;
+	va_start(list, fmt);
+	vsprintf(buffer, fmt, list);
+	va_end(list);
 	if (m_nESPStrings >= MAX_STRINGS) {
 		logging::Info("Can't attach more than %i strings to an entity", MAX_STRINGS);
 		return;
@@ -62,9 +82,18 @@ void CachedEntity::AddESPString(Color color, const char* string) {
 		logging::Info("Invalid string count !!!");
 		return;
 	}
-	m_Strings[m_nESPStrings].m_Color = &color;
-	m_Strings[m_nESPStrings].m_String = (char*)string;
+	m_Strings[m_nESPStrings].m_Color = color;
+	m_Strings[m_nESPStrings].m_String = buffer;
+	//logging::Info("String: %s", m_Strings[m_nESPStrings].m_String);
 	m_nESPStrings++;
+}
+
+ESPStringCompound CachedEntity::GetESPString(int idx) {
+	if (idx >= 0 && idx < m_nESPStrings) {
+		return m_Strings[idx];
+	} else {
+		return ESPStringCompound();
+	}
 }
 
 EntityCache::EntityCache() {

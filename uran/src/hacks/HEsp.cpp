@@ -15,6 +15,7 @@
 #include "../entity.h"
 #include "../entitycache.h"
 #include "../targethelper.h"
+#include "../localplayer.h"
 #include <client_class.h>
 #include <icliententitylist.h>
 #include <cdll_int.h>
@@ -35,77 +36,203 @@ const char* classes[] = {
 	"Engineer"
 };
 
-void HEsp::PaintTraverse(void*, unsigned int, bool, bool) {}
+void HEsp::PaintTraverse(void*, unsigned int, bool, bool) {
+	for (int i = 0; i < gEntityCache.m_nMax; i++) {
+		ProcessEntityPT(gEntityCache.GetEntity(i));
+	}
+}
 
 void HEsp::Create() {
 	this->v_bEnabled = CreateConVar("u_esp_enabled", "1", "Enables ESP");
 	this->v_bEntityESP = CreateConVar("u_esp_entity", "0", "Entity ESP (dev)");
 	this->v_bTeammates = CreateConVar("u_esp_teammates", "0", "ESP own team");
-	this->v_bItemESP = CreateConVar("u_esp_item", "1", "Item ESP (powerups, health packs, etc)");
+	this->v_bItemESP = CreateConVar("u_esp_item", "0", "Item ESP (powerups, health packs, etc)");
 	this->v_bTeammatePowerup = CreateConVar("u_esp_powerup_team", "1", "Show powerups on teammates if u_esp_teammates is 0");
-	this->v_bShowTargetScore = CreateConVar("u_esp_threat", "1", "Shows target score aka threat value");
 	this->v_bShowEntityID = CreateConVar("u_esp_entity_id", "0", "Shows EID");
+	this->v_bShowDistance = CreateConVar("u_esp_distance", "1", "Distance ESP");
+	this->v_bBox = CreateConVar("u_esp_box", "1", "Box");
+	this->v_bShowFriendID = CreateConVar("u_esp_friendid", "0", "Show friend ID");
+	this->v_bShowFriends = CreateConVar("u_esp_friends", "1", "Show friends");
 }
 
 #define ESP_HEIGHT 14
 
+void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight) {
+	//logging::Info("DRAWING BOX OF %i", ent->m_IDX);
+	if (!ent || !ent->m_pEntity || ent->m_pEntity->IsDormant()) return;
+	Vector min, max;
+	ent->m_pEntity->GetRenderBounds(min, max);
+	Vector origin = ent->m_pEntity->GetAbsOrigin();
+	Vector so;
+	draw::WorldToScreen(origin, so);
+	//if (!a) return;
+	//logging::Info("%f %f", so.x, so.y);
+	Vector omin, omax;
+	omin = origin + Vector(0, 0, min.z);
+	omax = origin + Vector(0, 0, max.z + addHeight);
+	Vector smin, smax;
+	bool a = draw::WorldToScreen(omin, smin);
+	a = a && draw::WorldToScreen(omax, smax);
+	if (!a) return;
+	float height = abs(smax.y - smin.y);
+	//logging::Info("height: %f", height);
+	float width = height / widthFactor;
+	//bool a = draw::WorldToScreen(omin, smin);
+	//a = a && draw::WorldToScreen(omax, smax);
+	//if (!a) return;
+	//draw::DrawString(min(smin.x, smax.x), min(smin.y, smax.y), clr, false, "min");
+	//draw::DrawString(max(smin.x, smax.x), max(smin.y, smax.y), clr, false, "max");
+	//draw::DrawString((int)so.x, (int)so.y, draw::white, false, "origin");
+	ent->m_ESPOrigin.x = so.x + width / 2 + 3;
+	ent->m_ESPOrigin.y = so.y - height;
+	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, draw::black);
+	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
+	//draw::OutlineRect(min(smin.x, smax.x) - 1, min(smin.y, smax.y) - 1, max(smin.x, smax.x), max(smin.y, smax.y), draw::black);
+	//draw::OutlineRect(min(smin.x, smax.x), min(smin.y, smax.y), max(smin.x, smax.x), max(smin.y, smax.y), clr);
+}
+
+void HEsp::ProcessEntityPT(CachedEntity* ent) {
+	if (!this->v_bEnabled->GetBool()) return;
+	if (!this->v_bBox->GetBool()) return;
+	if (ent->m_pEntity != interfaces::entityList->GetClientEntity(ent->m_IDX)) return;
+	if (!ent || !ent->m_pEntity) return;
+	if (ent->m_pEntity->IsDormant()) return;
+	if (ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
+	Color color;
+	switch (ent->m_iClassID) {
+	case ClassID::CTFPlayer: {
+		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !(v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity))) break;
+		if (!ent->m_bAlivePlayer) break;
+		color = TEAM_COLORS[ent->m_iTeam];
+		if (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity)) {
+			color = TEAM_COLORS[0];
+		}
+		DrawBox(ent, color, 3.0f, -15.0f);
+	break;
+	}
+	case ClassID::CObjectSentrygun:
+	case ClassID::CObjectDispenser:
+	case ClassID::CObjectTeleporter: {
+		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
+		color = TEAM_COLORS[ent->Var<int>(eoffsets.iTeamNum)];
+		DrawBox(ent, color, 1.0f, 0.0f);
+	break;
+	}
+	}
+}
+
 void HEsp::ProcessEntity(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
+	if (!ent->m_pEntity) return;
+	if (ent->m_pEntity->IsDormant()) return;
 	if (ent->m_bNULL) return;
 	if (ent->m_bDormant) return;
 
+	Color color = draw::white;
+
+	if (v_bEntityESP->GetBool()) {
+		ent->AddESPString(color, "%s [%i]", ent->m_pEntity->GetClientClass()->m_pNetworkName, ent->m_iClassID);
+	}
+
 	switch (ent->m_iClassID) {
+	case ClassID::CTFDroppedWeapon: {
+		if (!this->v_bItemESP->GetBool()) break;
+		ent->AddESPString(draw::white, "WEAPON");
+		if (this->v_bShowDistance) {
+			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
+		break;
+	}
+	case ClassID::CTFAmmoPack: {
+		if (!this->v_bItemESP->GetBool()) break;
+		ent->AddESPString(draw::white, "++ AMMO");
+		if (this->v_bShowDistance) {
+			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
+		break;
+	}
 	case ClassID::CBaseAnimating: {
 		if (!this->v_bItemESP->GetBool()) break;
 		item_type type = GetItemType(ent->m_pEntity);
 		if (type == item_type::item_null) break;
 		if (type >= item_medkit_small && type <= item_medkit_large) {
-			ent->AddESPString(draw::white, cstr("%s HEALTH", packs[type - item_medkit_small]));
+			ent->AddESPString(draw::white, "%s HEALTH", packs[type - item_medkit_small]);
 		} else if (type >= item_ammo_small && type <= item_ammo_large) {
-			ent->AddESPString(draw::white, cstr("%s AMMO", packs[type - item_ammo_small]));
+			ent->AddESPString(draw::white, "%s AMMO", packs[type - item_ammo_small]);
 		} else if (type >= item_mp_strength && type <= item_mp_crit) {
 			int skin = ent->m_pEntity->GetSkin();
-			Color pickupColor;
 			if (skin == 1) {
-				pickupColor = draw::red;
+				color = draw::red;
 			} else if (skin == 2) {
-				pickupColor = draw::blue;
+				color = draw::blue;
 			} else {
-				pickupColor = draw::yellow;
+				color = draw::yellow;
 			}
-			ent->AddESPString(pickupColor, cstr("%s PICKUP", powerups[type - item_mp_strength]));
+			ent->AddESPString(color, "%s PICKUP", powerups[type - item_mp_strength]);
+		}
+		if (this->v_bShowDistance) {
+			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}
 	case ClassID::CTFPlayer: {
-
+		if (!ent->m_bAlivePlayer) break;
+		if (ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
+		int health = ent->Var<int>(eoffsets.iHealth);
+		int pclass = ent->Var<int>(eoffsets.iClass);
+		int pcond = ent->Var<int>(eoffsets.iCond);
+		player_info_t info;
+		if (!interfaces::engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
+		powerup_type power = GetPowerupOnPlayer(ent->m_pEntity);
+		// If target is enemy, always show powerups, if player is teammate, show powerups
+		// only if bTeammatePowerup or bTeammates is true
+		color = TEAM_COLORS[ent->m_iTeam];
+		if (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity)) {
+			color = TEAM_COLORS[0];
+		}
+		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
+			ent->AddESPString(color, "HAS [%s]", powerups[power]);
+		}
+		if (ent->m_bEnemy || v_bTeammates->GetBool() || (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity))) {
+			ent->AddESPString(color, "%s", info.name);
+			if (v_bShowFriendID->GetBool()) {
+				ent->AddESPString(color, "%lu", info.friendsID);
+			}
+			if (pclass > 0 && pclass < 10)
+				ent->AddESPString(color, "%s", classes[pclass - 1]);
+			ent->AddESPString(color, "%i", health);
+			if (pcond & cond::cloaked) {
+				ent->AddESPString(color, "CLOAKED");
+			}
+			if (IsPlayerInvulnerable(ent->m_pEntity)) {
+				ent->AddESPString(color, "INVULNERABLE");
+			}
+			if (IsPlayerCritBoosted(ent->m_pEntity)) {
+				ent->AddESPString(color, "CRIT BOOSTED");
+			}
+			if (this->v_bShowDistance) {
+				ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			}
+		}
 		break;
 	}
 	case ClassID::CObjectSentrygun:
 	case ClassID::CObjectDispenser:
 	case ClassID::CObjectTeleporter: {
+		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
+		int health = ent->Var<int>(eoffsets.iBuildingHealth);
+		int level = ent->Var<int>(eoffsets.iUpgradeLevel);
+		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
+		color = TEAM_COLORS[ent->Var<int>(eoffsets.iTeamNum)];
+		ent->AddESPString(color, "LV %i %s", level, name);
+		ent->AddESPString(color, "%i HP", health);
+		if (this->v_bShowDistance) {
+			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
 		break;
 	}
-
 	}
-
-
-	/*if (!ent) return;
-	if (ent->IsDormant()) return;
-	int local = interfaces::engineClient->GetLocalPlayer();
-	IClientEntity* me = interfaces::entityList->GetClientEntity(local);
-
-	int my_team = GetEntityValue<int>(me, eoffsets.iTeamNum);
-
-	Vector world;
-	Vector min, max;
-	ent->GetRenderBounds(min, max);
-	float distance = (me->GetAbsOrigin() - ent->GetAbsOrigin()).Length();
-	world = ent->GetAbsOrigin();
-	world.z += (min.z + max.z) / 2;
-	Vector scr;
-	if (!draw::WorldToScreen(world, scr)) return;
-	// 89 tele 88 sentry 86 disp
+	/*
 	int ClassID = ent->GetClientClass()->m_ClassID;
 	scr.y -= 32;
 	if (v_bShowEntityID->GetBool()) {

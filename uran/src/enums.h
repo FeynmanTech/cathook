@@ -506,6 +506,13 @@ enum ClassID {
 	CBaseCombatWeapon = 5
 };
 
+enum tf_team {
+	TEAM_UNK = 0,
+	TEAM_SPEC,
+	TEAM_RED,
+	TEAM_BLU
+};
+
 enum tf_class {
 	tf_scout = 1,
 	tf_sniper,

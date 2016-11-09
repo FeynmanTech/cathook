@@ -78,27 +78,39 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 			}
 		}
 	}
+	if (!interfaces::engineClient->IsInGame()) return;
 	if (draw::panel_top == vp) {
 		for (IHack* i_hack : hack::hacks) {
 			i_hack->PaintTraverse(p, vp, fr, ar);
 		}
-	}
-	Vector screen;
-	for (int i = 0; i < gEntityCache.m_nMax; i++) {
-		CachedEntity* ce = gEntityCache.GetEntity(i);
-		if (ce->m_bNULL) continue;
-		if (!draw::EntityCenterToScreen(ce->m_pEntity, screen)) continue;
-		for (int j = 0; j < ce->m_nESPStrings; j++) {
-			draw::DrawString(screen.x, screen.y, *(ce->m_Strings[j].m_Color), true, ce->m_Strings[j].m_String);
-			screen.z += 14;
+		Vector screen;
+		for (int i = 0; i < gEntityCache.m_nMax && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
+			CachedEntity* ce = gEntityCache.GetEntity(i);
+			if (!ce->m_pEntity) continue;
+			if (ce->m_pEntity->IsDormant()) continue;
+			if (ce->m_bNULL) continue;
+			if (ce->m_ESPOrigin.IsZero(1.0f))
+				if (!draw::EntityCenterToScreen(ce->m_pEntity, screen)) continue;
+			for (int j = 0; j < ce->m_nESPStrings; j++) {
+				ESPStringCompound str = ce->GetESPString(j);
+				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
+				if (!ce->m_ESPOrigin.IsZero(1.0)) {
+					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, false, str.m_String);
+					ce->m_ESPOrigin.y += 14;
+				} else {
+					draw::DrawString(screen.x, screen.y, str.m_Color, true, str.m_String);
+					screen.y += 14;
+				}
+			}
 		}
 	}
 }
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	bool ret = ((CreateMove_t*)hooks::hkCreateMove->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
-	gEntityCache.Update();
+	if (!interfaces::engineClient->IsInGame()) return true;
 	if (!cmd) return ret;
+	gEntityCache.Update();
 	//logging::Info("Inside CreateMove");
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	//g_pLocalPlayer->bUseSilentAngles = false;

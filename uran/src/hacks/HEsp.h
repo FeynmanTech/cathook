@@ -11,6 +11,7 @@
 #include "IHack.h"
 
 class ConVar;
+class Color;
 class CachedEntity;
 
 class HEsp : public IHack {
@@ -19,7 +20,9 @@ public:
 	void PaintTraverse(void*, unsigned int, bool, bool);
 	void Create();
 	void Destroy();
+	void DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight);
 	void ProcessEntity(CachedEntity* ent);
+	void ProcessEntityPT(CachedEntity* ent);
 	ConVar* v_bEnabled;
 	ConVar* v_bBoxESP;
 	ConVar* v_bEntityESP;
@@ -27,8 +30,11 @@ public:
 	ConVar* v_bItemESP;
 	ConVar* v_bTeammatePowerup;
 	ConVar* v_bShowHead;
-	ConVar* v_bShowTargetScore;
 	ConVar* v_bShowEntityID;
+	ConVar* v_bBox;
+	ConVar* v_bShowDistance;
+	ConVar* v_bShowFriendID;
+	ConVar* v_bShowFriends;
 	//ConVar* v_bModelInfo;
 };
 

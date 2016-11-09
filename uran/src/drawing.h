@@ -8,15 +8,19 @@
 #ifndef DRAWING_H_
 #define DRAWING_H_
 
-class Color;
+#include "fixsdk.h"
+#include <Color.h>
+
 class Vector;
 class IClientEntity;
 
 struct ESPStringCompound {
 	ESPStringCompound();
 	char* m_String;
-	Color* m_Color;
+	Color m_Color;
 };
+
+extern Color TEAM_COLORS[4];
 
 namespace draw {
 
@@ -29,6 +33,7 @@ extern Color white;
 extern Color blue;
 extern Color red;
 extern Color yellow;
+extern Color black;
 
 void Initialize();
 void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);

@@ -26,16 +26,21 @@ Color draw::white(255, 255, 255, 255);
 Color draw::red(184, 56, 59, 255);
 Color draw::blue(88, 133, 162, 255);
 Color draw::yellow(255, 255, 0, 255);
+Color draw::black(0, 0, 0, 255);
+
+Color TEAM_COLORS[4] = {
+	draw::yellow, draw::white, draw::red, draw::blue
+};
 
 ESPStringCompound::ESPStringCompound() {
-	m_Color = nullptr;
+	m_Color = draw::white;
 	m_String = nullptr;
 }
 
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
 	draw::font_handle_large = interfaces::surface->CreateFont();
-	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Tahoma", 15, 500, 0, 0, 0x010 | 0x200);
+	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Tahoma", 16, 500, 0, 0, 0x010 | 0x200);
 	interfaces::surface->SetFontGlyphSet(draw::font_handle_large, "Tahoma", 32, 500, 0, 0, 0x200);
 }
 
@@ -47,6 +52,7 @@ void draw::DrawString(unsigned long font, int x, int y, Color color, const wchar
 }
 
 void draw::DrawString(int x, int y, Color color, bool center, const char* text, ...) {
+	if (!text) return;
 	va_list list;
 	char buffer[1024] = { '\0' };
 	wchar_t string[1024] = { '\0' };
@@ -70,7 +76,9 @@ bool draw::EntityCenterToScreen(IClientEntity* entity, Vector& out) {
 	world = entity->GetAbsOrigin();
 	world.z += (min.z + max.z) / 2;
 	Vector scr;
-	return draw::WorldToScreen(world, scr);
+	bool succ = draw::WorldToScreen(world, scr);
+	out = scr;
+	return succ;
 }
 
 bool draw::WorldToScreen(Vector& origin, Vector& screen) {

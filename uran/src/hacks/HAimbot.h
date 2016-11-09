@@ -21,6 +21,10 @@ public:
 	void PaintTraverse(void*, unsigned int, bool, bool);
 	bool ShouldTarget(IClientEntity* entity);
 	bool Aim(IClientEntity* entity, CUserCmd* cmd);
+	bool m_bProjectileMode;
+	float m_flProjSpeed;
+	bool m_bProjArc;
+	ConVar* v_bDebug;
 	ConVar* v_bEnabled;
 	ConVar* v_iHitbox;
 	ConVar* v_bPrediction;

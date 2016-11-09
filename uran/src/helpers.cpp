@@ -349,39 +349,63 @@ float DistToSqr(IClientEntity* entity) {
 
 bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc) {
 	if (!weapon) return false;
+	float rspeed;
+	bool rarc;
 	switch (weapon->GetClientClass()->m_ClassID) {
 	case weapons::WP_DIRECT_HIT:
-		speed = 1980;
-		arc = false;
+		rspeed = 1980;
+		rarc = false;
 	break;
 	case weapons::WP_ROCKET_LAUNCHER:
-		speed = 1100;
-		arc = false;
+		rspeed = 1100;
+		rarc = false;
 	break;
 	case weapons::WP_GRENADE_LAUNCHER:
-		speed = 1217.5f;
-		arc = true;
+		rspeed = 1217.5f;
+		rarc = true;
 	break;
 	case weapons::WP_HUNTSMAN:
-		speed = 2600.0f;
-		arc = true;
+		rspeed = 2600.0f;
+		rarc = true;
 	break;
 	case weapons::WP_SANDMAN:
-		speed = 3000.0f;
-		arc = true;
+		rspeed = 3000.0f;
+		rarc = true;
 	break;
 	case weapons::WP_FLAREGUN:
-		speed = 2000.0f;
-		arc = true;
+		rspeed = 2000.0f;
+		rarc = true;
 	break;
 	default:
 		return false;
 	}
+	speed = rspeed;
+	arc = rarc;
 	return true;
+}
+
+trace::FilterNoPlayer* vec_filter;
+bool IsVectorVisible(Vector origin, Vector target) {
+	//logging::Info("ISVV");
+	if (!vec_filter) {
+		vec_filter = new trace::FilterNoPlayer();
+	}
+	trace_t trace_visible;
+	Ray_t ray;
+	vec_filter->SetSelf(g_pLocalPlayer->entity);
+	ray.Init(origin, target);
+	interfaces::trace->TraceRay(ray, 0x4200400B, vec_filter, &trace_visible);
+	float dist2 = origin.DistToSqr(trace_visible.endpos);
+	float dist1 = origin.DistToSqr(target);
+	//logging::Info("Target: %.1f, %.1f, %.1f; ENDPOS: %.1f, %.1f, %.1f", target.x, target.y, target.z, trace_visible.endpos.x, trace_visible.endpos.y, trace_visible.endpos.z);
+	//logging::Info("Dist1: %f, Dist2: %f");
+	return (dist1 <= dist2);
 }
 
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result) {
 	if (!target) return false;
+	//logging::Info("PRED PROJ AIM");
+	//logging::Info("ProjSpeed: %f", speed);
 	Vector res1 = result;
 	if (GetHitboxPosition(target, hb, result)) {
 		res1 = target->GetAbsOrigin();
@@ -400,17 +424,19 @@ bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float
 	if (arc)
 		res1.z += (800 * 0.5 * 0.1 * time * time);
 	result = res1;
-	//if (!IsVisible())
-	return true;
+	//if (!IsVisible();
+	return IsVectorVisible(origin, res1);
 }
 
-char* cstr(const char* fmt, ...) {
-	char buffer[1024];
-	va_list list;
-	va_start(list, fmt);
-	vsprintf(buffer, fmt, list);
-	va_end(list);
-	return buffer;
+bool IsFriend(IClientEntity* ent) {
+	if (!ent) return false;
+	if (ent->IsDormant()) return false;
+	player_info_t info;
+	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), &info)) return false;
+	for (int i = 0; i < 1; i++) {
+		if (friends[i] == info.friendsID) return true;
+	}
+	return false;
 }
 
 const char* powerups[] = {
@@ -427,6 +453,10 @@ const char* powerups[] = {
 	"PLAGUE",
 	"SUPERNOVA",
 	"CRITS"
+};
+
+uint32 friends[] = {
+	39133950
 };
 
 const char* packs[] = {

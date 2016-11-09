@@ -26,6 +26,17 @@ public:
 	virtual TraceType_t GetTraceType() const;
 };
 
+class FilterNoPlayer : public ITraceFilter {
+public:
+	IClientEntity* m_pSelf;
+public:
+	virtual ~FilterNoPlayer();
+	FilterNoPlayer();
+	virtual bool ShouldHitEntity(IHandleEntity* entity, int mask);
+	void SetSelf(IClientEntity* self);
+	virtual TraceType_t GetTraceType() const;
+};
+
 }
 
 #endif /* TRACE_H_ */

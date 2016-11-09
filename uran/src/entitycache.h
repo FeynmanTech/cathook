@@ -8,6 +8,9 @@
 #ifndef ENTITYCACHE_H_
 #define ENTITYCACHE_H_
 
+#include "fixsdk.h"
+#include <mathlib/vector.h>
+
 class IClientEntity;
 class Color;
 struct ESPStringCompound;
@@ -20,16 +23,25 @@ public:
 	~CachedEntity();
 
 	void Update(int idx);
-	void AddESPString(Color color, const char* string);
+	void AddESPString(Color color, const char* string, ...);
+	ESPStringCompound GetESPString(int idx);
+	template<typename T>
+	T Var(unsigned offset);
 
 	// Entity fields start here.
 
 	bool m_bNULL;
 	bool m_bDormant;
 	int m_iClassID;
+	float m_flDistance;
+
+	int  m_iTeam;
+	bool m_bAlivePlayer;
+	bool m_bEnemy;
+
 
 	// CBaseEntity
-	int m_iTeamNum;
+	/*int m_iTeamNum;
 	bool m_bEnemy;
 
 	// CBasePlayer
@@ -53,16 +65,18 @@ public:
 	int m_iCondEx3;
 	float m_flChargeMeter;
 	float m_flEnergyDrinkMeter;
-	int m_nNumHealers;
+	int m_nNumHealers;*/
 
 	// Players, Buildings, Stickies
 
 
 	// Entity fields end here.
 
+	int m_IDX;
 	IClientEntity* m_pEntity;
 	ESPStringCompound* m_Strings;
 	int m_nESPStrings;
+	Vector m_ESPOrigin;
 };
 
 class EntityCache {

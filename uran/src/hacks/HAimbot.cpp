@@ -44,11 +44,12 @@ void HAimbot::Create() {
 	this->v_iMinRange = CreateConVar("u_aimbot_minrange", "0", "Minimum range to aim");
 	this->v_bPriority = CreateConVar("u_aimbot_priority", "1", "Use priority system");
 	this->v_bRespectCloak = CreateConVar("u_aimbot_respect_cloak", "1", "Will not shoot cloaked spies.");
-	this->v_bCharge = CreateConVar("u_aimbot_charge", "1", "Autoshoot only with charge ready");
+	this->v_bCharge = CreateConVar("u_aimbot_charge", "0", "Autoshoot only with charge ready");
 	this->v_bEnabledAttacking = CreateConVar("u_aimbot_enable_attack_only", "0", "Aimbot only active with attack key held");
 	this->v_bStrictAttack = CreateConVar("u_aimbot_strict_attack", "0", "Not attacking unless target is locked");
 	this->v_bProjectileAimbot = CreateConVar("u_aimbot_projectile", "1", "Projectile aimbot (EXPERIMENTAL)");
 	this->v_iOverrideProjSpeed = CreateConVar("u_aimbot_proj_speed", "0", "Override proj speed");
+	this->v_bDebug = CreateConVar("u_aimbot_debug", "0", "Aimbot debug");
 	fix_silent = false;
 }
 
@@ -71,6 +72,7 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	} /* Grappling hook */
 	if (!this->v_bEnabled->GetBool()) return true;
 	//logging::Info("Creating move.. aimbot");
+	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc));
 	if (!this->v_bPriority->GetBool()) {
 		IClientEntity* target_locked = interfaces::entityList->GetClientEntity(target_lock);
 		if (target_locked != 0) {
@@ -89,6 +91,9 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		if (ent == 0) continue;
 		if (ent->GetClientClass()->m_ClassID != 241) continue; // TODO magic number: player
 		if (ShouldTarget(ent)) {
+			//if (v_bDebug->GetBool()) {
+
+			//}
 			if (!this->v_bPriority->GetBool()) {
 				target_lock = i;
 				if (Aim(ent, cmd)) {
@@ -128,6 +133,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
 		int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
 		IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
+		if (!rifle) return false;
 		float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
 		if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
 	}
@@ -140,10 +146,16 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	}
 	int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
 	if ((econd & cond_ex::vacc_bullet)) return false;
-	return IsEntityVisible(entity, v_iHitbox->GetInt());
+	if (!m_bProjectileMode)
+		return IsEntityVisible(entity, v_iHitbox->GetInt());
+	else {
+		Vector res = entity->GetAbsOrigin();
+		return PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), m_flProjSpeed, m_bProjArc, res);
+	}
 }
 
 void PredictPosition(Vector vec, IClientEntity* ent) {
+	if (!ent) return;
 	Vector vel = GetEntityValue<Vector>(ent, eoffsets.vVelocity);
 	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
 			interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
@@ -172,16 +184,6 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);
 	cmd->viewangles = angles;
-	//logging::Info("Angles: %f %f %f", angles.x, angles.y, angles.z);
-	if (this->v_bAutoShoot->GetBool()) {
-		if (this->v_iAutoShootCharge->GetBool() && (GetEntityValue<int>(local, eoffsets.iClass) == 2)) {
-			int rifleHandle = GetEntityValue<int>(local, eoffsets.hActiveWeapon);
-			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
-			if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
-		}
-		cmd->buttons |= IN_ATTACK;
-	}
 	if (this->v_bSilent->GetBool()) {
 		//FixMovement(*cmd, viewangles_old);
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
@@ -192,30 +194,15 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		cmd->forwardmove = cos(yaw) * speed;
 		cmd->sidemove = sin(yaw) * speed;
 	}
-	if (!this->v_bSilent->GetBool()) {
-		QAngle a;
-		a.x = angles.x;
-		a.y = angles.y;
-		a.z = angles.z;
-		interfaces::engineClient->SetViewAngles(a);
+	//logging::Info("Angles: %f %f %f", angles.x, angles.y, angles.z);
+	if (this->v_bAutoShoot->GetBool()) {
+		if (this->v_iAutoShootCharge->GetBool() && (GetEntityValue<int>(local, eoffsets.iClass) == 2)) {
+			int rifleHandle = GetEntityValue<int>(local, eoffsets.hActiveWeapon);
+			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
+			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
+			if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
+		}
+		cmd->buttons |= IN_ATTACK;
 	}
-	//if (this->v_bSilent->GetBool()) {
-		//FixMovement(*cmd, viewangles_old);
-		//g_pLocalPlayer->bUseSilentAngles = true;
-		/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
-		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
-		Vector ang;
-		VectorAngles(vsilent, ang);
-		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
-		cmd->forwardmove = cos(yaw) * speed;
-		cmd->sidemove = sin(yaw) * speed;*/
-	//}
-	/*if (!this->v_bSilent->GetBool()) {
-		QAngle a;
-		a.x = angles.x;
-		a.y = angles.y;
-		a.z = angles.z;
-		interfaces::engineClient->SetViewAngles(a);
-	}*/
 	return true;
 }

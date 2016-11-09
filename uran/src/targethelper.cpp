@@ -24,6 +24,7 @@
 
 /* Assuming given entity is a valid target range 0 to 100 */
 int GetScoreForEntity(IClientEntity* entity) {
+	if (!entity) return 0;
 	int clazz = GetEntityValue<int>(entity, eoffsets.iClass);
 	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
 	float distance = (g_pLocalPlayer->v_Origin - entity->GetAbsOrigin()).Length();
