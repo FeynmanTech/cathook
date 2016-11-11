@@ -55,7 +55,7 @@ void HEsp::Create() {
 	this->v_bShowFriends = CreateConVar("u_esp_friends", "1", "Show friends");
 	this->v_bVisCheck = CreateConVar("u_esp_vischeck", "1", "Visibility Checking");
 	this->v_bLegit = CreateConVar("u_esp_legit", "0", "'legit' esp mode");
-	this->v_bLegitSeenTicks = CreateConVar("u_esp_legit_seenticks", "800", "Ticks the entity is 'predicted'");
+	this->v_iLegitSeenTicks = CreateConVar("u_esp_legit_seenticks", "150", "Ticks the entity is still shown after being hidden");
 }
 
 #define ESP_HEIGHT 14
@@ -107,6 +107,12 @@ void HEsp::ProcessEntityPT(CachedEntity* ent) {
 	Color color;
 	switch (ent->m_iClassID) {
 	case ClassID::CTFPlayer: {
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
+			if (ent->Var<int>(eoffsets.iCond) & cond::cloaked) return;
+			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+				return;
+			}
+		}
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !(v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity))) break;
 		if (!ent->m_bAlivePlayer) break;
 		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
@@ -192,6 +198,12 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
 		if (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity)) {
 			color = colors::yellow;
+		}
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
+			if (pcond & cond::cloaked) return;
+			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+				return;
+			}
 		}
 		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			ent->AddESPString(color, "HAS [%s]", powerups[power]);

@@ -10,6 +10,8 @@
 
 #include "IHack.h"
 
+class ConVar;
+
 class Tracers : public IHack {
 public:
 	DECL_HACK

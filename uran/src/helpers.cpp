@@ -296,6 +296,10 @@ float deg2rad(float deg) {
 	return deg * (PI / 180);
 }
 
+bool IsPlayerInvisible(IClientEntity* player) {
+	return false; // TODO stumpy.flv
+}
+
 trace::FilterDefault* trace_filter;
 bool IsEntityVisible(IClientEntity* entity, int hb) {
 	if (!trace_filter) {

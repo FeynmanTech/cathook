@@ -23,6 +23,7 @@ void LocalPlayer::Update() {
 	v_ViewOffset = GetEntityValue<Vector>(entity, eoffsets.vViewOffset);
 	v_Origin = entity->GetAbsOrigin();
 	v_Eye = v_Origin + v_ViewOffset;
+	cond_0 = GetEntityValue<int>(entity, eoffsets.iCond);
 	int hWeapon = GetEntityValue<int>(entity, eoffsets.hActiveWeapon);
 	if (hWeapon)
 		weapon = interfaces::entityList->GetClientEntity(hWeapon & 0xFFF);

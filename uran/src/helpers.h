@@ -25,6 +25,7 @@ class Vector;
 
 bool IsPlayerCritBoosted(IClientEntity* player);
 bool IsPlayerInvulnerable(IClientEntity* player);
+bool IsPlayerInvisible(IClientEntity* player);
 //bool SpyIsVisible(IClientEntity* spy);
 ConVar* CreateConVar(const char* name, const char* value, const char* help);
 ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, const char* help);

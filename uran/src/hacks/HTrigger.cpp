@@ -103,7 +103,7 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		((GetEntityValue<int>(entity, eoffsets.iCond)) & cond::cloaked)) return true;
 	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
 	bool bodyshot = false;
-	if (g_pLocalPlayer->clazz == 2) {
+	if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 		// If sniper..
 		if (health <= 50 && this->v_bFinishingHit->GetBool()) {
 			bodyshot = true;
@@ -119,13 +119,13 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		}
 
 	}
-	if ((g_pLocalPlayer->clazz == 2) && this->v_bZoomedOnly->GetBool() &&
-		!(g_pLocalPlayer->cond_0 & cond::zoomed) && !bodyshot) {
+	if (!bodyshot && (g_pLocalPlayer->clazz == tf_class::tf_sniper) && this->v_bZoomedOnly->GetBool() &&
+		!(g_pLocalPlayer->cond_0 & cond::zoomed)) {
 		return true;
 	}
 	//IClientEntity* weapon;
-	if (this->v_iHitbox->GetInt() >= 0) {
-		if (!bodyshot && (enemy_trace->hitbox != this->v_iHitbox->GetInt())) return true;
+	if (this->v_iHitbox->GetInt() >= 0 && !bodyshot) {
+		if (enemy_trace->hitbox != this->v_iHitbox->GetInt()) return true;
 	}
 	cmd->buttons |= IN_ATTACK;
 	return true;

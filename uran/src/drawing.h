@@ -54,7 +54,7 @@ void DrawRect(int x, int y, int w, int h, Color color);
 bool WorldToScreen(Vector &origin, Vector &screen);
 bool EntityCenterToScreen(IClientEntity* entity, Vector& out);
 void OutlineRect(int x, int y, int w, int h, Color color);
-void GetStringLength(wchar_t* string, int& length, int& height);
+void GetStringLength(char* string, int& length, int& height);
 
 }
 

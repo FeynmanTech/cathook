@@ -29,7 +29,7 @@ Color draw::yellow(255, 255, 0, 255);
 Color draw::black(0, 0, 0, 255);
 
 Color colors::white(255, 255, 255, 255);
-Color colors::black(0,   0,   0,   0);
+Color colors::black(0,   0,   0,   255);
 Color colors::tf_red(184, 56,  59,  255);
 Color colors::tf_blu(88,  133, 162, 255);
 Color colors::yellow(255, 255, 0,   255);
@@ -96,11 +96,13 @@ void draw::DrawString(int x, int y, Color color, bool center, const char* text, 
 	vsprintf(buffer, text, list);
 	va_end(list);
 	swprintf(string, 1024, L"%s", buffer);
+	int l, h;
+	draw::GetStringLength((char*)text, l, h);
 	if (center) {
-		int l, h;
-		draw::GetStringLength(string, l, h);
 		x -= (l / 2);
 	}
+	draw::GetStringLength((char*)text, l, h);
+	draw::DrawRect(x, y + 1, l, h - 5, colors::black);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 
@@ -135,8 +137,8 @@ void draw::OutlineRect(int x, int y, int w, int h, Color color) {
 	interfaces::surface->DrawOutlinedRect(x, y, x + w, y + h);
 }
 
-void draw::GetStringLength(wchar_t* string, int& length, int& height) {
-	//wchar_t buf[1024] = {'\0'};
-	//mbstowcs(buf, string, strlen(string));
-	interfaces::surface->GetTextSize(draw::font_handle, string, length, height);
+void draw::GetStringLength(char* string, int& length, int& height) {
+	wchar_t buf[1024] = {'\0'};
+	mbstowcs(buf, string, strlen(string));
+	interfaces::surface->GetTextSize(draw::font_handle, buf, length, height);
 }

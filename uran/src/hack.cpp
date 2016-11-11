@@ -98,6 +98,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				ESPStringCompound str = ce->GetESPString(j);
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
 				if (!ce->m_ESPOrigin.IsZero(1.0)) {
+					int sw, sh;
 					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, false, str.m_String);
 					ce->m_ESPOrigin.y += 14;
 				} else {
