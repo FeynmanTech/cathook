@@ -8,6 +8,7 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
+class CachedEntity;
 class IClientEntity;
 class ConVar;
 class ConCommand;
@@ -45,6 +46,7 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
 bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
 bool IsFriend(IClientEntity* ent);
+bool CheckCE(CachedEntity* entity);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];

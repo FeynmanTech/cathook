@@ -12,6 +12,7 @@
 #include "usercmd.h"
 #include "trace.h"
 #include "localplayer.h"
+#include "entitycache.h"
 
 #include "fixsdk.h"
 #include <tier1/convar.h>
@@ -437,6 +438,10 @@ bool IsFriend(IClientEntity* ent) {
 		if (friends[i] == info.friendsID) return true;
 	}
 	return false;
+}
+
+bool CheckCE(CachedEntity* entity) {
+	return (entity && entity->m_pEntity && !entity->m_pEntity->IsDormant());
 }
 
 const char* powerups[] = {

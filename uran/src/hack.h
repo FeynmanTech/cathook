@@ -17,6 +17,7 @@ namespace hack {
 
 extern std::vector<IHack*> hacks;
 extern bool shutdown;
+extern bool invalidated;
 
 void Hk_PaintTraverse(void*, unsigned int, bool, bool);
 bool Hk_CreateMove(void*, float, CUserCmd*);

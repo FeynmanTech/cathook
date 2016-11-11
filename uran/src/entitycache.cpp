@@ -50,10 +50,8 @@ void CachedEntity::Update(int idx) {
 	} else {
 		m_bNULL = false;
 	}
-
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
 	m_bDormant = m_pEntity->IsDormant();
-
 	if (g_pLocalPlayer->entity) {
 		m_flDistance = (g_pLocalPlayer->entity->GetAbsOrigin().DistTo(m_pEntity->GetAbsOrigin()));
 	}
@@ -101,13 +99,16 @@ EntityCache::EntityCache() {
 }
 
 EntityCache::~EntityCache() {
+	logging::Info("Destroying EntityCache!");
 	delete m_pArray;
 }
 
 void EntityCache::Update() {
 	m_nMax = interfaces::entityList->GetHighestEntityIndex();
-	for (int i = 0; i < m_nMax; i++) {
+	for (int i = 0; i < m_nMax && i < 4096; i++) {
+		//logging::Info("Updating %i", i);
 		m_pArray[i].Update(i);
+		//logging::Info("Back!");
 	}
 }
 
@@ -115,6 +116,7 @@ CachedEntity* EntityCache::GetEntity(int idx) {
 	if (idx < 0 || idx >= m_nMax) {
 		logging::Info("Requested invalid entity: %i", idx);
 	}
+	//logging::Info("Request entity: %i, 0x%08x", idx, m_pArray[idx].m_pEntity);
 	return &(m_pArray[idx]);
 }
 

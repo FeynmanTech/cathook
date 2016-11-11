@@ -58,8 +58,7 @@ void HEsp::Create() {
 #define ESP_HEIGHT 14
 
 void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight) {
-	//logging::Info("DRAWING BOX OF %i", ent->m_IDX);
-	if (!ent || !ent->m_pEntity || ent->m_pEntity->IsDormant()) return;
+	if (!CheckCE(ent)) return;
 	Vector min, max;
 	ent->m_pEntity->GetRenderBounds(min, max);
 	Vector origin = ent->m_pEntity->GetAbsOrigin();
@@ -94,9 +93,7 @@ void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHei
 void HEsp::ProcessEntityPT(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (!this->v_bBox->GetBool()) return;
-	if (ent->m_pEntity != interfaces::entityList->GetClientEntity(ent->m_IDX)) return;
-	if (!ent || !ent->m_pEntity) return;
-	if (ent->m_pEntity->IsDormant()) return;
+	if (!CheckCE(ent)) return;
 	if (ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
 	Color color;
 	switch (ent->m_iClassID) {
@@ -123,10 +120,7 @@ void HEsp::ProcessEntityPT(CachedEntity* ent) {
 
 void HEsp::ProcessEntity(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
-	if (!ent->m_pEntity) return;
-	if (ent->m_pEntity->IsDormant()) return;
-	if (ent->m_bNULL) return;
-	if (ent->m_bDormant) return;
+	if (!CheckCE(ent)) return;
 
 	Color color = draw::white;
 

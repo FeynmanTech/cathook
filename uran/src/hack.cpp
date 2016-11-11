@@ -64,6 +64,8 @@
 typedef void(PaintTraverse_t)(void*, unsigned int, bool, bool);
 typedef bool(CreateMove_t)(void*, float, CUserCmd*);
 
+bool hack::invalidated = true;
+
 void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	((PaintTraverse_t*)hooks::hkPaintTraverse->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
 	if (!draw::width || !draw::height) {
@@ -78,7 +80,10 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 			}
 		}
 	}
-	if (!interfaces::engineClient->IsInGame()) return;
+	if (!interfaces::engineClient->IsInGame()) {
+		hack::invalidated = true;
+	}
+	if (hack::invalidated) return;
 	if (draw::panel_top == vp) {
 		for (IHack* i_hack : hack::hacks) {
 			i_hack->PaintTraverse(p, vp, fr, ar);
@@ -86,9 +91,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		Vector screen;
 		for (int i = 0; i < gEntityCache.m_nMax && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
 			CachedEntity* ce = gEntityCache.GetEntity(i);
-			if (!ce->m_pEntity) continue;
-			if (ce->m_pEntity->IsDormant()) continue;
-			if (ce->m_bNULL) continue;
+			if (!CheckCE(ce)) continue;
 			if (ce->m_ESPOrigin.IsZero(1.0f))
 				if (!draw::EntityCenterToScreen(ce->m_pEntity, screen)) continue;
 			for (int j = 0; j < ce->m_nESPStrings; j++) {
@@ -108,13 +111,17 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	bool ret = ((CreateMove_t*)hooks::hkCreateMove->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
-	if (!interfaces::engineClient->IsInGame()) return true;
+	if (!interfaces::engineClient->IsInGame()) {
+		hack::invalidated = true;
+		return true;
+	}
 	if (!cmd) return ret;
-	gEntityCache.Update();
-	//logging::Info("Inside CreateMove");
-	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
-	//g_pLocalPlayer->bUseSilentAngles = false;
 	g_pLocalPlayer->Update();
+	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
+	gEntityCache.Update();
+
+	//logging::Info("Inside CreateMove");
+	//g_pLocalPlayer->bUseSilentAngles = false;
 	//logging::Info("Inside CreateMove #1");
 	for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
@@ -122,6 +129,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 			//g_pLocalPlayer->bUseSilentAngles = true;
 		}
 	}
+	hack::invalidated = false;
 	//logging::Info("Inside CreateMove #2");
 	/*if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
