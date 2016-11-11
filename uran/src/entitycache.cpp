@@ -62,6 +62,8 @@ void CachedEntity::Update(int idx) {
 		m_iTeam = Var<int>(eoffsets.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_bIsVisible = (IsEntityVisible(m_pEntity, 0) || IsEntityVisible(m_pEntity, 4));
+		if (m_bIsVisible) m_lLastSeen = 0;
+		else m_lLastSeen++;
 	}
 }
 

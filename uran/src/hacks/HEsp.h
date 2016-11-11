@@ -36,6 +36,8 @@ public:
 	ConVar* v_bShowFriendID;
 	ConVar* v_bShowFriends;
 	ConVar* v_bVisCheck;
+	ConVar* v_bLegit;
+	ConVar* v_bLegitSeenTicks;
 	//ConVar* v_bModelInfo;
 };
 

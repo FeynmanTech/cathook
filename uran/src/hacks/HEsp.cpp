@@ -54,6 +54,8 @@ void HEsp::Create() {
 	this->v_bShowFriendID = CreateConVar("u_esp_friendid", "0", "Show friend ID");
 	this->v_bShowFriends = CreateConVar("u_esp_friends", "1", "Show friends");
 	this->v_bVisCheck = CreateConVar("u_esp_vischeck", "1", "Visibility Checking");
+	this->v_bLegit = CreateConVar("u_esp_legit", "0", "'legit' esp mode");
+	this->v_bLegitSeenTicks = CreateConVar("u_esp_legit_seenticks", "800", "Ticks the entity is 'predicted'");
 }
 
 #define ESP_HEIGHT 14

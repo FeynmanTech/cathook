@@ -40,6 +40,7 @@ public:
 	bool m_bEnemy;
 
 	bool m_bIsVisible;
+	unsigned long m_lLastSeen;
 
 
 	// CBaseEntity
