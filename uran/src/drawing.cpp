@@ -28,9 +28,45 @@ Color draw::blue(88, 133, 162, 255);
 Color draw::yellow(255, 255, 0, 255);
 Color draw::black(0, 0, 0, 255);
 
+Color colors::white(255, 255, 255, 255);
+Color colors::black(0,   0,   0,   0);
+Color colors::tf_red(184, 56,  59,  255);
+Color colors::tf_blu(88,  133, 162, 255);
+Color colors::yellow(255, 255, 0,   255);
+Color colors::dk_red(100, 40,  40,  255);
+Color colors::dk_blu(40,  40,  100, 255);
+
+Color colors::GetTeamColor(int team, bool dark) {
+	if (team == 2) {
+		if (dark)
+			return colors::dk_red;
+		else
+			return colors::tf_red;
+	} else if (team == 3) {
+		if (dark)
+			return colors::dk_blu;
+		else
+			return colors::tf_blu;
+	}
+	return colors::white;
+}
+
 Color TEAM_COLORS[4] = {
 	draw::yellow, draw::white, draw::red, draw::blue
 };
+
+Color colors::GetHealthColor(int health, int max) {
+	float hf = (float)health / (float)max;
+	if (hf > 1) {
+		return Color(64, 128, 255, 255);
+	}
+	return Color((hf <= 0.5 ? 1.0 : 1.0 - 2 * (hf - 0.5)) * 255, (hf <= 0.5 ? (2 * hf) : 1) * 255, 0, 255);
+}
+
+void draw::DrawRect(int x, int y, int w, int h, Color color) {
+	interfaces::surface->DrawSetColor(color);
+	interfaces::surface->DrawFilledRect(x, y, x + w, y + h);
+}
 
 ESPStringCompound::ESPStringCompound() {
 	m_Color = draw::white;
@@ -40,8 +76,8 @@ ESPStringCompound::ESPStringCompound() {
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
 	draw::font_handle_large = interfaces::surface->CreateFont();
-	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Tahoma", 16, 500, 0, 0, 0x010 | 0x200);
-	interfaces::surface->SetFontGlyphSet(draw::font_handle_large, "Tahoma", 32, 500, 0, 0, 0x200);
+	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Ubuntu Mono Bold", 17, 500, 0, 0, 0x200);
+	interfaces::surface->SetFontGlyphSet(draw::font_handle_large, "TF2 BUILD", 32, 500, 0, 0, 0x200);
 }
 
 void draw::DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text) {

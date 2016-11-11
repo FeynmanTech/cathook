@@ -48,6 +48,7 @@ public:
 	offset_t iUpgradeLevel;
 	offset_t iPipeType;
 	offset_t iBuildingHealth;
+	offset_t iBuildingMaxHealth;
 	offset_t iHitboxSet;
 	offset_t vVelocity;
 	offset_t bGlowEnabled;

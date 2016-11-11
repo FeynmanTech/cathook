@@ -25,6 +25,7 @@ void EntityVariables::Init() {
 	this->iUpgradeLevel = gNetvars.get_offset("DT_BaseObject", "m_iUpgradeLevel");
 	this->iPipeType = gNetvars.get_offset("DT_TFProjectile_Pipebomb", "m_iType");
 	this->iBuildingHealth = gNetvars.get_offset("DT_BaseObject", "m_iHealth");
+	this->iBuildingMaxHealth = gNetvars.get_offset("DT_BaseObject", "m_iMaxHealth");
 	this->iCond1 = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCondEx");
 	this->iCond2 = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCondEx2");
 	this->iCond3 = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCondEx3");

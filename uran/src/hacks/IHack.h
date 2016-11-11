@@ -10,6 +10,12 @@
 
 class CUserCmd;
 
+#define DECL_HACK \
+	void Create(); \
+	bool CreateMove(void*, float, CUserCmd*); \
+	void Destroy(); \
+	void PaintTraverse(void*, unsigned int, bool, bool);
+
 class IHack {
 public:
 	inline virtual ~IHack() {};

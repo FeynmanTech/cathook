@@ -204,6 +204,26 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 	out[2] = (in1[0] * in2[2][0] + in1[1] * in2[2][1] + in1[2] * in2[2][2]) + in2[2][3];
 }
 
+int ClassMaxHealth(int clazz) {
+	switch(clazz) {
+	case tf_scout:
+	case tf_spy:
+	case tf_sniper:
+	case tf_engineer:
+		return 125;
+	case tf_soldier:
+		return 200;
+	case tf_medic:
+		return 150;
+	case tf_heavy:
+		return 300;
+	case tf_demoman:
+	case tf_pyro:
+		return 175;
+	}
+	return 0;
+}
+
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
 	if (!entity) return 1;
 	if (entity->IsDormant()) return 1;
@@ -288,7 +308,7 @@ bool IsEntityVisible(IClientEntity* entity, int hb) {
 	Vector hit;
 	int ret = GetHitboxPosition(entity, hb, hit);
 	if (ret) {
-		logging::Info("Couldn't get hitbox position: %i", hb);
+		//logging::Info("Couldn't get hitbox position: %i", hb);
 		return false;
 	}
 	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);

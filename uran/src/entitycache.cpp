@@ -12,6 +12,7 @@
 #include "enums.h"
 #include "entity.h"
 #include "localplayer.h"
+#include "helpers.h"
 
 #include "fixsdk.h"
 #include <icliententitylist.h>
@@ -60,6 +61,7 @@ void CachedEntity::Update(int idx) {
 		m_bAlivePlayer = !(m_bNULL || m_bDormant || GetEntityValue<char>(m_pEntity, eoffsets.iLifeState));
 		m_iTeam = Var<int>(eoffsets.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
+		m_bIsVisible = (IsEntityVisible(m_pEntity, 0) || IsEntityVisible(m_pEntity, 4));
 	}
 }
 

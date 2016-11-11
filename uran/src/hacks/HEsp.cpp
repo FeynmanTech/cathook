@@ -53,11 +53,12 @@ void HEsp::Create() {
 	this->v_bBox = CreateConVar("u_esp_box", "1", "Box");
 	this->v_bShowFriendID = CreateConVar("u_esp_friendid", "0", "Show friend ID");
 	this->v_bShowFriends = CreateConVar("u_esp_friends", "1", "Show friends");
+	this->v_bVisCheck = CreateConVar("u_esp_vischeck", "1", "Visibility Checking");
 }
 
 #define ESP_HEIGHT 14
 
-void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight) {
+void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (!CheckCE(ent)) return;
 	Vector min, max;
 	ent->m_pEntity->GetRenderBounds(min, max);
@@ -86,6 +87,12 @@ void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHei
 	ent->m_ESPOrigin.y = so.y - height;
 	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, draw::black);
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
+	if (healthbar) {
+		Color hp = colors::GetHealthColor(health, healthmax);
+		int hbh = (height - 1) * min((float)health / (float)healthmax, 1.0f);
+		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, draw::black);
+		draw::DrawRect(so.x - width / 2 - 6, so.y - 1 - hbh, 5, hbh, hp);
+	}
 	//draw::OutlineRect(min(smin.x, smax.x) - 1, min(smin.y, smax.y) - 1, max(smin.x, smax.x), max(smin.y, smax.y), draw::black);
 	//draw::OutlineRect(min(smin.x, smax.x), min(smin.y, smax.y), max(smin.x, smax.x), max(smin.y, smax.y), clr);
 }
@@ -100,19 +107,19 @@ void HEsp::ProcessEntityPT(CachedEntity* ent) {
 	case ClassID::CTFPlayer: {
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !(v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity))) break;
 		if (!ent->m_bAlivePlayer) break;
-		color = TEAM_COLORS[ent->m_iTeam];
+		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
 		if (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity)) {
-			color = TEAM_COLORS[0];
+			color = colors::yellow;
 		}
-		DrawBox(ent, color, 3.0f, -15.0f);
+		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(eoffsets.iHealth), ClassMaxHealth(ent->Var<int>(eoffsets.iClass)));
 	break;
 	}
 	case ClassID::CObjectSentrygun:
 	case ClassID::CObjectDispenser:
 	case ClassID::CObjectTeleporter: {
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
-		color = TEAM_COLORS[ent->Var<int>(eoffsets.iTeamNum)];
-		DrawBox(ent, color, 1.0f, 0.0f);
+		color = colors::GetTeamColor(ent->Var<int>(eoffsets.iTeamNum), false);
+		DrawBox(ent, color, 1.0f, 0.0f, true, ent->Var<int>(eoffsets.iBuildingHealth), ent->Var<int>(eoffsets.iBuildingMaxHealth));
 	break;
 	}
 	}
@@ -180,9 +187,9 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 		powerup_type power = GetPowerupOnPlayer(ent->m_pEntity);
 		// If target is enemy, always show powerups, if player is teammate, show powerups
 		// only if bTeammatePowerup or bTeammates is true
-		color = TEAM_COLORS[ent->m_iTeam];
+		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
 		if (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity)) {
-			color = TEAM_COLORS[0];
+			color = colors::yellow;
 		}
 		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			ent->AddESPString(color, "HAS [%s]", powerups[power]);
@@ -194,7 +201,7 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 			}
 			if (pclass > 0 && pclass < 10)
 				ent->AddESPString(color, "%s", classes[pclass - 1]);
-			ent->AddESPString(color, "%i", health);
+			//ent->AddESPString(color, "%i", health);
 			if (pcond & cond::cloaked) {
 				ent->AddESPString(color, "CLOAKED");
 			}
@@ -214,12 +221,11 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 	case ClassID::CObjectDispenser:
 	case ClassID::CObjectTeleporter: {
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
-		int health = ent->Var<int>(eoffsets.iBuildingHealth);
 		int level = ent->Var<int>(eoffsets.iUpgradeLevel);
 		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
 		color = TEAM_COLORS[ent->Var<int>(eoffsets.iTeamNum)];
 		ent->AddESPString(color, "LV %i %s", level, name);
-		ent->AddESPString(color, "%i HP", health);
+		//ent->AddESPString(color, "%i HP", health);
 		if (this->v_bShowDistance) {
 			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}

@@ -20,7 +20,7 @@ public:
 	void PaintTraverse(void*, unsigned int, bool, bool);
 	void Create();
 	void Destroy();
-	void DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight);
+	void DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);
 	ConVar* v_bEnabled;
@@ -35,6 +35,7 @@ public:
 	ConVar* v_bShowDistance;
 	ConVar* v_bShowFriendID;
 	ConVar* v_bShowFriends;
+	ConVar* v_bVisCheck;
 	//ConVar* v_bModelInfo;
 };
 

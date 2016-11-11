@@ -39,6 +39,8 @@ public:
 	bool m_bAlivePlayer;
 	bool m_bEnemy;
 
+	bool m_bIsVisible;
+
 
 	// CBaseEntity
 	/*int m_iTeamNum;
