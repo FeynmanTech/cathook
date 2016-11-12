@@ -50,6 +50,7 @@ void HAimbot::Create() {
 	this->v_bProjectileAimbot = CreateConVar("u_aimbot_projectile", "1", "Projectile aimbot (EXPERIMENTAL)");
 	this->v_iOverrideProjSpeed = CreateConVar("u_aimbot_proj_speed", "0", "Override proj speed");
 	this->v_bDebug = CreateConVar("u_aimbot_debug", "0", "Aimbot debug");
+	this->v_iFOV = CreateConVar("u_aimbot_fov", "0", "FOV aimbot (experimental)");
 	fix_silent = false;
 }
 
@@ -146,11 +147,16 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	}
 	int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
 	if ((econd & cond_ex::vacc_bullet)) return false;
-	if (!m_bProjectileMode)
+	if (!m_bProjectileMode) {
+		Vector hbv;
+		if (GetHitboxPosition(entity, v_iHitbox->GetInt(), hbv)) return false;
+		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, hbv) > v_iFOV->GetInt())) return false;
 		return IsEntityVisible(entity, v_iHitbox->GetInt());
-	else {
+	} else {
 		Vector res = entity->GetAbsOrigin();
-		return PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), m_flProjSpeed, m_bProjArc, res);
+		bool succ = PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), m_flProjSpeed, m_bProjArc, res);
+		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, res) > v_iFOV->GetInt())) return false;
+		return succ;
 	}
 }
 

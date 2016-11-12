@@ -471,6 +471,43 @@ bool CheckCE(CachedEntity* entity) {
 	return (entity && entity->m_pEntity && !entity->m_pEntity->IsDormant());
 }
 
+// F1 c&p
+Vector CalcAngle(Vector src, Vector dst) {
+	Vector AimAngles;
+	Vector delta = src - dst;
+	float hyp = sqrtf((delta.x * delta.x) + (delta.y * delta.y)); //SUPER SECRET IMPROVEMENT CODE NAME DONUT STEEL
+	AimAngles.x = atanf(delta.z / hyp) * RADPI;
+	AimAngles.y = atanf(delta.y / delta.x) * RADPI;
+	AimAngles.z = 0.0f;
+	if(delta.x >= 0.0)
+		AimAngles.y += 180.0f;
+	return AimAngles;
+}
+
+void MakeVector(Vector angle, Vector& vector)
+{
+	float pitch = float(angle[0] * PI / 180);
+	float yaw = float(angle[1] * PI / 180);
+	float tmp = float(cos(pitch));
+	vector[0] = float(-tmp * -cos(yaw));
+	vector[1] = float(sin(yaw)*tmp);
+	vector[2] = float(-sin(pitch));
+}
+
+float GetFov(Vector angle, Vector src, Vector dst)
+{
+	Vector ang, aim;
+	ang = CalcAngle(src, dst);
+
+	MakeVector(angle, aim);
+	MakeVector(ang, ang);
+
+	float mag = sqrtf(pow(aim.x, 2) + pow(aim.y, 2) + pow(aim.z, 2));
+	float u_dot_v = aim.Dot(ang);
+
+	return RAD2DEG(acos(u_dot_v / (pow(mag, 2))));
+}
+
 const char* powerups[] = {
 	"STRENGTH",
 	"RESISTANCE",

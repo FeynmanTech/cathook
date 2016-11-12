@@ -111,17 +111,22 @@ void HEsp::ProcessEntityPT(CachedEntity* ent) {
 	Color color;
 	switch (ent->m_iClassID) {
 	case ClassID::CTFPlayer: {
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !IsFriend(ent->m_pEntity)) {
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent->m_pEntity)) {
 			if (ent->Var<int>(eoffsets.iCond) & cond::cloaked) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
-		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !(v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity))) break;
+		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !GetRelation(ent->m_pEntity)) break;
 		if (!ent->m_bAlivePlayer) break;
 		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
-		if (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity)) {
+		switch (GetRelation(ent->m_pEntity)) {
+		case relation::FRIEND:
+			color = colors::green;
+			break;
+		case relation::RAGE:
 			color = colors::yellow;
+			break;
 		}
 		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(eoffsets.iHealth), ClassMaxHealth(ent->Var<int>(eoffsets.iClass)));
 	break;
@@ -206,10 +211,18 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 		// If target is enemy, always show powerups, if player is teammate, show powerups
 		// only if bTeammatePowerup or bTeammates is true
 		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
-		if (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity)) {
+		switch (GetRelation(ent->m_pEntity)) {
+		case relation::FRIEND:
+			color = colors::green;
+			break;
+		case relation::RAGE:
 			color = colors::yellow;
+			break;
 		}
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !IsFriend(ent->m_pEntity) && !IsRage(ent->m_pEntity)) {
+
+		// TODO TEMP
+		//ent->AddESPString(color, "FOV %f", GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, ent->m_pEntity->GetAbsOrigin()));
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent->m_pEntity)) {
 			if (pcond & cond::cloaked) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
@@ -218,7 +231,7 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			ent->AddESPString(color, "HAS [%s]", powerups[power]);
 		}
-		if (ent->m_bEnemy || v_bTeammates->GetBool() || (v_bShowFriends->GetBool() && IsFriend(ent->m_pEntity))) {
+		if (ent->m_bEnemy || v_bTeammates->GetBool() || GetRelation(ent->m_pEntity)) {
 			ent->AddESPString(color, "%s", info.name);
 			if (v_bShowFriendID->GetBool()) {
 				ent->AddESPString(color, "%lu", info.friendsID);

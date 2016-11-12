@@ -16,6 +16,7 @@ class CUserCmd;
 class Vector;
 
 #define PI 3.14159265358979323846f
+#define RADPI 57.295779513082f
 #define DEG2RAD(x) x * (PI / 180.0f)
 
 #include "enums.h"
@@ -46,11 +47,13 @@ float deg2rad(float deg);
 bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
 bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
-bool IsFriend(IClientEntity* ent);
-bool IsRage(IClientEntity* ent);
 relation GetRelation(IClientEntity* ent);
 int ClassMaxHealth(int clazz);
 bool CheckCE(CachedEntity* entity);
+// F1 c&p
+Vector CalcAngle(Vector src, Vector dst);
+void MakeVector(Vector ang, Vector& out);
+float GetFov(Vector ang, Vector src, Vector dst);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];

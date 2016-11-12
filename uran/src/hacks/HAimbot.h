@@ -26,6 +26,7 @@ public:
 	bool m_bProjArc;
 	ConVar* v_bDebug;
 	ConVar* v_bEnabled;
+	ConVar* v_iFOV;
 	ConVar* v_iHitbox;
 	ConVar* v_bPrediction;
 	ConVar* v_bAutoShoot;
