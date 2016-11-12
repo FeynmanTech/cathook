@@ -539,4 +539,10 @@ enum weapons {
 	WP_FLAREGUN = 205
 };
 
+enum relation {
+	NEUTRAL = 0,
+	FRIEND = 1,
+	RAGE = 2
+};
+
 #endif /* ENUMS_H_ */

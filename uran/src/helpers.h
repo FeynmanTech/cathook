@@ -47,11 +47,14 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
 bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
 bool IsFriend(IClientEntity* ent);
+bool IsRage(IClientEntity* ent);
+relation GetRelation(IClientEntity* ent);
 int ClassMaxHealth(int clazz);
 bool CheckCE(CachedEntity* entity);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
 extern uint32 friends[1];
+extern uint32 rage[1];
 
 #endif /* HELPERS_H_ */

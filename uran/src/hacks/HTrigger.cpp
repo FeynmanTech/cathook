@@ -110,9 +110,7 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		}
 		// If we need charge...
 		if (!bodyshot && this->v_bBodyshot->GetBool()) {
-			int rifleHandle = GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.hActiveWeapon);
-			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
+			float bdmg = GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargedDamage);
 			if (bdmg >= 15.0f && (bdmg) >= health) {
 				bodyshot = true;
 			}

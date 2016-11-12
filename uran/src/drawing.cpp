@@ -33,8 +33,11 @@ Color colors::black(0,   0,   0,   255);
 Color colors::tf_red(184, 56,  59,  255);
 Color colors::tf_blu(88,  133, 162, 255);
 Color colors::yellow(255, 255, 0,   255);
+Color colors::orange(255, 128,  0,  255);
+Color colors::green(0,  255,  0,   255);
 Color colors::dk_red(100, 40,  40,  255);
 Color colors::dk_blu(40,  40,  100, 255);
+
 
 Color colors::GetTeamColor(int team, bool dark) {
 	if (team == 2) {

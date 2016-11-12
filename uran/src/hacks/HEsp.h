@@ -28,6 +28,10 @@ public:
 	ConVar* v_bEntityESP;
 	ConVar* v_bTeammates;
 	ConVar* v_bItemESP;
+	ConVar* v_bShowDroppedWeapons;
+	ConVar* v_bShowAmmoPacks;
+	ConVar* v_bShowHealthPacks;
+	ConVar* v_bShowPowerups;
 	ConVar* v_bTeammatePowerup;
 	ConVar* v_bShowHead;
 	ConVar* v_bShowEntityID;

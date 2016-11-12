@@ -453,15 +453,18 @@ bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float
 	return IsVectorVisible(origin, res1);
 }
 
-bool IsFriend(IClientEntity* ent) {
-	if (!ent) return false;
-	if (ent->IsDormant()) return false;
+relation GetRelation(IClientEntity* ent) {
+	if (!ent) return relation::NEUTRAL;
+	if (ent->IsDormant()) return relation::NEUTRAL;
 	player_info_t info;
-	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), &info)) return false;
+	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), &info)) return relation::NEUTRAL;
 	for (int i = 0; i < 1; i++) {
-		if (friends[i] == info.friendsID) return true;
+		if (friends[i] == info.friendsID) return relation::FRIEND;
 	}
-	return false;
+	for (int i = 0; i < 1; i++) {
+		if (rage[i] == info.friendsID) return relation::RAGE;
+	}
+	return relation::NEUTRAL;
 }
 
 bool CheckCE(CachedEntity* entity) {
@@ -486,6 +489,10 @@ const char* powerups[] = {
 
 uint32 friends[] = {
 	39133950
+};
+
+uint32 rage[] = {
+	36315583
 };
 
 const char* packs[] = {

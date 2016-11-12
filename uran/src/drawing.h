@@ -28,6 +28,8 @@ extern Color black;
 extern Color tf_red;
 extern Color tf_blu;
 extern Color yellow;
+extern Color orange;
+extern Color green;
 extern Color dk_red;
 extern Color dk_blu;
 Color GetTeamColor(int team, bool dark);
