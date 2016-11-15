@@ -79,7 +79,7 @@ ESPStringCompound::ESPStringCompound() {
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
 	draw::font_handle_large = interfaces::surface->CreateFont();
-	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Ubuntu Mono Bold", 17, 500, 0, 0, 0x200);
+	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Tahoma", 16, 400, 0, 0, 0x200); // Ubuntu Mono Bold
 	interfaces::surface->SetFontGlyphSet(draw::font_handle_large, "TF2 BUILD", 32, 500, 0, 0, 0x200);
 }
 
@@ -105,7 +105,7 @@ void draw::DrawString(int x, int y, Color color, bool center, const char* text, 
 		x -= (l / 2);
 	}
 	draw::GetStringLength((char*)text, l, h);
-	draw::DrawRect(x, y + 1, l, h - 5, colors::black);
+	draw::DrawRect(x - 1, y + 1, l + 1, h - 5, colors::black);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 

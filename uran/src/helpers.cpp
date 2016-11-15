@@ -30,9 +30,13 @@
 bool IsPlayerInvulnerable(IClientEntity* player) {
 	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
 	int cond2 = GetEntityValue<int>(player, eoffsets.iCond1);
-	int uber_mask_1 = (cond::uber | cond::uber_expiration | cond::bonk);
+	int uber_mask_1 = (cond::uber | cond::bonk);
 	int uber_mask_2 = (cond_ex::hidden_uber | cond_ex::canteen_uber | cond_ex::misc_uber | cond_ex::phlog_uber);
-	if ((cond1 & uber_mask_1) || (cond2 & uber_mask_2)) return true;
+	if ((cond1 & uber_mask_1) || (cond2 & uber_mask_2)) {
+		//logging::Info("COND1: %i MASK1: %i", cond1, uber_mask_1);
+		//logging::Info("COND2: %i MASK2: %i", cond2, uber_mask_2);
+		return true;
+	}
 	return false;
 }
 
@@ -148,6 +152,7 @@ pack_type GetHealthPackType(IClientEntity* ent) {
 pack_type GetAmmoPackType(IClientEntity* ent) {
 	if (!ent) return pack_type::not_pack;
 	const char* name = GetModelPath(ent);
+
 	if (strlen(name) < 30) return pack_type::not_pack;
 	return pack_type::not_pack;
 }
@@ -159,7 +164,6 @@ powerup_type GetPowerupType(IClientEntity* ent) {
 	const char* name = GetModelPath(ent);
 	if (strlen(name) < 35) return powerup_type::not_powerup;
 	if (name[27] != 'u' || name[22] != 'p') return powerup_type::not_powerup;
-
 	if (name[30] == 's' && name[31] == 't') return powerup_type::strength;
 	if (name[30] == 'd' && name[32] == 'f') return powerup_type::resistance;
 	if (name[30] == 'v') return powerup_type::vampire;
@@ -204,7 +208,8 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 	out[2] = (in1[0] * in2[2][0] + in1[1] * in2[2][1] + in1[2] * in2[2][2]) + in2[2][3];
 }
 
-int ClassMaxHealth(int clazz) {
+// TODO deprecated
+/*int ClassMaxHealth(int clazz) {
 	switch(clazz) {
 	case tf_scout:
 	case tf_spy:
@@ -222,7 +227,7 @@ int ClassMaxHealth(int clazz) {
 		return 175;
 	}
 	return 0;
-}
+}*/
 
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
 	if (!entity) return 1;
@@ -458,10 +463,10 @@ relation GetRelation(IClientEntity* ent) {
 	if (ent->IsDormant()) return relation::NEUTRAL;
 	player_info_t info;
 	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), &info)) return relation::NEUTRAL;
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < n_friends; i++) {
 		if (friends[i] == info.friendsID) return relation::FRIEND;
 	}
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < n_rage; i++) {
 		if (rage[i] == info.friendsID) return relation::RAGE;
 	}
 	return relation::NEUTRAL;
@@ -508,6 +513,12 @@ float GetFov(Vector angle, Vector src, Vector dst)
 	return RAD2DEG(acos(u_dot_v / (pow(mag, 2))));
 }
 
+bool CanShoot(IClientEntity* weapon) {
+	if (!weapon) return false;
+
+	return false;
+}
+
 const char* powerups[] = {
 	"STRENGTH",
 	"RESISTANCE",
@@ -524,13 +535,12 @@ const char* powerups[] = {
 	"CRITS"
 };
 
-uint32 friends[] = {
-	39133950
-};
+uint32 friends[256];
 
-uint32 rage[] = {
-	36315583
-};
+uint32 rage[256];
+
+int n_friends = 0;
+int n_rage = 0;
 
 const char* packs[] = {
 	"+",

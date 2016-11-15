@@ -31,11 +31,13 @@
 #include "hacks/HPyroBot.h"
 #include "hacks/HAimbot.h"
 #include "hacks/AntiAim.h"
+#include "hacks/Quickscope.h"
 #include "hacks/Misc.h"
 #include "usercmd.h"
 #include "drawing.h"
 #include "entity.h"
 #include "localplayer.h"
+#include "playerresource.h"
 
 #include <csignal>
 
@@ -117,6 +119,9 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		return true;
 	}
 	if (!cmd) return ret;
+
+	g_pPlayerResource->Update();
+
 	g_pLocalPlayer->Update();
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	gEntityCache.Update();
@@ -179,6 +184,33 @@ void hack::Initialize() {
 	logging::Info("Creating interfaces...");
 	interfaces::CreateInterfaces();
 	logging::Info("Interfaces created!");
+	logging::Info("APPID: %i", interfaces::engineClient->GetAppID());
+	logging::Info("Dumping NetVars...");
+	CDumper dumper;
+	dumper.SaveDump();
+	logging::Info("Initializing surface...");
+	draw::Initialize();
+	logging::Info("Adding hacks...");
+	SetCVarInterface(interfaces::cvar);
+	hack::AddHack(new AntiAim());
+	logging::Info("Quickscoping");
+	hack::AddHack(new Quickscope());
+	hack::AddHack(new HBunnyhop());
+	hack::AddHack(new Misc());
+	hack::AddHack(new HEsp());
+	hack::AddHack(new HAimbot());
+	hack::AddHack(new HTrigger());
+	//hack::AddHack(new HGlow());
+	hack::AddHack(new HPyroBot());
+	ConVar_Register();
+	logging::Info("Initializing NetVar tree...");
+	gNetvars.init();
+	logging::Info("Initializing entity offsets...");
+	InitEntityOffsets();
+
+	g_pLocalPlayer = new LocalPlayer();
+	g_pPlayerResource = new TFPlayerResource();
+
 	logging::Info("Hooking PaintTraverse...");
 	hooks::hkPaintTraverse = new hooks::VMTHook();
 	hooks::hkPaintTraverse->Init(interfaces::panel, 0);
@@ -190,28 +222,11 @@ void hack::Initialize() {
 	while(!(clientMode = **(uintptr_t***)((uintptr_t)((*(void***)interfaces::baseClient)[10]) + 1))) {
 		sleep(1);
 	}
-	g_pLocalPlayer = new LocalPlayer();
 	hooks::hkCreateMove->Init((void*)clientMode, 0);
 	hooks::hkCreateMove->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
 	hooks::hkCreateMove->Apply();
 	logging::Info("Hooked!");
-	logging::Info("Initializing surface...");
-	draw::Initialize();
-	logging::Info("Adding hacks...");
-	SetCVarInterface(interfaces::cvar);
-	hack::AddHack(new AntiAim());
-	hack::AddHack(new HBunnyhop());
-	hack::AddHack(new HTrigger());
-	hack::AddHack(new HEsp());
-	hack::AddHack(new HAimbot());
-	//hack::AddHack(new HGlow());
-	hack::AddHack(new HPyroBot());
-	hack::AddHack(new Misc());
-	ConVar_Register();
-	logging::Info("Initializing NetVar tree...");
-	gNetvars.init();
-	logging::Info("Initializing entity offsets...");
-	InitEntityOffsets();
+
 	logging::Info("Init done!");
 }
 

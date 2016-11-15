@@ -9,6 +9,7 @@
 #define IHACK_H_
 
 class CUserCmd;
+class ConVar;
 
 #define DECL_HACK \
 	void Create(); \

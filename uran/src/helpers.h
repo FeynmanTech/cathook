@@ -13,6 +13,7 @@ class IClientEntity;
 class ConVar;
 class ConCommand;
 class CUserCmd;
+class CCommand;
 class Vector;
 
 #define PI 3.14159265358979323846f
@@ -23,6 +24,8 @@ class Vector;
 
 #include "fixsdk.h"
 #include <tier1/convar.h>
+
+//typedef void ( *FnCommandCallback_t )( const CCommand &command );
 
 bool IsPlayerCritBoosted(IClientEntity* player);
 bool IsPlayerInvulnerable(IClientEntity* player);
@@ -48,8 +51,11 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
 bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
 relation GetRelation(IClientEntity* ent);
-int ClassMaxHealth(int clazz);
+// TODO deprecated
+//int ClassMaxHealth(int clazz);
 bool CheckCE(CachedEntity* entity);
+bool CanShoot(IClientEntity* entity);
+
 // F1 c&p
 Vector CalcAngle(Vector src, Vector dst);
 void MakeVector(Vector ang, Vector& out);
@@ -57,7 +63,9 @@ float GetFov(Vector ang, Vector src, Vector dst);
 
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
-extern uint32 friends[1];
-extern uint32 rage[1];
+extern uint32 friends[256];
+extern int n_friends;
+extern int n_rage;
+extern uint32 rage[256];
 
 #endif /* HELPERS_H_ */

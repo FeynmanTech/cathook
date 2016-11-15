@@ -20,8 +20,11 @@ public:
 	void Destroy();
 	void PaintTraverse(void*, unsigned int, bool, bool);
 	ConVar* v_bDbWeaponInfo;
+	ConVar* v_bSemiAuto;
 	ConCommand* c_SayLine;
 	ConCommand* c_Shutdown;
+	ConCommand* c_AddFriend;
+	ConCommand* c_AddRage;
 };
 
 #endif /* HACKS_MISC_H_ */

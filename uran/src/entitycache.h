@@ -38,6 +38,8 @@ public:
 	int  m_iTeam;
 	bool m_bAlivePlayer;
 	bool m_bEnemy;
+	int m_iMaxHealth;
+	int m_iHealth;
 
 	bool m_bIsVisible;
 	unsigned long m_lLastSeen;

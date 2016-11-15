@@ -25,6 +25,9 @@ public:
 	int cond_1;
 	int cond_2;
 	int cond_3;
+
+	bool bIsReloading;
+
 	Vector v_ViewOffset;
 	Vector v_Origin;
 	Vector v_Eye;

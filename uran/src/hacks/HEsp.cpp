@@ -128,7 +128,7 @@ void HEsp::ProcessEntityPT(CachedEntity* ent) {
 			color = colors::yellow;
 			break;
 		}
-		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(eoffsets.iHealth), ClassMaxHealth(ent->Var<int>(eoffsets.iClass)));
+		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(eoffsets.iHealth), ent->m_iMaxHealth);
 	break;
 	}
 	case ClassID::CObjectSentrygun:
@@ -238,7 +238,7 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 			}
 			if (pclass > 0 && pclass < 10)
 				ent->AddESPString(color, "%s", classes[pclass - 1]);
-			//ent->AddESPString(color, "%i", health);
+			ent->AddESPString(color, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
 			if (pcond & cond::cloaked) {
 				ent->AddESPString(color, "CLOAKED");
 			}
@@ -262,7 +262,7 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
 		color = TEAM_COLORS[ent->Var<int>(eoffsets.iTeamNum)];
 		ent->AddESPString(color, "LV %i %s", level, name);
-		//ent->AddESPString(color, "%i HP", health);
+		ent->AddESPString(color, "%i / %i HP", ent->Var<int>(eoffsets.iBuildingHealth), ent->Var<int>(eoffsets.iBuildingMaxHealth));
 		if (this->v_bShowDistance) {
 			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}

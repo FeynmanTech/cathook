@@ -98,6 +98,7 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		cmd->buttons |= IN_ATTACK;
 		return true;
 	}
+	if (GetRelation(entity) == relation::FRIEND) return true;
 	if (IsPlayerInvulnerable(entity)) return true;
 	if (!this->v_bIgnoreCloak->GetBool() &&
 		((GetEntityValue<int>(entity, eoffsets.iCond)) & cond::cloaked)) return true;

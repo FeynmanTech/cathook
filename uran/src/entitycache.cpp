@@ -12,6 +12,7 @@
 #include "enums.h"
 #include "entity.h"
 #include "localplayer.h"
+#include "playerresource.h"
 #include "helpers.h"
 
 #include "fixsdk.h"
@@ -62,6 +63,8 @@ void CachedEntity::Update(int idx) {
 		m_iTeam = Var<int>(eoffsets.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_bIsVisible = (IsEntityVisible(m_pEntity, 0) || IsEntityVisible(m_pEntity, 4));
+		m_iHealth = Var<int>(eoffsets.iHealth);
+		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(m_pEntity);
 		if (m_bIsVisible) m_lLastSeen = 0;
 		else m_lLastSeen++;
 	}

@@ -25,10 +25,17 @@ void LocalPlayer::Update() {
 	v_Eye = v_Origin + v_ViewOffset;
 	cond_0 = GetEntityValue<int>(entity, eoffsets.iCond);
 	clazz = GetEntityValue<int>(entity, eoffsets.iClass);
+
+
+
 	int hWeapon = GetEntityValue<int>(entity, eoffsets.hActiveWeapon);
-	if (hWeapon)
+	if (hWeapon) {
 		weapon = interfaces::entityList->GetClientEntity(hWeapon & 0xFFF);
-	else weapon = 0;
+		bIsReloading = (GetEntityValue<int>(weapon, eoffsets.iReloadMode) == 1);
+	} else {
+		weapon = 0;
+		bIsReloading = false;
+	}
 }
 
 LocalPlayer* g_pLocalPlayer = 0;

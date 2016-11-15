@@ -53,6 +53,15 @@ public:
 	offset_t vVelocity;
 	offset_t bGlowEnabled;
 	offset_t iGlowIndex;
+	offset_t iReloadMode;
+	offset_t iMaxHealth;
+	offset_t flNextAttack;
+	offset_t iNextMeleeCrit;
+	offset_t flNextPrimaryAttack;
+	offset_t iNextThinkTick;
+	offset_t flReloadPriorNextFire;
+	offset_t flObservedCritChance;
+	offset_t nTickBase;
 };
 
 // TODO globals

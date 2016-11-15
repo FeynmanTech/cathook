@@ -55,9 +55,15 @@ void HAimbot::Create() {
 }
 
 bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
+	if (!this->v_bEnabled->GetBool()) return true;
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return true;
 	}
+
+	if (g_pLocalPlayer->bIsReloading) {
+		return true;
+	}
+
 	if (this->v_bStrictAttack->GetBool() ) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
 	}
@@ -71,7 +77,7 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (g_pLocalPlayer->weapon) {
 		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == 210) return true;
 	} /* Grappling hook */
-	if (!this->v_bEnabled->GetBool()) return true;
+
 	//logging::Info("Creating move.. aimbot");
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc));
 	if (!this->v_bPriority->GetBool()) {
@@ -130,6 +136,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	char life_state = GetEntityValue<char>(entity, eoffsets.iLifeState);
 	if (life_state) return false; // TODO magic number: life state
 	if (!player) return false;
+	if (v_bRespectCloak->GetBool() && (GetEntityValue<int>(entity, eoffsets.iCond) & cond::cloaked)) return false;
 	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
 	if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
 		int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
@@ -147,6 +154,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	}
 	int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
 	if ((econd & cond_ex::vacc_bullet)) return false;
+	if (GetRelation(entity) == relation::FRIEND) return false;
 	if (!m_bProjectileMode) {
 		Vector hbv;
 		if (GetHitboxPosition(entity, v_iHitbox->GetInt(), hbv)) return false;

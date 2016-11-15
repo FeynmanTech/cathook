@@ -1,6 +1,4 @@
-killsay
-
-ESP: Box, bones
+ESP: bones
 TRIGGER: Amby charge
 TRIGGER: Ignore vaccinator
 
@@ -8,7 +6,6 @@ Priority FIX
 OPTIMIZE
 Buildings aimbot
 
-priority system
  proper player struct 
   optimize 
   buildings aim
@@ -19,13 +16,17 @@ priority system
 Target system respect mannpower powerups
 Aimbot charge detection respect powerups
 
-Entity::AddEntityString
+huntsman aim fix
+minigun aim fix
+ignore SB
+no flinch
+
+Sapped buildings ESP
+AimBest
 optimize
 Glow Objects
 remove magic numbers
-actual ammo box esp 
 no trigger/aim vacc uber
 LINES (trace crshr->enemy)
-
-"legit" esp mode
+disg spy aim
 SPY ALERT
