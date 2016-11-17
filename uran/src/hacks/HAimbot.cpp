@@ -51,6 +51,7 @@ void HAimbot::Create() {
 	this->v_iOverrideProjSpeed = CreateConVar("u_aimbot_proj_speed", "0", "Override proj speed");
 	this->v_bDebug = CreateConVar("u_aimbot_debug", "0", "Aimbot debug");
 	this->v_iFOV = CreateConVar("u_aimbot_fov", "0", "FOV aimbot (experimental)");
+	this->v_bMachinaPenetration = CreateConVar("u_aimbot_machina", "0", "Machina penetration aimbot (just for fun)");
 	fix_silent = false;
 }
 
@@ -79,6 +80,14 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	} /* Grappling hook */
 
 	//logging::Info("Creating move.. aimbot");
+	/*if (v_bMachinaPenetration->GetBool()) {
+		if (g_pLocalPlayer->weapon) {
+			if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle) {
+
+			}
+		}
+	}*/
+
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc));
 	if (!this->v_bPriority->GetBool()) {
 		IClientEntity* target_locked = interfaces::entityList->GetClientEntity(target_lock);
@@ -155,7 +164,22 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
 	if ((econd & cond_ex::vacc_bullet)) return false;
 	if (GetRelation(entity) == relation::FRIEND) return false;
-	if (!m_bProjectileMode) {
+	Vector resultAim;
+	if (m_bProjectileMode) {
+		resultAim = entity->GetAbsOrigin();
+		if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), m_flProjSpeed, m_bProjArc, resultAim)) return false;
+	} else {
+		if (v_bMachinaPenetration->GetBool()) {
+			if (GetHitboxPosition(entity, v_iHitbox->GetInt(), resultAim)) return false;
+			if (!IsEntityVisiblePenetration(entity, v_iHitbox->GetInt())) return false;
+		} else {
+			if (GetHitboxPosition(entity, v_iHitbox->GetInt(), resultAim)) return false;
+			if (!IsEntityVisible(entity, v_iHitbox->GetInt())) return false;
+		}
+	}
+	if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_iFOV->GetFloat())) return false;
+	return true;
+	/*if (!m_bProjectileMode) {
 		Vector hbv;
 		if (GetHitboxPosition(entity, v_iHitbox->GetInt(), hbv)) return false;
 		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, hbv) > v_iFOV->GetInt())) return false;
@@ -165,7 +189,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 		bool succ = PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), m_flProjSpeed, m_bProjArc, res);
 		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, res) > v_iFOV->GetInt())) return false;
 		return succ;
-	}
+	}*/
 }
 
 void PredictPosition(Vector vec, IClientEntity* ent) {
@@ -199,14 +223,15 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	fClampAngle(angles);
 	cmd->viewangles = angles;
 	if (this->v_bSilent->GetBool()) {
+		g_pLocalPlayer->bUseSilentAngles = true;
 		//FixMovement(*cmd, viewangles_old);
-		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+		/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
 		VectorAngles(vsilent, ang);
 		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
-		cmd->sidemove = sin(yaw) * speed;
+		cmd->sidemove = sin(yaw) * speed;*/
 	}
 	//logging::Info("Angles: %f %f %f", angles.x, angles.y, angles.z);
 	if (this->v_bAutoShoot->GetBool()) {

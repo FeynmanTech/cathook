@@ -60,6 +60,7 @@ void HEsp::Create() {
 	v_bShowAmmoPacks = CreateConVar("u_esp_item_ammo", "0", "Show ammo packs");
 	v_bShowHealthPacks = CreateConVar("u_esp_item_health", "1", "Show health packs");
 	v_bShowPowerups = CreateConVar("u_esp_item_powerups", "1", "Show powerups");
+	v_bShowHealthNumbers = CreateConVar("u_esp_health_num", "1", "Show health number");
 }
 
 #define ESP_HEIGHT 14
@@ -95,9 +96,9 @@ void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHei
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
 	if (healthbar) {
 		Color hp = colors::GetHealthColor(health, healthmax);
-		int hbh = (height - 1) * min((float)health / (float)healthmax, 1.0f);
+		int hbh = (height) * min((float)health / (float)healthmax, 1.0f);
 		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, draw::black);
-		draw::DrawRect(so.x - width / 2 - 6, so.y - 1 - hbh, 5, hbh, hp);
+		draw::DrawRect(so.x - width / 2 - 6, so.y - hbh, 5, hbh, hp);
 	}
 	//draw::OutlineRect(min(smin.x, smax.x) - 1, min(smin.y, smax.y) - 1, max(smin.x, smax.x), max(smin.y, smax.y), draw::black);
 	//draw::OutlineRect(min(smin.x, smax.x), min(smin.y, smax.y), max(smin.x, smax.x), max(smin.y, smax.y), clr);
@@ -147,27 +148,28 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 	if (!CheckCE(ent)) return;
 
 	Color color = draw::white;
+	Color bgclr = draw::black;
 
 	if (v_bEntityESP->GetBool()) {
-		ent->AddESPString(color, "%s [%i]", ent->m_pEntity->GetClientClass()->m_pNetworkName, ent->m_iClassID);
+		ent->AddESPString(color, bgclr, "%s [%i]", ent->m_pEntity->GetClientClass()->m_pNetworkName, ent->m_iClassID);
 	}
 
 	switch (ent->m_iClassID) {
 	case ClassID::CTFDroppedWeapon: {
 		if (!this->v_bItemESP->GetBool()) break;
 		if (!this->v_bShowDroppedWeapons->GetBool()) break;
-		ent->AddESPString(draw::white, "WEAPON");
+		ent->AddESPString(color, bgclr, "WEAPON");
 		if (this->v_bShowDistance) {
-			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}
 	case ClassID::CTFAmmoPack: {
 		if (!this->v_bItemESP->GetBool()) break;
 		if (!this->v_bShowAmmoPacks->GetBool()) break;
-		ent->AddESPString(draw::white, "++ AMMO");
+		ent->AddESPString(color, bgclr, "++ AMMO");
 		if (this->v_bShowDistance) {
-			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}
@@ -177,10 +179,11 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 		if (type == item_type::item_null) break;
 		bool shown = false;
 		if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
-			ent->AddESPString(draw::white, "%s HEALTH", packs[type - item_medkit_small]);
+			color = colors::green;
+			ent->AddESPString(color, bgclr,"%s HEALTH", packs[type - item_medkit_small]);
 			shown = true;
 		} else if (type >= item_ammo_small && type <= item_ammo_large && this->v_bShowAmmoPacks->GetBool()) {
-			ent->AddESPString(draw::white, "%s AMMO", packs[type - item_ammo_small]);
+			ent->AddESPString(color, bgclr,"%s AMMO", packs[type - item_ammo_small]);
 			shown = true;
 		} else if (type >= item_mp_strength && type <= item_mp_crit && this->v_bShowPowerups->GetBool()) {
 			int skin = ent->m_pEntity->GetSkin();
@@ -191,18 +194,17 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 			} else {
 				color = draw::yellow;
 			}
-			ent->AddESPString(color, "%s PICKUP", powerups[type - item_mp_strength]);
+			ent->AddESPString(color, bgclr, "%s PICKUP", powerups[type - item_mp_strength]);
 			shown = true;
 		}
 		if (this->v_bShowDistance && shown) {
-			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}
 	case ClassID::CTFPlayer: {
 		if (!ent->m_bAlivePlayer) break;
 		if (ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
-		int health = ent->Var<int>(eoffsets.iHealth);
 		int pclass = ent->Var<int>(eoffsets.iClass);
 		int pcond = ent->Var<int>(eoffsets.iCond);
 		player_info_t info;
@@ -219,37 +221,40 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 			color = colors::yellow;
 			break;
 		}
+		bgclr = colors::GetTeamBgColor(ent->m_iTeam);
 
 		// TODO TEMP
 		//ent->AddESPString(color, "FOV %f", GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, ent->m_pEntity->GetAbsOrigin()));
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent->m_pEntity)) {
 			if (pcond & cond::cloaked) return;
-			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+			if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
 		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
-			ent->AddESPString(color, "HAS [%s]", powerups[power]);
+			ent->AddESPString(color, bgclr, "HAS [%s]", powerups[power]);
 		}
 		if (ent->m_bEnemy || v_bTeammates->GetBool() || GetRelation(ent->m_pEntity)) {
-			ent->AddESPString(color, "%s", info.name);
+			ent->AddESPString(color, bgclr, "%s", info.name);
 			if (v_bShowFriendID->GetBool()) {
-				ent->AddESPString(color, "%lu", info.friendsID);
+				ent->AddESPString(color, bgclr, "%lu", info.friendsID);
 			}
 			if (pclass > 0 && pclass < 10)
-				ent->AddESPString(color, "%s", classes[pclass - 1]);
-			ent->AddESPString(color, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
+				ent->AddESPString(color, bgclr, "%s", classes[pclass - 1]);
+			if (this->v_bShowHealthNumbers->GetBool()) {
+				ent->AddESPString(color, bgclr, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
+			}
 			if (pcond & cond::cloaked) {
-				ent->AddESPString(color, "CLOAKED");
+				ent->AddESPString(color, bgclr, "CLOAKED");
 			}
 			if (IsPlayerInvulnerable(ent->m_pEntity)) {
-				ent->AddESPString(color, "INVULNERABLE");
+				ent->AddESPString(color, bgclr, "INVULNERABLE");
 			}
 			if (IsPlayerCritBoosted(ent->m_pEntity)) {
-				ent->AddESPString(color, "CRIT BOOSTED");
+				ent->AddESPString(color, bgclr, "CRIT BOOSTED");
 			}
 			if (this->v_bShowDistance) {
-				ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+				ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 			}
 		}
 		break;
@@ -257,14 +262,23 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 	case ClassID::CObjectSentrygun:
 	case ClassID::CObjectDispenser:
 	case ClassID::CObjectTeleporter: {
-		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
+		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) break;
 		int level = ent->Var<int>(eoffsets.iUpgradeLevel);
 		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
-		color = TEAM_COLORS[ent->Var<int>(eoffsets.iTeamNum)];
-		ent->AddESPString(color, "LV %i %s", level, name);
-		ent->AddESPString(color, "%i / %i HP", ent->Var<int>(eoffsets.iBuildingHealth), ent->Var<int>(eoffsets.iBuildingMaxHealth));
+		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
+			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+				return;
+			}
+		}
+		bgclr = colors::GetTeamBgColor(ent->m_iTeam);
+
+		ent->AddESPString(color, bgclr, "LV %i %s", level, name);
+		if (this->v_bShowHealthNumbers->GetBool()) {
+			ent->AddESPString(color, bgclr, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
+		}
 		if (this->v_bShowDistance) {
-			ent->AddESPString(color, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}

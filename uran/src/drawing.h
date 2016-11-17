@@ -18,6 +18,7 @@ struct ESPStringCompound {
 	ESPStringCompound();
 	char* m_String;
 	Color m_Color;
+	Color m_Background;
 };
 
 extern Color TEAM_COLORS[4];
@@ -32,7 +33,10 @@ extern Color orange;
 extern Color green;
 extern Color dk_red;
 extern Color dk_blu;
+extern Color bg_red;
+extern Color bg_blu;
 Color GetTeamColor(int team, bool dark);
+Color GetTeamBgColor(int team);
 Color GetHealthColor(int health, int max);
 }
 
@@ -51,7 +55,7 @@ extern Color black;
 
 void Initialize();
 void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);
-void DrawString(int x, int y, Color color, bool center, const char* text, ...);
+void DrawString(int x, int y, Color color, Color background, bool center, const char* text, ...);
 void DrawRect(int x, int y, int w, int h, Color color);
 bool WorldToScreen(Vector &origin, Vector &screen);
 bool EntityCenterToScreen(IClientEntity* entity, Vector& out);

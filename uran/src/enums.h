@@ -10,6 +10,7 @@
 
 enum cond {
 	zoomed = (1 << 1),
+	disguised = (1 << 3),
 	cloaked = (1 << 4),
 	uber = (1 << 5),
 	taunting = (1 << 7),

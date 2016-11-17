@@ -37,6 +37,23 @@ public:
 	virtual TraceType_t GetTraceType() const;
 };
 
+class FilterPenetration : public ITraceFilter {
+public:
+	IClientEntity* m_pSelf;
+	IClientEntity* m_pIgnoreFirst;
+public:
+	virtual ~FilterPenetration();
+	FilterPenetration();
+	virtual bool ShouldHitEntity(IHandleEntity* entity, int mask);
+	void SetSelf(IClientEntity* self);
+	void Reset();
+	virtual TraceType_t GetTraceType() const;
+};
+
+extern FilterDefault* g_pFilterDefault;
+extern FilterNoPlayer* g_pFilterNoPlayer;
+extern FilterPenetration* g_pFilterPenetration;
+
 }
 
 #endif /* TRACE_H_ */

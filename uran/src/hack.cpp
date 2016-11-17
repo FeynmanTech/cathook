@@ -33,6 +33,7 @@
 #include "hacks/AntiAim.h"
 #include "hacks/Quickscope.h"
 #include "hacks/Misc.h"
+#include "hacks/AntiDisguise.h"
 #include "usercmd.h"
 #include "drawing.h"
 #include "entity.h"
@@ -101,11 +102,11 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
 				if (!ce->m_ESPOrigin.IsZero(1.0)) {
 					int sw, sh;
-					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, false, str.m_String);
-					ce->m_ESPOrigin.y += 14;
+					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, str.m_Background, false, str.m_String);
+					ce->m_ESPOrigin.y += 12;
 				} else {
-					draw::DrawString(screen.x, screen.y, str.m_Color, true, str.m_String);
-					screen.y += 14;
+					draw::DrawString(screen.x, screen.y, str.m_Color, str.m_Background, true, str.m_String);
+					screen.y += 12;
 				}
 			}
 		}
@@ -137,7 +138,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	}
 	hack::invalidated = false;
 	//logging::Info("Inside CreateMove #2");
-	/*if (g_pLocalPlayer->bUseSilentAngles) {
+	if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
@@ -145,7 +146,8 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
 		cmd->sidemove = sin(yaw) * speed;
-	}*/
+		return false;
+	}
 	//logging::Info("Inside CreateMove #3");
 	//logging::Info("viewangles: %f, %f, %f", cmd->viewangles.x, cmd->viewangles.y, cmd->viewangles.z);
 	//QAngle a;
@@ -199,6 +201,7 @@ void hack::Initialize() {
 	hack::AddHack(new Misc());
 	hack::AddHack(new HEsp());
 	hack::AddHack(new HAimbot());
+	hack::AddHack(new AntiDisguise());
 	hack::AddHack(new HTrigger());
 	//hack::AddHack(new HGlow());
 	hack::AddHack(new HPyroBot());

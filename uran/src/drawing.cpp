@@ -29,14 +29,16 @@ Color draw::yellow(255, 255, 0, 255);
 Color draw::black(0, 0, 0, 255);
 
 Color colors::white(255, 255, 255, 255);
-Color colors::black(0,   0,   0,   255);
+Color colors::black(0,  0,  0,   255);
 Color colors::tf_red(184, 56,  59,  255);
 Color colors::tf_blu(88,  133, 162, 255);
 Color colors::yellow(255, 255, 0,   255);
 Color colors::orange(255, 128,  0,  255);
 Color colors::green(0,  255,  0,   255);
-Color colors::dk_red(100, 40,  40,  255);
-Color colors::dk_blu(40,  40,  100, 255);
+Color colors::dk_red(200, 80,  80,  255);
+Color colors::dk_blu(80,  80,  200, 255);
+Color colors::bg_red(64,  32,  32,  255);
+Color colors::bg_blu(32,  32,  64,  255);
 
 
 Color colors::GetTeamColor(int team, bool dark) {
@@ -52,6 +54,16 @@ Color colors::GetTeamColor(int team, bool dark) {
 			return colors::tf_blu;
 	}
 	return colors::white;
+}
+
+Color colors::GetTeamBgColor(int team) {
+	if (team == 2) {
+		return colors::bg_red;
+	} else if (team == 3) {
+		return colors::bg_blu;
+	} else {
+		return colors::black;
+	}
 }
 
 Color TEAM_COLORS[4] = {
@@ -79,7 +91,7 @@ ESPStringCompound::ESPStringCompound() {
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
 	draw::font_handle_large = interfaces::surface->CreateFont();
-	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Tahoma", 16, 400, 0, 0, 0x200); // Ubuntu Mono Bold
+	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Ubuntu Mono Bold", 14, 0, 0, 0, 0x0); // Ubuntu Mono Bold
 	interfaces::surface->SetFontGlyphSet(draw::font_handle_large, "TF2 BUILD", 32, 500, 0, 0, 0x200);
 }
 
@@ -87,10 +99,11 @@ void draw::DrawString(unsigned long font, int x, int y, Color color, const wchar
 	interfaces::surface->DrawSetTextPos(x, y);
 	interfaces::surface->DrawSetTextColor(color);
 	interfaces::surface->DrawSetTextFont(draw::font_handle);
-	interfaces::surface->DrawPrintText(text, wcslen(text));
+	//interfaces::surface->DrawPrintText(text, wcslen(text));
+	interfaces::surface->DrawUnicodeString(text, vgui::FONT_DRAW_DEFAULT);
 }
 
-void draw::DrawString(int x, int y, Color color, bool center, const char* text, ...) {
+void draw::DrawString(int x, int y, Color color, Color background, bool center, const char* text, ...) {
 	if (!text) return;
 	va_list list;
 	char buffer[1024] = { '\0' };
@@ -105,7 +118,7 @@ void draw::DrawString(int x, int y, Color color, bool center, const char* text, 
 		x -= (l / 2);
 	}
 	draw::GetStringLength((char*)text, l, h);
-	draw::DrawRect(x - 1, y + 1, l + 1, h - 5, colors::black);
+	draw::DrawRect(x, y, l + 2, h - 3, background);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 

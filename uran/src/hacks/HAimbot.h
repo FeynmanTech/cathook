@@ -41,6 +41,7 @@ public:
 	ConVar* v_bStrictAttack;
 	ConVar* v_bProjectileAimbot;
 	ConVar* v_iOverrideProjSpeed;
+	ConVar* v_bMachinaPenetration;
 };
 
 

@@ -26,6 +26,7 @@
 #include <engine/IEngineTrace.h>
 #include <client_class.h>
 #include <inetchannelinfo.h>
+#include <globalvars_base.h>
 
 bool IsPlayerInvulnerable(IClientEntity* player) {
 	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
@@ -513,9 +514,53 @@ float GetFov(Vector angle, Vector src, Vector dst)
 	return RAD2DEG(acos(u_dot_v / (pow(mag, 2))));
 }
 
-bool CanShoot(IClientEntity* weapon) {
-	if (!weapon) return false;
 
+bool BulletTime(IClientEntity* entity, bool use_int) {
+	float interval = 1 / 66;
+	float tickbase = (float)GetEntityValue<int>(entity, eoffsets.nTickBase) * interval;
+	float nextattack = GetEntityValue<float>(entity, eoffsets.flNextPrimaryAttack) + 569;
+	bool ctb = nextattack <= tickbase;
+	return ctb;
+}
+
+bool CanShoot(IClientEntity* player) {
+	if (!player) return false;
+	return BulletTime(g_pLocalPlayer->weapon, true);
+}
+
+bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {
+	if (!trace::g_pFilterPenetration) {
+		trace::g_pFilterPenetration = new trace::FilterPenetration();
+	}
+	trace_t trace_visible;
+	Ray_t ray;
+	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
+	trace::g_pFilterPenetration->SetSelf(local);
+	trace::g_pFilterPenetration->Reset();
+	Vector hit;
+	int ret = GetHitboxPosition(entity, hb, hit);
+	if (ret) {
+		return false;
+	}
+	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);
+	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterPenetration, &trace_visible);
+	bool s = false;
+	if (trace_visible.m_pEnt) {
+		s = ((IClientEntity*)trace_visible.m_pEnt) == entity;
+	}
+	if (!s) return false;
+	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterDefault, &trace_visible);
+	if (trace_visible.m_pEnt) {
+		IClientEntity* ent = (IClientEntity*)trace_visible.m_pEnt;
+		if (ent) {
+			if (ent->GetClientClass()->m_ClassID == ClassID::CTFPlayer) {
+				if (ent == entity) return false;
+				if (trace_visible.hitbox >= 0) {
+					return true;
+				}
+			}
+		}
+	}
 	return false;
 }
 

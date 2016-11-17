@@ -10,6 +10,7 @@
 
 class CUserCmd;
 class ConVar;
+class ConCommand;
 
 #define DECL_HACK \
 	void Create(); \

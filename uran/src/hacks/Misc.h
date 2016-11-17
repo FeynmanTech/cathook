@@ -25,6 +25,8 @@ public:
 	ConCommand* c_Shutdown;
 	ConCommand* c_AddFriend;
 	ConCommand* c_AddRage;
+	ConCommand* c_DumpVars;
+	ConCommand* c_DumpPlayers;
 };
 
 #endif /* HACKS_MISC_H_ */

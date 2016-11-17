@@ -20,6 +20,8 @@ huntsman aim fix
 minigun aim fix
 ignore SB
 no flinch
+Bazaar charge
+no spy disguise
 
 Sapped buildings ESP
 AimBest
@@ -30,3 +32,5 @@ no trigger/aim vacc uber
 LINES (trace crshr->enemy)
 disg spy aim
 SPY ALERT
+
+SEGVCATCH

@@ -23,7 +23,7 @@ public:
 	~CachedEntity();
 
 	void Update(int idx);
-	void AddESPString(Color color, const char* string, ...);
+	void AddESPString(Color color, Color background, const char* string, ...);
 	ESPStringCompound GetESPString(int idx);
 	template<typename T>
 	T Var(unsigned offset);

@@ -15,12 +15,17 @@ void AntiAim::Create() {
 	this->v_bEnabled = CreateConVar("u_antiaim_enabled", "0", "Enable AntiAim");
 }
 
+float spin = -180;
+
 bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if ((cmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_USE))) return true;
 	if (g_pLocalPlayer->bAttackLastTick) return true;
-	Vector angl = Vector(rand() % 1000, rand() % 1000, rand() % 1000);
+	spin += 1.0f;
+	if (spin > 180) spin = -180;
+	Vector angl = Vector(-89.0, spin, 0);
 	fClampAngle(angl);
+	//angl.z = 180;
 	cmd->viewangles = angl;
 	g_pLocalPlayer->bUseSilentAngles = true;
 	/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);

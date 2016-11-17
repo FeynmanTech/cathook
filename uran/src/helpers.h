@@ -54,7 +54,13 @@ relation GetRelation(IClientEntity* ent);
 // TODO deprecated
 //int ClassMaxHealth(int clazz);
 bool CheckCE(CachedEntity* entity);
+
+bool BulletTime(IClientEntity* ent, bool interval);
 bool CanShoot(IClientEntity* entity);
+
+bool IsEntityVisiblePenetration(IClientEntity* entity, int hb);
+
+// Stolen Code
 
 // F1 c&p
 Vector CalcAngle(Vector src, Vector dst);

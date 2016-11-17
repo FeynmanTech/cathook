@@ -13,6 +13,7 @@
 #include <dlfcn.h>
 #include <libgen.h>
 
+// TODO
 #define STEAM_BASEDIR "/home/nullifiedcat/.local/share/Steam/"
 
 namespace logging {

@@ -68,9 +68,18 @@ void CachedEntity::Update(int idx) {
 		if (m_bIsVisible) m_lLastSeen = 0;
 		else m_lLastSeen++;
 	}
+	if (m_iClassID == ClassID::CObjectSentrygun || m_iClassID == ClassID::CObjectDispenser || m_iClassID == ClassID::CObjectTeleporter) {
+		m_iTeam = Var<int>(eoffsets.iTeamNum); // TODO
+		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
+		m_bIsVisible = (IsEntityVisible(m_pEntity, 0));
+		m_iHealth = Var<int>(eoffsets.iBuildingHealth);
+		m_iMaxHealth = Var<int>(eoffsets.iBuildingMaxHealth);
+		if (m_bIsVisible) m_lLastSeen = 0;
+		else m_lLastSeen++;
+	}
 }
 
-void CachedEntity::AddESPString(Color color, const char* fmt, ...) {
+void CachedEntity::AddESPString(Color color, Color background, const char* fmt, ...) {
 	if (m_Strings[m_nESPStrings].m_String) {
 		delete m_Strings[m_nESPStrings].m_String;
 	}
@@ -88,6 +97,7 @@ void CachedEntity::AddESPString(Color color, const char* fmt, ...) {
 		return;
 	}
 	m_Strings[m_nESPStrings].m_Color = color;
+	m_Strings[m_nESPStrings].m_Background = background;
 	m_Strings[m_nESPStrings].m_String = buffer;
 	//logging::Info("String: %s", m_Strings[m_nESPStrings].m_String);
 	m_nESPStrings++;

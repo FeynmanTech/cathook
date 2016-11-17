@@ -9,6 +9,8 @@
 #define RELATIONS_H_
 
 typedef unsigned long uint32;
+class IClientEntity;
+class CCommand;
 
 enum relation {
 	NONE = 0,
@@ -25,6 +27,7 @@ public:
 	void Remove(uint32 id);
 	void WriteConfig();
 	void ShiftArray(uint32* array, int idx, int max);
+	relation Get(IClientEntity* player);
 
 	uint32 m_Friends[MAX_FRIENDS];
 	uint32 m_Friendlies[MAX_FRIENDS];
@@ -34,6 +37,10 @@ public:
 	int m_nFriendlies;
 	int m_nRage;
 };
+
+void CC_AddFriend(const CCommand& args);
+void CC_AddFriendly(const CCommand& args);
+void CC_AddRage(const CCommand& args);
 
 extern char* RelStr[4];
 extern CRelations* g_pRelations;

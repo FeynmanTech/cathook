@@ -14,6 +14,7 @@
 #include <client_class.h>
 #include <icliententity.h>
 
+/* Default Filter */
 
 trace::FilterDefault::FilterDefault() {
 	m_pSelf = nullptr;
@@ -48,6 +49,8 @@ bool trace::FilterDefault::ShouldHitEntity(IHandleEntity* handle, int mask) {
 TraceType_t trace::FilterDefault::GetTraceType() const {
 	return TRACE_EVERYTHING;
 }
+
+/* No-Player filter */
 
 trace::FilterNoPlayer::FilterNoPlayer() {
 	m_pSelf = nullptr;
@@ -84,3 +87,55 @@ bool trace::FilterNoPlayer::ShouldHitEntity(IHandleEntity* handle, int mask) {
 TraceType_t trace::FilterNoPlayer::GetTraceType() const {
 	return TRACE_EVERYTHING;
 }
+
+/* Penetration Filter */
+
+trace::FilterPenetration::FilterPenetration() {
+	m_pSelf = nullptr;
+}
+
+trace::FilterPenetration::~FilterPenetration() {};
+
+void trace::FilterPenetration::SetSelf(IClientEntity* self) {
+	if (self == nullptr) {
+		logging::Info("nullptr in FilterPenetration::SetSelf");
+	}
+	m_pSelf = self;
+}
+
+bool trace::FilterPenetration::ShouldHitEntity(IHandleEntity* handle, int mask) {
+	if (!handle) return false;
+	IClientEntity* entity = (IClientEntity*) handle;
+	ClientClass* clazz = entity->GetClientClass();
+	/* Ignore invisible entities that we don't wanna hit */
+	switch(clazz->m_ClassID) {
+	// TODO magic numbers: invisible entity ids
+	case 64:
+	case 225:
+	case 55:
+		return false;
+	case 241:
+		if (!m_pIgnoreFirst && (entity != m_pSelf)) {
+			m_pIgnoreFirst = entity;
+		}
+	}
+	/* Do not hit yourself. Idiot. */
+	if (entity == m_pSelf) return false;
+	if (entity == m_pIgnoreFirst) return false;
+	return true;
+}
+
+TraceType_t trace::FilterPenetration::GetTraceType() const {
+	return TRACE_EVERYTHING;
+}
+
+void trace::FilterPenetration::Reset() {
+	m_pIgnoreFirst = 0;
+}
+
+trace::FilterDefault* trace::g_pFilterDefault = new trace::FilterDefault();
+trace::FilterNoPlayer* trace::g_pFilterNoPlayer = new trace::FilterNoPlayer();
+trace::FilterPenetration* trace::g_pFilterPenetration = new trace::FilterPenetration();
+
+
+
