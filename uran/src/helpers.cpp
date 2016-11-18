@@ -13,6 +13,7 @@
 #include "trace.h"
 #include "localplayer.h"
 #include "entitycache.h"
+#include "playerresource.h"
 
 #include "fixsdk.h"
 #include <tier1/convar.h>
@@ -473,6 +474,10 @@ relation GetRelation(IClientEntity* ent) {
 	return relation::NEUTRAL;
 }
 
+bool IsSentryBuster(IClientEntity* entity) {
+	return (entity && entity->GetClientClass()->m_ClassID == ClassID::CTFPlayer && GetEntityValue<int>(entity, eoffsets.iClass) == tf_class::tf_demoman && g_pPlayerResource->GetMaxHealth(entity) == 2500);
+}
+
 bool CheckCE(CachedEntity* entity) {
 	return (entity && entity->m_pEntity && !entity->m_pEntity->IsDormant());
 }
@@ -514,6 +519,40 @@ float GetFov(Vector angle, Vector src, Vector dst)
 	return RAD2DEG(acos(u_dot_v / (pow(mag, 2))));
 }
 
+bool CanHeadshot(IClientEntity* player) {
+	int weapon_handle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
+	IClientEntity* weapon = interfaces::entityList->GetClientEntity(weapon_handle & 0xFFF);
+	if (!weapon) return false;
+	float charged_damage = GetEntityValue<float>(weapon, eoffsets.flChargedDamage);
+	switch(weapon->GetClientClass()->m_ClassID) {
+	case ClassID::CTFSniperRifle:
+		return charged_damage >= 15.0f;
+	case ClassID::CTFSniperRifleDecap: {
+		int decaps = GetEntityValue<int>(player, eoffsets.iDecapitations);
+		switch (decaps) { // TODO VALUES ARE NOT PRECISE
+		// noobish
+		case 0:
+			return charged_damage >= 7.5f;
+		case 1:
+			return charged_damage >= 13.0f;
+		case 2:
+			return charged_damage >= 15.0f;
+		case 3:
+			return charged_damage >= 18.5f;
+		case 4:
+			return charged_damage >= 22.5f;
+		case 5:
+			return charged_damage >= 24.0f;
+		default:
+			return charged_damage >= 25.0f;
+		}
+		break;
+	}
+	case ClassID::CTFSniperRifleClassic:
+		return false; // Fuck classic.
+	}
+	return false;
+}
 
 bool BulletTime(IClientEntity* entity, bool use_int) {
 	float interval = 1 / 66;

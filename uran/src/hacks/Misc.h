@@ -27,6 +27,7 @@ public:
 	ConCommand* c_AddRage;
 	ConCommand* c_DumpVars;
 	ConCommand* c_DumpPlayers;
+	ConCommand* c_Teamname;
 };
 
 #endif /* HACKS_MISC_H_ */

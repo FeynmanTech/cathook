@@ -35,10 +35,12 @@ Color colors::tf_blu(88,  133, 162, 255);
 Color colors::yellow(255, 255, 0,   255);
 Color colors::orange(255, 128,  0,  255);
 Color colors::green(0,  255,  0,   255);
-Color colors::dk_red(200, 80,  80,  255);
-Color colors::dk_blu(80,  80,  200, 255);
+Color colors::dk_red(150, 75,  75,  255);
+Color colors::dk_blu(75,  75,  150, 255);
 Color colors::bg_red(64,  32,  32,  255);
 Color colors::bg_blu(32,  32,  64,  255);
+Color colors::dbgred(48,  16,  16,  255);
+Color colors::dbgblu(16,  16,  48,  255);
 
 
 Color colors::GetTeamColor(int team, bool dark) {
@@ -56,7 +58,7 @@ Color colors::GetTeamColor(int team, bool dark) {
 	return colors::white;
 }
 
-Color colors::GetTeamBgColor(int team) {
+Color colors::GetTeamBgColor(int team, bool dark) {
 	if (team == 2) {
 		return colors::bg_red;
 	} else if (team == 3) {

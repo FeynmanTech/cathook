@@ -108,6 +108,25 @@ void CC_DumpPlayers(const CCommand& args) {
 	}
 }
 
+ConCommandBase* teamname = 0;
+
+void CC_Teamname(const CCommand& args) {
+	if (!teamname) {
+		logging::Info("searching");
+		teamname = interfaces::cvar->FindCommandBase("tournament_teamname");
+	}
+	logging::Info("Teamname 0x%08x", teamname);
+	if (!teamname) return;
+
+	/*CCommand cmd;
+	char* buf = new char[256];
+	sprintf(buf, "tournament_teamname %s", args.Arg(1));
+	logging::Info("Z");
+	cmd.Tokenize(buf);
+	logging::Info("A");
+	teamname->Dispatch(cmd);
+	logging::Info("B");*/
+}
 
 void Misc::Create() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
@@ -118,6 +137,7 @@ void Misc::Create() {
 	c_AddRage = CreateConCommand("u_addrage", CC_AddRage, "Adds player to rage list");
 	c_DumpVars = CreateConCommand("u_dumpent", CC_DumpVars, "Dumps entity data");
 	c_DumpPlayers = CreateConCommand("u_dumpplayers", CC_DumpPlayers, "Dumps player data");
+	c_Teamname = CreateConCommand("u_teamname", CC_Teamname, "Team name");
 }
 
 int sa_switch = 0;
@@ -153,6 +173,9 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			y += 14;
 			draw::DrawString(10, y, draw::white, draw::black, false, "CanShoot: %i", CanShoot(g_pLocalPlayer->entity));
 			y += 14;
-		}
+			draw::DrawString(10, y, draw::white, draw::black, false, "Decaps: %i", GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iDecapitations));
+			y += 14;
+			draw::DrawString(10, y, draw::white, draw::black, false, "Damage: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargedDamage));
+	 }
 	}
 }

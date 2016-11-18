@@ -235,11 +235,17 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	}
 	//logging::Info("Angles: %f %f %f", angles.x, angles.y, angles.z);
 	if (this->v_bAutoShoot->GetBool()) {
-		if (this->v_iAutoShootCharge->GetBool() && (GetEntityValue<int>(local, eoffsets.iClass) == 2)) {
-			int rifleHandle = GetEntityValue<int>(local, eoffsets.hActiveWeapon);
-			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
-			if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
+		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
+			if (g_pLocalPlayer->cond_0 & cond::zoomed) {
+				if (this->v_iAutoShootCharge->GetBool()) {
+					int rifleHandle = GetEntityValue<int>(local, eoffsets.hActiveWeapon);
+					IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
+					float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
+					if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
+				} else {
+					if (!CanHeadshot(g_pLocalPlayer->entity)) return true;
+				}
+			}
 		}
 		cmd->buttons |= IN_ATTACK;
 	}

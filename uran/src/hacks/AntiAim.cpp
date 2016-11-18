@@ -21,9 +21,9 @@ bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if ((cmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_USE))) return true;
 	if (g_pLocalPlayer->bAttackLastTick) return true;
-	spin += 1.0f;
+	spin += 10.0f;
 	if (spin > 180) spin = -180;
-	Vector angl = Vector(-89.0, spin, 0);
+	Vector angl = Vector(-60.0, spin, 0);
 	fClampAngle(angl);
 	//angl.z = 180;
 	cmd->viewangles = angl;

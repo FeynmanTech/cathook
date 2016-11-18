@@ -51,6 +51,10 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
 bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
 relation GetRelation(IClientEntity* ent);
+bool IsSentryBuster(IClientEntity* ent);
+
+bool CanHeadshot(IClientEntity* player);
+
 // TODO deprecated
 //int ClassMaxHealth(int clazz);
 bool CheckCE(CachedEntity* entity);

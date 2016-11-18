@@ -221,7 +221,7 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 			color = colors::yellow;
 			break;
 		}
-		bgclr = colors::GetTeamBgColor(ent->m_iTeam);
+		bgclr = colors::GetTeamBgColor(ent->m_iTeam, !ent->m_bIsVisible);
 
 		// TODO TEMP
 		//ent->AddESPString(color, "FOV %f", GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, ent->m_pEntity->GetAbsOrigin()));
@@ -271,7 +271,7 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 				return;
 			}
 		}
-		bgclr = colors::GetTeamBgColor(ent->m_iTeam);
+		bgclr = colors::GetTeamBgColor(ent->m_iTeam, !ent->m_bIsVisible);
 
 		ent->AddESPString(color, bgclr, "LV %i %s", level, name);
 		if (this->v_bShowHealthNumbers->GetBool()) {

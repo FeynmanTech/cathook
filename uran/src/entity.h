@@ -62,6 +62,7 @@ public:
 	offset_t flReloadPriorNextFire;
 	offset_t flObservedCritChance;
 	offset_t nTickBase;
+	offset_t iDecapitations;
 };
 
 // TODO globals

@@ -35,8 +35,10 @@ extern Color dk_red;
 extern Color dk_blu;
 extern Color bg_red;
 extern Color bg_blu;
+extern Color dbgred;
+extern Color dbgblu;
 Color GetTeamColor(int team, bool dark);
-Color GetTeamBgColor(int team);
+Color GetTeamBgColor(int team, bool dark);
 Color GetHealthColor(int health, int max);
 }
 
