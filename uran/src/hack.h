@@ -28,6 +28,8 @@ void Initialize();
 void Think();
 void Shutdown();
 
+void InitHacks();
+
 }
 
 #endif /* HACK_H_ */

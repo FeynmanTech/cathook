@@ -52,6 +52,7 @@ bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
 relation GetRelation(IClientEntity* ent);
 bool IsSentryBuster(IClientEntity* ent);
+char* strfmt(const char* fmt, ...);
 
 bool CanHeadshot(IClientEntity* player);
 
@@ -71,6 +72,7 @@ Vector CalcAngle(Vector src, Vector dst);
 void MakeVector(Vector ang, Vector& out);
 float GetFov(Vector ang, Vector src, Vector dst);
 
+//extern const char* classes[9];
 extern const char* powerups[POWERUP_COUNT];
 extern const char* packs[PACK_COUNT];
 extern uint32 friends[256];

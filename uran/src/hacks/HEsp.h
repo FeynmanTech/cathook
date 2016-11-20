@@ -46,4 +46,6 @@ public:
 	//ConVar* v_bModelInfo;
 };
 
+extern HEsp* g_phEsp;
+
 #endif /* HESP_H_ */

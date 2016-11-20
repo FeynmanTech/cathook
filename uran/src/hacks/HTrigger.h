@@ -28,4 +28,6 @@ public:
 	ConVar* v_bBuildings;
 };
 
+extern HTrigger* g_phTrigger;
+
 #endif /* HTRIGGER_H_ */

@@ -9,14 +9,12 @@
 #define HACKS_TRACERS_H_
 
 #include "IHack.h"
-
-class ConVar;
-
-class Tracers : public IHack {
+// TODO  tracers
+/*class Tracers : public IHack {
 public:
-	DECL_HACK
+	DECLARE_HACK()
 	ConVar* v_bEnabled;
 	ConVar* v_bTraceVisible;
-};
+};*/
 
 #endif /* HACKS_TRACERS_H_ */

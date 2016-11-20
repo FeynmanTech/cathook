@@ -44,5 +44,6 @@ public:
 	ConVar* v_bMachinaPenetration;
 };
 
+extern HAimbot* g_phAimbot;
 
 #endif /* HAIMBOT_H_ */

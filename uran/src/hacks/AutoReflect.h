@@ -10,11 +10,13 @@
 
 #include "IHack.h"
 
-class AutoReflect : IHack {
+class AutoReflect : public IHack {
 public:
-	DECL_HACK
+	DECLARE_HACK()
 	ConVar* v_bEnabled;
 	ConVar* v_iReflectDistance;
 };
+
+extern AutoReflect* g_phAutoReflect;
 
 #endif /* HACKS_AUTOREFLECT_H_ */

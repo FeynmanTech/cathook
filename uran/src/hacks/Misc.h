@@ -28,6 +28,10 @@ public:
 	ConCommand* c_DumpVars;
 	ConCommand* c_DumpPlayers;
 	ConCommand* c_Teamname;
+	ConCommand* c_Lockee;
+	ConCommand* c_Info;
 };
+
+extern Misc* g_phMisc;
 
 #endif /* HACKS_MISC_H_ */

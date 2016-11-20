@@ -12,8 +12,10 @@
 
 class AntiDisguise : public IHack {
 public:
-	DECL_HACK
+	DECLARE_HACK()
 	ConVar* v_bEnabled;
 };
+
+extern AntiDisguise* g_phAntiDisguise;
 
 #endif /* HACKS_ANTIDISGUISE_H_ */

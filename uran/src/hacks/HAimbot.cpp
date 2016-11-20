@@ -251,3 +251,5 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	}
 	return true;
 }
+
+HAimbot* g_phAimbot = 0;

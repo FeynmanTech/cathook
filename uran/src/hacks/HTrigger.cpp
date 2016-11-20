@@ -112,14 +112,14 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		// If we need charge...
 		if (!bodyshot && this->v_bBodyshot->GetBool()) {
 			float bdmg = GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargedDamage);
-			if (bdmg >= 15.0f && (bdmg) >= health) {
+			if (CanHeadshot(g_pLocalPlayer->entity) && (bdmg) >= health) {
 				bodyshot = true;
 			}
 		}
 
 	}
 	if (!bodyshot && (g_pLocalPlayer->clazz == tf_class::tf_sniper) && this->v_bZoomedOnly->GetBool() &&
-		!(g_pLocalPlayer->cond_0 & cond::zoomed)) {
+		!((g_pLocalPlayer->cond_0 & cond::zoomed) && CanHeadshot(g_pLocalPlayer->entity))) {
 		return true;
 	}
 	//IClientEntity* weapon;
@@ -136,3 +136,5 @@ void HTrigger::Destroy() {
 }
 
 void HTrigger::PaintTraverse(void*, unsigned int, bool, bool) {};
+
+HTrigger* g_phTrigger = 0;

@@ -603,6 +603,15 @@ bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {
 	return false;
 }
 
+char* strfmt(const char* fmt, ...) {
+	char* buf = new char[1024];
+	va_list list;
+	va_start(list, fmt);
+	vsprintf(buf, fmt, list);
+	va_end(list);
+	return buf;
+}
+
 const char* powerups[] = {
 	"STRENGTH",
 	"RESISTANCE",
@@ -618,6 +627,18 @@ const char* powerups[] = {
 	"SUPERNOVA",
 	"CRITS"
 };
+
+/*const char* classes[] = {
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	""
+};*/
 
 uint32 friends[256];
 

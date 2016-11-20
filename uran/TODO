@@ -17,6 +17,13 @@ Target system respect mannpower powerups
 Aimbot charge detection respect powerups
 
  tournament_teamname
+ 
+ 
+ignore taunt
+
+
+CritTrigger
+CritAim
 
 
 huntsman aim fix

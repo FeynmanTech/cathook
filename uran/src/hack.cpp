@@ -26,9 +26,9 @@
 #include "helpers.h"
 #include "hacks/HBunnyhop.h"
 #include "hacks/HTrigger.h"
+#include "hacks/AutoReflect.h"
 #include "hacks/HEsp.h"
 //#include "hacks/HGlow.h"
-#include "hacks/HPyroBot.h"
 #include "hacks/HAimbot.h"
 #include "hacks/AntiAim.h"
 #include "hacks/Quickscope.h"
@@ -59,6 +59,7 @@
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
+#include "hacks/FollowBot.h"
 
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
@@ -173,6 +174,19 @@ void hack::AddHack(IHack* hack) {
 ICvar* g_pCVar = 0;
 
 
+void hack::InitHacks() {
+	hack::AddHack(g_phAntiAim = new AntiAim());
+	hack::AddHack(g_phAntiDisguise = new AntiDisguise());
+	hack::AddHack(g_phAutoReflect = new AutoReflect());
+	hack::AddHack(g_phFollowBot = new FollowBot());
+	hack::AddHack(g_phAimbot = new HAimbot());
+	hack::AddHack(g_phBunnyhop = new HBunnyhop());
+	hack::AddHack(g_phEsp = new HEsp());
+	hack::AddHack(g_phTrigger = new HTrigger());
+	hack::AddHack(g_phMisc = new Misc());
+	hack::AddHack(g_phQuickscope = new Quickscope());
+}
+
 void hack::Initialize() {
 	logging::Initialize();
 	//std::string test = "";
@@ -187,24 +201,14 @@ void hack::Initialize() {
 	interfaces::CreateInterfaces();
 	logging::Info("Interfaces created!");
 	logging::Info("APPID: %i", interfaces::engineClient->GetAppID());
-	logging::Info("Dumping NetVars...");
-	CDumper dumper;
-	dumper.SaveDump();
+	//logging::Info("Dumping NetVars...");
+	//CDumper dumper;
+	//dumper.SaveDump();
 	logging::Info("Initializing surface...");
 	draw::Initialize();
 	logging::Info("Adding hacks...");
 	SetCVarInterface(interfaces::cvar);
-	hack::AddHack(new AntiAim());
-	logging::Info("Quickscoping");
-	hack::AddHack(new Quickscope());
-	hack::AddHack(new HBunnyhop());
-	hack::AddHack(new Misc());
-	hack::AddHack(new HEsp());
-	hack::AddHack(new HAimbot());
-	hack::AddHack(new AntiDisguise());
-	hack::AddHack(new HTrigger());
-	//hack::AddHack(new HGlow());
-	hack::AddHack(new HPyroBot());
+	hack::InitHacks();
 	ConVar_Register();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();

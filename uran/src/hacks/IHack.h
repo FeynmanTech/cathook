@@ -11,8 +11,9 @@
 class CUserCmd;
 class ConVar;
 class ConCommand;
+class CCommand;
 
-#define DECL_HACK \
+#define DECLARE_HACK() \
 	void Create(); \
 	bool CreateMove(void*, float, CUserCmd*); \
 	void Destroy(); \

@@ -56,4 +56,5 @@ void HBunnyhop::Destroy() {
 
 void HBunnyhop::PaintTraverse(void*, unsigned int, bool, bool) {}
 
+HBunnyhop* g_phBunnyhop = 0;
 

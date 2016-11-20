@@ -7,7 +7,8 @@
 
 #include "Tracers.h"
 
-void Tracers::Create() {
+//TODO
+/*void Tracers::Create() {
 
 }
 
@@ -16,4 +17,4 @@ bool Tracers::CreateMove(void*, float, CUserCmd*) { return true; }
 
 void Tracers::PaintTraverse(void*, unsigned int, bool, bool) {
 
-}
+}*/

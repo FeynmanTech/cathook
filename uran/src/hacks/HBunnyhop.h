@@ -21,4 +21,6 @@ public:
 	ConVar* v_bEnabled;
 };
 
+extern HBunnyhop* g_phBunnyhop;
+
 #endif /* HBUNNYHOP_H_ */

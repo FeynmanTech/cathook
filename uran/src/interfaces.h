@@ -24,6 +24,7 @@ class IBaseClientDLL;
 class ClientModeShared;
 class IEngineTrace;
 class IVModelInfoClient;
+class IInputSystem;
 
 namespace interfaces {
 
@@ -39,6 +40,7 @@ extern IGameEventManager2* eventManager;
 extern IBaseClientDLL* baseClient;
 extern IEngineTrace* trace;
 extern IVModelInfoClient* model;
+extern IInputSystem* input;
 
 void CreateInterfaces();
 

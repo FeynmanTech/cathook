@@ -34,3 +34,5 @@ void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 
 bool AntiDisguise::CreateMove(void*, float, CUserCmd*) {return true;}
 void AntiDisguise::Destroy() {}
+
+AntiDisguise* g_phAntiDisguise = 0;

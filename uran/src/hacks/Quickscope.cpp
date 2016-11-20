@@ -41,3 +41,5 @@ bool Quickscope::CreateMove(void*, float, CUserCmd* cmd) {
 
 void Quickscope::Destroy() {}
 void Quickscope::PaintTraverse(void*, unsigned int, bool, bool) { }
+
+Quickscope* g_phQuickscope = 0;

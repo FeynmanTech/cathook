@@ -10,6 +10,7 @@
 #include "../localplayer.h"
 #include "../entitycache.h"
 #include "../usercmd.h"
+#include "../entity.h"
 #include "../helpers.h"
 
 #include "../sdk/in_buttons.h"
@@ -23,11 +24,14 @@
 // Hack Methods
 
 void AutoReflect::Create() {
-
+	v_bEnabled = CreateConVar("u_reflect_enabled", "0", "Reflectbot enabled");
+	v_iReflectDistance = CreateConVar("u_reflect_distance", "300", "Reflectbot distance");
 }
-
+// TODO
 bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
+
+	if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFFlameThrower) return true;
 
 	CachedEntity* closest = 0;
 	float closest_dist = 0.0f;
@@ -35,7 +39,9 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	for (int i = 0; i < gEntityCache.m_nMax; i++) {
 		CachedEntity* ent = gEntityCache.GetEntity(i);
 		if (!ent || ent->m_bNULL || ent->m_bDormant) continue;
-		if (!ent->m_iClassID == ClassID::CTFProjectile_Rocket) continue;
+		if (ent->m_iClassID != ClassID::CTFProjectile_Rocket &&
+			ent->m_iClassID != ClassID::CTFGrenadePipebombProjectile) continue;
+		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team) continue;
 		float dist = ent->m_pEntity->GetAbsOrigin().DistToSqr(g_pLocalPlayer->v_Origin);
 		if (dist < closest_dist || !closest) {
 			closest = ent;
@@ -43,13 +49,14 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (closest_dist == 0 || closest_dist > v_iReflectDistance->GetInt()) return true;
+	if (closest_dist == 0 || closest_dist > v_iReflectDistance->GetInt() * v_iReflectDistance->GetInt()) return true;
 
 	Vector tr = (closest->m_pEntity->GetAbsOrigin() - g_pLocalPlayer->v_Eye);
 	Vector angles;
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);
 	cmd->viewangles = angles;
+	g_pLocalPlayer->bUseSilentAngles = true;
 	cmd->buttons |= IN_ATTACK2;
 
 	return true;
@@ -57,3 +64,5 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 
 void AutoReflect::PaintTraverse(void*, unsigned int, bool, bool) {}
 void AutoReflect::Destroy() {}
+
+AutoReflect* g_phAutoReflect = 0;

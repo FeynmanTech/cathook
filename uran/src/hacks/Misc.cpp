@@ -23,7 +23,9 @@
 #include <icliententitylist.h>
 #include <Color.h>
 #include <cdll_int.h>
+#include <iconvar.h>
 #include <dt_common.h>
+#include <inputsystem/iinputsystem.h>
 
 void CC_SayLines(const CCommand& args) {
 	char cmd[256];
@@ -108,7 +110,26 @@ void CC_DumpPlayers(const CCommand& args) {
 	}
 }
 
+void LockConCommand(const char* name, bool lock) {
+	ConCommandBase* cmd = interfaces::cvar->FindCommandBase(name);
+	if (lock) {
+		cmd->m_nFlags |= FCVAR_CHEAT;
+	} else {
+		cmd->m_nFlags &= ~FCVAR_CHEAT;
+	}
+}
+
+void LockConCommands(bool lock) {
+	LockConCommand("thirdperson", lock);
+}
+
 ConCommandBase* teamname = 0;
+
+void CC_Lockee(const CCommand& args) {
+	if (args.ArgC() > 1) {
+		LockConCommands(atoi(args.Arg(1)));
+	}
+}
 
 void CC_Teamname(const CCommand& args) {
 	if (!teamname) {
@@ -128,6 +149,14 @@ void CC_Teamname(const CCommand& args) {
 	logging::Info("B");*/
 }
 
+void CC_SayInfo(const CCommand& args) {
+	int id = atoi(args.Arg(1));
+	player_info_t info;
+	if (!interfaces::engineClient->GetPlayerInfo(id, &info)) return;
+	char* buf = new char[256];
+
+}
+
 void Misc::Create() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
 	v_bSemiAuto = CreateConVar("u_misc_semiauto", "0", "Force semi-auto");
@@ -138,6 +167,7 @@ void Misc::Create() {
 	c_DumpVars = CreateConCommand("u_dumpent", CC_DumpVars, "Dumps entity data");
 	c_DumpPlayers = CreateConCommand("u_dumpplayers", CC_DumpPlayers, "Dumps player data");
 	c_Teamname = CreateConCommand("u_teamname", CC_Teamname, "Team name");
+	c_Lockee = CreateConCommand("u_lockee", CC_Lockee, "Lock/Unlock commands");
 }
 
 int sa_switch = 0;
@@ -162,7 +192,13 @@ void Misc::Destroy() {
 
 void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 	int y = 10;
-	if (v_bDbWeaponInfo->GetBool()) {
+	if (!v_bDbWeaponInfo->GetBool())return;
+	if (!interfaces::input->IsButtonDown(ButtonCode_t::KEY_F)) {
+		interfaces::baseClient->IN_ActivateMouse();
+	} else {
+		interfaces::baseClient->IN_DeactivateMouse();
+	}
+
 		if (g_pLocalPlayer->weapon) {
 			IClientEntity* weapon = g_pLocalPlayer->weapon;
 			draw::DrawString(10, y, draw::white, draw::black, false, "Weapon: %s [%i]", weapon->GetClientClass()->GetName(), weapon->GetClientClass()->m_ClassID);
@@ -176,6 +212,9 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			draw::DrawString(10, y, draw::white, draw::black, false, "Decaps: %i", GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iDecapitations));
 			y += 14;
 			draw::DrawString(10, y, draw::white, draw::black, false, "Damage: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargedDamage));
-	 }
-	}
+			y += 14;
+			draw::DrawString(draw::font_handle, interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X), interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y), draw::white, L"S\u0FD5");
+		}
 }
+
+Misc* g_phMisc = 0;

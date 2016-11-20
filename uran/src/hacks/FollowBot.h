@@ -14,7 +14,7 @@ class ConVar;
 class IClientEntity;
 class ConCommand;
 
-class HPyroBot : public IHack {
+class FollowBot : public IHack {
 public:
 	void Create();
 	bool CreateMove(void*, float, CUserCmd*);
@@ -30,7 +30,10 @@ public:
 	ConVar* v_iMaxDistance;
 	ConVar* v_iShootDistance;
 	ConVar* v_iMaxDeltaY;
+	ConVar* v_bMediBot;
 	ConVar* v_bChat;
 };
+
+extern FollowBot* g_phFollowBot;
 
 #endif /* HPYROBOT_H_ */

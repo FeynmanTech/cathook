@@ -374,6 +374,5 @@ bool HEsp::CreateMove(void*, float, CUserCmd*) {
 
 void HEsp::Destroy() {};
 
-
-
+HEsp* g_phEsp;
 

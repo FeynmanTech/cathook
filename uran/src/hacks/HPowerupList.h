@@ -10,7 +10,9 @@
 
 #include "IHack.h"
 
-class HPowerupList : public IHack {
+
+// TODO implement
+/*class HPowerupList : public IHack {
 public:
 	void Create();
 	void Destroy();
@@ -26,6 +28,6 @@ public:
 
 	// TODO
 };
-
+*/
 
 #endif /* HPOWERUPLIST_H_ */

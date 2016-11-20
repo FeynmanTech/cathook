@@ -5,7 +5,7 @@
  *      Author: nullifiedcat
  */
 
-#include "HPyroBot.h"
+#include "FollowBot.h"
 
 #include "../interfaces.h"
 #include "../entity.h"
@@ -19,6 +19,7 @@
 #include <icliententitylist.h>
 #include <client_class.h>
 #include <cdll_int.h>
+#include <igameevents.h>
 
 enum bot_state_t {
 	IDLE = 0,
@@ -47,11 +48,22 @@ IClientEntity* GetTarget() {
 	return interfaces::entityList->GetClientEntity(g_nTargetID);
 }
 
-void HPyroBot::ProcessEntity(IClientEntity* entity, bool enemy) {
+int called = 0;
+
+class MedicCallListener : public IGameEventListener2 {
+public:
+	MedicCallListener() {}
+	void FireGameEvent(IGameEvent* pEvent) {
+		if (strcmp("player_calledformedic", pEvent->GetName())) return;
+		int id = interfaces::engineClient->GetPlayerForUserID(pEvent->GetInt("userid", -1));
+	}
+};
+
+void FollowBot::ProcessEntity(IClientEntity* entity, bool enemy) {
 	IClientEntity* target = GetTarget();
 
 	if (!target) {
-		if (!enemy) {
+		if (!enemy || v_bMediBot->GetBool()) {
 			if (v_iForceFollow->GetInt() != -1) {
 				if (v_bForceFollowOnly->GetBool() && (v_iForceFollow->GetInt() != entity->entindex())) {
 					return;
@@ -62,7 +74,7 @@ void HPyroBot::ProcessEntity(IClientEntity* entity, bool enemy) {
 		SetTarget(target);
 	}
 
-	if (enemy) {
+	if (enemy && !v_bMediBot->GetBool()) {
 		if (g_bState == bot_state_t::FOLLOWING_ENEMY) {
 			if (DistToSqr(entity) <= DistToSqr(target)) {
 				target = entity;
@@ -122,7 +134,7 @@ void AimAt(IClientEntity* entity, CUserCmd* cmd) {
  *  shoot
  */
 
-int HPyroBot::ShouldTarget(IClientEntity* ent, bool notrace) {
+int FollowBot::ShouldTarget(IClientEntity* ent, bool notrace) {
 	if (!ent || ent->IsDormant()) return 1;
 	if (ent->GetClientClass()->m_ClassID != 241) return 2;
 	if (GetEntityValue<char>(ent, eoffsets.iLifeState)) return 3;
@@ -143,7 +155,7 @@ int HPyroBot::ShouldTarget(IClientEntity* ent, bool notrace) {
 	return 0;
 }
 
-void HPyroBot::Tick(CUserCmd* cmd) {
+void FollowBot::Tick(CUserCmd* cmd) {
 	if (!g_pLocalPlayer->entity || g_pLocalPlayer->entity->IsDormant()) return;
 	if (g_pLocalPlayer->life_state) return;
 
@@ -231,14 +243,14 @@ void HPyroBot::Tick(CUserCmd* cmd) {
 		interfaces::engineClient->ExecuteClientCmd("-forward");
 	}
 
-	if (DistToSqr(target) < (v_iShootDistance->GetInt() * v_iShootDistance->GetInt()) && g_bState == bot_state_t::FOLLOWING_ENEMY) {
+	if (DistToSqr(target) < (v_iShootDistance->GetInt() * v_iShootDistance->GetInt()) && (g_bState == bot_state_t::FOLLOWING_ENEMY || v_bMediBot->GetBool())) {
 		interfaces::engineClient->ExecuteClientCmd("+attack");
 	} else {
 		interfaces::engineClient->ExecuteClientCmd("-attack");
 	}
 }
 
-bool HPyroBot::CreateMove(void*, float, CUserCmd* cmd) {
+bool FollowBot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
 	Tick(cmd);
 	g_nTick++;
@@ -249,17 +261,21 @@ void CC_Status(const CCommand& args) {
 	logging::Info("W+M1 State: %i, ID: %i, Search: %i", g_bState, g_nTargetID, nPilotSearch);
 }
 
-void HPyroBot::Create() {
-	logging::Info("Creating PyroBot");
-	v_bEnabled = CreateConVar("u_pyrobot_enabled", "0", "Enables WM1 bot");
-	v_iForceFollow = CreateConVar("u_pyrobot_force_follow", "-1", "Force follow a teammate");
-	v_bForceFollowOnly = CreateConVar("u_pyrobot_force_follow_only", "1", "only follow force");
-	v_iMaxDeltaY = CreateConVar("u_pyrobot_max_height", "450", "Max dY");
-	v_iMaxDistance = CreateConVar("u_pyrobot_aim_distance", "1300", "Distance");
-	v_iShootDistance = CreateConVar("u_pyrobot_shoot_distance", "800", "Shoot distance");
-	v_bChat = CreateConVar("u_pyrobot_chat", "0", "Enable chat");
-	cmd_Status = CreateConCommand("u_pyrobot_status", CC_Status, "Status");
+void FollowBot::Create() {
+	v_bEnabled = CreateConVar("u_follow_enabled", "0", "Enables followbot");
+	v_iForceFollow = CreateConVar("u_follow_force_follow", "-1", "Force follow by UID");
+	v_bForceFollowOnly = CreateConVar("u_follow_force_follow_only", "1", "Only follow that player");
+	v_iMaxDeltaY = CreateConVar("u_follow_max_height", "450", "Max dY");
+	v_iMaxDistance = CreateConVar("u_follow_aim_distance", "1300", "Distance");
+	v_iShootDistance = CreateConVar("u_follow_shoot_distance", "800", "Shoot distance");
+	v_bChat = CreateConVar("u_follow_chat", "0", "Enable chat");
+
+	v_bMediBot = CreateConVar("u_followbot", "1", "Medic mode");
+
+	cmd_Status = CreateConCommand("u_followbot_status", CC_Status, "Status");
 }
 
-void HPyroBot::Destroy() {}
-void HPyroBot::PaintTraverse(void*, unsigned int, bool, bool) {}
+void FollowBot::Destroy() {}
+void FollowBot::PaintTraverse(void*, unsigned int, bool, bool) {}
+
+FollowBot* g_phFollowBot = 0;

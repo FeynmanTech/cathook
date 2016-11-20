@@ -6,9 +6,11 @@
  */
 
 #include "logging.h"
+#include "helpers.h"
 
 #include <stdarg.h>
 #include <string.h>
+#include <pwd.h>
 
 #include "fixsdk.h"
 #include <icvar.h>
@@ -20,7 +22,9 @@ ICvar* cvar;
 FILE* logging::handle = 0;
 
 void logging::Initialize() {
-	logging::handle = fopen("/tmp/uran.log", "w");
+	passwd* pwd = getpwuid(getuid());
+	char* user = pwd->pw_name;
+	logging::handle = fopen(strfmt("/tmp/uran-%s.log", user), "w");
 }
 
 void logging::Info(const char* fmt, ...) {
