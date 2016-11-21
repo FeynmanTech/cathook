@@ -100,6 +100,11 @@ void CC_DumpVars(const CCommand& args) {
 	DumpRecvTable(ent, clz->m_pRecvTable, 0, ft);
 }
 
+void CC_ResetLists(const CCommand& args) {
+	n_friends = 0;
+	n_rage = 0;
+}
+
 void CC_DumpPlayers(const CCommand& args) {
 	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
 		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
@@ -168,6 +173,7 @@ void Misc::Create() {
 	c_DumpPlayers = CreateConCommand("u_dumpplayers", CC_DumpPlayers, "Dumps player data");
 	c_Teamname = CreateConCommand("u_teamname", CC_Teamname, "Team name");
 	c_Lockee = CreateConCommand("u_lockee", CC_Lockee, "Lock/Unlock commands");
+	c_Reset = CreateConCommand("u_reset_lists", CC_ResetLists, "Remove all friends and rage");
 }
 
 int sa_switch = 0;

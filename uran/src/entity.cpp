@@ -34,6 +34,7 @@ void EntityVariables::Init() {
 	this->bGlowEnabled = gNetvars.get_offset("DT_TFPlayer", "m_bGlowEnabled");
 	this->iReloadMode = gNetvars.get_offset("DT_TFWeaponBase", "m_iReloadMode");
 	this->iMaxHealth = gNetvars.get_offset("DT_TFPlayerResource", "m_iMaxHealth");
+	this->iMaxBuffedHealth = gNetvars.get_offset("DT_TFPlayerResource", "m_iMaxBuffedHealth");
 	this->flNextAttack = gNetvars.get_offset("DT_BaseCombatCharacter", "bcc_localdata", "m_flNextAttack");
 	this->iNextMeleeCrit = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_iNextMeleeCrit");
 	this->iDecapitations = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_iDecapitations");

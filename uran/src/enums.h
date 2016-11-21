@@ -145,10 +145,6 @@ enum pack_type {
 	PACK_COUNT
 };
 
-enum entities {
-	E_PLAYER = 241
-};
-
 enum ClassID {
 	CTFWearableLevelableItem = 326,
 	CTFWearableDemoShield = 324,

@@ -33,4 +33,13 @@ int TFPlayerResource::GetMaxHealth(IClientEntity* player) {
 	return *(int*)((unsigned int)m_pEntity + eoffsets.iMaxHealth + 4 * idx);
 }
 
+int TFPlayerResource::GetMaxBuffedHealth(IClientEntity* player) {
+	if (!player) return 0;
+	if (!m_pEntity) return 0;
+	int idx = player->entindex();
+	if (idx >= 64 || idx < 0) return 0;
+	return *(int*)((unsigned int)m_pEntity + eoffsets.iMaxBuffedHealth + 4 * idx);
+}
+
+
 TFPlayerResource* g_pPlayerResource = 0;

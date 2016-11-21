@@ -14,6 +14,7 @@ class TFPlayerResource {
 public:
 	void Update();
 	int GetMaxHealth(IClientEntity* player);
+	int GetMaxBuffedHealth(IClientEntity* player);
 
 	IClientEntity* m_pEntity;
 };

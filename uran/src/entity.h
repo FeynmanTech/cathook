@@ -63,6 +63,7 @@ public:
 	offset_t flObservedCritChance;
 	offset_t nTickBase;
 	offset_t iDecapitations;
+	offset_t iMaxBuffedHealth;
 };
 
 // TODO globals

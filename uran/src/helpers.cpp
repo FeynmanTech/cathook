@@ -210,27 +210,6 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 	out[2] = (in1[0] * in2[2][0] + in1[1] * in2[2][1] + in1[2] * in2[2][2]) + in2[2][3];
 }
 
-// TODO deprecated
-/*int ClassMaxHealth(int clazz) {
-	switch(clazz) {
-	case tf_scout:
-	case tf_spy:
-	case tf_sniper:
-	case tf_engineer:
-		return 125;
-	case tf_soldier:
-		return 200;
-	case tf_medic:
-		return 150;
-	case tf_heavy:
-		return 300;
-	case tf_demoman:
-	case tf_pyro:
-		return 175;
-	}
-	return 0;
-}*/
-
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
 	if (!entity) return 1;
 	if (entity->IsDormant()) return 1;
@@ -565,6 +544,30 @@ bool BulletTime(IClientEntity* entity, bool use_int) {
 bool CanShoot(IClientEntity* player) {
 	if (!player) return false;
 	return BulletTime(g_pLocalPlayer->weapon, true);
+}
+
+// TODO casting
+QAngle VectorToQAngle(Vector in) {
+	return QAngle(in.x, in.y, in.z);
+}
+
+Vector QAngleToVector(QAngle in) {
+	return Vector(in.x, in.y, in.z);
+}
+
+void AimAt(Vector origin, Vector target, CUserCmd* cmd) {
+	Vector angles;
+	Vector tr = (target - origin);
+	fVectorAngles(tr, angles);
+	fClampAngle(angles);
+	cmd->viewangles = angles;
+}
+
+void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd) {
+	Vector r = ent->GetAbsOrigin();
+	GetHitboxPosition(ent, hitbox, r);
+	AimAt(g_pLocalPlayer->v_Eye, r, cmd);
+	//logging::Info("Aiming at %f %f %f", r.x, r.y, r.z);
 }
 
 bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {

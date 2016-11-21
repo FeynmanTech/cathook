@@ -13,6 +13,8 @@ class ConVar;
 class ConCommand;
 class CCommand;
 
+typedef unsigned int uint32;
+
 #define DECLARE_HACK() \
 	void Create(); \
 	bool CreateMove(void*, float, CUserCmd*); \

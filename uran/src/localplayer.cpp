@@ -25,6 +25,7 @@ void LocalPlayer::Update() {
 	v_Eye = v_Origin + v_ViewOffset;
 	cond_0 = GetEntityValue<int>(entity, eoffsets.iCond);
 	clazz = GetEntityValue<int>(entity, eoffsets.iClass);
+	health = GetEntityValue<int>(entity, eoffsets.iHealth);
 
 
 

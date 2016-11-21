@@ -30,6 +30,7 @@ public:
 	ConCommand* c_Teamname;
 	ConCommand* c_Lockee;
 	ConCommand* c_Info;
+	ConCommand* c_Reset;
 };
 
 extern Misc* g_phMisc;

@@ -15,9 +15,6 @@
 #include <libgen.h>
 #include <pwd.h>
 
-// TODO
-#define STEAM_BASEDIR "/home/nullifiedcat/.local/share/Steam/"
-
 namespace logging {
 void Info(const char* fmt, ...);
 }

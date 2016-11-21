@@ -27,6 +27,8 @@ class Vector;
 
 //typedef void ( *FnCommandCallback_t )( const CCommand &command );
 
+// TODO split this shit
+
 bool IsPlayerCritBoosted(IClientEntity* player);
 bool IsPlayerInvulnerable(IClientEntity* player);
 bool IsPlayerInvisible(IClientEntity* player);
@@ -54,10 +56,13 @@ relation GetRelation(IClientEntity* ent);
 bool IsSentryBuster(IClientEntity* ent);
 char* strfmt(const char* fmt, ...);
 
-bool CanHeadshot(IClientEntity* player);
+void AimAt(Vector origin, Vector target, CUserCmd* cmd);
+void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd);
 
-// TODO deprecated
-//int ClassMaxHealth(int clazz);
+QAngle VectorToQAngle(Vector in);
+Vector QAngleToVector(QAngle in);
+
+bool CanHeadshot(IClientEntity* player);
 bool CheckCE(CachedEntity* entity);
 
 bool BulletTime(IClientEntity* ent, bool interval);

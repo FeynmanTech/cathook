@@ -10,6 +10,10 @@
 
 #include "IHack.h"
 
+class IClientEntity;
+
+bool IsReflectableProjectile(IClientEntity* ent);
+
 class AutoReflect : public IHack {
 public:
 	DECLARE_HACK()

@@ -21,6 +21,23 @@
 #include <convar.h>
 #include <client_class.h>
 
+bool IsReflectableProjectile(IClientEntity* ent) {
+	if (!ent) return false;
+	switch (ent->GetClientClass()->m_ClassID) {
+	case ClassID::CTFProjectile_Arrow:
+	case ClassID::CTFProjectile_Cleaver:
+	case ClassID::CTFProjectile_Flare:
+	case ClassID::CTFProjectile_HealingBolt:
+	case ClassID::CTFProjectile_Jar:
+	case ClassID::CTFProjectile_JarMilk:
+	case ClassID::CTFProjectile_Rocket:
+	case ClassID::CTFProjectile_SentryRocket:
+	case ClassID::CTFGrenadePipebombProjectile:
+		return true;
+	}
+	return false;
+}
+
 // Hack Methods
 
 void AutoReflect::Create() {
@@ -30,8 +47,7 @@ void AutoReflect::Create() {
 // TODO
 bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
-
-	if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFFlameThrower) return true;
+	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFFlameThrower) return true;
 
 	CachedEntity* closest = 0;
 	float closest_dist = 0.0f;
@@ -39,8 +55,7 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	for (int i = 0; i < gEntityCache.m_nMax; i++) {
 		CachedEntity* ent = gEntityCache.GetEntity(i);
 		if (!ent || ent->m_bNULL || ent->m_bDormant) continue;
-		if (ent->m_iClassID != ClassID::CTFProjectile_Rocket &&
-			ent->m_iClassID != ClassID::CTFGrenadePipebombProjectile) continue;
+		if (!IsReflectableProjectile(ent->m_pEntity)) continue;
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team) continue;
 		float dist = ent->m_pEntity->GetAbsOrigin().DistToSqr(g_pLocalPlayer->v_Origin);
 		if (dist < closest_dist || !closest) {

@@ -37,7 +37,7 @@ void CRelations::Remove(uint32 id) {
 
 void CRelations::WriteConfig() {
 	// TODO path
-	FILE* cfg = fopen("/home/nullifiedcat/.local/share/Steam/steamapps/common/Team Fortress 2/tf/cfg", "w");
+	FILE* cfg = fopen("/home/nullifiedcat/.local/share/Steam/steamapps/common/Team Fortress 2/tf/cfg/u_relations.cfg", "w");
 	for (int i = 0; i < m_nFriends; i++) {
 		fprintf(cfg, "u_add_friend %lu\n", m_Friends[i]);
 	}

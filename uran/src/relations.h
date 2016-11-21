@@ -41,6 +41,8 @@ public:
 void CC_AddFriend(const CCommand& args);
 void CC_AddFriendly(const CCommand& args);
 void CC_AddRage(const CCommand& args);
+void CC_RemoveRelation(const CCommand& args);
+void CC_SaveRelations(const CCommand& args);
 
 extern char* RelStr[4];
 extern CRelations* g_pRelations;
