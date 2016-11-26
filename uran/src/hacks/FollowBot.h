@@ -10,12 +10,19 @@
 
 #include "IHack.h"
 
+class ipcctl;
 class IClientEntity;
 
 void CC_ResetList(const CCommand& args);
 void CC_AddBotID(const CCommand& args);
 void CC_BotStatus(const CCommand& args);
 void CC_SetOwner(const CCommand& args);
+
+enum botpackage {
+	BOT_FOLLOW = 0,
+	BOT_MEDIC,
+	BOT_SNIPER
+};
 
 class FollowBot : public IHack {
 public:
@@ -27,6 +34,7 @@ public:
 	void Tick(CUserCmd*);
 	int ShouldNotTarget(IClientEntity* ent, bool notrace);
 
+	bool ShouldPopUber(bool force);
 	void ActuallyCreateMove(CUserCmd*);
 	IClientEntity* GetBestHealingTarget();
 	int GetHealingPriority(IClientEntity* ent);
@@ -43,21 +51,20 @@ public:
 	ConCommand* cmd_Status;
 
 	ConVar* v_bEnabled;
-	ConVar* v_iForceFollow;
-	ConVar* v_bForceFollowOnly;
-	ConVar* v_iMaxDistance;
-	ConVar* v_iShootDistance;
-	ConVar* v_iMaxDeltaY;
-	ConVar* v_bChat;
 
 	int m_iShouldUbercharge;
-	ConVar* v_bMediBot;
+	ConVar* v_iBotPackage;
 	ConCommand* c_AddBotID;
 	ConCommand* c_SetOwner;
 	ConCommand* c_ResetList;
+	ConCommand* c_BotCommand;
+	ConCommand* c_IPCList;
 	uint32 m_nOwnerID;
 	uint32 m_OtherBots[32];
 	uint32 m_nOtherBots;
+	ipcctl* m_pIPC;
+	unsigned last_command_global;
+	unsigned last_command_local;
 };
 
 extern FollowBot* g_phFollowBot;

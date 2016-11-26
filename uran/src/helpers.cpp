@@ -72,6 +72,21 @@ const char* GetModelPath(IClientEntity* entity) {
 	return interfaces::model->GetModelName(model);
 }
 
+const char* GetBuildingType(IClientEntity* ent) {
+	if (!ent) return "[NULL]";
+	switch (ent->GetClientClass()->m_ClassID) {
+	case ClassID::CObjectSentrygun:
+		// TODO mini
+		return "Sentry";
+	case ClassID::CObjectDispenser:
+		return "Dispenser";
+	case ClassID::CObjectTeleporter:
+		// TODO exit/entr
+		return "Teleporter";
+	}
+	return "[NULL]";
+}
+
 /* Takes CBaseAnimating entity as input */
 item_type GetItemType(IClientEntity* entity) {
 	if (entity == 0) return item_type::item_null;
@@ -309,6 +324,44 @@ bool IsEntityVisible(IClientEntity* entity, int hb) {
 	return false;
 }
 
+Vector GetBuildingPosition(IClientEntity* ent) {
+	Vector res = ent->GetAbsOrigin();
+	switch (ent->GetClientClass()->m_ClassID) {
+	case ClassID::CObjectDispenser:
+		res.z += 30;
+		break;
+	case ClassID::CObjectTeleporter:
+		res.z += 8;
+		break;
+	case ClassID::CObjectSentrygun:
+		switch (GetEntityValue<int>(ent, eoffsets.iUpgradeLevel)) {
+		case 1:
+			res.z += 30;
+			break;
+		case 2:
+			res.z += 50;
+			break;
+		case 3:
+			res.z += 60;
+			break;
+		}
+		break;
+	}
+	return res;
+}
+
+bool IsBuildingVisible(IClientEntity* ent) {
+	if (!trace_filter) {
+		trace_filter = new trace::FilterDefault();
+	}
+	trace_t trace_visible;
+	Ray_t ray;
+	trace_filter->SetSelf(g_pLocalPlayer->entity);
+	ray.Init(g_pLocalPlayer->v_Eye, GetBuildingPosition(ent));
+	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
+	return (IClientEntity*)trace_visible.m_pEnt == ent;
+}
+
 void fVectorAngles(Vector &forward, Vector &angles) {
 	float tmp, yaw, pitch;
 
@@ -474,6 +527,21 @@ Vector CalcAngle(Vector src, Vector dst) {
 	return AimAngles;
 }
 
+bool IsBuilding(IClientEntity* ent) {
+	if (!ent) return false;
+	switch (ent->GetClientClass()->m_ClassID) {
+	case ClassID::CObjectSentrygun:
+	case ClassID::CObjectDispenser:
+	case ClassID::CObjectTeleporter:
+		return true;
+	}
+	return false;
+}
+
+bool IsPlayer(IClientEntity* ent) {
+	return (ent && ent->GetClientClass()->m_ClassID == ClassID::CTFPlayer);
+}
+
 void MakeVector(Vector angle, Vector& vector)
 {
 	float pitch = float(angle[0] * PI / 180);
@@ -528,7 +596,7 @@ bool CanHeadshot(IClientEntity* player) {
 		break;
 	}
 	case ClassID::CTFSniperRifleClassic:
-		return false; // Fuck classic.
+		return false; // NO!!! IT CANNOT!!! Fuck classic.
 	}
 	return false;
 }
@@ -631,24 +699,24 @@ const char* powerups[] = {
 	"CRITS"
 };
 
-/*const char* classes[] = {
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	""
-};*/
-
 uint32 friends[256];
-
 uint32 rage[256];
 
 int n_friends = 0;
 int n_rage = 0;
+
+const char* tfclasses[] = {
+	"[NULL]",
+	"Scout",
+	"Sniper",
+	"Soldier",
+	"Demoman",
+	"Medic",
+	"Heavy",
+	"Pyro",
+	"Spy",
+	"Engineer"
+};
 
 const char* packs[] = {
 	"+",

@@ -26,7 +26,7 @@ void LocalPlayer::Update() {
 	cond_0 = GetEntityValue<int>(entity, eoffsets.iCond);
 	clazz = GetEntityValue<int>(entity, eoffsets.iClass);
 	health = GetEntityValue<int>(entity, eoffsets.iHealth);
-
+	this->bUseSilentAngles = false;
 
 
 	int hWeapon = GetEntityValue<int>(entity, eoffsets.hActiveWeapon);

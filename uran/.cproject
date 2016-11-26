@@ -9,6 +9,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/uran"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/UranHack/Debug"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/uran/Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/uran/TF2"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="UranHack" srcPrefixMapping="" srcRootPath=""/>
 						<entry flags="RESOLVED" kind="libraryFile" name="uran" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
@@ -44,7 +45,7 @@
 									<listOptionValue builtIn="false" value="/home/nullifiedcat/open-steamworks/osw"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.verbose.1509393088" name="Verbose (-v)" superClass="gnu.cpp.compiler.option.other.verbose" useByScannerDiscovery="false" value="false" valueType="boolean"/>
-								<option id="gnu.cpp.compiler.option.preprocessor.def.116822749" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+								<option id="gnu.cpp.compiler.option.preprocessor.def.116822749" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="TF2"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.236333340" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -86,8 +87,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="mem" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="followbot|copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="followbot|mem" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/followbot"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -136,8 +138,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="hacks|copypasted|mem|sdk" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="followbot|copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="followbot|hacks|copypasted|mem|sdk" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/followbot"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -183,7 +186,7 @@
 									<listOptionValue builtIn="false" value="/home/nullifiedcat/open-steamworks/osw"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.verbose.1101234728" name="Verbose (-v)" superClass="gnu.cpp.compiler.option.other.verbose" useByScannerDiscovery="false" value="false" valueType="boolean"/>
-								<option id="gnu.cpp.compiler.option.preprocessor.def.1794184358" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+								<option id="gnu.cpp.compiler.option.preprocessor.def.1794184358" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GAME_HL2"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1933705519" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -225,8 +228,9 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="mem" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="followbot|copypasted|mem|sdk|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="followbot|mem" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/followbot"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

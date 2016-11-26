@@ -9,6 +9,7 @@
 #define ENUMS_H_
 
 enum cond {
+	slowed = (1 << 0),
 	zoomed = (1 << 1),
 	disguised = (1 << 3),
 	cloaked = (1 << 4),

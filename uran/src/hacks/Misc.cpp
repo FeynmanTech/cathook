@@ -22,6 +22,8 @@
 #include <client_class.h>
 #include <icliententitylist.h>
 #include <Color.h>
+#include <iclient.h>
+#include <inetchannel.h>
 #include <cdll_int.h>
 #include <iconvar.h>
 #include <dt_common.h>
@@ -162,9 +164,33 @@ void CC_SayInfo(const CCommand& args) {
 
 }
 
+void CC_Disconnect(const CCommand& args) {
+	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+	//logging::Info("userid %i rate %i", interfaces::client->GetUserID(), interfaces::client->GetRate());
+	//INetChannel* ch = interfaces::client->GetNetChannel();
+	if (!ch) {
+		logging::Info("No net channel!");
+		return;
+	}
+	logging::Info("version %i", ch->GetProtocolVersion());
+	ch->Shutdown(args.ArgS());
+}
+
+void CC_DisonnectVAC(const CCommand& args) {
+	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+	if (!ch) {
+		logging::Info("No net channel!");
+		return;
+	}
+	//logging::Info("version %i", ch->GetProtocolVersion());
+	ch->Shutdown("VAC banned from secure server\n");
+}
+
 void Misc::Create() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
 	v_bSemiAuto = CreateConVar("u_misc_semiauto", "0", "Force semi-auto");
+	v_bNoZoom = CreateConVar("u_nozoom", "0", "No-Zoom");
+	v_bNoFlinch = CreateConVar("u_noflinch", "0", "No-Flinch");
 	c_SayLine = CreateConCommand("u_say_lines", CC_SayLines, "Uses ^ as a newline character");
 	c_Shutdown = CreateConCommand("u_shutdown", CC_Shutdown, "Stops the hack");
 	c_AddFriend = CreateConCommand("u_addfriend", CC_AddFriend, "Adds a friend");
@@ -174,9 +200,12 @@ void Misc::Create() {
 	c_Teamname = CreateConCommand("u_teamname", CC_Teamname, "Team name");
 	c_Lockee = CreateConCommand("u_lockee", CC_Lockee, "Lock/Unlock commands");
 	c_Reset = CreateConCommand("u_reset_lists", CC_ResetLists, "Remove all friends and rage");
+	c_Disconnect = CreateConCommand("u_disconnect", CC_Disconnect, "Disconnect");
+	c_DisconnectVAC = CreateConCommand("u_disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
 }
 
 int sa_switch = 0;
+
 
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 	if (v_bSemiAuto->GetBool()) {
@@ -189,6 +218,14 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 			sa_switch = 0;
 		}
 	}
+	if (v_bNoZoom->GetBool()) {
+		if (g_pLocalPlayer->entity) {
+			bool zoomed = (g_pLocalPlayer->cond_0 & cond::zoomed);
+			if (zoomed) {
+				SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
+			}
+		}
+	}
 	return true;
 }
 
@@ -197,29 +234,47 @@ void Misc::Destroy() {
 }
 
 void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
-	int y = 10;
+	if (v_bNoZoom->GetBool()) {
+		if (g_pLocalPlayer->entity) {
+			bool zoomed = (g_pLocalPlayer->cond_0 & cond::zoomed);
+			if (zoomed) {
+				SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
+			}
+		}
+	}
+
+	if (v_bNoFlinch->GetBool()) {
+		static Vector oldPunchAngles = Vector();
+		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vecPunchAngle);
+		QAngle viewAngles;
+		interfaces::engineClient->GetViewAngles(viewAngles);
+		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
+		oldPunchAngles = punchAngles;
+		interfaces::engineClient->SetViewAngles(viewAngles);
+	}
+
+
 	if (!v_bDbWeaponInfo->GetBool())return;
-	if (!interfaces::input->IsButtonDown(ButtonCode_t::KEY_F)) {
+	/*if (!interfaces::input->IsButtonDown(ButtonCode_t::KEY_F)) {
 		interfaces::baseClient->IN_ActivateMouse();
 	} else {
 		interfaces::baseClient->IN_DeactivateMouse();
-	}
+	}*/
 
 		if (g_pLocalPlayer->weapon) {
 			IClientEntity* weapon = g_pLocalPlayer->weapon;
-			draw::DrawString(10, y, draw::white, draw::black, false, "Weapon: %s [%i]", weapon->GetClientClass()->GetName(), weapon->GetClientClass()->m_ClassID);
-			y += 14;
-			draw::DrawString(10, y, draw::white, draw::black, false, "flNextPrimaryAttack: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flNextPrimaryAttack) + 569);
-			y += 14;
-			draw::DrawString(10, y, draw::white, draw::black, false, "nTickBase: %f", (float)(GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase)) / 66);
-			y += 14;
-			draw::DrawString(10, y, draw::white, draw::black, false, "CanShoot: %i", CanShoot(g_pLocalPlayer->entity));
-			y += 14;
-			draw::DrawString(10, y, draw::white, draw::black, false, "Decaps: %i", GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iDecapitations));
-			y += 14;
-			draw::DrawString(10, y, draw::white, draw::black, false, "Damage: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargedDamage));
-			y += 14;
-			draw::DrawString(draw::font_handle, interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X), interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y), draw::white, L"S\u0FD5");
+			AddSideString(draw::white, draw::black, "Weapon: %s [%i]", weapon->GetClientClass()->GetName(), weapon->GetClientClass()->m_ClassID);
+			AddSideString(draw::white, draw::black, "flNextPrimaryAttack: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flNextPrimaryAttack) + 569);
+			AddSideString(draw::white, draw::black, "nTickBase: %f", (float)(GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase)) / 66);
+			AddSideString(draw::white, draw::black, "CanShoot: %i", CanShoot(g_pLocalPlayer->entity));
+			AddSideString(draw::white, draw::black, "Decaps: %i", GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iDecapitations));
+			AddSideString(draw::white, draw::black, "Damage: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargedDamage));
+			AddSideString(draw::white, draw::black, "DefIndex: %i", GetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex));
+
+			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
+			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
+			//y += 14;
+			//AddCenterString(draw::font_handle, interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X), interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y), draw::white, L"S\u0FD5");
 		}
 }
 

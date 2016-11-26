@@ -14,6 +14,7 @@
 #include "../trace.h"
 #include "../targethelper.h"
 #include "../localplayer.h"
+#include "../drawing.h"
 
 //typedef int CBaseEntity;
 
@@ -36,11 +37,12 @@ int target_lock;
 void HAimbot::Create() {
 	this->v_bEnabled = CreateConVar("u_aimbot_enabled", "0", "Enables aimbot. EXPERIMENTAL AND TOTALLY NOT LEGIT");
 	this->v_iHitbox = CreateConVar("u_aimbot_hitbox", "0", "Hitbox");
+	this->v_bAutoHitbox = CreateConVar("u_aimbot_autohitbox", "1", "Autohitbox");
 	this->v_bPrediction = CreateConVar("u_aimbot_prediction", "1", "Latency prediction");
 	this->v_bAutoShoot = CreateConVar("u_aimbot_autoshoot", "1", "Autoshoot");
-	this->v_bSilent = CreateConVar("u_aimbot_silent", "1", "'Silent' mode");
+	this->v_bSilent = CreateConVar("u_aimbot_silent", "1", "Silent mode");
 	this->v_bZoomedOnly = CreateConVar("u_aimbot_zoomed", "1", "Only acitve with zoomed rifle");
-	this->v_iAutoShootCharge = CreateConVar("u_aimbot_autoshoot_charge", "15.0", "Minimal charge for autoshoot");
+	this->v_iAutoShootCharge = CreateConVar("u_aimbot_autoshoot_charge", "0.0", "Minimal charge for autoshoot");
 	this->v_iMinRange = CreateConVar("u_aimbot_minrange", "0", "Minimum range to aim");
 	this->v_bPriority = CreateConVar("u_aimbot_priority", "1", "Use priority system");
 	this->v_bRespectCloak = CreateConVar("u_aimbot_respect_cloak", "1", "Will not shoot cloaked spies.");
@@ -57,8 +59,18 @@ void HAimbot::Create() {
 
 bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
+	this->m_iLastTarget = -1;
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return true;
+	}
+
+	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun) {
+		if (!(g_pLocalPlayer->cond_0 & cond::slowed)) {
+			return true;
+		}
+		if (!(cmd->buttons & IN_ATTACK2)) {
+			return true;
+		}
 	}
 
 	if (g_pLocalPlayer->bIsReloading) {
@@ -71,24 +83,34 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	IClientEntity* player = g_pLocalPlayer->entity;
 	if (!player) return true;
 	if (player->IsDormant()) return true;
-	if (g_pLocalPlayer->clazz == 2 && this->v_bZoomedOnly->GetBool() &&
-		!(g_pLocalPlayer->cond_0 & cond::zoomed)) {
-		return true;
+	m_iHitbox = this->v_iHitbox->GetInt();
+	if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 7;
+	if (g_pLocalPlayer->weapon) {
+		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle ||
+			g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifleDecap) {
+			if (!CanHeadshot(g_pLocalPlayer->entity)) {
+				if (this->v_bZoomedOnly->GetBool()) return true;
+			} else {
+				if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 0;
+			}
+		}
+	}
+
+	if (this->v_bZoomedOnly->GetBool()) {
+		// TODO IsSniperRifle()
+		if (g_pLocalPlayer->weapon) {
+			if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle ||
+				g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifleDecap) {
+				if (!CanHeadshot(g_pLocalPlayer->entity)) return true;
+			}
+		}
 	}
 	if (g_pLocalPlayer->weapon) {
 		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == 210) return true;
-	} /* Grappling hook */
-
-	//logging::Info("Creating move.. aimbot");
-	/*if (v_bMachinaPenetration->GetBool()) {
-		if (g_pLocalPlayer->weapon) {
-			if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle) {
-
-			}
-		}
-	}*/
+	}
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc));
+	// TODO priority modes (FOV, Smart, Distance, etc)
 	if (!this->v_bPriority->GetBool()) {
 		IClientEntity* target_locked = interfaces::entityList->GetClientEntity(target_lock);
 		if (target_locked != 0) {
@@ -101,17 +123,18 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 	IClientEntity* target_highest = 0;
-	int target_highest_score = 0;
-	for (int i = 0; i < interfaces::entityList->GetHighestEntityIndex() && i < 64; i++) {
+	int target_highest_score = -256;
+	for (int i = 0; i < interfaces::entityList->GetHighestEntityIndex(); i++) {
 		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
 		if (ent == 0) continue;
-		if (ent->GetClientClass()->m_ClassID != 241) continue; // TODO magic number: player
+		if (!(IsPlayer(ent) || IsBuilding(ent))) continue;
 		if (ShouldTarget(ent)) {
 			//if (v_bDebug->GetBool()) {
 
 			//}
 			if (!this->v_bPriority->GetBool()) {
 				target_lock = i;
+				this->m_iLastTarget = target_lock;
 				if (Aim(ent, cmd)) {
 					continue;
 				}
@@ -126,6 +149,7 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	}
 	if (this->v_bPriority->GetBool()) {
 		if (target_highest != 0) {
+			this->m_iLastTarget = target_highest->entindex();
 			Aim(target_highest, cmd);
 		}
 	}
@@ -133,63 +157,90 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void HAimbot::Destroy() {}
-void HAimbot::PaintTraverse(void*, unsigned int, bool, bool) {}
+void HAimbot::PaintTraverse(void*, unsigned int, bool, bool) {
+	if (!v_bEnabled->GetBool()) return;
+	if (this->m_iLastTarget == -1) return;
+	IClientEntity* ent = interfaces::entityList->GetClientEntity(this->m_iLastTarget);
+	if (!ent) return;
+	if (IsPlayer(ent)) {
+		int clazz = GetEntityValue<int>(ent, eoffsets.iClass);
+		if (clazz < 0 || clazz > 9) return;
+		player_info_t info;
+		if (!interfaces::engineClient->GetPlayerInfo(this->m_iLastTarget, &info)) return;
+		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", GetEntityValue<int>(ent, eoffsets.iHealth), tfclasses[clazz], info.name);
+	} else if (IsBuilding(ent)) {
+		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", GetEntityValue<int>(ent, eoffsets.iBuildingHealth), GetEntityValue<int>(ent, eoffsets.iUpgradeLevel), GetBuildingType(ent));
+	}
+}
 
 bool HAimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
-	if (IsPlayerInvulnerable(entity)) return false;
-	int team = GetEntityValue<int>(entity, eoffsets.iTeamNum);
-	int local = interfaces::engineClient->GetLocalPlayer();
-	IClientEntity* player = interfaces::entityList->GetClientEntity(local);
-	char life_state = GetEntityValue<char>(entity, eoffsets.iLifeState);
-	if (life_state) return false; // TODO magic number: life state
-	if (!player) return false;
-	if (v_bRespectCloak->GetBool() && (GetEntityValue<int>(entity, eoffsets.iCond) & cond::cloaked)) return false;
-	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
-	if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
-		int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
-		IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-		if (!rifle) return false;
-		float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
-		if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
-	}
-	int team_my = GetEntityValue<int>(player, eoffsets.iTeamNum);
-	if (team == team_my) return false;
-	Vector enemy_pos = entity->GetAbsOrigin();
-	Vector my_pos = player->GetAbsOrigin();
-	if (v_iMinRange->GetInt() > 0) {
-		if ((enemy_pos - my_pos).Length() > v_iMinRange->GetInt()) return false;
-	}
-	int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
-	if ((econd & cond_ex::vacc_bullet)) return false;
-	if (GetRelation(entity) == relation::FRIEND) return false;
-	Vector resultAim;
-	if (m_bProjectileMode) {
-		resultAim = entity->GetAbsOrigin();
-		if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), m_flProjSpeed, m_bProjArc, resultAim)) return false;
-	} else {
-		if (v_bMachinaPenetration->GetBool()) {
-			if (GetHitboxPosition(entity, v_iHitbox->GetInt(), resultAim)) return false;
-			if (!IsEntityVisiblePenetration(entity, v_iHitbox->GetInt())) return false;
-		} else {
-			if (GetHitboxPosition(entity, v_iHitbox->GetInt(), resultAim)) return false;
-			if (!IsEntityVisible(entity, v_iHitbox->GetInt())) return false;
+	if (IsPlayer(entity)) {
+		if (IsPlayerInvulnerable(entity)) return false;
+		int team = GetEntityValue<int>(entity, eoffsets.iTeamNum);
+		int local = interfaces::engineClient->GetLocalPlayer();
+		IClientEntity* player = interfaces::entityList->GetClientEntity(local);
+		char life_state = GetEntityValue<char>(entity, eoffsets.iLifeState);
+		if (life_state) return false; // TODO magic number: life state
+		if (!player) return false;
+		if (v_bRespectCloak->GetBool() && (GetEntityValue<int>(entity, eoffsets.iCond) & cond::cloaked)) return false;
+		int health = GetEntityValue<int>(entity, eoffsets.iHealth);
+		if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
+			int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
+			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
+			if (!rifle) return false;
+			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
+			if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
 		}
-	}
-	if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_iFOV->GetFloat())) return false;
-	return true;
-	/*if (!m_bProjectileMode) {
-		Vector hbv;
-		if (GetHitboxPosition(entity, v_iHitbox->GetInt(), hbv)) return false;
-		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, hbv) > v_iFOV->GetInt())) return false;
-		return IsEntityVisible(entity, v_iHitbox->GetInt());
+		int team_my = GetEntityValue<int>(player, eoffsets.iTeamNum);
+		if (team == team_my) return false;
+		Vector enemy_pos = entity->GetAbsOrigin();
+		Vector my_pos = player->GetAbsOrigin();
+		if (v_iMinRange->GetInt() > 0) {
+			if ((enemy_pos - my_pos).Length() > v_iMinRange->GetInt()) return false;
+		}
+		int econd = GetEntityValue<int>(entity, eoffsets.iCond1);
+		if ((econd & cond_ex::vacc_bullet)) return false;
+		if (GetRelation(entity) == relation::FRIEND) return false;
+		Vector resultAim;
+		if (m_bProjectileMode) {
+			resultAim = entity->GetAbsOrigin();
+			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, resultAim)) return false;
+		} else {
+			if (v_bMachinaPenetration->GetBool()) {
+				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
+				if (!IsEntityVisiblePenetration(entity, v_iHitbox->GetInt())) return false;
+			} else {
+				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
+				if (!IsEntityVisible(entity, m_iHitbox)) return false;
+			}
+		}
+		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_iFOV->GetFloat())) return false;
+		return true;
+	} else if (IsBuilding(entity)) {
+		int team = GetEntityValue<int>(entity, eoffsets.iTeamNum);
+		if (team == g_pLocalPlayer->team) return false;
+		Vector enemy_pos = entity->GetAbsOrigin();
+		if (v_iMinRange->GetInt() > 0) {
+			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > v_iMinRange->GetInt()) return false;
+		}
+		Vector resultAim;
+		if (m_bProjectileMode) {
+			resultAim = entity->GetAbsOrigin();
+			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, resultAim)) return false;
+		} else {
+			//logging::Info("IsVisible?");
+			if (!IsBuildingVisible(entity)) return false;
+		}
+		//logging::Info("IsFOV?");
+		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_iFOV->GetFloat())) return false;
+		//logging::Info("Tru");
+		return true;
 	} else {
-		Vector res = entity->GetAbsOrigin();
-		bool succ = PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), m_flProjSpeed, m_bProjArc, res);
-		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, res) > v_iFOV->GetInt())) return false;
-		return succ;
-	}*/
+		return false;
+	}
+	return false;
 }
 
 void PredictPosition(Vector vec, IClientEntity* ent) {
@@ -204,19 +255,21 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	Vector hit;
 	Vector angles;
 	if (!entity) return false;
-	GetHitboxPosition(entity, v_iHitbox->GetInt(), hit);
-	//logging::Info("Predicting.. entity: 0x%08f", entity);
-	PredictPosition(hit, entity);
+	if (IsPlayer(entity)) {
+		GetHitboxPosition(entity, m_iHitbox, hit);
+		PredictPosition(hit, entity);
+	} else if (IsBuilding(entity)) {
+		hit = GetBuildingPosition(entity);
+	}
 	if (v_bProjectileAimbot->GetBool()) {
 		float speed = 0.0f;
 		bool arc = false;
 		if (GetProjectileData(g_pLocalPlayer->weapon, speed, arc)) {
 			if (v_iOverrideProjSpeed->GetBool())
 				speed = v_iOverrideProjSpeed->GetFloat();
-			PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)v_iHitbox->GetInt(), speed, arc, hit);
+			PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, speed, arc, hit);
 		}
 	}
-	//logging::Info("Hit: %f %f %f", hit.x, hit.y, hit.z);
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
 	Vector tr = (hit - g_pLocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);
@@ -224,16 +277,7 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	cmd->viewangles = angles;
 	if (this->v_bSilent->GetBool()) {
 		g_pLocalPlayer->bUseSilentAngles = true;
-		//FixMovement(*cmd, viewangles_old);
-		/*Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
-		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
-		Vector ang;
-		VectorAngles(vsilent, ang);
-		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
-		cmd->forwardmove = cos(yaw) * speed;
-		cmd->sidemove = sin(yaw) * speed;*/
 	}
-	//logging::Info("Angles: %f %f %f", angles.x, angles.y, angles.z);
 	if (this->v_bAutoShoot->GetBool()) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 			if (g_pLocalPlayer->cond_0 & cond::zoomed) {

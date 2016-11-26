@@ -25,6 +25,7 @@ class ClientModeShared;
 class IEngineTrace;
 class IVModelInfoClient;
 class IInputSystem;
+class IClient;
 
 namespace interfaces {
 
@@ -41,6 +42,7 @@ extern IBaseClientDLL* baseClient;
 extern IEngineTrace* trace;
 extern IVModelInfoClient* model;
 extern IInputSystem* input;
+//extern IClient* client;
 
 void CreateInterfaces();
 

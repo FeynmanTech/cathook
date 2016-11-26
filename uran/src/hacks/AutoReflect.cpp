@@ -56,6 +56,7 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 		CachedEntity* ent = gEntityCache.GetEntity(i);
 		if (!ent || ent->m_bNULL || ent->m_bDormant) continue;
 		if (!IsReflectableProjectile(ent->m_pEntity)) continue;
+		//if (ent->Var<Vector>(eoffsets.vVelocity).IsZero(1.0f)) continue;
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team) continue;
 		float dist = ent->m_pEntity->GetAbsOrigin().DistToSqr(g_pLocalPlayer->v_Origin);
 		if (dist < closest_dist || !closest) {

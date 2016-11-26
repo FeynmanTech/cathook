@@ -8,5 +8,17 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
+class ConVar;
+
+class GlobalSettings {
+public:
+	void Init();
+	// TODO
+	ConVar* flForceFOV;
+	ConVar* bHackEnabled;
+	ConVar* bIgnoreTaunting;
+};
+
+extern GlobalSettings g_Settings;
 
 #endif /* GLOBALS_H_ */

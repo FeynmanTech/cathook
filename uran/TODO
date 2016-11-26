@@ -4,7 +4,6 @@ TRIGGER: Ignore vaccinator
 
 Priority FIX
 OPTIMIZE
-Buildings aimbot
 
  proper player struct 
   optimize 
@@ -13,6 +12,14 @@ Buildings aimbot
     no autoshoot disg
      amby body
      
+     AutoHB amby
+     
+CRIT BODYSHOT
+NoZoom FIX !!!
+     
+     
+Map-Specific navigation markers
+
 Target system respect mannpower powerups
 Aimbot charge detection respect powerups
 
@@ -23,6 +30,8 @@ ignore taunt
 
 Followbot medic AI+
 
+RocketBot
+
 Flash uber bots
 
 
@@ -31,20 +40,15 @@ CritAim
 
 
 huntsman aim fix
-minigun aim fix
-ignore SB
-no flinch
-Bazaar charge
-no spy disguise
+Bazaar charge FIX
 
 Sapped buildings ESP
 AimBest
 optimize
 Glow Objects
 remove magic numbers
-no trigger/aim vacc uber
+no trigger vacc uber
 LINES (trace crshr->enemy)
-disg spy aim
 SPY ALERT
 
 SEGVCATCH

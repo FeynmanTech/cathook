@@ -25,6 +25,7 @@ IBaseClientDLL* interfaces::baseClient = 0;
 IEngineTrace* interfaces::trace = 0;
 IVModelInfoClient* interfaces::model = 0;
 IInputSystem* interfaces::input = 0;
+//IClient* interfaces::client = 0;
 //ICvar* interfaces::cvar = 0;
 
 void interfaces::CreateInterfaces() {
@@ -40,6 +41,7 @@ void interfaces::CreateInterfaces() {
 	interfaces::trace = reinterpret_cast<IEngineTrace*>(sharedobj::engine->CreateInterface("EngineTraceClient003"));
 	interfaces::model = reinterpret_cast<IVModelInfoClient*>(sharedobj::engine->CreateInterface("VModelInfoClient006"));
 	interfaces::input = reinterpret_cast<IInputSystem*>(sharedobj::inputsystem->CreateInterface("InputSystemVersion001"));
+	//interfaces::client = reinterpret_cast<IClient*>(sharedobj::client->CreateInterface("VClient017"));
 	HSteamPipe sp = interfaces::steamClient->CreateSteamPipe();
 	HSteamUser su = interfaces::steamClient->ConnectToGlobalUser(sp);
 	interfaces::steamFriends = reinterpret_cast<ISteamFriends002*>(interfaces::steamClient->GetISteamFriends(su, sp, "SteamFriends002"));

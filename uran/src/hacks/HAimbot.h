@@ -24,10 +24,13 @@ public:
 	bool m_bProjectileMode;
 	float m_flProjSpeed;
 	bool m_bProjArc;
+	int m_iLastTarget;
+	int m_iHitbox;
 	ConVar* v_bDebug;
 	ConVar* v_bEnabled;
 	ConVar* v_iFOV;
 	ConVar* v_iHitbox;
+	ConVar* v_bAutoHitbox;
 	ConVar* v_bPrediction;
 	ConVar* v_bAutoShoot;
 	ConVar* v_bSilent;

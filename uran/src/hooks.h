@@ -35,6 +35,7 @@ extern VMTHook* hkCreateMove;
 
 extern unsigned int offPaintTraverse;
 extern unsigned int offCreateMove;
+extern unsigned int offOverrideView;
 
 }
 

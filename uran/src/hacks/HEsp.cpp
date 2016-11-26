@@ -135,6 +135,11 @@ void HEsp::ProcessEntityPT(CachedEntity* ent) {
 	case ClassID::CObjectSentrygun:
 	case ClassID::CObjectDispenser:
 	case ClassID::CObjectTeleporter: {
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
+			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+				return;
+			}
+		}
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
 		color = colors::GetTeamColor(ent->Var<int>(eoffsets.iTeamNum), false);
 		DrawBox(ent, color, 1.0f, 0.0f, true, ent->Var<int>(eoffsets.iBuildingHealth), ent->Var<int>(eoffsets.iBuildingMaxHealth));

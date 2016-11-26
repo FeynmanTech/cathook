@@ -7,6 +7,7 @@
 
 #include "drawing.h"
 #include "interfaces.h"
+#include "logging.h"
 
 #include "fixsdk.h"
 #include <vgui/ISurface.h>
@@ -15,6 +16,74 @@
 #include <mathlib/vmatrix.h>
 #include <cassert>
 #include <icliententity.h>
+
+int g_nStringsSide = 0;
+int g_nStringsCenter = 0;
+ESPStringCompound* g_pStringsSide;
+ESPStringCompound* g_pStringsCenter;
+
+void InitStrings() {
+	g_pStringsSide = new ESPStringCompound[32]();
+	g_pStringsCenter = new ESPStringCompound[32]();
+	ResetStrings();
+}
+
+void ResetStrings() {
+	g_nStringsSide = 0;
+	g_nStringsCenter = 0;
+}
+
+void AddSideString(Color fg, Color bg, const char* fmt, ...) {
+	if (g_pStringsSide[g_nStringsSide].m_String) {
+		delete g_pStringsSide[g_nStringsSide].m_String;
+	}
+	char* buffer = new char[1024]();
+	va_list list;
+	va_start(list, fmt);
+	vsprintf(buffer, fmt, list);
+	va_end(list);
+	if (g_nStringsSide >= 32) {
+		logging::Info("Can't attach more than %i strings to an entity", 32);
+		return;
+	}
+	g_pStringsSide[g_nStringsSide].m_Color = fg;
+	g_pStringsSide[g_nStringsSide].m_Background = bg;
+	g_pStringsSide[g_nStringsSide].m_String = buffer;
+	g_nStringsSide++;
+}
+
+void DrawStrings() {
+	int y = 8;
+	for (int i = 0; i < g_nStringsSide; i++) {
+		draw::DrawString(8, y, g_pStringsSide[i].m_Color, g_pStringsSide[i].m_Background, false, g_pStringsSide[i].m_String);
+		y += 14;
+	}
+	y = draw::height / 2;
+	for (int i = 0; i < g_nStringsCenter; i++) {
+		draw::DrawString(draw::width / 2, y, g_pStringsCenter[i].m_Color, g_pStringsCenter[i].m_Background, false, g_pStringsCenter[i].m_String);
+		y += 14;
+	}
+}
+
+void AddCenterString(Color fg, Color bg, const char* fmt, ...) {
+	if (g_pStringsCenter[g_nStringsCenter].m_String) {
+		delete g_pStringsCenter[g_nStringsCenter].m_String;
+	}
+	char* buffer = new char[1024]();
+	va_list list;
+	va_start(list, fmt);
+	vsprintf(buffer, fmt, list);
+	va_end(list);
+	if (g_nStringsCenter >= 32) {
+		logging::Info("Can't attach more than %i strings to an entity", 32);
+		return;
+	}
+	g_pStringsCenter[g_nStringsCenter].m_Color = fg;
+	g_pStringsCenter[g_nStringsCenter].m_Background = bg;
+	g_pStringsCenter[g_nStringsCenter].m_String = buffer;
+	g_nStringsCenter++;
+}
+
 
 // TODO globals
 unsigned long draw::font_handle = 0;

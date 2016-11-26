@@ -19,6 +19,9 @@ public:
 	bool CreateMove(void*, float, CUserCmd*);
 	void Destroy();
 	void PaintTraverse(void*, unsigned int, bool, bool);
+	ConVar* v_bNoFlinch;
+	ConVar* v_bNoZoom;
+
 	ConVar* v_bDbWeaponInfo;
 	ConVar* v_bSemiAuto;
 	ConCommand* c_SayLine;
@@ -31,6 +34,8 @@ public:
 	ConCommand* c_Lockee;
 	ConCommand* c_Info;
 	ConCommand* c_Reset;
+	ConCommand* c_Disconnect;
+	ConCommand* c_DisconnectVAC;
 };
 
 extern Misc* g_phMisc;

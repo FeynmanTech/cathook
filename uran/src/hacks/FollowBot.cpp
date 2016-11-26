@@ -7,6 +7,8 @@
 
 #include "FollowBot.h"
 
+#include <signal.h>
+
 #include "../interfaces.h"
 #include "../entity.h"
 #include "../helpers.h"
@@ -15,6 +17,7 @@
 #include "../usercmd.h"
 #include "../playerresource.h"
 #include "../sdk/in_buttons.h"
+#include "../followbot/ipcctl.h"
 
 #include "../fixsdk.h"
 #include <icliententity.h>
@@ -23,34 +26,25 @@
 #include <cdll_int.h>
 #include <igameevents.h>
 
-enum bot_state_t {
-	IDLE = 0,
-	FOLLOWING_TEAMMATE,
-	FOLLOWING_ENEMY,
-	PILOT_SEARCH,
-	TARGET_LOST
-};
-
 unsigned long g_nTick = 0;
-int g_nTargetID = 0;
-unsigned long nPilotSearch = 0;
-unsigned long SEARCH_TICKS = 250;
-bot_state_t g_bState = IDLE;
 
-void SetTarget(IClientEntity* ent) {
-	if (!ent) {
-		g_nTargetID = -1;
-		return;
+// TODO
+bool FollowBot::ShouldPopUber(bool force) {
+	int health_my = g_pLocalPlayer->health;
+	int health_tr = GetEntityValue<int>(interfaces::entityList->GetClientEntity(this->m_hTargetHealing), eoffsets.iHealth);
+	if (health_my < 30) return true;
+	bool other_bots_have_uber = false;
+	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
+		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
+		if (ent == g_pLocalPlayer->entity) continue;
+		if (IsFriendlyBot(ent)) {
+			if (GetEntityValue<char>(ent, eoffsets.iLifeState)) continue;
+			IClientEntity* medigun;
+			// TODO
+		}
 	}
-	g_nTargetID = ent->entindex();
+	return false;
 }
-
-IClientEntity* GetTarget() {
-	if (g_nTargetID == -1) return 0;
-	return interfaces::entityList->GetClientEntity(g_nTargetID);
-}
-
-int called = 0;
 
 class MedicCallListener : public IGameEventListener2 {
 public:
@@ -74,53 +68,9 @@ void CC_ResetList(const CCommand& args) {
 
 MedicCallListener* g_pListener;
 
+// TODO
 void FollowBot::ProcessEntity(IClientEntity* entity, bool enemy) {
-	IClientEntity* target = GetTarget();
-
-	if (!target) {
-		if (!enemy || v_bMediBot->GetBool()) {
-			if (v_iForceFollow->GetInt() != -1) {
-				if (v_bForceFollowOnly->GetBool() && (v_iForceFollow->GetInt() != entity->entindex())) {
-					return;
-				}
-			}
-		}
-		target = entity;
-		SetTarget(target);
-	}
-
-	if (enemy && !v_bMediBot->GetBool()) {
-		if (g_bState == bot_state_t::FOLLOWING_ENEMY) {
-			if (DistToSqr(entity) <= DistToSqr(target)) {
-				target = entity;
-				SetTarget(target);
-			}
-		} else {
-			target = entity;
-			SetTarget(target);
-		}
-		g_bState = bot_state_t::FOLLOWING_ENEMY;
-	} else {
-		//if (g_bState == bot_state_t::PILOT_SEARCH) {
-
-		//}
-		if (g_bState == bot_state_t::FOLLOWING_ENEMY) return;
-		if (GetEntityValue<Vector>(entity, eoffsets.vVelocity).IsZero(1.0f)) return;
-		if (v_iForceFollow->GetInt() != -1) {
-			if (entity->entindex() == v_iForceFollow->GetInt()) {
-				target = entity;
-				SetTarget(target);
-				g_bState = bot_state_t::FOLLOWING_TEAMMATE;
-			} else {
-				return;
-			}
-		}
-		if (DistToSqr(entity) <= DistToSqr(target)) {
-			target = entity;
-			SetTarget(target);
-			g_bState = bot_state_t::FOLLOWING_TEAMMATE;
-		}
-	}
+	return;
 }
 
 /*
@@ -134,13 +84,16 @@ void FollowBot::ProcessEntity(IClientEntity* entity, bool enemy) {
  *  shoot
  */
 
+// TODO
 int FollowBot::ShouldNotTarget(IClientEntity* ent, bool notrace) {
 	if (!ent || ent->IsDormant()) return 1;
 	if (ent->GetClientClass()->m_ClassID != 241) return 2;
 	if (GetEntityValue<char>(ent, eoffsets.iLifeState)) return 3;
 	bool enemy = GetEntityValue<int>(ent, eoffsets.iTeamNum) != g_pLocalPlayer->team;
-	if (enemy) {
-		if (IsPlayerInvulnerable(ent)) return 4;
+	if (enemy) return 4;
+
+	if (!this->IsOwner(ent)) {
+		return 7;
 	}
 
 	if (!notrace) {
@@ -151,15 +104,6 @@ int FollowBot::ShouldNotTarget(IClientEntity* ent, bool notrace) {
 		if (!a) return 6;
 	}
 
-	if (v_bMediBot->GetBool()) {
-		if (!this->IsOwner(ent)) {
-			return 7;
-		}
-	} else {
-		if (DistToSqr(ent) > (v_iMaxDistance->GetInt() * v_iMaxDistance->GetInt())) return 5;
-		if (abs(ent->GetAbsOrigin().z - g_pLocalPlayer->v_Origin.z) > v_iMaxDeltaY->GetInt()) return 8;
-	}
-
 	return 0;
 }
 
@@ -167,12 +111,22 @@ void FollowBot::Tick(CUserCmd* cmd) {
 	if (!g_pLocalPlayer->entity || g_pLocalPlayer->entity->IsDormant()) return;
 	if (g_pLocalPlayer->life_state) return;
 
-	IClientEntity* target = GetTarget();
-	IClientEntity* target_old = target;
+	IClientEntity* owner_entity = 0;
+	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
+		if (IsOwner(interfaces::entityList->GetClientEntity(i))) {
+			m_hTargetFollowing = i;
+			owner_entity = interfaces::entityList->GetClientEntity(i);
+		}
+	}
 
-	if (v_bMediBot->GetBool()) {
+	switch (v_iBotPackage->GetInt()) {
+	case botpackage::BOT_FOLLOW: {
+
+		break;
+	}
+	case botpackage::BOT_MEDIC: {
 		cmd->buttons |= IN_ATTACK;
-		if ((g_nTick % 20) == 0) {
+		if ((g_nTick % 100) == 0) {
 			interfaces::engineClient->ExecuteClientCmd("slot2");
 			cmd->buttons &= ~IN_ATTACK;
 		}
@@ -183,29 +137,32 @@ void FollowBot::Tick(CUserCmd* cmd) {
 		} else {
 			this->m_iShouldUbercharge = 0;
 		}
-
-		if (!target || ShouldNotTarget(target, true)) {
-			//g_bState = bot_state_t::PILOT_SEARCH;
-			nPilotSearch++;
-		} else {
-			//g_bState = bot_state_t::FOLLOWING_TEAMMATE;
-			nPilotSearch = 0;
-		}
-
-		// TODO movements with cmd
-		if (nPilotSearch < SEARCH_TICKS) {
-			//interfaces::engineClient->ExecuteClientCmd("+forward");
-		} else {
-			//interfaces::engineClient->ExecuteClientCmd("-forward");
-		}
-		IClientEntity* ptf = 0;
-		for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
-			if (IsOwner(interfaces::entityList->GetClientEntity(i))) {
-				m_hTargetFollowing = i;
-				ptf = interfaces::entityList->GetClientEntity(i);
+		break;
+	}
+	case botpackage::BOT_SNIPER: {
+		if (!owner_entity) break;
+		//bool owner_zoomed = (GetEntityValue<int>(owner_entity, eoffsets.iCond) & cond::zoomed);
+		//
+		if (IClientEntity* weapon = interfaces::entityList->GetClientEntity(GetEntityValue<int>(owner_entity, eoffsets.hActiveWeapon) & 0xFFF)) {
+			if (weapon) {
+				if (weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle || weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle) {
+					bool bot_zoomed = (GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond) & cond::zoomed);
+					if (!bot_zoomed) {
+						cmd->buttons |= IN_ATTACK2;
+					}
+				} else {
+					bool bot_zoomed = (GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond) & cond::zoomed);
+					if (bot_zoomed) {
+						cmd->buttons |= IN_ATTACK2;
+					}
+				}
 			}
 		}
+		break;
+	}
+	}
 
+	if (v_iBotPackage->GetInt() == botpackage::BOT_MEDIC) {
 		IClientEntity* healtr = this->GetBestHealingTarget();
 		m_hTargetHealing = (healtr ? healtr->entindex() : 0);
 		if (healtr) {
@@ -216,136 +173,47 @@ void FollowBot::Tick(CUserCmd* cmd) {
 				m_iShouldUbercharge = 1;
 			}
 		}
+	}
 
-		if (!ptf) return;
-
-		if (GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vVelocity).IsZero(10.0f) && (0 == (g_nTick % 20))) {
+	if (owner_entity && (0 == (g_nTick % 20))) {
+		static bool forward = false;
+		static bool jump = false;
+		if (!jump && GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vVelocity).IsZero(10.0f) && !(GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond) & cond::zoomed)) {
 			interfaces::engineClient->ExecuteClientCmd("+jump");
-		} else if (0 == (g_nTick % 20)) {
+			jump = true;
+		} else if (jump) {
 			interfaces::engineClient->ExecuteClientCmd("-jump");
+			jump = false;
 		}
 
-		if (DistToSqr(ptf) < (100 * 100) && (0 == (g_nTick % 20))) {
+		if (forward && DistToSqr(owner_entity) < (60 * 60)) {
 			interfaces::engineClient->ExecuteClientCmd("-forward");
-		} else if (0 == (g_nTick % 20)) {
+			forward = false;
+		} else if (!forward) {
 			interfaces::engineClient->ExecuteClientCmd("+forward");
-		}
-		return;
-	} else {
-		return;
-	}
-
-	// OLD CODE
-
-	/*bool target_lost = (!target || ShouldNotTarget(target, true) || (g_bState != bot_state_t::FOLLOWING_ENEMY && g_bState != bot_state_t::FOLLOWING_TEAMMATE));
-
-	if (target_lost && g_bState != bot_state_t::PILOT_SEARCH) logging::Info("Target lost! Target: %i, State: %i, ShouldTarget: %i", target, g_bState, ShouldNotTarget(target, true));
-
-	if (target_lost && g_bState == bot_state_t::FOLLOWING_ENEMY) {
-		g_bState = bot_state_t::PILOT_SEARCH;
-		nPilotSearch++;
-		//SetTarget(0);
-		//target = 0;
-	}
-	if (target_lost && (g_bState == bot_state_t::FOLLOWING_TEAMMATE || g_bState == bot_state_t::PILOT_SEARCH)) {
-		g_bState = bot_state_t::PILOT_SEARCH;
-		nPilotSearch++;
-	}
-
-	if (!target_lost) {
-		nPilotSearch = 0;
-	}
-
-	if (nPilotSearch < SEARCH_TICKS) {
-		interfaces::engineClient->ExecuteClientCmd("+forward");
-	} else {
-		interfaces::engineClient->ExecuteClientCmd("-forward");
-	}
-
-	if ((g_nTick % 300 == 0) || target_lost) {
-		for (int i = 0; i < 64 && i < interfaces::entityList->GetMaxEntities(); i++) {
-			IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
-			if (ShouldNotTarget(ent, false)) continue;
-			bool enemy = GetEntityValue<int>(ent, eoffsets.iTeamNum) != g_pLocalPlayer->team;
-			ProcessEntity(ent, enemy);
+			forward = true;
 		}
 	}
 
-	target = GetTarget();
-	target_lost = (!target || ShouldNotTarget(target, true) || g_bState == bot_state_t::IDLE || g_bState == bot_state_t::PILOT_SEARCH || g_bState == bot_state_t::TARGET_LOST);
-
-	if (target_lost) {
-		if (target_old != 0) {
-			if (v_bChat->GetBool()) {
-				//char* cmd = new char[256];
-				//sprintf(cmd, "say Target lost!", g_bState);
-				//interfaces::engineClient->ServerCmd(cmd);
-			}
-			else {
-				//logging::Info("Target lost! State: %i, %i", !!target, !!ShouldTarget(target));
-			}
-		}
-		//if (ShouldTarget(target, true) != 6 && (nPilotSearch < 100)) return;
-		interfaces::engineClient->ExecuteClientCmd("-attack");
-		return;
-	}
-
-	if (target != target_old) {
-		player_info_s info;
-		interfaces::engineClient->GetPlayerInfo(target->entindex(), &info);
-		logging::Info("Following %s", info.name);
-		if (v_bChat->GetBool()) {
-			char* cmd = new char[256];
-			if (g_bState == bot_state_t::FOLLOWING_TEAMMATE)
-				sprintf(cmd, "say Following: %s", info.name);
-			else
-				sprintf(cmd, "say Attacking: %s", info.name);
-			interfaces::engineClient->ServerCmd(cmd);
-		}
-	}
-
-	if (GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vVelocity).IsZero(10.0f)) {
-		interfaces::engineClient->ExecuteClientCmd("+jump");
-	} else {
-		interfaces::engineClient->ExecuteClientCmd("-jump");
-	}
-
-	Vector hb;
-	if (GetHitboxPosition(target, 4, hb)) return;
-	AimAt(g_pLocalPlayer->v_Eye, hb, cmd);
-	QAngle angles = VectorToQAngle(cmd->viewangles);
-	interfaces::engineClient->SetViewAngles(angles);
-
-	if (DistToSqr(target) < (200 * 200) && g_bState == bot_state_t::FOLLOWING_TEAMMATE) {
-		interfaces::engineClient->ExecuteClientCmd("-forward");
-	}
-
-	if (DistToSqr(target) < (v_iShootDistance->GetInt() * v_iShootDistance->GetInt()) && (g_bState == bot_state_t::FOLLOWING_ENEMY || v_bMediBot->GetBool())) {
-		interfaces::engineClient->ExecuteClientCmd("+attack");
-	} else {
-		interfaces::engineClient->ExecuteClientCmd("-attack");
-	}*/
+	return;
 }
 
 void FollowBot::ActuallyCreateMove(CUserCmd* cmd) {
 	IClientEntity* tr_follow = interfaces::entityList->GetClientEntity(this->m_hTargetFollowing);
-	IClientEntity* tr_heal = interfaces::entityList->GetClientEntity(this->m_hTargetHealing);
-
 	QAngle angles = VectorToQAngle(cmd->viewangles);
 
-	if (v_bMediBot->GetBool()) {
-		if (tr_follow) {
-			AimAtHitbox(tr_follow, 4, cmd);
-			angles = VectorToQAngle(cmd->viewangles);
-			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
-		}
+	if (tr_follow) {
+		AimAtHitbox(tr_follow, 4, cmd);
+		angles = VectorToQAngle(cmd->viewangles);
+		g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
+	}
 
+	if (v_iBotPackage->GetInt() == botpackage::BOT_MEDIC) {
+		IClientEntity* tr_heal = interfaces::entityList->GetClientEntity(this->m_hTargetHealing);
 		if (tr_heal) {
 			AimAtHitbox(tr_heal, 4, cmd);
 			g_pLocalPlayer->bUseSilentAngles = true;
 		}
-	} else {
-		return;
 	}
 	interfaces::engineClient->SetViewAngles(angles);
 }
@@ -397,6 +265,19 @@ IClientEntity* FollowBot::GetBestHealingTarget() {
 
 bool FollowBot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
+
+	/*ipc_bot_seg* seg_g = m_pIPC->GetBotCommand(0);
+	ipc_bot_seg* seg_l = m_pIPC->GetBotCommand(m_pIPC->bot_id);
+
+	if (seg_g->command_number > this->last_command_global) {
+		interfaces::engineClient->ExecuteClientCmd(seg_g->command_buffer);
+		this->last_command_global = seg_g->command_number;
+	}
+	if (seg_l->command_number > this->last_command_global) {
+		interfaces::engineClient->ExecuteClientCmd(seg_l->command_buffer);
+		this->last_command_global = seg_l->command_number;
+	}*/
+
 	Tick(cmd);
 	g_nTick++;
 	this->ActuallyCreateMove(cmd);
@@ -406,6 +287,10 @@ bool FollowBot::CreateMove(void*, float, CUserCmd* cmd) {
 int FollowBot::GetHealingPriority(IClientEntity* ent) {
 	if (!ent) return 0;
 	int result = 0;
+
+	if (GetEntityValue<char>(ent, eoffsets.iLifeState)) return 0;
+	if (GetEntityValue<int>(ent, eoffsets.iTeamNum) != g_pLocalPlayer->team) return 0;
+	if (!IsEntityVisible(ent, 4)) return 0;
 
 	int health = GetEntityValue<int>(ent, eoffsets.iHealth);
 	int maxhealth = g_pPlayerResource->GetMaxHealth(ent);
@@ -446,7 +331,7 @@ void FollowBot::SetOwner(uint32 id) {
 
 // TODO
 void CC_BotStatus(const CCommand& args) {
-	logging::Info("Bot Status: %i, ID: %i, Search: %i", g_bState, g_nTargetID, nPilotSearch);
+	//logging::Info("Bot Status: %i, ID: %i, Search: %i", g_bState, g_nTargetID, nPilotSearch);
 }
 
 void CC_AddBotID(const CCommand& args) {
@@ -463,28 +348,60 @@ void CC_SetOwner(const CCommand& args) {
 	g_phFollowBot->m_nOwnerID = id;
 }
 
+void CC_BotCommand(const CCommand& args) {
+	if (args.ArgC() < 2) return;
+	int bot_id = strtol(args.Arg(1), 0, 0);
+	if (!bot_id) {
+		logging::Info("Executing command `%s` on EACH bot.", args.Arg(2));
+	} else {
+		logging::Info("Executing command `%s` on bot %i.", args.Arg(2), bot_id);
+	}
+	g_phFollowBot->m_pIPC->WriteBotCommand(bot_id, (char*)args.Arg(2));
+}
+
+void CC_IPCList(const CCommand& args) {
+	for (int i = 1; i < MAX_SEGS; i++) {
+		ipc_bot_seg seg = g_phFollowBot->m_pIPC->mem->segments[i];
+		if (seg.initialized && (time(0) - seg.last_access_time < ACCESS_TIMEOUT)) {
+			if (kill(seg.owner_pid, 0) == -1) {
+				if (errno == ESRCH) continue;
+			}
+			logging::Info("[%i]: pid=%i name=`%s`", i, seg.owner_pid, seg.name);
+		}
+	}
+}
+
 void FollowBot::Create() {
 	v_bEnabled = CreateConVar("u_bot_enabled", "0", "Enables followbot");
-	v_iForceFollow = CreateConVar("u_bot_force_follow", "-1", "Force follow by UID");
-	v_bForceFollowOnly = CreateConVar("u_bot_force_follow_only", "1", "Only follow that player");
-	v_iMaxDeltaY = CreateConVar("u_bot_max_height", "450", "Max dY");
-	v_iMaxDistance = CreateConVar("u_bot_aim_distance", "1300", "Distance");
-	v_iShootDistance = CreateConVar("u_bot_shoot_distance", "800", "Shoot distance");
-	v_bChat = CreateConVar("u_bot_chat", "0", "Enable chat");
-
-	v_bMediBot = CreateConVar("u_bot_medic", "1", "Medic mode");
+	v_iBotPackage = CreateConVar("u_bot_ai", "1", "AI Package (FOLLOW, MEDIC, SNIPER)");
 	c_AddBotID = CreateConCommand("u_bot_addbot", CC_AddBotID, "Adds another bot's ID");
 	c_SetOwner = CreateConCommand("u_bot_owner", CC_SetOwner, "Set followbot owner");
 	c_ResetList = CreateConCommand("u_bot_reset", CC_ResetList, "Resets bot list");
+	c_BotCommand = CreateConCommand("u_bot_command", CC_BotCommand, "Sends bot commands");
+	c_IPCList = CreateConCommand("u_bot_ipclist", CC_IPCList, "Lists IPC status");
+
 	m_nOwnerID = 0;
+
+	this->last_command_global = 0;
+	this->last_command_local = 0;
 
 	cmd_Status = CreateConCommand("u_bot_status", CC_BotStatus, "Status");
 	g_pListener = new MedicCallListener();
 	interfaces::eventManager->AddListener(g_pListener, "player_calledformedic", false);
+
+	logging::Info("Creating shared memory for bot");
+	m_pIPC = new ipcctl();
+	if (m_pIPC->Init()) {
+		logging::Info("Successfully allocated shared memory!");
+		logging::Info("Bot ID: %i", m_pIPC->bot_id);
+	} else {
+		logging::Info("Failed to allocate shared memory for bot.");
+	}
 }
 
 void FollowBot::Destroy() {
 	interfaces::eventManager->RemoveListener(g_pListener);
+	m_pIPC->Detach();
 }
 
 void FollowBot::PaintTraverse(void*, unsigned int, bool, bool) {}

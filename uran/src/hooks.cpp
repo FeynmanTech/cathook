@@ -13,6 +13,7 @@
 
 unsigned int hooks::offCreateMove = 22;
 unsigned int hooks::offPaintTraverse = 42;
+unsigned int hooks::offOverrideView = 17;
 
 unsigned int hooks::CountMethods(void** vmt) {
 	unsigned int i = -1;

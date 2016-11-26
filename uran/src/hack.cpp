@@ -26,6 +26,7 @@
 #include "helpers.h"
 #include "hacks/HBunnyhop.h"
 #include "hacks/HTrigger.h"
+#include "followbot/ipcctl.h"
 #include "hacks/AutoReflect.h"
 #include "hacks/HEsp.h"
 //#include "hacks/HGlow.h"
@@ -39,6 +40,8 @@
 #include "entity.h"
 #include "localplayer.h"
 #include "playerresource.h"
+
+#include "profiler.h"
 
 #include <csignal>
 
@@ -55,11 +58,13 @@
 #include <vgui/IPanel.h>
 #include <convar.h>
 #include <Color.h>
+#include <view_shared.h>
 #include <icvar.h>
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
 #include "hacks/FollowBot.h"
+#include "globals.h"
 
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
@@ -67,10 +72,24 @@
 
 typedef void(PaintTraverse_t)(void*, unsigned int, bool, bool);
 typedef bool(CreateMove_t)(void*, float, CUserCmd*);
+typedef void(OverrideView_t)(void*, CViewSetup*);
 
 bool hack::invalidated = true;
 
+void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
+	PROF_BEGIN("OverrideView Hook");
+	((OverrideView_t*)hooks::hkCreateMove->GetMethod(hooks::offOverrideView))(thisptr, setup);
+	if (g_Settings.flForceFOV && g_Settings.flForceFOV->GetBool()) {
+		setup->fov = g_Settings.flForceFOV->GetFloat();
+	}
+}
+
 void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
+	// TODO move it into PrePT hook
+
+	//if (v_bNoZoom->GetBool()) {
+	//}
+
 	((PaintTraverse_t*)hooks::hkPaintTraverse->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
@@ -89,6 +108,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	}
 	if (hack::invalidated) return;
 	if (draw::panel_top == vp) {
+		ResetStrings();
 		for (IHack* i_hack : hack::hacks) {
 			i_hack->PaintTraverse(p, vp, fr, ar);
 		}
@@ -111,6 +131,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				}
 			}
 		}
+		DrawStrings();
 	}
 }
 
@@ -179,12 +200,12 @@ void hack::InitHacks() {
 	hack::AddHack(g_phAntiDisguise = new AntiDisguise());
 	hack::AddHack(g_phAutoReflect = new AutoReflect());
 	hack::AddHack(g_phFollowBot = new FollowBot());
+	hack::AddHack(g_phMisc = new Misc());
+	hack::AddHack(g_phQuickscope = new Quickscope());
 	hack::AddHack(g_phAimbot = new HAimbot());
 	hack::AddHack(g_phBunnyhop = new HBunnyhop());
 	hack::AddHack(g_phEsp = new HEsp());
 	hack::AddHack(g_phTrigger = new HTrigger());
-	hack::AddHack(g_phMisc = new Misc());
-	hack::AddHack(g_phQuickscope = new Quickscope());
 }
 
 void hack::Initialize() {
@@ -209,6 +230,8 @@ void hack::Initialize() {
 	logging::Info("Adding hacks...");
 	SetCVarInterface(interfaces::cvar);
 	hack::InitHacks();
+	logging::Info("Init global settings");
+	g_Settings.Init();
 	ConVar_Register();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();
@@ -231,15 +254,40 @@ void hack::Initialize() {
 	}
 	hooks::hkCreateMove->Init((void*)clientMode, 0);
 	hooks::hkCreateMove->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
+	logging::Info("Hooking OverrideView...");
+	hooks::hkCreateMove->HookMethod((void*)&hack::Hk_OverrideView, hooks::offOverrideView);
 	hooks::hkCreateMove->Apply();
 	logging::Info("Hooked!");
-
+	InitStrings();
 	logging::Info("Init done!");
 }
 
 void hack::Think() {
-	// Main code goes here...
-	usleep(1000);
+	//logging::Info("Hack::Think");
+	// Fucking TODo
+	if (g_phFollowBot->v_bEnabled->GetBool()) {
+		ipc_bot_seg* seg_g = g_phFollowBot->m_pIPC->GetBotCommand(0);
+		ipc_bot_seg* seg_l = g_phFollowBot->m_pIPC->GetBotCommand(g_phFollowBot->m_pIPC->bot_id);
+
+		if (seg_g == 0) {
+			logging::Info("!!! seg_g == 0 !!!");
+		}
+		if (seg_l == 0) {
+			logging::Info("!!! seg_l == 0 !!!");
+		}
+
+		if (seg_g && seg_g->command_number > g_phFollowBot->last_command_global) {
+			logging::Info("Executing `%s`", seg_g->command_buffer);
+			if (g_phFollowBot->last_command_global) interfaces::engineClient->ExecuteClientCmd(seg_g->command_buffer);
+			g_phFollowBot->last_command_global = seg_g->command_number;
+		}
+		if (seg_l && seg_l->command_number > g_phFollowBot->last_command_local) {
+			logging::Info("Executing `%s`", seg_l->command_buffer);
+			if (g_phFollowBot->last_command_local) interfaces::engineClient->ExecuteClientCmd(seg_l->command_buffer);
+			g_phFollowBot->last_command_local = seg_l->command_number;
+		}
+	}
+	usleep(250000);
 }
 
 void hack::Shutdown() {

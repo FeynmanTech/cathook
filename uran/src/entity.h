@@ -64,6 +64,11 @@ public:
 	offset_t nTickBase;
 	offset_t iDecapitations;
 	offset_t iMaxBuffedHealth;
+
+	offset_t iItemDefinitionIndex;
+
+	offset_t vecPunchAngle;
+	offset_t vecPunchAngleVel;
 };
 
 // TODO globals

@@ -14,6 +14,8 @@ class AntiAim : public IHack {
 public:
 	DECLARE_HACK()
 	ConVar* v_bEnabled;
+	ConVar* v_flSpinSpeed;
+	ConVar* v_flPitch;
 };
 
 extern AntiAim* g_phAntiAim;

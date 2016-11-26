@@ -42,6 +42,17 @@ Color GetTeamBgColor(int team, bool dark);
 Color GetHealthColor(int health, int max);
 }
 
+void InitStrings();
+void ResetStrings();
+void AddCenterString(Color fg, Color bg, const char* fmt, ...);
+void AddSideString(Color fg, Color bg, const char* fmt, ...);
+void DrawStrings();
+
+extern ESPStringCompound* g_pStringsSide;
+extern int g_nStringsSide;
+extern ESPStringCompound* g_pStringsCenter;
+extern int g_nStringsCenter;
+
 namespace draw {
 
 extern unsigned long font_handle;
