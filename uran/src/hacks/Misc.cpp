@@ -29,6 +29,10 @@
 #include <dt_common.h>
 #include <inputsystem/iinputsystem.h>
 
+const char* Misc::GetName() {
+	return "MISC";
+}
+
 void CC_SayLines(const CCommand& args) {
 	char cmd[256];
 	sprintf(cmd, "say %s", args.ArgS());

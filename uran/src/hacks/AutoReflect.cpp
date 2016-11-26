@@ -21,6 +21,10 @@
 #include <convar.h>
 #include <client_class.h>
 
+const char* AutoReflect::GetName() {
+	return "AUTO-REFLECT";
+}
+
 bool IsReflectableProjectile(IClientEntity* ent) {
 	if (!ent) return false;
 	switch (ent->GetClientClass()->m_ClassID) {

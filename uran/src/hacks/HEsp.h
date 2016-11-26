@@ -16,10 +16,7 @@ class CachedEntity;
 
 class HEsp : public IHack {
 public:
-	bool CreateMove(void*, float, CUserCmd*);
-	void PaintTraverse(void*, unsigned int, bool, bool);
-	void Create();
-	void Destroy();
+	DECLARE_HACK();
 	void DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);

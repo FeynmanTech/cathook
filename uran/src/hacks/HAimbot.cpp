@@ -26,12 +26,17 @@
 #include <cdll_int.h>
 #include <gametrace.h>
 #include <engine/IEngineTrace.h>
+#include <inputsystem/iinputsystem.h>
 #include "../sdk/in_buttons.h"
 
 Vector viewangles_old;
 bool fix_silent;
 
 int target_lock;
+
+const char* HAimbot::GetName() {
+	return "AIMBOT";
+}
 
 /* null-safe */
 void HAimbot::Create() {
@@ -54,12 +59,23 @@ void HAimbot::Create() {
 	this->v_bDebug = CreateConVar("u_aimbot_debug", "0", "Aimbot debug");
 	this->v_iFOV = CreateConVar("u_aimbot_fov", "0", "FOV aimbot (experimental)");
 	this->v_bMachinaPenetration = CreateConVar("u_aimbot_machina", "0", "Machina penetration aimbot (just for fun)");
+	this->v_bSmooth = CreateConVar("u_aimbot_smooth", "0", "Smooth aimbot");
+	this->v_fSmoothValue = CreateConVar("u_aimbot_smooth_value", "5.0", "Smooth value");
+	this->v_iAimKey = CreateConVar("u_aimbot_aimkey", "0", "Aim Key");
 	fix_silent = false;
 }
 
 bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	this->m_iLastTarget = -1;
+	if (this->v_iAimKey->GetBool()) {
+		//bool down = false;
+		//interfaces::baseClient->IN_IsKeyDown(this->v_iAimKey->GetString(), down);
+		if (!interfaces::input->IsButtonDown((ButtonCode_t)this->v_iAimKey->GetInt())) {
+			return true;
+		}
+	}
+
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return true;
 	}
@@ -274,11 +290,22 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	Vector tr = (hit - g_pLocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);
+	bool smoothed = false;
+	if (this->v_bSmooth->GetBool()) {
+		Vector da = (angles - g_pLocalPlayer->v_OrigViewangles);
+		float fact = sqrt(da.x * da.x + da.y * da.y);
+		if (fact > this->v_fSmoothValue->GetFloat()) {
+			da.x = da.x / fact;
+			da.y = da.y / fact;
+		}
+		angles = g_pLocalPlayer->v_OrigViewangles + da;
+		smoothed = true;
+	}
 	cmd->viewangles = angles;
 	if (this->v_bSilent->GetBool()) {
 		g_pLocalPlayer->bUseSilentAngles = true;
 	}
-	if (this->v_bAutoShoot->GetBool()) {
+	if (!smoothed && this->v_bAutoShoot->GetBool()) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 			if (g_pLocalPlayer->cond_0 & cond::zoomed) {
 				if (this->v_iAutoShootCharge->GetBool()) {

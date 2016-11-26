@@ -16,6 +16,7 @@ class CCommand;
 typedef unsigned int uint32;
 
 #define DECLARE_HACK() \
+	virtual const char* GetName(); \
 	void Create(); \
 	bool CreateMove(void*, float, CUserCmd*); \
 	void Destroy(); \
@@ -24,6 +25,7 @@ typedef unsigned int uint32;
 class IHack {
 public:
 	inline virtual ~IHack() {};
+	virtual const char* GetName() = 0;
 	inline virtual void PaintTraverse(void*, unsigned int, bool, bool) {};
 	inline virtual bool CreateMove(void*, float, CUserCmd*) { return true; };
 	inline virtual void Create() {};

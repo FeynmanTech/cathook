@@ -10,19 +10,19 @@
 
 #include <time.h>
 
-#define ENABLE_PROFILER true
+#define ENABLE_PROFILER false
 #define PROFILER_OUTPUT_DEPTH 1
 #define MAX_PROFILER_SECTIONS 16
 
 #if ENABLE_PROFILER == true
-#define PROF_BEGIN(X) PROFILER_BeginSection(X)
+#define PROF_BEGIN() PROFILER_BeginSection()
 #define PROF_END(X) PROFILER_EndSection(X)
 #else
 #define PROF_BEGIN(X)
 #define PROF_END(X)
 #endif
 
-void PROFILER_BeginSection(const char* name);
-void PROFILER_EndSection(const char* name);
+void PROFILER_BeginSection();
+void PROFILER_EndSection(char* name);
 
 #endif /* PROFILER_H_ */

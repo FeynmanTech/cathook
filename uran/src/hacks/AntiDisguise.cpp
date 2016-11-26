@@ -15,6 +15,10 @@
 #include <client_class.h>
 #include <icliententity.h>
 
+const char* AntiDisguise::GetName() {
+	return "ANTI-DISGUISE";
+}
+
 void AntiDisguise::Create() {
 	v_bEnabled = CreateConVar("u_antidisguise", "1", "Disables spy disguise");
 }

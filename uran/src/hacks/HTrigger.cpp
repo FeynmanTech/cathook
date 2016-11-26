@@ -29,6 +29,10 @@
 #include <client_class.h>
 #include <tier1/convar.h>
 
+const char* HTrigger::GetName() {
+	return "TRIGGER";
+}
+
 Vector eye;
 trace_t* enemy_trace;
 trace::FilterDefault* filter;

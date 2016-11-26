@@ -11,6 +11,10 @@
 #include "../helpers.h"
 #include "../sdk/in_buttons.h"
 
+const char* AntiAim::GetName() {
+	return "ANTI-AIM";
+}
+
 void AntiAim::Create() {
 	this->v_bEnabled = CreateConVar("u_aa_enabled", "0", "Enable AntiAim");
 	this->v_flPitch = CreateConVar("u_aa_pitch", "-89.0", "Pitch");

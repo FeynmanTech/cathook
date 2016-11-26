@@ -28,6 +28,10 @@
 
 unsigned long g_nTick = 0;
 
+const char* FollowBot::GetName() {
+	return "FOLLOWBOT";
+}
+
 // TODO
 bool FollowBot::ShouldPopUber(bool force) {
 	int health_my = g_pLocalPlayer->health;

@@ -15,10 +15,7 @@ class ConCommand;
 
 class Misc : public IHack {
 public:
-	void Create();
-	bool CreateMove(void*, float, CUserCmd*);
-	void Destroy();
-	void PaintTraverse(void*, unsigned int, bool, bool);
+	DECLARE_HACK();
 	ConVar* v_bNoFlinch;
 	ConVar* v_bNoZoom;
 

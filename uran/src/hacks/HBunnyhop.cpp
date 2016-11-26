@@ -20,6 +20,10 @@
 #include <icliententity.h>
 #include <tier1/convar.h>
 
+const char* HBunnyhop::GetName() {
+	return "BUNNYHOP";
+}
+
 void HBunnyhop::Create() {
 	this->v_bEnabled = CreateConVar("u_bhop_enabled", "1", "Enable/Disable BunnyHop");
 }

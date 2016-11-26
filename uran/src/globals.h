@@ -17,6 +17,7 @@ public:
 	ConVar* flForceFOV;
 	ConVar* bHackEnabled;
 	ConVar* bIgnoreTaunting;
+	ConVar* bProfiler;
 };
 
 extern GlobalSettings g_Settings;

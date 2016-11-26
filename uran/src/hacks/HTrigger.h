@@ -14,10 +14,7 @@ class ConVar;
 
 class HTrigger : public IHack {
 public:
-	bool CreateMove(void*, float, CUserCmd*);
-	void PaintTraverse(void*, unsigned int, bool, bool);
-	void Create();
-	void Destroy();
+	DECLARE_HACK();
 	ConVar* v_bEnabled;
 	ConVar* v_bIgnoreCloak;
 	ConVar* v_bZoomedOnly;

@@ -15,10 +15,7 @@ class IClientEntity;
 
 class HAimbot : public IHack {
 public:
-	void Create();
-	void Destroy();
-	bool CreateMove(void*, float, CUserCmd*);
-	void PaintTraverse(void*, unsigned int, bool, bool);
+	DECLARE_HACK();
 	bool ShouldTarget(IClientEntity* entity);
 	bool Aim(IClientEntity* entity, CUserCmd* cmd);
 	bool m_bProjectileMode;
@@ -26,6 +23,9 @@ public:
 	bool m_bProjArc;
 	int m_iLastTarget;
 	int m_iHitbox;
+	ConVar* v_iAimKey;
+	ConVar* v_bSmooth;
+	ConVar* v_fSmoothValue;
 	ConVar* v_bDebug;
 	ConVar* v_bEnabled;
 	ConVar* v_iFOV;

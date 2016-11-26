@@ -7,12 +7,13 @@ OPTIMIZE
 
  proper player struct 
   optimize 
-  buildings aim
    no autoshoot consumable
     no autoshoot disg
      amby body
      
      AutoHB amby
+     
+Bot Pathfinding
      
 CRIT BODYSHOT
 NoZoom FIX !!!

@@ -24,6 +24,10 @@
 #include <tier1/convar.h>
 #include <cmodel.h>
 
+const char* HEsp::GetName() {
+	return "ESP";
+}
+
 const char* classes[] = {
 	"Scout",
 	"Sniper",
@@ -90,10 +94,11 @@ void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHei
 	//draw::DrawString(min(smin.x, smax.x), min(smin.y, smax.y), clr, false, "min");
 	//draw::DrawString(max(smin.x, smax.x), max(smin.y, smax.y), clr, false, "max");
 	//draw::DrawString((int)so.x, (int)so.y, draw::white, false, "origin");
-	ent->m_ESPOrigin.x = so.x + width / 2 + 3;
+	ent->m_ESPOrigin.x = so.x + width / 2 + 1;
 	ent->m_ESPOrigin.y = so.y - height;
 	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, draw::black);
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
+	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, draw::black);
 	if (healthbar) {
 		Color hp = colors::GetHealthColor(health, healthmax);
 		int hbh = (height) * min((float)health / (float)healthmax, 1.0f);

@@ -77,7 +77,6 @@ typedef void(OverrideView_t)(void*, CViewSetup*);
 bool hack::invalidated = true;
 
 void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
-	PROF_BEGIN("OverrideView Hook");
 	((OverrideView_t*)hooks::hkCreateMove->GetMethod(hooks::offOverrideView))(thisptr, setup);
 	if (g_Settings.flForceFOV && g_Settings.flForceFOV->GetBool()) {
 		setup->fov = g_Settings.flForceFOV->GetFloat();
@@ -110,7 +109,9 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	if (draw::panel_top == vp) {
 		ResetStrings();
 		for (IHack* i_hack : hack::hacks) {
+			//PROF_BEGIN();
 			i_hack->PaintTraverse(p, vp, fr, ar);
+			//PROF_END(strfmt("%s PaintTraverse", i_hack->GetName()));
 		}
 		Vector screen;
 		for (int i = 0; i < gEntityCache.m_nMax && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
@@ -122,7 +123,6 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				ESPStringCompound str = ce->GetESPString(j);
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
 				if (!ce->m_ESPOrigin.IsZero(1.0)) {
-					int sw, sh;
 					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, str.m_Background, false, str.m_String);
 					ce->m_ESPOrigin.y += 12;
 				} else {
@@ -153,10 +153,12 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	//g_pLocalPlayer->bUseSilentAngles = false;
 	//logging::Info("Inside CreateMove #1");
 	for (IHack* i_hack : hack::hacks) {
+		//PROF_BEGIN();
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
 			//g_pLocalPlayer->bUseSilentAngles = true;
 		}
+		//PROF_END(strfmt("%s CreateMove", i_hack->GetName()));
 	}
 	hack::invalidated = false;
 	//logging::Info("Inside CreateMove #2");

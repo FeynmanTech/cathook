@@ -17,6 +17,10 @@
 #include <icliententity.h>
 #include <client_class.h>
 
+const char* Quickscope::GetName() {
+	return "QUICKSCOPE";
+}
+
 void Quickscope::Create() {
 	v_bEnabled = CreateConVar("u_quickscope", "1", "Quickscope mode");
 }
