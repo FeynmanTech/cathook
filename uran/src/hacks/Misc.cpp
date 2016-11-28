@@ -190,7 +190,7 @@ void CC_DisonnectVAC(const CCommand& args) {
 	ch->Shutdown("VAC banned from secure server\n");
 }
 
-void Misc::Create() {
+Misc::Misc() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
 	v_bSemiAuto = CreateConVar("u_misc_semiauto", "0", "Force semi-auto");
 	v_bNoZoom = CreateConVar("u_nozoom", "0", "No-Zoom");
@@ -231,10 +231,6 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 	return true;
-}
-
-void Misc::Destroy() {
-
 }
 
 void Misc::PaintTraverse(void*, unsigned int, bool, bool) {

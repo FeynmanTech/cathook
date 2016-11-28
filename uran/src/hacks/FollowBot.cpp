@@ -375,7 +375,7 @@ void CC_IPCList(const CCommand& args) {
 	}
 }
 
-void FollowBot::Create() {
+FollowBot::FollowBot() {
 	v_bEnabled = CreateConVar("u_bot_enabled", "0", "Enables followbot");
 	v_iBotPackage = CreateConVar("u_bot_ai", "1", "AI Package (FOLLOW, MEDIC, SNIPER)");
 	c_AddBotID = CreateConCommand("u_bot_addbot", CC_AddBotID, "Adds another bot's ID");
@@ -403,7 +403,7 @@ void FollowBot::Create() {
 	}
 }
 
-void FollowBot::Destroy() {
+FollowBot::~FollowBot() {
 	interfaces::eventManager->RemoveListener(g_pListener);
 	m_pIPC->Detach();
 }

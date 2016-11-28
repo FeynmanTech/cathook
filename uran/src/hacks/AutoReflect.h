@@ -16,7 +16,8 @@ bool IsReflectableProjectile(IClientEntity* ent);
 
 class AutoReflect : public IHack {
 public:
-	DECLARE_HACK()
+	DECLARE_HACK_METHODS();
+	AutoReflect();
 	ConVar* v_bEnabled;
 	ConVar* v_iReflectDistance;
 };

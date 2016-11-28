@@ -26,7 +26,9 @@ enum botpackage {
 
 class FollowBot : public IHack {
 public:
-	DECLARE_HACK();
+	DECLARE_HACK_METHODS();
+	FollowBot();
+	~FollowBot();
 	void ProcessEntity(IClientEntity* entity, bool enemy);
 	void Tick(CUserCmd*);
 	int ShouldNotTarget(IClientEntity* ent, bool notrace);

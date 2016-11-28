@@ -14,7 +14,9 @@ class ConVar;
 
 class HTrigger : public IHack {
 public:
-	DECLARE_HACK();
+	DECLARE_HACK_METHODS();
+	HTrigger();
+	~HTrigger();
 	ConVar* v_bEnabled;
 	ConVar* v_bIgnoreCloak;
 	ConVar* v_bZoomedOnly;

@@ -15,7 +15,7 @@ const char* AntiAim::GetName() {
 	return "ANTI-AIM";
 }
 
-void AntiAim::Create() {
+AntiAim::AntiAim() {
 	this->v_bEnabled = CreateConVar("u_aa_enabled", "0", "Enable AntiAim");
 	this->v_flPitch = CreateConVar("u_aa_pitch", "-89.0", "Pitch");
 	this->v_flSpinSpeed = CreateConVar("u_aa_spin", "10.0", "Spin speed");
@@ -37,7 +37,6 @@ bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 	return false;
 }
 
-void AntiAim::Destroy() {}
 void AntiAim::PaintTraverse(void*, unsigned int, bool, bool) {}
 
 AntiAim* g_phAntiAim = 0;

@@ -12,7 +12,8 @@
 
 class AntiDisguise : public IHack {
 public:
-	DECLARE_HACK()
+	DECLARE_HACK_METHODS();
+	AntiDisguise();
 	ConVar* v_bEnabled;
 };
 

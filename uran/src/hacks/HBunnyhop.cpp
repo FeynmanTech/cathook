@@ -24,7 +24,7 @@ const char* HBunnyhop::GetName() {
 	return "BUNNYHOP";
 }
 
-void HBunnyhop::Create() {
+HBunnyhop::HBunnyhop() {
 	this->v_bEnabled = CreateConVar("u_bhop_enabled", "1", "Enable/Disable BunnyHop");
 }
 
@@ -53,9 +53,6 @@ bool HBunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 		bDoubleJumpFix = false;
 	}
 	return true;
-}
-
-void HBunnyhop::Destroy() {
 }
 
 void HBunnyhop::PaintTraverse(void*, unsigned int, bool, bool) {}

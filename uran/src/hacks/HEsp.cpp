@@ -46,7 +46,7 @@ void HEsp::PaintTraverse(void*, unsigned int, bool, bool) {
 	}
 }
 
-void HEsp::Create() {
+HEsp::HEsp() {
 	this->v_bEnabled = CreateConVar("u_esp_enabled", "1", "Enables ESP");
 	this->v_bEntityESP = CreateConVar("u_esp_entity", "0", "Entity ESP (dev)");
 	this->v_bTeammates = CreateConVar("u_esp_teammates", "0", "ESP own team");
@@ -382,7 +382,6 @@ bool HEsp::CreateMove(void*, float, CUserCmd*) {
 	return true;
 };
 
-void HEsp::Destroy() {};
 
 HEsp* g_phEsp;
 

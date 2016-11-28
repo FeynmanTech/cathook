@@ -37,7 +37,7 @@ Vector eye;
 trace_t* enemy_trace;
 trace::FilterDefault* filter;
 
-void HTrigger::Create() {
+HTrigger::HTrigger() {
 	filter = new trace::FilterDefault();
 	enemy_trace = new trace_t();
 	this->v_bBodyshot = CreateConVar("u_trigger_bodyshot", "1", "Enables bodyshotting when there is enough charge to oneshot enemy");
@@ -134,7 +134,7 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	return true;
 }
 
-void HTrigger::Destroy() {
+HTrigger::~HTrigger() {
 	delete filter;
 	delete enemy_trace;
 }

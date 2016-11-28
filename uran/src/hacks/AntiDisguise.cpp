@@ -19,7 +19,7 @@ const char* AntiDisguise::GetName() {
 	return "ANTI-DISGUISE";
 }
 
-void AntiDisguise::Create() {
+AntiDisguise::AntiDisguise() {
 	v_bEnabled = CreateConVar("u_antidisguise", "1", "Disables spy disguise");
 }
 
@@ -37,6 +37,5 @@ void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 bool AntiDisguise::CreateMove(void*, float, CUserCmd*) {return true;}
-void AntiDisguise::Destroy() {}
 
 AntiDisguise* g_phAntiDisguise = 0;

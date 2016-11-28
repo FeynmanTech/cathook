@@ -15,7 +15,8 @@ class IClientEntity;
 
 class HAimbot : public IHack {
 public:
-	DECLARE_HACK();
+	DECLARE_HACK_METHODS();
+	HAimbot();
 	bool ShouldTarget(IClientEntity* entity);
 	bool Aim(IClientEntity* entity, CUserCmd* cmd);
 	bool m_bProjectileMode;

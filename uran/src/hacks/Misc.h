@@ -15,7 +15,10 @@ class ConCommand;
 
 class Misc : public IHack {
 public:
-	DECLARE_HACK();
+	DECLARE_HACK_METHODS();
+	Misc();
+	//ConVar* v_bNoShootUntilCanHeadshot;
+
 	ConVar* v_bNoFlinch;
 	ConVar* v_bNoZoom;
 

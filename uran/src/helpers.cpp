@@ -440,6 +440,10 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc) {
 		rspeed = 2000.0f;
 		rarc = true;
 	break;
+	case ClassID::CTFSyringeGun:
+		rspeed = 1000.0f;
+		rarc = true;
+	break;
 	default:
 		return false;
 	}

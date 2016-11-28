@@ -39,7 +39,7 @@ const char* HAimbot::GetName() {
 }
 
 /* null-safe */
-void HAimbot::Create() {
+HAimbot::HAimbot() {
 	this->v_bEnabled = CreateConVar("u_aimbot_enabled", "0", "Enables aimbot. EXPERIMENTAL AND TOTALLY NOT LEGIT");
 	this->v_iHitbox = CreateConVar("u_aimbot_hitbox", "0", "Hitbox");
 	this->v_bAutoHitbox = CreateConVar("u_aimbot_autohitbox", "1", "Autohitbox");
@@ -88,6 +88,8 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 			return true;
 		}
 	}
+
+	if(cmd->buttons & IN_USE) return true;
 
 	if (g_pLocalPlayer->bIsReloading) {
 		return true;
@@ -172,7 +174,6 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	return !this->v_bSilent->GetBool();
 }
 
-void HAimbot::Destroy() {}
 void HAimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 	if (!v_bEnabled->GetBool()) return;
 	if (this->m_iLastTarget == -1) return;

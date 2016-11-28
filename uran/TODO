@@ -1,55 +1,34 @@
-ESP: bones
-TRIGGER: Amby charge
-TRIGGER: Ignore vaccinator
+MAX -> MIN priority
 
-Priority FIX
-OPTIMIZE
-
- proper player struct 
-  optimize 
-   no autoshoot consumable
-    no autoshoot disg
-     amby body
-     
-     AutoHB amby
-     
-Bot Pathfinding
-     
-CRIT BODYSHOT
-NoZoom FIX !!!
-     
-     
-Map-Specific navigation markers
-
-Target system respect mannpower powerups
-Aimbot charge detection respect powerups
-
- tournament_teamname
- 
- 
-ignore taunt
-
-Followbot medic AI+
-
-RocketBot
-
-Flash uber bots
-
-
-CritTrigger
-CritAim
-
-
-huntsman aim fix
-Bazaar charge FIX
-
-Sapped buildings ESP
-AimBest
-optimize
-Glow Objects
-remove magic numbers
-no trigger vacc uber
-LINES (trace crshr->enemy)
-SPY ALERT
-
-SEGVCATCH
+Ambassador CanHeadshot detection
+Triggerbot ignores vaccinator ubers
+Ambassador & Huntsman AutoHitbox fix
+No AutoShoot (aimbot/trigger) on consumables and PDAs
+Improve Projectile Aimbot. A lot.
+Integrate SEGVCATCH
+Proper AutoHitbox
+Show sapped buildings in ESP
+Make hacks respect Mannpower powerups and other conditions when calcuating damage, hitbox and prioritizing targets
+Fake Lag
+An option to ignore taunting enemies
+No AutoShoot when disguised
+Fixing NoZoom flickering
+Ambassador bodyshotting
+Recalculate rifles' headshot ability (Bazaar + Precision rifles)
+Auto Uber Flash
+AutoHeal
+Airstuck
+Critical rifles bodyshotting
+Show spectators
+Tracers/Spy Alert/Spy Cam
+Glow Hack
+Proper medic followbot AI
+Bot option for aiming at owner's prey (just for fun)
+Bot pathfinding & navigation files system
+SkinChanger
+Teamname spam
+Proper entity classes (actually I might just use a lot of helper functions taking IClientEntity* as first arg)
+Priority system optimization and testing
+General optimization and refactoring
+Bone ESP
+XorString or something to make it harder to detect.

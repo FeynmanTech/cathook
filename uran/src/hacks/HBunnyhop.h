@@ -14,7 +14,8 @@ class ConVar;
 
 class HBunnyhop : public IHack {
 public:
-	DECLARE_HACK();
+	DECLARE_HACK_METHODS();
+	HBunnyhop();
 	ConVar* v_bEnabled;
 };
 

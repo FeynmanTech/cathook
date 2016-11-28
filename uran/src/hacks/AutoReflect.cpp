@@ -44,7 +44,7 @@ bool IsReflectableProjectile(IClientEntity* ent) {
 
 // Hack Methods
 
-void AutoReflect::Create() {
+AutoReflect::AutoReflect() {
 	v_bEnabled = CreateConVar("u_reflect_enabled", "0", "Reflectbot enabled");
 	v_iReflectDistance = CreateConVar("u_reflect_distance", "300", "Reflectbot distance");
 }
@@ -83,6 +83,5 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void AutoReflect::PaintTraverse(void*, unsigned int, bool, bool) {}
-void AutoReflect::Destroy() {}
 
 AutoReflect* g_phAutoReflect = 0;

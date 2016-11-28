@@ -32,11 +32,12 @@
 //#include "hacks/HGlow.h"
 #include "hacks/HAimbot.h"
 #include "hacks/AntiAim.h"
-#include "hacks/Quickscope.h"
 #include "hacks/Misc.h"
 #include "hacks/AntiDisguise.h"
 #include "usercmd.h"
 #include "drawing.h"
+#include "hacks/Airstuck.h"
+#include "hacks/AutoStrafe.h"
 #include "entity.h"
 #include "localplayer.h"
 #include "playerresource.h"
@@ -189,7 +190,6 @@ std::vector<IHack*> hack::hacks;
 bool hack::shutdown = false;
 
 void hack::AddHack(IHack* hack) {
-	hack->Create();
 	hack::hacks.push_back(hack);
 }
 
@@ -198,16 +198,17 @@ ICvar* g_pCVar = 0;
 
 
 void hack::InitHacks() {
+	hack::AddHack(g_phAutoStrafe = new AutoStrafe());
 	hack::AddHack(g_phAntiAim = new AntiAim());
 	hack::AddHack(g_phAntiDisguise = new AntiDisguise());
 	hack::AddHack(g_phAutoReflect = new AutoReflect());
 	hack::AddHack(g_phFollowBot = new FollowBot());
 	hack::AddHack(g_phMisc = new Misc());
-	hack::AddHack(g_phQuickscope = new Quickscope());
 	hack::AddHack(g_phAimbot = new HAimbot());
 	hack::AddHack(g_phBunnyhop = new HBunnyhop());
 	hack::AddHack(g_phEsp = new HEsp());
 	hack::AddHack(g_phTrigger = new HTrigger());
+	hack::AddHack(g_phAirstuck = new Airstuck());
 }
 
 void hack::Initialize() {
@@ -301,6 +302,6 @@ void hack::Shutdown() {
 	hooks::hkPaintTraverse->Kill();
 	hooks::hkCreateMove->Kill();
 	for (IHack* i_hack : hack::hacks) {
-		i_hack->Destroy();
+		delete i_hack;
 	}
 }
