@@ -25,6 +25,7 @@ public:
 	ConVar* v_bFinishingHit;
 	ConVar* v_iMinRange;
 	ConVar* v_bBuildings;
+	ConVar* v_bIgnoreVaccinator;
 };
 
 extern HTrigger* g_phTrigger;

@@ -14,6 +14,8 @@
 #include <client_class.h>
 #include <icliententity.h>
 
+// This file is a mess. I need to fix it. TODO
+
 /* Default Filter */
 
 trace::FilterDefault::FilterDefault() {

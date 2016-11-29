@@ -74,14 +74,5 @@ void sharedobj::LoadAllSharedObjects() {
 	sharedobj::vguimatsurface = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/vguimatsurface.so", user), true);
 	sharedobj::vstdlib = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/libvstdlib.so", user), true);
 	sharedobj::inputsystem = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/inputsystem.so", user), true);
-	/*sharedobj::client = new SharedObject(STEAM_BASEDIR "steamapps/common/Team Fortress 2/tf/bin/client.so", true);
-	sharedobj::engine = new SharedObject(STEAM_BASEDIR "steamapps/common/Team Fortress 2/bin/engine.so", true);
-	//sharedobj::steamclient = new SharedObject(STEAM_BASEDIR "linux32/steamclient.so", true);
-	sharedobj::steamclient = new SharedObject("/home/steam-0/.local/share/Steam/linux32/steamclient.so", true);
-	sharedobj::tier0 = new SharedObject(STEAM_BASEDIR "steamapps/common/Team Fortress 2/bin/libtier0.so", false);
-	sharedobj::vgui2 = new SharedObject(STEAM_BASEDIR "steamapps/common/Team Fortress 2/bin/vgui2.so", true);
-	sharedobj::vguimatsurface = new SharedObject(STEAM_BASEDIR "steamapps/common/Team Fortress 2/bin/vguimatsurface.so", true);
-	sharedobj::vstdlib = new SharedObject(STEAM_BASEDIR "steamapps/common/Team Fortress 2/bin/libvstdlib.so", true);
-	sharedobj::inputsystem = new SharedObject(STEAM_BASEDIR "steamapps/common/Team Fortress 2/bin/inputsystem.so", true);*/
 }
 

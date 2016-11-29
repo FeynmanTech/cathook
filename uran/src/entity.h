@@ -12,7 +12,6 @@
 
 class IClientEntity;
 
-// TODO globals
 typedef unsigned int offset_t;
 
 template<typename T>
@@ -29,6 +28,8 @@ void SetEntityValue(IClientEntity* ent, unsigned int offset, T value) {
 }
 
 void InitEntityOffsets();
+
+// TODO move this.
 
 class EntityVariables {
 public:
@@ -69,6 +70,9 @@ public:
 
 	offset_t vecPunchAngle;
 	offset_t vecPunchAngleVel;
+
+	offset_t flChargeBeginTime;
+	offset_t flLastFireTime;
 };
 
 // TODO globals

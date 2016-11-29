@@ -8,6 +8,10 @@
 #ifndef WEAPONPREFS_H_
 #define WEAPONPREFS_H_
 
+class IClientEntity;
+
+bool IsAmbassador(IClientEntity* entity);
+
 /*extern int g_MeleeList[];
 
 bool IsMeleeWeapon(int defidx);

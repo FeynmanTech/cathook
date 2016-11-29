@@ -233,8 +233,6 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 		}
 		bgclr = colors::GetTeamBgColor(ent->m_iTeam, !ent->m_bIsVisible);
 
-		// TODO TEMP
-		//ent->AddESPString(color, "FOV %f", GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, ent->m_pEntity->GetAbsOrigin()));
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent->m_pEntity)) {
 			if (pcond & cond::cloaked) return;
 			if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {

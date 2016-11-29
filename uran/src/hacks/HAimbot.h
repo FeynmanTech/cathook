@@ -19,9 +19,12 @@ public:
 	HAimbot();
 	bool ShouldTarget(IClientEntity* entity);
 	bool Aim(IClientEntity* entity, CUserCmd* cmd);
+
 	bool m_bProjectileMode;
 	float m_flProjSpeed;
+	float m_flProjGravity;
 	bool m_bProjArc;
+
 	int m_iLastTarget;
 	int m_iHitbox;
 	ConVar* v_iAimKey;
@@ -46,6 +49,9 @@ public:
 	ConVar* v_bProjectileAimbot;
 	ConVar* v_iOverrideProjSpeed;
 	ConVar* v_bMachinaPenetration;
+	ConVar* v_bAmbassador;
+	ConVar* v_bAimBuildings;
+	ConVar* v_bActiveOnlyWhenCanShoot;
 };
 
 extern HAimbot* g_phAimbot;

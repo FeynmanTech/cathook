@@ -26,6 +26,7 @@
 #include <cdll_int.h>
 #include <gametrace.h>
 #include <engine/IEngineTrace.h>
+#include <globalvars_base.h>
 #include <inputsystem/iinputsystem.h>
 #include "../sdk/in_buttons.h"
 
@@ -62,6 +63,9 @@ HAimbot::HAimbot() {
 	this->v_bSmooth = CreateConVar("u_aimbot_smooth", "0", "Smooth aimbot");
 	this->v_fSmoothValue = CreateConVar("u_aimbot_smooth_value", "5.0", "Smooth value");
 	this->v_iAimKey = CreateConVar("u_aimbot_aimkey", "0", "Aim Key");
+	this->v_bAmbassador = CreateConVar("u_aimbot_ambassador", "0", "Ambassador mode."); // TODO
+	v_bAimBuildings = CreateConVar("u_aimbot_buildings", "1", "Aim at buildings");
+	v_bActiveOnlyWhenCanShoot = CreateConVar("u_aimbot_only_when_can_shoot", "1", "Aimbot active only when can shoot");
 	fix_silent = false;
 }
 
@@ -76,6 +80,8 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
+	if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime()) return true;
+
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return true;
 	}
@@ -86,6 +92,15 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 		if (!(cmd->buttons & IN_ATTACK2)) {
 			return true;
+		}
+	}
+
+	if (this->v_bAmbassador->GetBool()) {
+		//  TODO defindex check
+		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFRevolver) {
+			if ((interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) <= 0.95) {
+				return true;
+			}
 		}
 	}
 
@@ -127,7 +142,7 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == 210) return true;
 	}
 
-	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc));
+	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc, m_flProjGravity));
 	// TODO priority modes (FOV, Smart, Distance, etc)
 	if (!this->v_bPriority->GetBool()) {
 		IClientEntity* target_locked = interfaces::entityList->GetClientEntity(target_lock);
@@ -199,7 +214,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 		int local = interfaces::engineClient->GetLocalPlayer();
 		IClientEntity* player = interfaces::entityList->GetClientEntity(local);
 		char life_state = GetEntityValue<char>(entity, eoffsets.iLifeState);
-		if (life_state) return false; // TODO magic number: life state
+		if (life_state) return false;
 		if (!player) return false;
 		if (v_bRespectCloak->GetBool() && (GetEntityValue<int>(entity, eoffsets.iCond) & cond::cloaked)) return false;
 		int health = GetEntityValue<int>(entity, eoffsets.iHealth);
@@ -223,7 +238,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 		Vector resultAim;
 		if (m_bProjectileMode) {
 			resultAim = entity->GetAbsOrigin();
-			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, resultAim)) return false;
+			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, resultAim)) return false;
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
 				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
@@ -236,6 +251,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_iFOV->GetFloat())) return false;
 		return true;
 	} else if (IsBuilding(entity)) {
+		if (!v_bAimBuildings->GetBool()) return false;
 		int team = GetEntityValue<int>(entity, eoffsets.iTeamNum);
 		if (team == g_pLocalPlayer->team) return false;
 		Vector enemy_pos = entity->GetAbsOrigin();
@@ -245,7 +261,7 @@ bool HAimbot::ShouldTarget(IClientEntity* entity) {
 		Vector resultAim;
 		if (m_bProjectileMode) {
 			resultAim = entity->GetAbsOrigin();
-			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, resultAim)) return false;
+			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, resultAim)) return false;
 		} else {
 			//logging::Info("IsVisible?");
 			if (!IsBuildingVisible(entity)) return false;
@@ -279,12 +295,10 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		hit = GetBuildingPosition(entity);
 	}
 	if (v_bProjectileAimbot->GetBool()) {
-		float speed = 0.0f;
-		bool arc = false;
-		if (GetProjectileData(g_pLocalPlayer->weapon, speed, arc)) {
+		if (m_bProjectileMode) {
 			if (v_iOverrideProjSpeed->GetBool())
-				speed = v_iOverrideProjSpeed->GetFloat();
-			PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, speed, arc, hit);
+				m_flProjSpeed = v_iOverrideProjSpeed->GetFloat();
+			PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, hit);
 		}
 	}
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());

@@ -411,36 +411,51 @@ float DistToSqr(IClientEntity* entity) {
 	return g_pLocalPlayer->v_Origin.DistToSqr(entity->GetAbsOrigin());
 }
 
-bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc) {
+bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gravity) {
 	if (!weapon) return false;
 	float rspeed;
 	bool rarc;
+	float rgrav = 0.5f;
 	switch (weapon->GetClientClass()->m_ClassID) {
 	case weapons::WP_DIRECT_HIT:
-		rspeed = 1980;
+		rspeed = 1980.0f;
 		rarc = false;
+		//rgrav = 0.0f;
 	break;
 	case weapons::WP_ROCKET_LAUNCHER:
-		rspeed = 1100;
+		rspeed = 1100.0f;
 		rarc = false;
+		//rgrav = 0.0f;
 	break;
 	case weapons::WP_GRENADE_LAUNCHER:
-		rspeed = 1217.5f;
+		rspeed = 1200.0f; // TODO Loch-N-Load: 1500u
 		rarc = true;
+		//rgrav = 0.5f;
 	break;
-	case weapons::WP_HUNTSMAN:
-		rspeed = 2600.0f;
+	case weapons::WP_HUNTSMAN: {
+		// TODO curtime
+		float begincharge = GetEntityValue<float>(weapon, eoffsets.flChargeBeginTime);
+		float charge = 0;
+		if (begincharge != 0) {
+			charge = interfaces::gvars->curtime - begincharge;
+			if (charge > 1.0f) charge = 1.0f;
+		}
+		rgrav = 0.5 - 0.4 * charge;
+		rspeed = 1800 + 800 * charge;
 		rarc = true;
-	break;
+	} break;
 	case weapons::WP_SANDMAN:
+		//rgrav = 1.0f;
 		rspeed = 3000.0f;
 		rarc = true;
 	break;
 	case weapons::WP_FLAREGUN:
+		//rgrav = 1.0f;
 		rspeed = 2000.0f;
 		rarc = true;
 	break;
 	case ClassID::CTFSyringeGun:
+		//rgrav = 1.0f;
 		rspeed = 1000.0f;
 		rarc = true;
 	break;
@@ -449,6 +464,7 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc) {
 	}
 	speed = rspeed;
 	arc = rarc;
+	gravity = rgrav;
 	return true;
 }
 
@@ -470,7 +486,7 @@ bool IsVectorVisible(Vector origin, Vector target) {
 	return (dist1 <= dist2);
 }
 
-bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result) {
+bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, float gravity, Vector& result) {
 	if (!target) return false;
 	//logging::Info("PRED PROJ AIM");
 	//logging::Info("ProjSpeed: %f", speed);
@@ -490,7 +506,7 @@ bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float
 	}
 	res1 += GetEntityValue<Vector>(target, eoffsets.vVelocity) * time;
 	if (arc)
-		res1.z += (800 * 0.5 * 0.1 * time * time);
+		res1.z += (800 * 0.5 * gravity * time * time);
 	result = res1;
 	//if (!IsVisible();
 	return IsVectorVisible(origin, res1);
@@ -605,17 +621,10 @@ bool CanHeadshot(IClientEntity* player) {
 	return false;
 }
 
-bool BulletTime(IClientEntity* entity, bool use_int) {
-	float interval = 1 / 66;
-	float tickbase = (float)GetEntityValue<int>(entity, eoffsets.nTickBase) * interval;
-	float nextattack = GetEntityValue<float>(entity, eoffsets.flNextPrimaryAttack) + 569;
-	bool ctb = nextattack <= tickbase;
-	return ctb;
-}
-
-bool CanShoot(IClientEntity* player) {
-	if (!player) return false;
-	return BulletTime(g_pLocalPlayer->weapon, true);
+bool BulletTime() {
+	float tickbase = (float)(GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase)) * interfaces::gvars->interval_per_tick;
+	float nextattack = GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flNextPrimaryAttack);
+	return nextattack <= tickbase;
 }
 
 // TODO casting

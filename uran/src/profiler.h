@@ -10,6 +10,8 @@
 
 #include <time.h>
 
+// TODO this whole profiler thing could be done a lot better..
+
 #define ENABLE_PROFILER false
 #define PROFILER_OUTPUT_DEPTH 1
 #define MAX_PROFILER_SECTIONS 16

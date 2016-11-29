@@ -37,6 +37,7 @@ bool IsReflectableProjectile(IClientEntity* ent) {
 	case ClassID::CTFProjectile_Rocket:
 	case ClassID::CTFProjectile_SentryRocket:
 	case ClassID::CTFGrenadePipebombProjectile:
+	case ClassID::CTFProjectile_EnergyBall:
 		return true;
 	}
 	return false;

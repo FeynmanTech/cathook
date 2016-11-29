@@ -54,9 +54,9 @@ float DistToSqr(IClientEntity* entity);
 void fClampAngle(Vector& qaAng);
 void fVectorAngles(Vector &forward, Vector &angles);
 float deg2rad(float deg);
-bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc);
+bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gravity);
 bool IsVectorVisible(Vector a, Vector b);
-bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, Vector& result);
+bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, float gravity, Vector& result);
 relation GetRelation(IClientEntity* ent);
 bool IsSentryBuster(IClientEntity* ent);
 char* strfmt(const char* fmt, ...);
@@ -70,8 +70,7 @@ Vector QAngleToVector(QAngle in);
 bool CanHeadshot(IClientEntity* player);
 bool CheckCE(CachedEntity* entity);
 
-bool BulletTime(IClientEntity* ent, bool interval);
-bool CanShoot(IClientEntity* entity);
+bool BulletTime();
 
 bool IsEntityVisiblePenetration(IClientEntity* entity, int hb);
 

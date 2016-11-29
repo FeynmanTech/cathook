@@ -11,6 +11,8 @@
 #include "fixsdk.h"
 #include <engine/IEngineTrace.h>
 
+// This file is a mess. I need to fix it. TODO
+
 class IClientEntity;
 
 namespace trace {

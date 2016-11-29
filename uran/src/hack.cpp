@@ -85,11 +85,6 @@ void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
 }
 
 void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
-	// TODO move it into PrePT hook
-
-	//if (v_bNoZoom->GetBool()) {
-	//}
-
 	((PaintTraverse_t*)hooks::hkPaintTraverse->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
@@ -150,19 +145,12 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	gEntityCache.Update();
 
-	//logging::Info("Inside CreateMove");
-	//g_pLocalPlayer->bUseSilentAngles = false;
-	//logging::Info("Inside CreateMove #1");
 	for (IHack* i_hack : hack::hacks) {
-		//PROF_BEGIN();
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
-			//g_pLocalPlayer->bUseSilentAngles = true;
 		}
-		//PROF_END(strfmt("%s CreateMove", i_hack->GetName()));
 	}
 	hack::invalidated = false;
-	//logging::Info("Inside CreateMove #2");
 	if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
@@ -173,19 +161,9 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		cmd->sidemove = sin(yaw) * speed;
 		return false;
 	}
-	//logging::Info("Inside CreateMove #3");
-	//logging::Info("viewangles: %f, %f, %f", cmd->viewangles.x, cmd->viewangles.y, cmd->viewangles.z);
-	//QAngle a;
-	//a.x = g_pLocalPlayer->v_OrigViewangles.x;
-	//a.y = g_pLocalPlayer->v_OrigViewangles.y;
-	//a.z = g_pLocalPlayer->v_OrigViewangles.z;
-	//interfaces::engineClient->SetViewAngles(a);
-	//g_pLocalPlayer->bAttackLastTick = (cmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_USE));
-	//logging::Info("Inside CreateMove #4");
 	return ret;
 }
 
-// TODO globals
 std::vector<IHack*> hack::hacks;
 bool hack::shutdown = false;
 
@@ -193,7 +171,6 @@ void hack::AddHack(IHack* hack) {
 	hack::hacks.push_back(hack);
 }
 
-// TODO globals
 ICvar* g_pCVar = 0;
 
 

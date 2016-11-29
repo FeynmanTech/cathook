@@ -12,12 +12,9 @@
 #include <string.h>
 #include <pwd.h>
 
+#include "interfaces.h"
 #include "fixsdk.h"
 #include <icvar.h>
-
-namespace interfaces {
-ICvar* cvar;
-}
 
 FILE* logging::handle = 0;
 

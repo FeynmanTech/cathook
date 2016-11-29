@@ -12,10 +12,14 @@
 #include "fixsdk.h"
 #include <icliententity.h>
 
-int g_MeleeList[] = {
+bool IsAmbassador(IClientEntity* weapon) {
+	return false;
+}
+
+/*int g_MeleeList[] = {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 37,
 };
 
 bool IsMeleeWeapon(int defidx) {
 	return false;
-}
+}*/

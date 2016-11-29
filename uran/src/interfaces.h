@@ -26,6 +26,7 @@ class IEngineTrace;
 class IVModelInfoClient;
 class IInputSystem;
 class IClient;
+class CGlobalVarsBase;
 
 namespace interfaces {
 
@@ -42,7 +43,7 @@ extern IBaseClientDLL* baseClient;
 extern IEngineTrace* trace;
 extern IVModelInfoClient* model;
 extern IInputSystem* input;
-//extern IClient* client;
+extern CGlobalVarsBase* gvars;
 
 void CreateInterfaces();
 

@@ -15,6 +15,8 @@ unsigned int hooks::offCreateMove = 22;
 unsigned int hooks::offPaintTraverse = 42;
 unsigned int hooks::offOverrideView = 17;
 
+// This thing had been copypasted from somewhere, maybe from F1Public.
+
 unsigned int hooks::CountMethods(void** vmt) {
 	unsigned int i = -1;
 	do ++i; while (vmt[i]);
@@ -22,10 +24,6 @@ unsigned int hooks::CountMethods(void** vmt) {
 }
 
 void**& hooks::GetVMT(void* inst, unsigned int offset) {
-	// I'm not quite sure what happens here...
-	// inst is the pointer to class
-	// (char*) inst + offset is the pointer to vmt
-	// so it casts vmt pointer to void*** and returns its value..?
 	return *reinterpret_cast<void***>((char*)inst + offset);
 }
 
@@ -62,6 +60,7 @@ void hooks::VMTHook::Apply() {
 	*vmt = array + 3;
 }
 
+// TODO rename these
 hooks::VMTHook* hooks::hkCreateMove = 0;
 hooks::VMTHook* hooks::hkPaintTraverse = 0;
 

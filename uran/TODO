@@ -1,5 +1,7 @@
 MAX -> MIN priority
 
+FIX Followbot Crash
+Huntsman autoshoot
 Ambassador CanHeadshot detection
 Triggerbot ignores vaccinator ubers
 Ambassador & Huntsman AutoHitbox fix
@@ -7,10 +9,18 @@ No AutoShoot (aimbot/trigger) on consumables and PDAs
 Improve Projectile Aimbot. A lot.
 Integrate SEGVCATCH
 Proper AutoHitbox
+Smoothe the smooth aim
+Jumping ProjAim
+Aim Key mode (inverse/normal/disabled)
+ESP Icons
+ESP Distance sort
+Don't Aim if can't shoot
+No aim when cloaked
 Show sapped buildings in ESP
 Make hacks respect Mannpower powerups and other conditions when calcuating damage, hitbox and prioritizing targets
 Fake Lag
 An option to ignore taunting enemies
+AutoSticky
 No AutoShoot when disguised
 Fixing NoZoom flickering
 Ambassador bodyshotting

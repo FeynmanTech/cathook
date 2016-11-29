@@ -28,6 +28,7 @@
 #include <iconvar.h>
 #include <dt_common.h>
 #include <inputsystem/iinputsystem.h>
+#include <globalvars_base.h>
 
 const char* Misc::GetName() {
 	return "MISC";
@@ -264,13 +265,16 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 		if (g_pLocalPlayer->weapon) {
 			IClientEntity* weapon = g_pLocalPlayer->weapon;
 			AddSideString(draw::white, draw::black, "Weapon: %s [%i]", weapon->GetClientClass()->GetName(), weapon->GetClientClass()->m_ClassID);
-			AddSideString(draw::white, draw::black, "flNextPrimaryAttack: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flNextPrimaryAttack) + 569);
-			AddSideString(draw::white, draw::black, "nTickBase: %f", (float)(GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase)) / 66);
-			AddSideString(draw::white, draw::black, "CanShoot: %i", CanShoot(g_pLocalPlayer->entity));
+			AddSideString(draw::white, draw::black, "flNextPrimaryAttack: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flNextPrimaryAttack));
+			AddSideString(draw::white, draw::black, "nTickBase: %f", (float)(GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase)) * interfaces::gvars->interval_per_tick);
+			AddSideString(draw::white, draw::black, "CanShoot: %i", BulletTime());
 			AddSideString(draw::white, draw::black, "Decaps: %i", GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iDecapitations));
 			AddSideString(draw::white, draw::black, "Damage: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargedDamage));
 			AddSideString(draw::white, draw::black, "DefIndex: %i", GetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex));
-
+			AddSideString(draw::white, draw::black, "GlobalVars: 0x%08x", interfaces::gvars);
+			AddSideString(draw::white, draw::black, "realtime: %f", interfaces::gvars->realtime);
+			AddSideString(draw::white, draw::black, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
+			AddSideString(draw::white, draw::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) > 0.95);
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
 			//y += 14;
