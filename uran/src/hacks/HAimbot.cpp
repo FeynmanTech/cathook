@@ -61,11 +61,13 @@ HAimbot::HAimbot() {
 	this->v_iFOV = CreateConVar("u_aimbot_fov", "0", "FOV aimbot (experimental)");
 	this->v_bMachinaPenetration = CreateConVar("u_aimbot_machina", "0", "Machina penetration aimbot (just for fun)");
 	this->v_bSmooth = CreateConVar("u_aimbot_smooth", "0", "Smooth aimbot");
-	this->v_fSmoothValue = CreateConVar("u_aimbot_smooth_value", "5.0", "Smooth value");
+	this->v_fSmoothValue = CreateConVar("u_aimbot_smooth_value", "0.2", "Smooth value");
 	this->v_iAimKey = CreateConVar("u_aimbot_aimkey", "0", "Aim Key");
 	this->v_bAmbassador = CreateConVar("u_aimbot_ambassador", "0", "Ambassador mode."); // TODO
 	v_bAimBuildings = CreateConVar("u_aimbot_buildings", "1", "Aim at buildings");
 	v_bActiveOnlyWhenCanShoot = CreateConVar("u_aimbot_only_when_can_shoot", "1", "Aimbot active only when can shoot");
+	v_fSmoothAutoshootTreshold = CreateConVar("u_aimbot_smooth_autoshoot_treshold", "0.01", "Smooth aim autoshoot treshold");
+	this->v_fSmoothRandomness = CreateConVar("u_aimbot_smooth_randomness", "1.0", "Smooth randomness");
 	fix_silent = false;
 }
 
@@ -119,12 +121,21 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	m_iHitbox = this->v_iHitbox->GetInt();
 	if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 7;
 	if (g_pLocalPlayer->weapon) {
-		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle ||
-			g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifleDecap) {
+		switch (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID) {
+		case ClassID::CTFSniperRifle:
+		case ClassID::CTFSniperRifleDecap:
 			if (!CanHeadshot(g_pLocalPlayer->entity)) {
 				if (this->v_bZoomedOnly->GetBool()) return true;
 			} else {
 				if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 0;
+			}
+			break;
+		case ClassID::CTFCompoundBow:
+			m_iHitbox = 0;
+			break;
+		case ClassID::CTFRevolver:
+			if (this->v_bAmbassador->GetBool()) {
+				m_iHitbox = 0;
 			}
 		}
 	}
@@ -304,18 +315,16 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
 	Vector tr = (hit - g_pLocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);
-	fClampAngle(angles);
 	bool smoothed = false;
 	if (this->v_bSmooth->GetBool()) {
 		Vector da = (angles - g_pLocalPlayer->v_OrigViewangles);
-		float fact = sqrt(da.x * da.x + da.y * da.y);
-		if (fact > this->v_fSmoothValue->GetFloat()) {
-			da.x = da.x / fact;
-			da.y = da.y / fact;
-		}
-		angles = g_pLocalPlayer->v_OrigViewangles + da;
+		fClampAngle(da);
 		smoothed = true;
+		if (da.IsZero(v_fSmoothAutoshootTreshold->GetFloat())) smoothed = false;
+		da *= this->v_fSmoothValue->GetFloat() * (((float)rand() / (float)RAND_MAX) * this->v_fSmoothRandomness->GetFloat());
+		angles = g_pLocalPlayer->v_OrigViewangles + da;
 	}
+	fClampAngle(angles);
 	cmd->viewangles = angles;
 	if (this->v_bSilent->GetBool()) {
 		g_pLocalPlayer->bUseSilentAngles = true;

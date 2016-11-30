@@ -52,6 +52,9 @@ public:
 	ConVar* v_bAmbassador;
 	ConVar* v_bAimBuildings;
 	ConVar* v_bActiveOnlyWhenCanShoot;
+	ConVar* v_fSmoothAutoshootTreshold;
+	ConVar* v_fSmoothRandomness;
+	ConVar* v_iPriorityMode;
 };
 
 extern HAimbot* g_phAimbot;
