@@ -73,6 +73,7 @@ public:
 
 	offset_t flChargeBeginTime;
 	offset_t flLastFireTime;
+	offset_t hThrower;
 };
 
 // TODO globals

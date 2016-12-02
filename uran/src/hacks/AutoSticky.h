@@ -12,7 +12,7 @@
 
 class IClientEntity;
 
-class AutoSticky {
+class AutoSticky : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	AutoSticky();

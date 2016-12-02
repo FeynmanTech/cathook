@@ -38,6 +38,7 @@
 #include "drawing.h"
 #include "hacks/Airstuck.h"
 #include "hacks/AutoStrafe.h"
+#include "hacks/AutoSticky.h"
 #include "entity.h"
 #include "localplayer.h"
 #include "playerresource.h"
@@ -186,6 +187,7 @@ void hack::InitHacks() {
 	hack::AddHack(g_phBunnyhop = new HBunnyhop());
 	hack::AddHack(g_phEsp = new HEsp());
 	hack::AddHack(g_phTrigger = new HTrigger());
+	hack::AddHack(g_phAutoSticky = new AutoSticky());
 	hack::AddHack(g_phAirstuck = new Airstuck());
 }
 

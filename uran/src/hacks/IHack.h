@@ -21,6 +21,9 @@ typedef unsigned int uint32;
 	void PaintTraverse(void*, unsigned int, bool, bool);
 
 #define DECLARE_HACK_SINGLETON(x) \
+extern x* g_ph##x;
+
+#define DEFINE_HACK_SINGLETON(x) \
 x* g_ph##x = 0;
 
 class IHack {
