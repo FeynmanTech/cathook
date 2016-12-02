@@ -41,6 +41,7 @@
 #include "entity.h"
 #include "localplayer.h"
 #include "playerresource.h"
+#include "targeting/ITargetSystem.h"
 
 #include "profiler.h"
 
@@ -212,6 +213,7 @@ void hack::Initialize() {
 	hack::InitHacks();
 	logging::Info("Init global settings");
 	g_Settings.Init();
+	InitTargetingConVars();
 	ConVar_Register();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();

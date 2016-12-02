@@ -23,23 +23,23 @@ class CDumper
 	char* TypeToString(SendPropType type)
 	{
 		//logging::Info("inside...");
-		char* ret = "UNKNOWN";
+		char* ret = (char *)"UNKNOWN";
 		//logging::Info("oh my");
 		//logging::Info("ret.. %s", ret);
 		if (type == 0) {
-			ret = "INT";
+			ret = (char *)"INT";
 		} else if (type == 1) {
-			ret = "FLOAT";
+			ret = (char *)"FLOAT";
 		} else if (type == 2) {
-			ret = "VECTOR3";
+			ret = (char *)"VECTOR3";
 		} else if (type == 3) {
-			ret = "VECTOR2";
+			ret = (char *)"VECTOR2";
 		} else if (type == 4) {
-			ret = "STRING";
+			ret = (char *)"STRING";
 		} else if (type == 5) {
-			ret = "ARRAY";
+			ret = (char *)"ARRAY";
 		} else if (type == 6) {
-			ret = "TABLE";
+			ret = (char *)"TABLE";
 		}
 		//logging::Info("returning %s", ret);
 		return ret;

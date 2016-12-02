@@ -62,7 +62,7 @@ void CC_AddRage(const CCommand& args) {
 }
 
 void DumpRecvTable(IClientEntity* ent, RecvTable* table, int depth, const char* ft) {
-	bool forcetable = strlen(ft);
+	//bool forcetable = strlen(ft);
 	if (!ft || !strcmp(ft, table->GetName()))
 		logging::Info("==== TABLE: %s", table->GetName());
 	for (int i = 0; i < table->GetNumProps(); i++) {
@@ -165,7 +165,7 @@ void CC_SayInfo(const CCommand& args) {
 	int id = atoi(args.Arg(1));
 	player_info_t info;
 	if (!interfaces::engineClient->GetPlayerInfo(id, &info)) return;
-	char* buf = new char[256];
+	//char* buf = new char[256];
 
 }
 

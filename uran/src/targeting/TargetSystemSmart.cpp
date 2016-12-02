@@ -5,6 +5,8 @@
  *      Author: nullifiedcat
  */
 
+#include "TargetSystemSmart.h"
+
 bool TargetSystemSmart::ShouldTarget(int idx) {
 	return false;
 }

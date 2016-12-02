@@ -10,6 +10,10 @@
 #include "../helpers.h"
 #include "../sdk/in_buttons.h"
 #include "../usercmd.h"
+#include "../logging.h"
+#include "../interfaces.h"
+#include "../fixsdk.h"
+#include <icvar.h>
 
 Airstuck::Airstuck() {
 	v_bStuck = CreateConVar("u_airstuck", "0", "Toggle airstuck");
@@ -21,14 +25,17 @@ const char* Airstuck::GetName() {
 
 bool Airstuck::CreateMove(void*, float, CUserCmd* cmd) {
 	// TODO Airstuck.
-	return true;
-	/*if (v_bStuck->GetBool()) {
+	interfaces::cvar->FindVar("net_fakeloss")->SetValue(0);
+	interfaces::cvar->FindVar("host_timescale")->SetValue(1.0f);
+	if (v_bStuck->GetBool()) {
 		if (cmd->buttons & (IN_ATTACK | IN_ATTACK2)) {
 			return true;
 		}
-
+		//cmd->tick_count = 0xFFFF;
+		//interfaces::cvar->FindVar("net_fakeloss")->SetValue(99);
+		interfaces::cvar->FindVar("host_timescale")->SetValue(0.001f);
 	}
-	return true;*/
+	return true;
 }
 
 void Airstuck::PaintTraverse(void*, unsigned int, bool, bool) {};

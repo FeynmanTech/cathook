@@ -35,15 +35,15 @@ const char* FollowBot::GetName() {
 // TODO
 bool FollowBot::ShouldPopUber(bool force) {
 	int health_my = g_pLocalPlayer->health;
-	int health_tr = GetEntityValue<int>(interfaces::entityList->GetClientEntity(this->m_hTargetHealing), eoffsets.iHealth);
+	//int health_tr = GetEntityValue<int>(interfaces::entityList->GetClientEntity(this->m_hTargetHealing), eoffsets.iHealth);
 	if (health_my < 30) return true;
-	bool other_bots_have_uber = false;
+	//bool other_bots_have_uber = false;
 	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
 		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
 		if (ent == g_pLocalPlayer->entity) continue;
 		if (IsFriendlyBot(ent)) {
 			if (GetEntityValue<char>(ent, eoffsets.iLifeState)) continue;
-			IClientEntity* medigun;
+			//IClientEntity* medigun;
 			// TODO
 		}
 	}
@@ -122,6 +122,7 @@ void FollowBot::Tick(CUserCmd* cmd) {
 			owner_entity = interfaces::entityList->GetClientEntity(i);
 		}
 	}
+	if (!owner_entity) return;
 
 	switch (v_iBotPackage->GetInt()) {
 	case botpackage::BOT_FOLLOW: {

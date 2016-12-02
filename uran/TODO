@@ -2,9 +2,8 @@ MAX -> MIN priority
 
 FIX Followbot Crash
 Huntsman autoshoot
-Ambassador CanHeadshot detection
 Triggerbot ignores vaccinator ubers
-Ambassador & Huntsman AutoHitbox fix
+Proper ambassador detection (not just CTFRevolver)
 No AutoShoot (aimbot/trigger) on consumables and PDAs
 Improve Projectile Aimbot. A lot.
 Integrate SEGVCATCH
@@ -15,8 +14,6 @@ Aim Key mode (inverse/normal/disabled)
 Trigger ambassador correction
 ESP Icons
 ESP Distance sort
-Don't Aim if can't shoot
-No aim when cloaked
 Show sapped buildings in ESP
 Make hacks respect Mannpower powerups and other conditions when calcuating damage, hitbox and prioritizing targets
 Fake Lag
@@ -27,6 +24,7 @@ Fixing NoZoom flickering
 Ambassador bodyshotting
 Recalculate rifles' headshot ability (Bazaar + Precision rifles)
 Auto Uber Flash
+Auto trigger DR before rockets
 AutoHeal
 Airstuck
 Critical rifles bodyshotting

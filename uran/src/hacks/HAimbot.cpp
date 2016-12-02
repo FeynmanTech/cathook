@@ -15,8 +15,10 @@
 #include "../targethelper.h"
 #include "../localplayer.h"
 #include "../drawing.h"
-
-//typedef int CBaseEntity;
+#include "../targeting/ITargetSystem.h"
+#include "../targeting/TargetSystemSmart.h"
+#include "../targeting/TargetSystemFOV.h"
+#include "../targeting/TargetSystemDistance.h"
 
 #include "../fixsdk.h"
 #include <client_class.h>
@@ -35,12 +37,23 @@ bool fix_silent;
 
 int target_lock;
 
+enum TargetSystem_t {
+	SMART = 0,
+	FOV = 1,
+	DISTANCE = 2
+};
+
+ITargetSystem* target_systems[3];
+
 const char* HAimbot::GetName() {
 	return "AIMBOT";
 }
 
 /* null-safe */
 HAimbot::HAimbot() {
+	target_systems[0] = new TargetSystemSmart();
+	target_systems[1] = new TargetSystemFOV();
+	target_systems[2] = new TargetSystemDistance();
 	this->v_bEnabled = CreateConVar("u_aimbot_enabled", "0", "Enables aimbot. EXPERIMENTAL AND TOTALLY NOT LEGIT");
 	this->v_iHitbox = CreateConVar("u_aimbot_hitbox", "0", "Hitbox");
 	this->v_bAutoHitbox = CreateConVar("u_aimbot_autohitbox", "1", "Autohitbox");
@@ -82,6 +95,8 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
+	if (g_pLocalPlayer->cond_0 & cond::cloaked) return true; // TODO other kinds of cloak
+
 	if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime()) return true;
 
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
@@ -100,7 +115,7 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (this->v_bAmbassador->GetBool()) {
 		//  TODO defindex check
 		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFRevolver) {
-			if ((interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) <= 0.95) {
+			if ((interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) <= 1.0) {
 				return true;
 			}
 		}

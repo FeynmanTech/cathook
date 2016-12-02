@@ -8,6 +8,10 @@
 #ifndef TARGETSYSTEMSMART_H_
 #define TARGETSYSTEMSMART_H_
 
+#include "ITargetSystem.h"
+
+class ConVar;
+
 class TargetSystemSmart : public ITargetSystem {
 public:
 	bool ShouldTarget(int idx);
