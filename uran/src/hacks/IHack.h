@@ -20,6 +20,9 @@ typedef unsigned int uint32;
 	bool CreateMove(void*, float, CUserCmd*); \
 	void PaintTraverse(void*, unsigned int, bool, bool);
 
+#define DECLARE_HACK_SINGLETON(x) \
+x* g_ph##x = 0;
+
 class IHack {
 public:
 	inline virtual ~IHack() {};
