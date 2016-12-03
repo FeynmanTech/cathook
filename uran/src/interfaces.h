@@ -27,6 +27,8 @@ class IVModelInfoClient;
 class IInputSystem;
 class IClient;
 class CGlobalVarsBase;
+class IPrediction;
+class IGameMovement;
 
 namespace interfaces {
 
@@ -44,6 +46,8 @@ extern IEngineTrace* trace;
 extern IVModelInfoClient* model;
 extern IInputSystem* input;
 extern CGlobalVarsBase* gvars;
+extern IPrediction* prediction;
+extern IGameMovement* gamemovement;
 
 void CreateInterfaces();
 

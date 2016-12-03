@@ -715,6 +715,61 @@ bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {
 	return false;
 }
 
+
+class CMoveData;
+
+void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
+	// we are going to require some helper functions for this to work
+	// notably SetupMove, FinishMove and ProcessMovement
+
+
+	// setup the types of the functions
+	typedef void(*SetupMoveFn)(IClientEntity *, CUserCmd *, class IMoveHelper *, CMoveData *);
+	typedef void(*FinishMoveFn)(IClientEntity *, CUserCmd*, CMoveData*);
+	typedef void(*ProcessMovementFn)(IClientEntity *, CMoveData *);
+	typedef void(*StartTrackPredictionErrorsFn)(IClientEntity *);
+	typedef void(*FinishTrackPredictionErrorsFn)(IClientEntity *);
+
+	// get the vtable
+	void **predictionVtable = (void **)interfaces::prediction;
+	// get the functions
+	SetupMoveFn oSetupMove = (SetupMoveFn) predictionVtable[19];
+	FinishMoveFn oFinishMove = (FinishMoveFn) predictionVtable[20];
+
+	// get the vtable
+	void **gameMovementVtable = (void **)interfaces::gamemovement;
+	// get the functions
+	ProcessMovementFn oProcessMovement = (ProcessMovementFn) gameMovementVtable[2];
+	StartTrackPredictionErrorsFn oStartTrackPredictionErrors = (StartTrackPredictionErrorsFn) gameMovementVtable[3];
+	FinishTrackPredictionErrorsFn oFinishTrackPredictionErrors = (FinishTrackPredictionErrorsFn) gameMovementVtable[4];
+
+	// use this as movedata (should be big enough - otherwise the stack will die!)
+	unsigned char moveData[2048];
+	CMoveData *pMoveData = (CMoveData *)&(moveData[0]);
+
+	// back up globals
+	float frameTime = interfaces::gvars->frametime;
+	float curTime = interfaces::gvars->curtime;
+
+	// set up the globals
+	interfaces::gvars->curtime =  gInts->Globals->interval_per_tick * GetEntityValue<int>(ent, eoffsets.nTickBase);
+	interfaces::gvars->frametime = gInts->Globals->interval_per_tick;
+
+	oStartTrackPredictionErrors(ent);
+
+	oSetupMove(ent, ucmd, NULL, pMoveData);
+	oProcessMovement(ent, ucmd, pMoveData);
+	oFinishMove(ent, pMoveData);
+	
+	oFinishTrackPredictionErrors(ent);
+
+	// restore globals
+	interfaces::gvars->frametime = frametime;
+	interfaces::gvars->curtime = curTime;
+
+	return;
+}
+
 char* strfmt(const char* fmt, ...) {
 	char* buf = new char[1024];
 	va_list list;
