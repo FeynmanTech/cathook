@@ -127,14 +127,17 @@ void CC_DumpPlayers(const CCommand& args) {
 void LockConCommand(const char* name, bool lock) {
 	ConCommandBase* cmd = interfaces::cvar->FindCommandBase(name);
 	if (lock) {
+		// TODO LockConCommand FIX!
 		cmd->m_nFlags |= FCVAR_CHEAT;
+		cmd->m_nFlags |= FCVAR_REPLICATED;
 	} else {
 		cmd->m_nFlags &= ~FCVAR_CHEAT;
+		cmd->m_nFlags &= ~FCVAR_REPLICATED;
 	}
 }
 
 void LockConCommands(bool lock) {
-	LockConCommand("thirdperson", lock);
+	LockConCommand("sv_cheats", lock);
 }
 
 ConCommandBase* teamname = 0;
