@@ -751,6 +751,15 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	float frameTime = interfaces::gvars->frametime;
 	float curTime = interfaces::gvars->curtime;
 
+	CUserCmd defaultCmd;
+	if(ucmd == NULL)
+	{
+		ucmd = &defaultCmd;
+	}
+
+	// set the current command
+	SetEntityValue<void *>(ent, 0x105C, ucmd);
+
 	// set up the globals
 	interfaces::gvars->curtime =  gInts->Globals->interval_per_tick * GetEntityValue<int>(ent, eoffsets.nTickBase);
 	interfaces::gvars->frametime = gInts->Globals->interval_per_tick;
@@ -762,6 +771,9 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	oFinishMove(ent, pMoveData);
 	
 	oFinishTrackPredictionErrors(ent);
+
+	// reset the current command
+	SetEntityValue<void *>(ent, 0x105C, NULL);
 
 	// restore globals
 	interfaces::gvars->frametime = frametime;
