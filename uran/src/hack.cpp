@@ -38,6 +38,7 @@
 #include "localplayer.h"
 #include "playerresource.h"
 #include "targeting/ITargetSystem.h"
+#include "hacks/AutoHeal.h"
 
 #include "profiler.h"
 
@@ -188,6 +189,7 @@ void hack::InitHacks() {
 	ADD_HACK(Triggerbot);
 	ADD_HACK(AutoSticky);
 	ADD_HACK(Airstuck);
+	ADD_HACK(AutoHeal);
 }
 
 void hack::Initialize() {

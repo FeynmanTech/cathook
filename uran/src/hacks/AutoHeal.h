@@ -13,7 +13,14 @@
 class AutoHeal : public IHack {
 public:
 	DECLARE_HACK_METHODS();
+	AutoHeal();
+	int GetBestHealingTarget();
+	int GetHealingPriority(int idx);
+	bool CanHeal(int idx);
+	int m_iCurrentHealingTarget;
+	int m_iNewTarget;
 	ConVar* v_bEnabled;
+	ConVar* v_bSilent;
 };
 
 DECLARE_HACK_SINGLETON(AutoHeal);
