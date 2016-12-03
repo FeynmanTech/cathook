@@ -188,18 +188,6 @@ void hack::InitHacks() {
 	ADD_HACK(Triggerbot);
 	ADD_HACK(AutoSticky);
 	ADD_HACK(Airstuck);
-	/*hack::AddHack(g_phAutoStrafe = new AutoStrafe());
-	hack::AddHack(g_phAntiAim = new AntiAim());
-	hack::AddHack(g_phAntiDisguise = new AntiDisguise());
-	hack::AddHack(g_phAutoReflect = new AutoReflect());
-	hack::AddHack(g_phFollowBot = new FollowBot());
-	hack::AddHack(g_phMisc = new Misc());
-	hack::AddHack(g_phAimbot = new HAimbot());
-	hack::AddHack(g_phBunnyhop = new HBunnyhop());
-	hack::AddHack(g_phEsp = new HEsp());
-	hack::AddHack(g_phTrigger = new HTrigger());
-	hack::AddHack(g_phAutoSticky = new AutoSticky());
-	hack::AddHack(g_phAirstuck = new Airstuck());*/
 }
 
 void hack::Initialize() {
