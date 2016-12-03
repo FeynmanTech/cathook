@@ -47,6 +47,7 @@ powerup_type GetPowerupOnPlayer(IClientEntity* player);
 item_type GetItemType(IClientEntity* entity);
 const char* GetModelPath(IClientEntity* entity);
 int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out);
+weaponmode GetWeaponMode(IClientEntity* player);
 void FixMovement(CUserCmd& cmd, Vector& viewangles);
 void VectorAngles(Vector &forward, Vector &angles);
 bool IsEntityVisible(IClientEntity* entity, int hb);

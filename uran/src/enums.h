@@ -523,6 +523,15 @@ enum tf_class {
 	tf_engineer
 };
 
+enum weaponmode {
+	weapon_invalid = -1,
+	weapon_hitscan = 0,
+	weapon_projectile,
+	weapon_melee,
+	weapon_pda,
+	weapon_medigun
+};
+
 enum hitbox {
 	hb_head = 0
 };

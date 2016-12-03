@@ -189,7 +189,7 @@ void draw::DrawString(int x, int y, Color color, Color background, bool center, 
 		x -= (l / 2);
 	}
 	draw::GetStringLength((char*)text, l, h);
-	draw::DrawRect(x, y, l + 2, h - 3, background);
+	draw::DrawRect(x, y + 1, l + 2, h - 4, background);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 

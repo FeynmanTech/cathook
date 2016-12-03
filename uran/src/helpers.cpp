@@ -411,6 +411,18 @@ float DistToSqr(IClientEntity* entity) {
 	return g_pLocalPlayer->v_Origin.DistToSqr(entity->GetAbsOrigin());
 }
 
+weaponmode GetWeaponMode(IClientEntity* player) {
+	if (!player) return weapon_invalid;
+	int weapon_handle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
+	if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 2)) return weaponmode::weapon_melee;
+	IClientEntity* weapon = interfaces::entityList->GetClientEntity(weapon_handle & 0xFFF);
+	if (GetEntityValue<int>(player, eoffsets.iClass) == tf_class::tf_medic) {
+		if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 1)) return weaponmode::weapon_medigun;
+	}
+
+	return weaponmode::weapon_hitscan;
+}
+
 bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gravity) {
 	if (!weapon) return false;
 	float rspeed;
@@ -455,8 +467,8 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gr
 		rarc = true;
 	break;
 	case ClassID::CTFSyringeGun:
-		//rgrav = 1.0f;
-		rspeed = 1000.0f;
+		rgrav = 0.2f;
+		rspeed = 990.0f;
 		rarc = true;
 	break;
 	default:

@@ -122,10 +122,10 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
 				if (!ce->m_ESPOrigin.IsZero(1.0)) {
 					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, str.m_Background, false, str.m_String);
-					ce->m_ESPOrigin.y += 12;
+					ce->m_ESPOrigin.y += 11;
 				} else {
 					draw::DrawString(screen.x, screen.y, str.m_Color, str.m_Background, true, str.m_String);
-					screen.y += 12;
+					screen.y += 11;
 				}
 			}
 		}
