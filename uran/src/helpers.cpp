@@ -761,14 +761,14 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	SetEntityValue<void *>(ent, 0x105C, ucmd);
 
 	// set up the globals
-	interfaces::gvars->curtime =  gInts->Globals->interval_per_tick * GetEntityValue<int>(ent, eoffsets.nTickBase);
-	interfaces::gvars->frametime = gInts->Globals->interval_per_tick;
+	interfaces::gvars->curtime =  interfaces::gvars->interval_per_tick * GetEntityValue<int>(ent, eoffsets.nTickBase);
+	interfaces::gvars->frametime = interfaces::gvars->interval_per_tick;
 
 	oStartTrackPredictionErrors(ent);
 
 	oSetupMove(ent, ucmd, NULL, pMoveData);
-	oProcessMovement(ent, ucmd, pMoveData);
-	oFinishMove(ent, pMoveData);
+	oProcessMovement(ent, pMoveData);
+	oFinishMove(ent, ucmd, pMoveData);
 	
 	oFinishTrackPredictionErrors(ent);
 
@@ -776,7 +776,7 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	SetEntityValue<void *>(ent, 0x105C, NULL);
 
 	// restore globals
-	interfaces::gvars->frametime = frametime;
+	interfaces::gvars->frametime = frameTime;
 	interfaces::gvars->curtime = curTime;
 
 	return;
