@@ -12,13 +12,13 @@
 
 class ConVar;
 
-class HBunnyhop : public IHack {
+class Bunnyhop : public IHack {
 public:
 	DECLARE_HACK_METHODS();
-	HBunnyhop();
+	Bunnyhop();
 	ConVar* v_bEnabled;
 };
 
-extern HBunnyhop* g_phBunnyhop;
+DECLARE_HACK_SINGLETON(Bunnyhop);
 
 #endif /* HBUNNYHOP_H_ */

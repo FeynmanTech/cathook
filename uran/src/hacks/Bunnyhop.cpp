@@ -5,8 +5,6 @@
  *      Author: nullifiedcat
  */
 
-#include "HBunnyhop.h"
-
 #include "../usercmd.h"
 #include "../interfaces.h"
 #include "../entity.h"
@@ -19,18 +17,21 @@
 #include <icliententitylist.h>
 #include <icliententity.h>
 #include <tier1/convar.h>
+#include "Bunnyhop.h"
 
-const char* HBunnyhop::GetName() {
+DEFINE_HACK_SINGLETON(Bunnyhop);
+
+const char* Bunnyhop::GetName() {
 	return "BUNNYHOP";
 }
 
-HBunnyhop::HBunnyhop() {
+Bunnyhop::Bunnyhop() {
 	this->v_bEnabled = CreateConVar("u_bhop_enabled", "1", "Enable/Disable BunnyHop");
 }
 
 bool bDoubleJumpFix = false;
 
-bool HBunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
+bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	int player = interfaces::engineClient->GetLocalPlayer();
 	IClientEntity* entity = interfaces::entityList->GetClientEntity(player);
@@ -55,7 +56,4 @@ bool HBunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	return true;
 }
 
-void HBunnyhop::PaintTraverse(void*, unsigned int, bool, bool) {}
-
-HBunnyhop* g_phBunnyhop = 0;
-
+void Bunnyhop::PaintTraverse(void*, unsigned int, bool, bool) {}

@@ -19,6 +19,6 @@ public:
 	ConVar* v_flPitch;
 };
 
-extern AntiAim* g_phAntiAim;
+DECLARE_HACK_SINGLETON(AntiAim);
 
 #endif /* ANTIAIM_H_ */

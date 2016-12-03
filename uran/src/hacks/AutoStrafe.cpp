@@ -12,6 +12,8 @@
 #include "../localplayer.h"
 #include "../usercmd.h"
 
+DEFINE_HACK_SINGLETON(AutoStrafe);
+
 const char* AutoStrafe::GetName() {
 	return "AUTOSTRAFE";
 }
@@ -33,5 +35,3 @@ bool AutoStrafe::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void AutoStrafe::PaintTraverse(void*, unsigned int, bool, bool) {}
-
-AutoStrafe* g_phAutoStrafe = 0;

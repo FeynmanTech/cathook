@@ -17,6 +17,6 @@ public:
 	ConVar* v_bEnabled;
 };
 
-extern AutoStrafe* g_phAutoStrafe;
+DECLARE_HACK_SINGLETON(AutoStrafe);
 
 #endif /* HACKS_AUTOSTRAFE_H_ */

@@ -5,8 +5,6 @@
  *      Author: nullifiedcat
  */
 
-#include "HTrigger.h"
-
 #include "../interfaces.h"
 #include "../drawing.h"
 #include "../usercmd.h"
@@ -28,8 +26,11 @@
 #include <icliententity.h>
 #include <client_class.h>
 #include <tier1/convar.h>
+#include "Trigger.h"
 
-const char* HTrigger::GetName() {
+DEFINE_HACK_SINGLETON(Triggerbot);
+
+const char* Triggerbot::GetName() {
 	return "TRIGGER";
 }
 
@@ -37,7 +38,7 @@ Vector eye;
 trace_t* enemy_trace;
 trace::FilterDefault* filter;
 
-HTrigger::HTrigger() {
+Triggerbot::Triggerbot() {
 	filter = new trace::FilterDefault();
 	enemy_trace = new trace_t();
 	this->v_bBodyshot = CreateConVar("u_trigger_bodyshot", "1", "Enables bodyshotting when there is enough charge to oneshot enemy");
@@ -50,7 +51,7 @@ HTrigger::HTrigger() {
 	this->v_bBuildings = CreateConVar("u_trigger_buildings", "1", "Trigger is activated at buildings");
 }
 
-bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
+bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if (g_pLocalPlayer->life_state) return true;
 	/*IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
@@ -134,11 +135,9 @@ bool HTrigger::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	return true;
 }
 
-HTrigger::~HTrigger() {
+Triggerbot::~Triggerbot() {
 	delete filter;
 	delete enemy_trace;
 }
 
-void HTrigger::PaintTraverse(void*, unsigned int, bool, bool) {};
-
-HTrigger* g_phTrigger = 0;
+void Triggerbot::PaintTraverse(void*, unsigned int, bool, bool) {};

@@ -416,10 +416,26 @@ weaponmode GetWeaponMode(IClientEntity* player) {
 	int weapon_handle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
 	if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 2)) return weaponmode::weapon_melee;
 	IClientEntity* weapon = interfaces::entityList->GetClientEntity(weapon_handle & 0xFFF);
+	if (!weapon) return weaponmode::weapon_invalid;
+	switch (weapon->GetClientClass()->m_ClassID) {
+	case ClassID::CTFLunchBox:
+	case ClassID::CTFLunchBox_Drink:
+		return weaponmode::weapon_consumable;
+	case ClassID::CTFRocketLauncher_DirectHit:
+	case ClassID::CTFRocketLauncher:
+	case ClassID::CTFGrenadeLauncher:
+	case ClassID::CTFCompoundBow:
+	case ClassID::CTFBat_Wood:
+	case ClassID::CTFBat_Giftwrap:
+	case ClassID::CTFFlareGun:
+	case ClassID::CTFFlareGun_Revenge:
+	case ClassID::CTFSyringeGun:
+		return weaponmode::weapon_projectile;
+	};
+	if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 3)) return weaponmode::weapon_pda;
 	if (GetEntityValue<int>(player, eoffsets.iClass) == tf_class::tf_medic) {
 		if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 1)) return weaponmode::weapon_medigun;
 	}
-
 	return weaponmode::weapon_hitscan;
 }
 
@@ -429,22 +445,22 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gr
 	bool rarc;
 	float rgrav = 0.5f;
 	switch (weapon->GetClientClass()->m_ClassID) {
-	case weapons::WP_DIRECT_HIT:
+	case ClassID::CTFRocketLauncher_DirectHit:
 		rspeed = 1980.0f;
 		rarc = false;
 		//rgrav = 0.0f;
 	break;
-	case weapons::WP_ROCKET_LAUNCHER:
+	case ClassID::CTFRocketLauncher:
 		rspeed = 1100.0f;
 		rarc = false;
 		//rgrav = 0.0f;
 	break;
-	case weapons::WP_GRENADE_LAUNCHER:
+	case ClassID::CTFGrenadeLauncher:
 		rspeed = 1200.0f; // TODO Loch-N-Load: 1500u
 		rarc = true;
 		//rgrav = 0.5f;
 	break;
-	case weapons::WP_HUNTSMAN: {
+	case ClassID::CTFCompoundBow: {
 		// TODO curtime
 		float begincharge = GetEntityValue<float>(weapon, eoffsets.flChargeBeginTime);
 		float charge = 0;
@@ -456,12 +472,12 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gr
 		rspeed = 1800 + 800 * charge;
 		rarc = true;
 	} break;
-	case weapons::WP_SANDMAN:
+	case ClassID::CTFBat_Wood:
 		//rgrav = 1.0f;
 		rspeed = 3000.0f;
 		rarc = true;
 	break;
-	case weapons::WP_FLAREGUN:
+	case ClassID::CTFFlareGun:
 		//rgrav = 1.0f;
 		rspeed = 2000.0f;
 		rarc = true;

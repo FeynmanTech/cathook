@@ -15,6 +15,8 @@
 #include <client_class.h>
 #include <icliententity.h>
 
+DEFINE_HACK_SINGLETON(AntiDisguise);
+
 const char* AntiDisguise::GetName() {
 	return "ANTI-DISGUISE";
 }
@@ -37,5 +39,3 @@ void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 bool AntiDisguise::CreateMove(void*, float, CUserCmd*) {return true;}
-
-AntiDisguise* g_phAntiDisguise = 0;

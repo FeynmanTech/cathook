@@ -10,6 +10,9 @@
 
 #include <vector>
 
+#define ADD_HACK(x) \
+	hack::AddHack(g_ph##x = new x());
+
 class IHack;
 class CUserCmd;
 class CViewSetup;

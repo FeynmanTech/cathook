@@ -38,6 +38,6 @@ public:
 	ConCommand* c_DisconnectVAC;
 };
 
-extern Misc* g_phMisc;
+DECLARE_HACK_SINGLETON(Misc);
 
 #endif /* HACKS_MISC_H_ */

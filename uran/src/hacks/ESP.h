@@ -14,10 +14,10 @@ class ConVar;
 class Color;
 class CachedEntity;
 
-class HEsp : public IHack {
+class ESP : public IHack {
 public:
 	DECLARE_HACK_METHODS();
-	HEsp();
+	ESP();
 	void DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);
@@ -44,6 +44,6 @@ public:
 	//ConVar* v_bModelInfo;
 };
 
-extern HEsp* g_phEsp;
+DECLARE_HACK_SINGLETON(ESP);
 
 #endif /* HESP_H_ */

@@ -24,13 +24,8 @@
 #include "hooks.h"
 #include "hacks/IHack.h"
 #include "helpers.h"
-#include "hacks/HBunnyhop.h"
-#include "hacks/HTrigger.h"
 #include "followbot/ipcctl.h"
 #include "hacks/AutoReflect.h"
-#include "hacks/HEsp.h"
-//#include "hacks/HGlow.h"
-#include "hacks/HAimbot.h"
 #include "hacks/AntiAim.h"
 #include "hacks/Misc.h"
 #include "hacks/AntiDisguise.h"
@@ -68,6 +63,10 @@
 #include "CDumper.h"
 #include "hacks/FollowBot.h"
 #include "globals.h"
+#include "hacks/Aimbot.h"
+#include "hacks/Bunnyhop.h"
+#include "hacks/ESP.h"
+#include "hacks/Trigger.h"
 
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
@@ -177,7 +176,19 @@ ICvar* g_pCVar = 0;
 
 
 void hack::InitHacks() {
-	hack::AddHack(g_phAutoStrafe = new AutoStrafe());
+	ADD_HACK(AutoStrafe);
+	ADD_HACK(AntiAim);
+	ADD_HACK(AntiDisguise);
+	ADD_HACK(AutoReflect);
+	ADD_HACK(FollowBot);
+	ADD_HACK(Misc);
+	ADD_HACK(Aimbot);
+	ADD_HACK(Bunnyhop);
+	ADD_HACK(ESP);
+	ADD_HACK(Triggerbot);
+	ADD_HACK(AutoSticky);
+	ADD_HACK(Airstuck);
+	/*hack::AddHack(g_phAutoStrafe = new AutoStrafe());
 	hack::AddHack(g_phAntiAim = new AntiAim());
 	hack::AddHack(g_phAntiDisguise = new AntiDisguise());
 	hack::AddHack(g_phAutoReflect = new AutoReflect());
@@ -188,7 +199,7 @@ void hack::InitHacks() {
 	hack::AddHack(g_phEsp = new HEsp());
 	hack::AddHack(g_phTrigger = new HTrigger());
 	hack::AddHack(g_phAutoSticky = new AutoSticky());
-	hack::AddHack(g_phAirstuck = new Airstuck());
+	hack::AddHack(g_phAirstuck = new Airstuck());*/
 }
 
 void hack::Initialize() {

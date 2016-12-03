@@ -19,6 +19,8 @@
 #include <icliententitylist.h>
 #include <icliententity.h>
 
+DEFINE_HACK_SINGLETON(AutoSticky);
+
 const char* AutoSticky::GetName() {
 	return "AUTO-STICKY";
 }
@@ -67,5 +69,3 @@ bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 void AutoSticky::PaintTraverse(void*, unsigned int, bool, bool) {
 
 }
-
-DEFINE_HACK_SINGLETON(AutoSticky);

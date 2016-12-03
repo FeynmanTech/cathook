@@ -11,6 +11,8 @@
 #include "../helpers.h"
 #include "../sdk/in_buttons.h"
 
+DEFINE_HACK_SINGLETON(AntiAim);
+
 const char* AntiAim::GetName() {
 	return "ANTI-AIM";
 }
@@ -38,5 +40,3 @@ bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void AntiAim::PaintTraverse(void*, unsigned int, bool, bool) {}
-
-AntiAim* g_phAntiAim = 0;

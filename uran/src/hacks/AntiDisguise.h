@@ -17,6 +17,6 @@ public:
 	ConVar* v_bEnabled;
 };
 
-extern AntiDisguise* g_phAntiDisguise;
+DECLARE_HACK_SINGLETON(AntiDisguise);
 
 #endif /* HACKS_ANTIDISGUISE_H_ */

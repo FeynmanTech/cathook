@@ -5,7 +5,8 @@
  *      Author: nullifiedcat
  */
 
-#include "HEsp.h"
+#include "ESP.h"
+
 #include "../fixsdk.h"
 #include "../drawing.h"
 #include "../interfaces.h"
@@ -24,7 +25,9 @@
 #include <tier1/convar.h>
 #include <cmodel.h>
 
-const char* HEsp::GetName() {
+DEFINE_HACK_SINGLETON(ESP);
+
+const char* ESP::GetName() {
 	return "ESP";
 }
 
@@ -40,13 +43,13 @@ const char* classes[] = {
 	"Engineer"
 };
 
-void HEsp::PaintTraverse(void*, unsigned int, bool, bool) {
+void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
 	for (int i = 0; i < gEntityCache.m_nMax; i++) {
 		ProcessEntityPT(gEntityCache.GetEntity(i));
 	}
 }
 
-HEsp::HEsp() {
+ESP::ESP() {
 	this->v_bEnabled = CreateConVar("u_esp_enabled", "1", "Enables ESP");
 	this->v_bEntityESP = CreateConVar("u_esp_entity", "0", "Entity ESP (dev)");
 	this->v_bTeammates = CreateConVar("u_esp_teammates", "0", "ESP own team");
@@ -69,7 +72,7 @@ HEsp::HEsp() {
 
 #define ESP_HEIGHT 14
 
-void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
+void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (!CheckCE(ent)) return;
 	Vector min, max;
 	ent->m_pEntity->GetRenderBounds(min, max);
@@ -109,7 +112,7 @@ void HEsp::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHei
 	//draw::OutlineRect(min(smin.x, smax.x), min(smin.y, smax.y), max(smin.x, smax.x), max(smin.y, smax.y), clr);
 }
 
-void HEsp::ProcessEntityPT(CachedEntity* ent) {
+void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (!this->v_bBox->GetBool()) return;
 	if (!CheckCE(ent)) return;
@@ -153,7 +156,7 @@ void HEsp::ProcessEntityPT(CachedEntity* ent) {
 	}
 }
 
-void HEsp::ProcessEntity(CachedEntity* ent) {
+void ESP::ProcessEntity(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (!CheckCE(ent)) return;
 
@@ -373,13 +376,9 @@ void HEsp::ProcessEntity(CachedEntity* ent) {
 	}*/
 }
 
-bool HEsp::CreateMove(void*, float, CUserCmd*) {
+bool ESP::CreateMove(void*, float, CUserCmd*) {
 	for (int i = 0; i < gEntityCache.m_nMax; i++) {
 		ProcessEntity(gEntityCache.GetEntity(i));
 	}
 	return true;
 };
-
-
-HEsp* g_phEsp;
-

@@ -22,6 +22,6 @@ public:
 	ConVar* v_iReflectDistance;
 };
 
-extern AutoReflect* g_phAutoReflect;
+DECLARE_HACK_SINGLETON(AutoReflect);
 
 #endif /* HACKS_AUTOREFLECT_H_ */

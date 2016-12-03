@@ -18,6 +18,6 @@ public:
 	ConVar* v_bStuck;
 };
 
-extern Airstuck* g_phAirstuck;
+DECLARE_HACK_SINGLETON(Airstuck);
 
 #endif /* HACKS_AIRSTUCK_H_ */

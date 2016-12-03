@@ -66,6 +66,6 @@ public:
 	unsigned last_command_local;
 };
 
-extern FollowBot* g_phFollowBot;
+DECLARE_HACK_SINGLETON(FollowBot)
 
 #endif /* HPYROBOT_H_ */

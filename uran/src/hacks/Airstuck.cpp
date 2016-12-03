@@ -15,6 +15,8 @@
 #include "../fixsdk.h"
 #include <icvar.h>
 
+DEFINE_HACK_SINGLETON(Airstuck);
+
 Airstuck::Airstuck() {
 	v_bStuck = CreateConVar("u_airstuck", "0", "Toggle airstuck");
 }
@@ -39,5 +41,3 @@ bool Airstuck::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void Airstuck::PaintTraverse(void*, unsigned int, bool, bool) {};
-
-Airstuck* g_phAirstuck = 0;

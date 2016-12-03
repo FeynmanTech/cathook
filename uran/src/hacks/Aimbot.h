@@ -13,10 +13,10 @@
 class ConVar;
 class IClientEntity;
 
-class HAimbot : public IHack {
+class Aimbot : public IHack {
 public:
 	DECLARE_HACK_METHODS();
-	HAimbot();
+	Aimbot();
 	bool ShouldTarget(IClientEntity* entity);
 	bool Aim(IClientEntity* entity, CUserCmd* cmd);
 
@@ -57,6 +57,6 @@ public:
 	ConVar* v_iPriorityMode;
 };
 
-extern HAimbot* g_phAimbot;
+DECLARE_HACK_SINGLETON(Aimbot);
 
 #endif /* HAIMBOT_H_ */

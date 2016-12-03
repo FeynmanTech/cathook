@@ -21,6 +21,8 @@
 #include <convar.h>
 #include <client_class.h>
 
+DEFINE_HACK_SINGLETON(AutoReflect);
+
 const char* AutoReflect::GetName() {
 	return "AUTO-REFLECT";
 }
@@ -85,4 +87,3 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 
 void AutoReflect::PaintTraverse(void*, unsigned int, bool, bool) {}
 
-AutoReflect* g_phAutoReflect = 0;

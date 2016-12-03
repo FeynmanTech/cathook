@@ -529,21 +529,12 @@ enum weaponmode {
 	weapon_projectile,
 	weapon_melee,
 	weapon_pda,
-	weapon_medigun
+	weapon_medigun,
+	weapon_consumable
 };
 
 enum hitbox {
 	hb_head = 0
-};
-
-enum weapons {
-	WP_SNIPERRIFLE = 295,
-	WP_ROCKET_LAUNCHER = 282,
-	WP_DIRECT_HIT = 284,
-	WP_GRENADE_LAUNCHER = 211,
-	WP_HUNTSMAN = 197,
-	WP_SANDMAN = 188,
-	WP_FLAREGUN = 205
 };
 
 enum relation {

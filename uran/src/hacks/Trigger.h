@@ -12,11 +12,11 @@
 
 class ConVar;
 
-class HTrigger : public IHack {
+class Triggerbot : public IHack {
 public:
 	DECLARE_HACK_METHODS();
-	HTrigger();
-	~HTrigger();
+	Triggerbot();
+	~Triggerbot();
 	ConVar* v_bEnabled;
 	ConVar* v_bIgnoreCloak;
 	ConVar* v_bZoomedOnly;
@@ -28,6 +28,6 @@ public:
 	ConVar* v_bIgnoreVaccinator;
 };
 
-extern HTrigger* g_phTrigger;
+DECLARE_HACK_SINGLETON(Triggerbot);
 
 #endif /* HTRIGGER_H_ */

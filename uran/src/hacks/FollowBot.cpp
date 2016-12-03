@@ -26,6 +26,8 @@
 #include <cdll_int.h>
 #include <igameevents.h>
 
+DEFINE_HACK_SINGLETON(FollowBot);
+
 unsigned long g_nTick = 0;
 
 const char* FollowBot::GetName() {
@@ -410,5 +412,3 @@ FollowBot::~FollowBot() {
 }
 
 void FollowBot::PaintTraverse(void*, unsigned int, bool, bool) {}
-
-FollowBot* g_phFollowBot = 0;

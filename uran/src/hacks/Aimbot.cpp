@@ -5,8 +5,6 @@
  *      Author: nullifiedcat
  */
 
-#include "HAimbot.h"
-
 #include "../usercmd.h"
 #include "../helpers.h"
 #include "../entity.h"
@@ -31,6 +29,9 @@
 #include <globalvars_base.h>
 #include <inputsystem/iinputsystem.h>
 #include "../sdk/in_buttons.h"
+#include "Aimbot.h"
+
+DEFINE_HACK_SINGLETON(Aimbot);
 
 Vector viewangles_old;
 bool fix_silent;
@@ -45,12 +46,12 @@ enum TargetSystem_t {
 
 ITargetSystem* target_systems[3];
 
-const char* HAimbot::GetName() {
+const char* Aimbot::GetName() {
 	return "AIMBOT";
 }
 
 /* null-safe */
-HAimbot::HAimbot() {
+Aimbot::Aimbot() {
 	target_systems[0] = new TargetSystemSmart();
 	target_systems[1] = new TargetSystemFOV();
 	target_systems[2] = new TargetSystemDistance();
@@ -84,7 +85,7 @@ HAimbot::HAimbot() {
 	fix_silent = false;
 }
 
-bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
+bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	this->m_iLastTarget = -1;
 	if (this->v_iAimKey->GetBool()) {
@@ -95,7 +96,15 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
+	switch (GetWeaponMode(g_pLocalPlayer->entity)) {
+	case weapon_medigun:
+	case weapon_pda:
+	case weapon_consumable:
+		return true;
+	};
+
 	if (g_pLocalPlayer->cond_0 & cond::cloaked) return true; // TODO other kinds of cloak
+	// TODO m_bFeignDeathReady no aim
 
 	if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime()) return true;
 
@@ -215,7 +224,7 @@ bool HAimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	return !this->v_bSilent->GetBool();
 }
 
-void HAimbot::PaintTraverse(void*, unsigned int, bool, bool) {
+void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 	if (!v_bEnabled->GetBool()) return;
 	if (this->m_iLastTarget == -1) return;
 	IClientEntity* ent = interfaces::entityList->GetClientEntity(this->m_iLastTarget);
@@ -231,7 +240,7 @@ void HAimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 	}
 }
 
-bool HAimbot::ShouldTarget(IClientEntity* entity) {
+bool Aimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
 	if (IsPlayer(entity)) {
@@ -310,7 +319,7 @@ void PredictPosition(Vector vec, IClientEntity* ent) {
 	vec += vel * latency;
 }
 
-bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
+bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	Vector hit;
 	Vector angles;
 	if (!entity) return false;
@@ -361,5 +370,3 @@ bool HAimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	}
 	return true;
 }
-
-HAimbot* g_phAimbot = 0;

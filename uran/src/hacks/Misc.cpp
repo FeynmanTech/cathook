@@ -30,6 +30,8 @@
 #include <inputsystem/iinputsystem.h>
 #include <globalvars_base.h>
 
+DEFINE_HACK_SINGLETON(Misc);
+
 const char* Misc::GetName() {
 	return "MISC";
 }
@@ -275,11 +277,10 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(draw::white, draw::black, "realtime: %f", interfaces::gvars->realtime);
 			AddSideString(draw::white, draw::black, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
 			AddSideString(draw::white, draw::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) > 0.95);
+			AddSideString(draw::white, draw::black, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
 			//y += 14;
 			//AddCenterString(draw::font_handle, interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X), interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y), draw::white, L"S\u0FD5");
 		}
 }
-
-Misc* g_phMisc = 0;
