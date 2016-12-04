@@ -273,18 +273,6 @@ IClientEntity* FollowBot::GetBestHealingTarget() {
 bool FollowBot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
 
-	/*ipc_bot_seg* seg_g = m_pIPC->GetBotCommand(0);
-	ipc_bot_seg* seg_l = m_pIPC->GetBotCommand(m_pIPC->bot_id);
-
-	if (seg_g->command_number > this->last_command_global) {
-		interfaces::engineClient->ExecuteClientCmd(seg_g->command_buffer);
-		this->last_command_global = seg_g->command_number;
-	}
-	if (seg_l->command_number > this->last_command_global) {
-		interfaces::engineClient->ExecuteClientCmd(seg_l->command_buffer);
-		this->last_command_global = seg_l->command_number;
-	}*/
-
 	Tick(cmd);
 	g_nTick++;
 	this->ActuallyCreateMove(cmd);
@@ -380,7 +368,7 @@ void CC_IPCList(const CCommand& args) {
 
 FollowBot::FollowBot() {
 	v_bEnabled = CreateConVar("u_bot_enabled", "0", "Enables followbot");
-	v_iBotPackage = CreateConVar("u_bot_ai", "1", "AI Package (FOLLOW, MEDIC, SNIPER)");
+	v_iBotPackage = CreateConVar("u_bot_ai", "0", "AI Package (FOLLOW, MEDIC, SNIPER)");
 	c_AddBotID = CreateConCommand("u_bot_addbot", CC_AddBotID, "Adds another bot's ID");
 	c_SetOwner = CreateConCommand("u_bot_owner", CC_SetOwner, "Set followbot owner");
 	c_ResetList = CreateConCommand("u_bot_reset", CC_ResetList, "Resets bot list");
@@ -391,6 +379,9 @@ FollowBot::FollowBot() {
 
 	this->last_command_global = 0;
 	this->last_command_local = 0;
+
+	m_hTargetFollowing = 0;
+	m_hTargetHealing = 0;
 
 	cmd_Status = CreateConCommand("u_bot_status", CC_BotStatus, "Status");
 	g_pListener = new MedicCallListener();

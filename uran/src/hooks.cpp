@@ -14,8 +14,14 @@
 unsigned int hooks::offCreateMove = 22;
 unsigned int hooks::offPaintTraverse = 42;
 unsigned int hooks::offOverrideView = 17;
+unsigned int hooks::offFrameStageNotify = 35;
+unsigned int hooks::offCanPacket = 30;
 
 // This thing had been copypasted from somewhere, maybe from F1Public.
+
+bool hooks::IsHooked(void* inst) {
+	return hooks::GetVMT(inst, 0)[-2] == (void*)VMTHook::GUARD;
+}
 
 unsigned int hooks::CountMethods(void** vmt) {
 	unsigned int i = -1;
@@ -61,6 +67,7 @@ void hooks::VMTHook::Apply() {
 }
 
 // TODO rename these
-hooks::VMTHook* hooks::hkCreateMove = 0;
-hooks::VMTHook* hooks::hkPaintTraverse = 0;
-
+hooks::VMTHook* hooks::hkClientMode = 0;
+hooks::VMTHook* hooks::hkPanel = 0;
+hooks::VMTHook* hooks::hkClient = 0;
+hooks::VMTHook* hooks::hkNetChannel = 0;

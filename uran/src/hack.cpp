@@ -59,6 +59,7 @@
 #include <Color.h>
 #include <view_shared.h>
 #include <icvar.h>
+#include <inetchannel.h>
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
@@ -76,18 +77,20 @@
 typedef void(PaintTraverse_t)(void*, unsigned int, bool, bool);
 typedef bool(CreateMove_t)(void*, float, CUserCmd*);
 typedef void(OverrideView_t)(void*, CViewSetup*);
+typedef void(FrameStageNotify_t)(void*, int);
+typedef bool(DispatchUserMessage_t)(void*, int, bf_read&);
 
 bool hack::invalidated = true;
 
 void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
-	((OverrideView_t*)hooks::hkCreateMove->GetMethod(hooks::offOverrideView))(thisptr, setup);
+	((OverrideView_t*)hooks::hkClientMode->GetMethod(hooks::offOverrideView))(thisptr, setup);
 	if (g_Settings.flForceFOV && g_Settings.flForceFOV->GetBool()) {
 		setup->fov = g_Settings.flForceFOV->GetFloat();
 	}
 }
 
 void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
-	((PaintTraverse_t*)hooks::hkPaintTraverse->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
+	((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
 	}
@@ -133,12 +136,28 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	}
 }
 
+typedef bool(CanPacket_t)(void* thisptr);
+bool Hk_CanPacket(void* thisptr) {
+	return false;//g_Settings.bSendPackets->GetBool() && ((CanPacket_t*)hooks::hkNetChannel->GetMethod(hooks::offCanPacket))(thisptr);
+}
+
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
-	bool ret = ((CreateMove_t*)hooks::hkCreateMove->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 	if (!interfaces::engineClient->IsInGame()) {
 		hack::invalidated = true;
 		return true;
 	}
+
+	/*INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+	if (ch && !hooks::IsHooked(ch)) {
+		logging::Info("NCI not hooked!");
+		hooks::hkNetChannel = new hooks::VMTHook();
+		hooks::hkNetChannel->Init(ch, 0);
+		hooks::hkNetChannel->HookMethod((void*)Hk_CanPacket, hooks::offCanPacket);
+		hooks::hkNetChannel->Apply();
+		logging::Info("Applied!");
+	}
+	logging::Info("Can packet? %i", ch->CanPacket());*/
 	if (!cmd) return ret;
 
 	g_pPlayerResource->Update();
@@ -147,11 +166,26 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	gEntityCache.Update();
 
-	for (IHack* i_hack : hack::hacks) {
+	g_phBunnyhop->CreateMove(thisptr, inputSample, cmd);
+	//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
+	g_phESP->CreateMove(thisptr, inputSample, cmd);
+	g_phAimbot->CreateMove(thisptr, inputSample, cmd);
+	g_phAirstuck->CreateMove(thisptr, inputSample, cmd);
+	g_phAntiAim->CreateMove(thisptr, inputSample, cmd);
+	g_phAntiDisguise->CreateMove(thisptr, inputSample, cmd);
+	g_phAutoHeal->CreateMove(thisptr, inputSample, cmd);
+	g_phAutoReflect->CreateMove(thisptr, inputSample, cmd);
+	g_phAutoSticky->CreateMove(thisptr, inputSample, cmd);
+	g_phAutoStrafe->CreateMove(thisptr, inputSample, cmd);
+	g_phFollowBot->CreateMove(thisptr, inputSample, cmd);
+	g_phMisc->CreateMove(thisptr, inputSample, cmd);
+	g_phTriggerbot->CreateMove(thisptr, inputSample, cmd);
+
+	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
 		}
-	}
+	}*/
 	hack::invalidated = false;
 	if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
@@ -166,6 +200,40 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	return ret;
 }
 
+void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
+	//logging::Info("FrameStageNotify %i", stage);
+	// Ambassador to festive ambassador changer. simple.
+	if (g_Settings.bNoFlinch->GetBool()) {
+		static Vector oldPunchAngles = Vector();
+		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vecPunchAngle);
+		QAngle viewAngles;
+		interfaces::engineClient->GetViewAngles(viewAngles);
+		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
+		oldPunchAngles = punchAngles;
+		interfaces::engineClient->SetViewAngles(viewAngles);
+	}
+	if (g_pLocalPlayer->weapon) {
+		int defidx = GetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex);
+		if (defidx == 61) {
+			SetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex, 1006);
+		}
+	}
+	if (g_Settings.bNoZoom->GetBool()) {
+		if (g_pLocalPlayer->entity) {
+			bool zoomed = (g_pLocalPlayer->cond_0 & cond::zoomed);
+			if (zoomed) {
+				SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
+			}
+		}
+	}
+	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
+}
+
+bool hack::Hk_DispatchUserMessage(void* thisptr, int type, bf_read& buf) {
+	//logging::Info("message %i", type);
+	return ((DispatchUserMessage_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify + 1))(thisptr, type, buf);
+}
+
 std::vector<IHack*> hack::hacks;
 bool hack::shutdown = false;
 
@@ -174,7 +242,6 @@ void hack::AddHack(IHack* hack) {
 }
 
 ICvar* g_pCVar = 0;
-
 
 void hack::InitHacks() {
 	ADD_HACK(AutoStrafe);
@@ -226,22 +293,25 @@ void hack::Initialize() {
 	g_pLocalPlayer = new LocalPlayer();
 	g_pPlayerResource = new TFPlayerResource();
 
-	logging::Info("Hooking PaintTraverse...");
-	hooks::hkPaintTraverse = new hooks::VMTHook();
-	hooks::hkPaintTraverse->Init(interfaces::panel, 0);
-	hooks::hkPaintTraverse->HookMethod((void*)&hack::Hk_PaintTraverse, hooks::offPaintTraverse);
-	hooks::hkPaintTraverse->Apply();
-	logging::Info("Hooking CreateMove...");
-	hooks::hkCreateMove = new hooks::VMTHook();
+	logging::Info("Hooking methods...");
+	hooks::hkPanel = new hooks::VMTHook();
+	hooks::hkPanel->Init(interfaces::panel, 0);
+	hooks::hkPanel->HookMethod((void*)&hack::Hk_PaintTraverse, hooks::offPaintTraverse);
+	hooks::hkPanel->Apply();
+	hooks::hkClientMode = new hooks::VMTHook();
 	uintptr_t* clientMode = 0;
 	while(!(clientMode = **(uintptr_t***)((uintptr_t)((*(void***)interfaces::baseClient)[10]) + 1))) {
 		sleep(1);
 	}
-	hooks::hkCreateMove->Init((void*)clientMode, 0);
-	hooks::hkCreateMove->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
-	logging::Info("Hooking OverrideView...");
-	hooks::hkCreateMove->HookMethod((void*)&hack::Hk_OverrideView, hooks::offOverrideView);
-	hooks::hkCreateMove->Apply();
+	hooks::hkClientMode->Init((void*)clientMode, 0);
+	hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
+	hooks::hkClientMode->HookMethod((void*)&hack::Hk_OverrideView, hooks::offOverrideView);
+	hooks::hkClientMode->Apply();
+	hooks::hkClient = new hooks::VMTHook();
+	hooks::hkClient->Init((void*)interfaces::baseClient, 0);
+	hooks::hkClient->HookMethod((void*)&hack::Hk_FrameStageNotify, hooks::offFrameStageNotify);
+	hooks::hkClient->HookMethod((void*)&hack::Hk_DispatchUserMessage, hooks::offFrameStageNotify + 1);
+	hooks::hkClient->Apply();
 	logging::Info("Hooked!");
 	InitStrings();
 	logging::Info("Init done!");
@@ -281,8 +351,9 @@ void hack::Shutdown() {
 	logging::Info("Shutting down...");
 	logging::Shutdown();
 	ConVar_Unregister();
-	hooks::hkPaintTraverse->Kill();
-	hooks::hkCreateMove->Kill();
+	hooks::hkPanel->Kill();
+	hooks::hkClientMode->Kill();
+	hooks::hkClient->Kill();
 	for (IHack* i_hack : hack::hacks) {
 		delete i_hack;
 	}

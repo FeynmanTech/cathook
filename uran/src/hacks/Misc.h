@@ -18,12 +18,9 @@ public:
 	DECLARE_HACK_METHODS();
 	Misc();
 	//ConVar* v_bNoShootUntilCanHeadshot;
-
-	ConVar* v_bNoFlinch;
-	ConVar* v_bNoZoom;
-
 	ConVar* v_bDbWeaponInfo;
-	ConVar* v_bSemiAuto;
+	ConVar* v_strName;
+	ConCommand* c_DumpItemAttributes;
 	ConCommand* c_SayLine;
 	ConCommand* c_Shutdown;
 	ConCommand* c_AddFriend;

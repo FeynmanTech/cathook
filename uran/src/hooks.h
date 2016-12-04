@@ -15,6 +15,7 @@ namespace hooks {
 
 unsigned int CountMethods(void** vmt);
 void**& GetVMT(void* inst, unsigned int offset);
+bool IsHooked(void* inst);
 
 class VMTHook {
 public:
@@ -30,12 +31,16 @@ protected:
 	void **array;
 };
 
-extern VMTHook* hkPaintTraverse;
-extern VMTHook* hkCreateMove;
+extern VMTHook* hkPanel;
+extern VMTHook* hkClientMode;
+extern VMTHook* hkClient;
+extern VMTHook* hkNetChannel;
 
 extern unsigned int offPaintTraverse;
 extern unsigned int offCreateMove;
 extern unsigned int offOverrideView;
+extern unsigned int offFrameStageNotify;
+extern unsigned int offCanPacket;
 
 }
 

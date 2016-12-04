@@ -16,6 +16,7 @@
 class IHack;
 class CUserCmd;
 class CViewSetup;
+class bf_read;
 
 namespace hack {
 
@@ -26,6 +27,8 @@ extern bool invalidated;
 void Hk_OverrideView(void*, CViewSetup*);
 void Hk_PaintTraverse(void*, unsigned int, bool, bool);
 bool Hk_CreateMove(void*, float, CUserCmd*);
+void Hk_FrameStageNotify(void*, int stage);
+bool Hk_DispatchUserMessage(void*, int, bf_read&);
 
 void AddHack(IHack* hack);
 

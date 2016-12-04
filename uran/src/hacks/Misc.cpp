@@ -15,6 +15,7 @@
 #include "../interfaces.h"
 #include "../entity.h"
 #include "../usercmd.h"
+#include "../netmessage.h"
 #include "../sdk/in_buttons.h"
 
 #include "../fixsdk.h"
@@ -196,11 +197,19 @@ void CC_DisonnectVAC(const CCommand& args) {
 	ch->Shutdown("VAC banned from secure server\n");
 }
 
+void CC_DumpAttribs(const CCommand& args) {
+	if (g_pLocalPlayer->weapon) {
+		for (int i = 0; i < 15; i++) {
+			logging::Info("%i %f", GetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.AttributeList + i * 12),
+					GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.AttributeList + i * 12 + 4));
+		}
+	}
+}
+
 Misc::Misc() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
-	v_bSemiAuto = CreateConVar("u_misc_semiauto", "0", "Force semi-auto");
-	v_bNoZoom = CreateConVar("u_nozoom", "0", "No-Zoom");
-	v_bNoFlinch = CreateConVar("u_noflinch", "0", "No-Flinch");
+	v_strName = CreateConVar("u_name", "", "Crash the game if changed");
+	c_DumpItemAttributes = CreateConCommand("u_dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
 	c_SayLine = CreateConCommand("u_say_lines", CC_SayLines, "Uses ^ as a newline character");
 	c_Shutdown = CreateConCommand("u_shutdown", CC_Shutdown, "Stops the hack");
 	c_AddFriend = CreateConCommand("u_addfriend", CC_AddFriend, "Adds a friend");
@@ -218,47 +227,18 @@ int sa_switch = 0;
 
 
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
-	if (v_bSemiAuto->GetBool()) {
-		if (cmd->buttons & IN_ATTACK) {
-			if (sa_switch > 5) {
-				cmd->buttons = cmd->buttons &~ IN_ATTACK;
-			}
-			sa_switch++;
-		} else {
-			sa_switch = 0;
-		}
-	}
-	if (v_bNoZoom->GetBool()) {
-		if (g_pLocalPlayer->entity) {
-			bool zoomed = (g_pLocalPlayer->cond_0 & cond::zoomed);
-			if (zoomed) {
-				SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
-			}
-		}
-	}
+	/*if (v_strName->m_StringLength) {
+		logging::Info("Creating NetMsg!");
+		NET_SetConVar setname("name", v_strName->GetString());
+		INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+		setname.SetNetChannel(ch);
+		logging::Info("Sending!");
+		ch->SendNetMsg(*(INetMessage*)&setname);
+	}*/
 	return true;
 }
 
 void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
-	if (v_bNoZoom->GetBool()) {
-		if (g_pLocalPlayer->entity) {
-			bool zoomed = (g_pLocalPlayer->cond_0 & cond::zoomed);
-			if (zoomed) {
-				SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
-			}
-		}
-	}
-
-	if (v_bNoFlinch->GetBool()) {
-		static Vector oldPunchAngles = Vector();
-		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vecPunchAngle);
-		QAngle viewAngles;
-		interfaces::engineClient->GetViewAngles(viewAngles);
-		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
-		oldPunchAngles = punchAngles;
-		interfaces::engineClient->SetViewAngles(viewAngles);
-	}
-
 
 	if (!v_bDbWeaponInfo->GetBool())return;
 	/*if (!interfaces::input->IsButtonDown(ButtonCode_t::KEY_F)) {

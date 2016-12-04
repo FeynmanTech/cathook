@@ -67,6 +67,7 @@ public:
 	offset_t iMaxBuffedHealth;
 
 	offset_t iItemDefinitionIndex;
+	offset_t AttributeList;
 
 	offset_t vecPunchAngle;
 	offset_t vecPunchAngleVel;

@@ -12,6 +12,7 @@
 #define _LINUX 1
 #define  POSIX 1
 #define   GNUC 1
+#define NO_MALLOC_OVERRIDE 1
 #undef min
 #define private public
 #define protected public

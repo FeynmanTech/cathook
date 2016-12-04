@@ -1,4 +1,5 @@
 /Debug/src/
+/HL2DM/*
 /Debug/src_/
 /Debug/makefile
 /Debug/objects.mk
@@ -6,3 +7,4 @@
 /Debug/
 /src_/
 /TF2/
+/HL2DM/

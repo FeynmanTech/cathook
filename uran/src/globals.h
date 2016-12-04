@@ -18,6 +18,9 @@ public:
 	ConVar* bHackEnabled;
 	ConVar* bIgnoreTaunting;
 	ConVar* bProfiler;
+	ConVar* bNoZoom;
+	ConVar* bNoFlinch;
+	ConVar* bSendPackets;
 };
 
 extern GlobalSettings g_Settings;

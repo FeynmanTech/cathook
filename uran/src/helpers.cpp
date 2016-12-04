@@ -731,13 +731,15 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	typedef void(*FinishTrackPredictionErrorsFn)(IClientEntity *);
 
 	// get the vtable
-	void **predictionVtable = (void **)interfaces::prediction;
+	void **predictionVtable = *(void ***)interfaces::prediction;
+	logging::Info("predictionVtable 0x%08x", predictionVtable);
 	// get the functions
 	SetupMoveFn oSetupMove = (SetupMoveFn) predictionVtable[19];
 	FinishMoveFn oFinishMove = (FinishMoveFn) predictionVtable[20];
 
 	// get the vtable
-	void **gameMovementVtable = (void **)interfaces::gamemovement;
+	void **gameMovementVtable = *(void ***)interfaces::gamemovement;
+	logging::Info("gameMovementVtable 0x%08x", gameMovementVtable);
 	// get the functions
 	ProcessMovementFn oProcessMovement = (ProcessMovementFn) gameMovementVtable[2];
 	StartTrackPredictionErrorsFn oStartTrackPredictionErrors = (StartTrackPredictionErrorsFn) gameMovementVtable[3];
@@ -746,6 +748,7 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	// use this as movedata (should be big enough - otherwise the stack will die!)
 	unsigned char moveData[2048];
 	CMoveData *pMoveData = (CMoveData *)&(moveData[0]);
+	logging::Info("pMoveData 0x%08x", pMoveData);
 
 	// back up globals
 	float frameTime = interfaces::gvars->frametime;
@@ -766,12 +769,16 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 
 	oStartTrackPredictionErrors(ent);
 
+	logging::Info("StartTrackPredictionErrors(ent)");
 	oSetupMove(ent, ucmd, NULL, pMoveData);
+	logging::Info("oSetupMove");
 	oProcessMovement(ent, pMoveData);
+	logging::Info("oProcessMovement");
 	oFinishMove(ent, ucmd, pMoveData);
-	
-	oFinishTrackPredictionErrors(ent);
+	logging::Info("oFinishMove");
 
+	oFinishTrackPredictionErrors(ent);
+	logging::Info("oFinishTrackPredictionErrors");
 	// reset the current command
 	SetEntityValue<void *>(ent, 0x105C, NULL);
 
