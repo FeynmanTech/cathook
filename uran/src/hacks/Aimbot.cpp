@@ -64,7 +64,6 @@ Aimbot::Aimbot() {
 	this->v_bZoomedOnly = CreateConVar("u_aimbot_zoomed", "1", "Only acitve with zoomed rifle");
 	this->v_iAutoShootCharge = CreateConVar("u_aimbot_autoshoot_charge", "0.0", "Minimal charge for autoshoot");
 	this->v_iMinRange = CreateConVar("u_aimbot_minrange", "0", "Minimum range to aim");
-	this->v_bPriority = CreateConVar("u_aimbot_priority", "1", "Use priority system");
 	this->v_bRespectCloak = CreateConVar("u_aimbot_respect_cloak", "1", "Will not shoot cloaked spies.");
 	this->v_bCharge = CreateConVar("u_aimbot_charge", "0", "Autoshoot only with charge ready");
 	this->v_bEnabledAttacking = CreateConVar("u_aimbot_enable_attack_only", "0", "Aimbot only active with attack key held");
@@ -78,6 +77,7 @@ Aimbot::Aimbot() {
 	this->v_fSmoothValue = CreateConVar("u_aimbot_smooth_value", "0.2", "Smooth value");
 	this->v_iAimKey = CreateConVar("u_aimbot_aimkey", "0", "Aim Key");
 	this->v_bAmbassador = CreateConVar("u_aimbot_ambassador", "0", "Ambassador mode."); // TODO
+	this->v_iPriorityMode = CreateConVar("u_aimbot_prioritymode", "0", "Priority mode [SMART/FOV/DISTANCE/HEALTH]");
 	v_bAimBuildings = CreateConVar("u_aimbot_buildings", "1", "Aim at buildings");
 	v_bActiveOnlyWhenCanShoot = CreateConVar("u_aimbot_only_when_can_shoot", "1", "Aimbot active only when can shoot");
 	v_fSmoothAutoshootTreshold = CreateConVar("u_aimbot_smooth_autoshoot_treshold", "0.01", "Smooth aim autoshoot treshold");
@@ -179,47 +179,66 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc, m_flProjGravity));
 	// TODO priority modes (FOV, Smart, Distance, etc)
-	if (!this->v_bPriority->GetBool()) {
-		IClientEntity* target_locked = interfaces::entityList->GetClientEntity(target_lock);
-		if (target_locked != 0) {
-			if (ShouldTarget(target_locked)) {
-				Aim(target_locked, cmd);
-				return true;
-			} else {
-				target_lock = 0;
-			}
-		}
-	}
 	IClientEntity* target_highest = 0;
-	int target_highest_score = -256;
+	float target_highest_score = -256;
 	for (int i = 0; i < interfaces::entityList->GetHighestEntityIndex(); i++) {
 		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
 		if (ent == 0) continue;
 		if (!(IsPlayer(ent) || IsBuilding(ent))) continue;
 		if (ShouldTarget(ent)) {
-			//if (v_bDebug->GetBool()) {
-
-			//}
-			if (!this->v_bPriority->GetBool()) {
-				target_lock = i;
-				this->m_iLastTarget = target_lock;
-				if (Aim(ent, cmd)) {
-					continue;
-				}
-			} else {
+			switch (this->v_iPriorityMode->GetInt()) {
+			case 0: {
 				int scr = GetScoreForEntity(ent);
 				if (scr > target_highest_score) {
 					target_highest_score = scr;
 					target_highest = ent;
 				}
+			} break;
+			case 1: {
+				Vector result;
+				if (IsBuilding(ent)) {
+					result = GetBuildingPosition(ent);
+				} else {
+					GetHitboxPosition(ent, m_iHitbox, result);
+				}
+				float scr = 360.0f - GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, result);
+				if (scr > target_highest_score) {
+					target_highest_score = scr;
+					target_highest = ent;
+				}
+			} break;
+			case 2: {
+				Vector result;
+				if (IsBuilding(ent)) {
+					result = GetBuildingPosition(ent);
+				} else {
+					GetHitboxPosition(ent, m_iHitbox, result);
+				}
+				float scr = 4096.0f - result.DistTo(g_pLocalPlayer->v_Eye);
+				if (scr > target_highest_score) {
+					target_highest_score = scr;
+					target_highest = ent;
+				}
+			} break;
+			case 3: {
+				float scr;
+				if (IsBuilding(ent)) {
+					scr = 450.0f - GetEntityValue<int>(ent, eoffsets.iBuildingHealth);
+				} else {
+					scr = 450.0f - GetEntityValue<int>(ent, eoffsets.iHealth);
+				}
+				if (scr > target_highest_score) {
+					target_highest_score = scr;
+					target_highest = ent;
+				}
 			}
+			}
+
 		}
 	}
-	if (this->v_bPriority->GetBool()) {
-		if (target_highest != 0) {
-			this->m_iLastTarget = target_highest->entindex();
-			Aim(target_highest, cmd);
-		}
+	if (target_highest != 0) {
+		this->m_iLastTarget = target_highest->entindex();
+		Aim(target_highest, cmd);
 	}
 	return !this->v_bSilent->GetBool();
 }

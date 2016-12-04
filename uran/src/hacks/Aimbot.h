@@ -41,7 +41,6 @@ public:
 	ConVar* v_bZoomedOnly;
 	ConVar* v_iAutoShootCharge;
 	ConVar* v_iMinRange;
-	ConVar* v_bPriority;
 	ConVar* v_bRespectCloak;
 	ConVar* v_bCharge;
 	ConVar* v_bEnabledAttacking;
