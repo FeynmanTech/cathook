@@ -13,6 +13,9 @@
 #define ADD_HACK(x) \
 	hack::AddHack(g_ph##x = new x());
 
+#define CREATE_MOVE(x) \
+	g_ph##x->CreateMove(thisptr, inputSample, cmd)
+
 class IHack;
 class CUserCmd;
 class CViewSetup;

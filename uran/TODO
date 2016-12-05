@@ -15,6 +15,7 @@ Proper AutoHitbox
 Smoothe the smooth aim
 Jumping ProjAim
 Aim Key mode (inverse/normal/disabled)
+Flare aim on fire
 Trigger ambassador correction
 ESP Icons
 ESP Distance sort
@@ -36,7 +37,9 @@ Auto trigger DR before rockets
 AutoHeal
 Critical rifles bodyshotting
 Show spectators
-Tracers/Spy Alert/Spy Cam
+Spy alert uses angles
+More esp tweaking
+Tracers/Spy Cam
 Glow Hack
 Proper medic followbot AI
 Bot option for aiming at owner's prey (just for fun)

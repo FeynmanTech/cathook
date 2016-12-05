@@ -38,6 +38,7 @@
 
 #include "followbot/ipcctl.h"
 
+#include "common.h"
 #include "sharedobj.h"
 #include "hooks.h"
 #include "targeting/ITargetSystem.h"
@@ -148,21 +149,21 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	gEntityCache.Update();
 
-	g_phBunnyhop->CreateMove(thisptr, inputSample, cmd);
+	CREATE_MOVE(Bunnyhop);
 	//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
-	g_phESP->CreateMove(thisptr, inputSample, cmd);
-	g_phAimbot->CreateMove(thisptr, inputSample, cmd);
-	g_phAirstuck->CreateMove(thisptr, inputSample, cmd);
-	g_phAntiAim->CreateMove(thisptr, inputSample, cmd);
-	g_phAntiDisguise->CreateMove(thisptr, inputSample, cmd);
-	g_phAutoHeal->CreateMove(thisptr, inputSample, cmd);
-	g_phAutoReflect->CreateMove(thisptr, inputSample, cmd);
-	g_phAutoSticky->CreateMove(thisptr, inputSample, cmd);
-	g_phAutoStrafe->CreateMove(thisptr, inputSample, cmd);
-	g_phFollowBot->CreateMove(thisptr, inputSample, cmd);
-	g_phMisc->CreateMove(thisptr, inputSample, cmd);
-	g_phTriggerbot->CreateMove(thisptr, inputSample, cmd);
-	g_phHuntsmanCompensation->CreateMove(thisptr, inputSample, cmd);
+	CREATE_MOVE(ESP);
+	CREATE_MOVE(Aimbot);
+	CREATE_MOVE(Airstuck);
+	CREATE_MOVE(AntiAim);
+	CREATE_MOVE(AntiDisguise);
+	CREATE_MOVE(AutoHeal);
+	CREATE_MOVE(AutoSticky);
+	CREATE_MOVE(AutoReflect);
+	CREATE_MOVE(AutoStrafe);
+	CREATE_MOVE(FollowBot);
+	CREATE_MOVE(Misc);
+	CREATE_MOVE(Triggerbot);
+	CREATE_MOVE(HuntsmanCompensation);
 
 	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
@@ -186,7 +187,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
-	if (g_Settings.bNoFlinch->GetBool()) {
+	if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 		static Vector oldPunchAngles = Vector();
 		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vecPunchAngle);
 		QAngle viewAngles;
@@ -241,6 +242,7 @@ void hack::InitHacks() {
 	ADD_HACK(Airstuck);
 	ADD_HACK(AutoHeal);
 	ADD_HACK(HuntsmanCompensation);
+	ADD_HACK(SpyAlert);
 }
 
 void hack::Initialize() {

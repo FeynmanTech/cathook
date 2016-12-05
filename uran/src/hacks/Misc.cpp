@@ -210,6 +210,7 @@ int sa_switch = 0;
 
 
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
+	//SetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::taunting);
 	/*if (v_strName->m_StringLength) {
 		logging::Info("Creating NetMsg!");
 		NET_SetConVar setname("name", v_strName->GetString());

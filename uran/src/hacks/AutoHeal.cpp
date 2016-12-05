@@ -56,8 +56,9 @@ bool AutoHeal::CanHeal(int idx) {
 	if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) return false;
 	if (GetEntityValue<char>(ent, eoffsets.iLifeState)) return false;
 	if (g_pLocalPlayer->team != GetEntityValue<int>(ent, eoffsets.iTeamNum)) return false;
-	if (g_pLocalPlayer->v_Origin.DistToSqr(ent->GetAbsOrigin()) > 500 * 500) return false;
+	if (g_pLocalPlayer->v_Origin.DistToSqr(ent->GetAbsOrigin()) > 420 * 420) return false;
 	if (!IsEntityVisible(ent, 7)) return false;
+	if (GetEntityValue<int>(ent, eoffsets.iCond) & cond::cloaked) return false;
 	return true;
 }
 
@@ -84,8 +85,8 @@ bool AutoHeal::CreateMove(void*, float, CUserCmd* cmd) {
 	Vector out;
 	GetHitboxPosition(target, 7, out);
 	AimAt(g_pLocalPlayer->v_Eye, out, cmd);
-	g_pLocalPlayer->bUseSilentAngles = true;
-	if (!m_iNewTarget) cmd->buttons |= IN_ATTACK;
+	if (v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
+	if (!m_iNewTarget && (interfaces::gvars->tickcount % 60)) cmd->buttons |= IN_ATTACK;
 	return false;
 }
 
