@@ -7,10 +7,8 @@
 
 #include "AutoStrafe.h"
 
-#include "../helpers.h"
-#include "../entity.h"
-#include "../localplayer.h"
-#include "../usercmd.h"
+#include "../common.h"
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AutoStrafe);
 

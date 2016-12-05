@@ -5,16 +5,7 @@
  *      Author: nullifiedcat
  */
 
-#include "entitycache.h"
-#include "drawing.h"
-#include "interfaces.h"
-#include "logging.h"
-#include "enums.h"
-#include "entity.h"
-#include "localplayer.h"
-#include "playerresource.h"
-#include "helpers.h"
-
+#include "common.h"
 #include "sdk.h"
 
 CachedEntity::CachedEntity() {

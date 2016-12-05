@@ -34,4 +34,6 @@
 #include <mathlib/vmatrix.h>
 #include <view_shared.h>
 
+#include "sdk/in_buttons.h"
+
 #endif /* SDK_H_ */

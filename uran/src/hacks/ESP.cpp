@@ -7,16 +7,8 @@
 
 #include "ESP.h"
 
+#include "../common.h"
 #include "../sdk.h"
-#include "../drawing.h"
-#include "../interfaces.h"
-#include "../logging.h"
-#include "../enums.h"
-#include "../helpers.h"
-#include "../entity.h"
-#include "../entitycache.h"
-#include "../targethelper.h"
-#include "../localplayer.h"
 
 DEFINE_HACK_SINGLETON(ESP);
 

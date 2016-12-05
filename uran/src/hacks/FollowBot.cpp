@@ -9,17 +9,11 @@
 
 #include <signal.h>
 
-#include "../interfaces.h"
-#include "../entity.h"
-#include "../helpers.h"
-#include "../localplayer.h"
-#include "../logging.h"
-#include "../usercmd.h"
-#include "../playerresource.h"
-#include "../sdk/in_buttons.h"
+#include "../common.h"
+#include "../sdk.h"
+
 #include "../followbot/ipcctl.h"
 
-#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(FollowBot);
 

@@ -10,7 +10,7 @@
 
 
 
-void CRelations::Add(uint32 id, relation rel) {
+/*void CRelations::Add(uint32 id, player_relation rel) {
 	logging::Info("Adding");
 }
 
@@ -57,4 +57,4 @@ void CRelations::ShiftArray(uint32* array, int idx, int max) {
 }
 
 char* RelStr[] = { "NONE", "FRIEND", "FRIENDLY", "RAGE" };
-CRelations* g_pRelations = 0;
+CRelations* g_pRelations = 0;*/

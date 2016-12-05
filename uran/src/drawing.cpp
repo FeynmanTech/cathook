@@ -5,10 +5,7 @@
  *      Author: nullifiedcat
  */
 
-#include "drawing.h"
-#include "interfaces.h"
-#include "logging.h"
-
+#include "common.h"
 #include "sdk.h"
 
 int g_nStringsSide = 0;

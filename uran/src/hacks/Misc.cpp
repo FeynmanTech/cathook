@@ -10,16 +10,7 @@
 #include <unistd.h>
 
 #include "../hack.h"
-#include "../helpers.h"
-#include "../drawing.h"
-#include "../localplayer.h"
-#include "../logging.h"
-#include "../interfaces.h"
-#include "../entity.h"
-#include "../usercmd.h"
-#include "../netmessage.h"
-#include "../sdk/in_buttons.h"
-
+#include "../common.h"
 #include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(Misc);

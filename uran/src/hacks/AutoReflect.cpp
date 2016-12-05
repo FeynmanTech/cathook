@@ -7,14 +7,7 @@
 
 #include "AutoReflect.h"
 
-#include "../localplayer.h"
-#include "../entitycache.h"
-#include "../usercmd.h"
-#include "../entity.h"
-#include "../helpers.h"
-
-#include "../sdk/in_buttons.h"
-
+#include "../common.h"
 #include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AutoReflect);

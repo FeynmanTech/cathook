@@ -7,14 +7,7 @@
 
 #include "AutoSticky.h"
 
-#include "../entity.h"
-#include "../interfaces.h"
-#include "../entitycache.h"
-#include "../helpers.h"
-#include "../localplayer.h"
-#include "../usercmd.h"
-#include "../sdk/in_buttons.h"
-#include "../logging.h"
+#include "../common.h"
 #include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AutoSticky);

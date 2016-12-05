@@ -5,16 +5,7 @@
  *      Author: nullifiedcat
  */
 
-#include "helpers.h"
-#include "interfaces.h"
-#include "entity.h"
-#include "logging.h"
-#include "usercmd.h"
-#include "trace.h"
-#include "localplayer.h"
-#include "entitycache.h"
-#include "playerresource.h"
-
+#include "common.h"
 #include "sdk.h"
 
 

@@ -7,11 +7,7 @@
 
 #include "HuntsmanCompensation.h"
 
-#include "../helpers.h"
-#include "../localplayer.h"
-#include "../trace.h"
-#include "../interfaces.h"
-#include "../usercmd.h"
+#include "../common.h"
 #include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(HuntsmanCompensation);

@@ -5,15 +5,10 @@
  *      Author: nullifiedcat
  */
 
-#include "../usercmd.h"
-#include "../interfaces.h"
-#include "../entity.h"
-#include "../logging.h"
-#include "../helpers.h"
-
-#include "../sdk.h"
-#include "../sdk/in_buttons.h"
 #include "Bunnyhop.h"
+
+#include "../common.h"
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(Bunnyhop);
 

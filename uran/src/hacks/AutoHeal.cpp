@@ -7,16 +7,7 @@
 
 #include "AutoHeal.h"
 
-#include "../entity.h"
-#include "../localplayer.h"
-#include "../interfaces.h"
-#include "../usercmd.h"
-#include "../helpers.h"
-#include "../playerresource.h"
-#include "../entitycache.h"
-#include "../drawing.h"
-#include "../sdk/in_buttons.h"
-
+#include "../common.h"
 #include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AutoHeal);

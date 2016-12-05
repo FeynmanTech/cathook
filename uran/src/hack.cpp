@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <cstring>
 #include <memory>
+#include <csignal>
 
 // All Hacks
 #include "hacks/IHack.h"
@@ -35,29 +36,17 @@
 #include "hacks/SpyAlert.h"
 #include "hacks/Trigger.h"
 
-#include "interfaces.h"
-#include "sharedobj.h"
-#include "entitycache.h"
-#include "sdk/in_buttons.h"
-#include "logging.h"
-#include "hooks.h"
-#include "helpers.h"
 #include "followbot/ipcctl.h"
-#include "usercmd.h"
-#include "drawing.h"
-#include "entity.h"
-#include "localplayer.h"
-#include "playerresource.h"
+
+#include "sharedobj.h"
+#include "hooks.h"
 #include "targeting/ITargetSystem.h"
 #include "profiler.h"
-
-#include <csignal>
 
 #include "sdk.h"
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
-#include "globals.h"
 
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux

@@ -5,9 +5,8 @@ a * entity.cpp
  *      Author: nullifiedcat
  */
 
-#include "entity.h"
 #include "copypasted/Netvar.h"
-#include "logging.h"
+#include "common.h"
 
 // TODO globals
 EntityVariables eoffsets;

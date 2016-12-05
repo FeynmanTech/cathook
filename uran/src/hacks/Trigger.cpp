@@ -5,20 +5,10 @@
  *      Author: nullifiedcat
  */
 
-#include "../interfaces.h"
-#include "../drawing.h"
-#include "../usercmd.h"
-#include "../logging.h"
-#include "../entity.h"
-#include "../enums.h"
-#include "../helpers.h"
-#include "../trace.h"
-#include "../localplayer.h"
-
-#include "../sdk.h"
-#include "../sdk/in_buttons.h"
-#include <icliententity.h>
 #include "Trigger.h"
+
+#include "../common.h"
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(Triggerbot);
 

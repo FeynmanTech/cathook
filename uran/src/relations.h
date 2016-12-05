@@ -8,11 +8,11 @@
 #ifndef RELATIONS_H_
 #define RELATIONS_H_
 
-typedef unsigned long uint32;
+//typedef unsigned long uint32;
 class IClientEntity;
 class CCommand;
 
-enum relation {
+/*enum player_relation {
 	NONE = 0,
 	FRIEND,   // PURPLE color
 	FRIENDLY, // Ignored by aimbot, GREEN color
@@ -23,11 +23,11 @@ enum relation {
 
 class CRelations {
 public:
-	void Add(uint32 id, relation rel);
+	void Add(uint32 id, player_relation rel);
 	void Remove(uint32 id);
 	void WriteConfig();
 	void ShiftArray(uint32* array, int idx, int max);
-	relation Get(IClientEntity* player);
+	player_relation Get(IClientEntity* player);
 
 	uint32 m_Friends[MAX_FRIENDS];
 	uint32 m_Friendlies[MAX_FRIENDS];
@@ -45,6 +45,6 @@ void CC_RemoveRelation(const CCommand& args);
 void CC_SaveRelations(const CCommand& args);
 
 extern char* RelStr[4];
-extern CRelations* g_pRelations;
+extern CRelations* g_pRelations;*/
 
 #endif /* RELATIONS_H_ */

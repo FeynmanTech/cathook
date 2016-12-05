@@ -6,10 +6,9 @@
  */
 
 #include "AntiAim.h"
-#include "../localplayer.h"
-#include "../usercmd.h"
-#include "../helpers.h"
-#include "../sdk/in_buttons.h"
+
+#include "../common.h"
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AntiAim);
 

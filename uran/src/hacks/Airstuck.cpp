@@ -7,11 +7,7 @@
 
 #include "Airstuck.h"
 
-#include "../helpers.h"
-#include "../sdk/in_buttons.h"
-#include "../usercmd.h"
-#include "../logging.h"
-#include "../interfaces.h"
+#include "../common.h"
 #include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(Airstuck);

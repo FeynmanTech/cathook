@@ -5,14 +5,10 @@
  *      Author: nullifiedcat
  */
 
-#include "../usercmd.h"
-#include "../helpers.h"
-#include "../entity.h"
-#include "../interfaces.h"
+#include "../common.h"
 #include "../trace.h"
 #include "../targethelper.h"
-#include "../localplayer.h"
-#include "../drawing.h"
+
 #include "../targeting/ITargetSystem.h"
 #include "../targeting/TargetSystemSmart.h"
 #include "../targeting/TargetSystemFOV.h"
