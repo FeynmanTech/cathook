@@ -55,6 +55,7 @@ float DistToSqr(IClientEntity* entity);
 void fClampAngle(Vector& qaAng);
 void fVectorAngles(Vector &forward, Vector &angles);
 float deg2rad(float deg);
+const char* MakeInfoString(IClientEntity* player);
 bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gravity);
 bool IsVectorVisible(Vector a, Vector b);
 bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, float gravity, Vector& result);

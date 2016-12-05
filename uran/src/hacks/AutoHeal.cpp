@@ -17,11 +17,7 @@
 #include "../drawing.h"
 #include "../sdk/in_buttons.h"
 
-#include "../fixsdk.h"
-#include <client_class.h>
-#include <icliententity.h>
-#include <icliententitylist.h>
-#include <convar.h>
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AutoHeal);
 

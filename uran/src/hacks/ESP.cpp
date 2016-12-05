@@ -7,7 +7,7 @@
 
 #include "ESP.h"
 
-#include "../fixsdk.h"
+#include "../sdk.h"
 #include "../drawing.h"
 #include "../interfaces.h"
 #include "../logging.h"
@@ -17,13 +17,6 @@
 #include "../entitycache.h"
 #include "../targethelper.h"
 #include "../localplayer.h"
-#include <client_class.h>
-#include <icliententitylist.h>
-#include <cdll_int.h>
-#include <icliententity.h>
-#include <Color.h>
-#include <tier1/convar.h>
-#include <cmodel.h>
 
 DEFINE_HACK_SINGLETON(ESP);
 

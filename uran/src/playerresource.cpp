@@ -10,10 +10,7 @@
 #include "enums.h"
 #include "entity.h"
 
-#include "fixsdk.h"
-#include <icliententity.h>
-#include <icliententitylist.h>
-#include <client_class.h>
+#include "sdk.h"
 
 void TFPlayerResource::Update() {
 	m_pEntity = 0;

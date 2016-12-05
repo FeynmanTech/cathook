@@ -10,9 +10,7 @@
 
 #include <cstdint>
 
-#include "fixsdk.h"
-#include <client_class.h>
-#include <icliententity.h>
+#include "sdk.h"
 
 // This file is a mess. I need to fix it. TODO
 

@@ -15,11 +15,7 @@
 #include "playerresource.h"
 #include "helpers.h"
 
-#include "fixsdk.h"
-#include <icliententitylist.h>
-#include <Color.h>
-#include <icliententity.h>
-#include <client_class.h>
+#include "sdk.h"
 
 CachedEntity::CachedEntity() {
 	m_pEntity = nullptr;

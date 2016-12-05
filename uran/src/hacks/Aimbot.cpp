@@ -18,16 +18,7 @@
 #include "../targeting/TargetSystemFOV.h"
 #include "../targeting/TargetSystemDistance.h"
 
-#include "../fixsdk.h"
-#include <client_class.h>
-#include <inetchannelinfo.h>
-#include <icliententity.h>
-#include <icliententitylist.h>
-#include <cdll_int.h>
-#include <gametrace.h>
-#include <engine/IEngineTrace.h>
-#include <globalvars_base.h>
-#include <inputsystem/iinputsystem.h>
+#include "../sdk.h"
 #include "../sdk/in_buttons.h"
 #include "Aimbot.h"
 
@@ -74,6 +65,7 @@ Aimbot::Aimbot() {
 	this->v_iFOV = CreateConVar("u_aimbot_fov", "0", "FOV aimbot (experimental)");
 	this->v_bMachinaPenetration = CreateConVar("u_aimbot_machina", "0", "Machina penetration aimbot (just for fun)");
 	this->v_bSmooth = CreateConVar("u_aimbot_smooth", "0", "Smooth aimbot");
+	this->v_flAutoShootHuntsmanCharge = CreateConVar("u_aimbot_huntsman_charge", "0.5", "Huntsman autoshoot charge");
 	this->v_fSmoothValue = CreateConVar("u_aimbot_smooth_value", "0.2", "Smooth value");
 	this->v_iAimKey = CreateConVar("u_aimbot_aimkey", "0", "Aim Key");
 	this->v_bAmbassador = CreateConVar("u_aimbot_ambassador", "0", "Ambassador mode."); // TODO
@@ -385,7 +377,19 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 				}
 			}
 		}
-		cmd->buttons |= IN_ATTACK;
+		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFCompoundBow) {
+			float begincharge = GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flChargeBeginTime);
+			float charge = 0;
+			if (begincharge != 0) {
+				charge = interfaces::gvars->curtime - begincharge;
+				if (charge > 1.0f) charge = 1.0f;
+			}
+			if (charge >= v_flAutoShootHuntsmanCharge->GetFloat()) {
+				cmd->buttons &= ~IN_ATTACK;
+			}
+		} else {
+			cmd->buttons |= IN_ATTACK;
+		}
 	}
 	return true;
 }

@@ -21,6 +21,7 @@ public:
 	ConVar* bNoZoom;
 	ConVar* bNoFlinch;
 	ConVar* bSendPackets;
+	ConVar* bShowLogo;
 };
 
 extern GlobalSettings g_Settings;

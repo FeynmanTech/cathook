@@ -15,11 +15,7 @@
 
 #include "../sdk/in_buttons.h"
 
-#include "../fixsdk.h"
-#include <icliententitylist.h>
-#include <icliententity.h>
-#include <convar.h>
-#include <client_class.h>
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AutoReflect);
 

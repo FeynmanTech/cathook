@@ -11,12 +11,8 @@
 #include "../logging.h"
 #include "../helpers.h"
 
-#include "../fixsdk.h"
+#include "../sdk.h"
 #include "../sdk/in_buttons.h"
-#include <cdll_int.h>
-#include <icliententitylist.h>
-#include <icliententity.h>
-#include <tier1/convar.h>
 #include "Bunnyhop.h"
 
 DEFINE_HACK_SINGLETON(Bunnyhop);

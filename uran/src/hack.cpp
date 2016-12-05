@@ -16,59 +16,48 @@
 #include <cstring>
 #include <memory>
 
+// All Hacks
+#include "hacks/IHack.h"
+
+#include "hacks/Aimbot.h"
+#include "hacks/Airstuck.h"
+#include "hacks/AntiAim.h"
+#include "hacks/AntiDisguise.h"
+#include "hacks/AutoHeal.h"
+#include "hacks/AutoReflect.h"
+#include "hacks/AutoSticky.h"
+#include "hacks/AutoStrafe.h"
+#include "hacks/Bunnyhop.h"
+#include "hacks/ESP.h"
+#include "hacks/FollowBot.h"
+#include "hacks/HuntsmanCompensation.h"
+#include "hacks/Misc.h"
+#include "hacks/SpyAlert.h"
+#include "hacks/Trigger.h"
+
 #include "interfaces.h"
 #include "sharedobj.h"
 #include "entitycache.h"
 #include "sdk/in_buttons.h"
 #include "logging.h"
 #include "hooks.h"
-#include "hacks/IHack.h"
 #include "helpers.h"
 #include "followbot/ipcctl.h"
-#include "hacks/AutoReflect.h"
-#include "hacks/AntiAim.h"
-#include "hacks/Misc.h"
-#include "hacks/AntiDisguise.h"
 #include "usercmd.h"
 #include "drawing.h"
-#include "hacks/Airstuck.h"
-#include "hacks/AutoStrafe.h"
-#include "hacks/AutoSticky.h"
 #include "entity.h"
 #include "localplayer.h"
 #include "playerresource.h"
 #include "targeting/ITargetSystem.h"
-#include "hacks/AutoHeal.h"
-
 #include "profiler.h"
 
 #include <csignal>
 
-#include "fixsdk.h"
-#include <tier1/convar.h>
-#include <igameevents.h>
-#include <icliententitylist.h>
-#include <cdll_int.h>
-#include <engine/IEngineTrace.h>
-#include <icliententity.h>
-#include <cmodel.h>
-#include <client_class.h>
-#include <vgui/ISurface.h>
-#include <vgui/IPanel.h>
-#include <convar.h>
-#include <Color.h>
-#include <view_shared.h>
-#include <icvar.h>
-#include <inetchannel.h>
+#include "sdk.h"
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
-#include "hacks/FollowBot.h"
 #include "globals.h"
-#include "hacks/Aimbot.h"
-#include "hacks/Bunnyhop.h"
-#include "hacks/ESP.h"
-#include "hacks/Trigger.h"
 
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
@@ -109,6 +98,10 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	if (hack::invalidated) return;
 	if (draw::panel_top == vp) {
 		ResetStrings();
+		if (g_Settings.bShowLogo->GetBool()) {
+			AddSideString(colors::green, colors::black, "cathook by d4rkc4t");
+			AddSideString(colors::green, colors::black, "build " __DATE__ " " __TIME__);
+		}
 		for (IHack* i_hack : hack::hacks) {
 			//PROF_BEGIN();
 			i_hack->PaintTraverse(p, vp, fr, ar);
@@ -180,6 +173,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	g_phFollowBot->CreateMove(thisptr, inputSample, cmd);
 	g_phMisc->CreateMove(thisptr, inputSample, cmd);
 	g_phTriggerbot->CreateMove(thisptr, inputSample, cmd);
+	g_phHuntsmanCompensation->CreateMove(thisptr, inputSample, cmd);
 
 	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
@@ -257,6 +251,7 @@ void hack::InitHacks() {
 	ADD_HACK(AutoSticky);
 	ADD_HACK(Airstuck);
 	ADD_HACK(AutoHeal);
+	ADD_HACK(HuntsmanCompensation);
 }
 
 void hack::Initialize() {

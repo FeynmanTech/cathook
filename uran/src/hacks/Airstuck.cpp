@@ -12,8 +12,7 @@
 #include "../usercmd.h"
 #include "../logging.h"
 #include "../interfaces.h"
-#include "../fixsdk.h"
-#include <icvar.h>
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(Airstuck);
 

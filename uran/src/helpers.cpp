@@ -15,19 +15,8 @@
 #include "entitycache.h"
 #include "playerresource.h"
 
-#include "fixsdk.h"
-#include <tier1/convar.h>
-#include <engine/ivmodelinfo.h>
-#include <icliententity.h>
-#include <cmodel.h>
-#include <studio.h>
-#include <gametrace.h>
-#include <icliententitylist.h>
-#include <cdll_int.h>
-#include <engine/IEngineTrace.h>
-#include <client_class.h>
-#include <inetchannelinfo.h>
-#include <globalvars_base.h>
+#include "sdk.h"
+
 
 bool IsPlayerInvulnerable(IClientEntity* player) {
 	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
@@ -468,7 +457,14 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gr
 			charge = interfaces::gvars->curtime - begincharge;
 			if (charge > 1.0f) charge = 1.0f;
 		}
-		rgrav = 0.5 - 0.4 * charge;
+		//rgrav = ( ( ( 1.3 - charge ) / 3 ) * 1000 ) / 800; // F1Public's method
+		/*if (charge <= 0.5f) {
+			rgrav = 0.5 - 0.4 * charge;
+		} else {
+			rgrav = 0.4 - 0.3 * charge;
+		}*/
+		rgrav = 0.5 - 0.4 * (charge);
+
 		rspeed = 1800 + 800 * charge;
 		rarc = true;
 	} break;
@@ -494,6 +490,26 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gr
 	arc = rarc;
 	gravity = rgrav;
 	return true;
+}
+
+const char* MakeInfoString(IClientEntity* player) {
+	char* buf = new char[256]();
+	player_info_t info;
+	if (!interfaces::engineClient->GetPlayerInfo(player->entindex(), &info)) return (const char*)0;
+	logging::Info("a");
+	int hWeapon = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
+	if (GetEntityValue<char>(player, eoffsets.iLifeState)) {
+		sprintf(buf, "%s is dead %s", info.name, tfclasses[GetEntityValue<int>(player, eoffsets.iClass)]);
+		return buf;
+	}
+	if (hWeapon) {
+		IClientEntity* weapon = interfaces::entityList->GetClientEntity(hWeapon & 0xFFF);
+		sprintf(buf, "%s is %s with %i health using %s", info.name, tfclasses[GetEntityValue<int>(player, eoffsets.iClass)], GetEntityValue<int>(player, eoffsets.iHealth), weapon->GetClientClass()->GetName());
+	} else {
+		sprintf(buf, "%s is %s with %i health", info.name, tfclasses[GetEntityValue<int>(player, eoffsets.iClass)], GetEntityValue<int>(player, eoffsets.iHealth));
+	}
+	logging::Info("Result: %s", buf);
+	return buf;
 }
 
 trace::FilterNoPlayer* vec_filter;

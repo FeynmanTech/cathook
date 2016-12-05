@@ -19,12 +19,7 @@
 #include "../sdk/in_buttons.h"
 #include "../followbot/ipcctl.h"
 
-#include "../fixsdk.h"
-#include <icliententity.h>
-#include <icliententitylist.h>
-#include <client_class.h>
-#include <cdll_int.h>
-#include <igameevents.h>
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(FollowBot);
 

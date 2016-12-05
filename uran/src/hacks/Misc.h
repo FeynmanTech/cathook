@@ -20,6 +20,7 @@ public:
 	//ConVar* v_bNoShootUntilCanHeadshot;
 	ConVar* v_bDbWeaponInfo;
 	ConVar* v_strName;
+	ConVar* v_bInfoSpam;
 	ConCommand* c_DumpItemAttributes;
 	ConCommand* c_SayLine;
 	ConCommand* c_Shutdown;

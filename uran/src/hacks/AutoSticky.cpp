@@ -15,9 +15,7 @@
 #include "../usercmd.h"
 #include "../sdk/in_buttons.h"
 #include "../logging.h"
-#include "../fixsdk.h"
-#include <icliententitylist.h>
-#include <icliententity.h>
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AutoSticky);
 

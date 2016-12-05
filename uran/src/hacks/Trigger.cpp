@@ -15,17 +15,9 @@
 #include "../trace.h"
 #include "../localplayer.h"
 
-#include "../fixsdk.h"
+#include "../sdk.h"
 #include "../sdk/in_buttons.h"
 #include <icliententity.h>
-#include <cdll_int.h>
-#include <icliententitylist.h>
-#include <engine/IEngineTrace.h>
-#include <Color.h>
-#include <gametrace.h>
-#include <icliententity.h>
-#include <client_class.h>
-#include <tier1/convar.h>
 #include "Trigger.h"
 
 DEFINE_HACK_SINGLETON(Triggerbot);

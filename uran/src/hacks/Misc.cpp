@@ -7,6 +7,8 @@
 
 #include "Misc.h"
 
+#include <unistd.h>
+
 #include "../hack.h"
 #include "../helpers.h"
 #include "../drawing.h"
@@ -18,18 +20,7 @@
 #include "../netmessage.h"
 #include "../sdk/in_buttons.h"
 
-#include "../fixsdk.h"
-#include <icliententity.h>
-#include <client_class.h>
-#include <icliententitylist.h>
-#include <Color.h>
-#include <iclient.h>
-#include <inetchannel.h>
-#include <cdll_int.h>
-#include <iconvar.h>
-#include <dt_common.h>
-#include <inputsystem/iinputsystem.h>
-#include <globalvars_base.h>
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(Misc);
 
@@ -221,6 +212,7 @@ Misc::Misc() {
 	c_Reset = CreateConCommand("u_reset_lists", CC_ResetLists, "Remove all friends and rage");
 	c_Disconnect = CreateConCommand("u_disconnect", CC_Disconnect, "Disconnect");
 	c_DisconnectVAC = CreateConCommand("u_disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
+	v_bInfoSpam = CreateConVar("u_info_spam", "0", "Info spam");
 }
 
 int sa_switch = 0;
@@ -235,6 +227,28 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 		logging::Info("Sending!");
 		ch->SendNetMsg(*(INetMessage*)&setname);
 	}*/
+	static int curindex = 0;
+	static int lastsay = 0;
+	if (lastsay && lastsay < 200) {
+		lastsay++;
+	} else lastsay = 0;
+	if (v_bInfoSpam->GetBool() && (lastsay == 0)) {
+		IClientEntity* ent = interfaces::entityList->GetClientEntity(curindex++);
+		if (curindex >= 64) curindex = 0;
+		//logging::Info("Making string for %i", curindex);
+		if (!ent || ent->IsDormant()) goto breakif;
+		//logging::Info("a");
+		if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) goto breakif;
+		//logging::Info("a");
+		if (GetEntityValue<int>(ent, eoffsets.iTeamNum) == g_pLocalPlayer->team) goto breakif;
+		//logging::Info("Making string for %i", curindex);
+		const char* str = MakeInfoString(ent);
+		if (str) {
+			interfaces::engineClient->ServerCmd(strfmt("say %s", str));
+			lastsay = 1;
+		}
+	}
+	breakif:
 	return true;
 }
 

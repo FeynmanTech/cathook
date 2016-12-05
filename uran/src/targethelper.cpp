@@ -10,9 +10,7 @@
 #include "localplayer.h"
 #include "helpers.h"
 
-#include "fixsdk.h"
-#include <icliententity.h>
-#include <client_class.h>
+#include "sdk.h"
 
 /*
  * Targeting priorities:

@@ -9,13 +9,7 @@
 #include "interfaces.h"
 #include "logging.h"
 
-#include "fixsdk.h"
-#include <vgui/ISurface.h>
-#include <Color.h>
-#include <cdll_int.h>
-#include <mathlib/vmatrix.h>
-#include <cassert>
-#include <icliententity.h>
+#include "sdk.h"
 
 int g_nStringsSide = 0;
 int g_nStringsCenter = 0;

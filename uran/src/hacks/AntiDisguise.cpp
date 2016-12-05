@@ -10,10 +10,7 @@
 #include "../helpers.h"
 #include "../entity.h"
 #include "../interfaces.h"
-#include "../fixsdk.h"
-#include <icliententitylist.h>
-#include <client_class.h>
-#include <icliententity.h>
+#include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AntiDisguise);
 

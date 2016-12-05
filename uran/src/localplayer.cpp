@@ -9,11 +9,7 @@
 #include "interfaces.h"
 #include "entity.h"
 
-#include "fixsdk.h"
-#include <cdll_int.h>
-#include <icliententitylist.h>
-#include <mathlib/vector.h>
-#include <icliententity.h>
+#include "sdk.h"
 
 void LocalPlayer::Update() {
 	entity_idx = interfaces::engineClient->GetLocalPlayer();

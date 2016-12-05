@@ -13,8 +13,7 @@
 #include <pwd.h>
 
 #include "interfaces.h"
-#include "fixsdk.h"
-#include <icvar.h>
+#include "sdk.h"
 
 FILE* logging::handle = 0;
 
