@@ -84,13 +84,17 @@ void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeig
 	//draw::DrawString((int)so.x, (int)so.y, draw::white, false, "origin");
 	ent->m_ESPOrigin.x = so.x + width / 2 + 1;
 	ent->m_ESPOrigin.y = so.y - height;
-	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, draw::black);
+	unsigned char opacity = clr._color[3];
+	Color blacko = draw::black;
+	blacko._color[3] = opacity;
+	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, blacko);
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
-	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, draw::black);
+	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, blacko);
 	if (healthbar) {
 		Color hp = colors::GetHealthColor(health, healthmax);
+		hp._color[3] = opacity;
 		int hbh = (height) * min((float)health / (float)healthmax, 1.0f);
-		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, draw::black);
+		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, blacko);
 		draw::DrawRect(so.x - width / 2 - 6, so.y - hbh, 5, hbh, hp);
 	}
 	//draw::OutlineRect(min(smin.x, smax.x) - 1, min(smin.y, smax.y) - 1, max(smin.x, smax.x), max(smin.y, smax.y), draw::black);

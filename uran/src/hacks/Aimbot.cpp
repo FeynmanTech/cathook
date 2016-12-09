@@ -120,10 +120,6 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if(cmd->buttons & IN_USE) return true;
 
-	if (g_pLocalPlayer->bIsReloading) {
-		return true;
-	}
-
 	if (this->v_bStrictAttack->GetBool() ) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
 	}
@@ -248,6 +244,7 @@ void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 bool Aimbot::ShouldTarget(IClientEntity* entity) {
+	//logging::Info("Should target?");
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
 	if (IsPlayer(entity)) {
@@ -260,13 +257,13 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		if (!player) return false;
 		if (v_bRespectCloak->GetBool() && (GetEntityValue<int>(entity, eoffsets.iCond) & cond::cloaked)) return false;
 		int health = GetEntityValue<int>(entity, eoffsets.iHealth);
-		if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
+		/*if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
 			int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
 			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
 			if (!rifle) return false;
 			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
 			if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
-		}
+		}*/
 		int team_my = GetEntityValue<int>(player, eoffsets.iTeamNum);
 		if (team == team_my) return false;
 		Vector enemy_pos = entity->GetAbsOrigin();
@@ -279,8 +276,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		if (GetRelation(entity) == relation::FRIEND) return false;
 		Vector resultAim;
 		if (m_bProjectileMode) {
-			resultAim = entity->GetAbsOrigin();
-			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, resultAim)) return false;
+			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, ProjectilePrediction(entity, m_iHitbox, m_flProjSpeed, m_flProjGravity))) return false;
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
 				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
@@ -301,9 +297,11 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > v_iMinRange->GetInt()) return false;
 		}
 		Vector resultAim;
+		// TODO fix proj buildings
 		if (m_bProjectileMode) {
-			resultAim = entity->GetAbsOrigin();
-			if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, resultAim)) return false;
+			return false;
+			//resultAim = entity->GetAbsOrigin();
+			//if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox_t)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, resultAim)) return false;
 		} else {
 			//logging::Info("IsVisible?");
 			if (!IsBuildingVisible(entity)) return false;
@@ -318,21 +316,17 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 	return false;
 }
 
-void PredictPosition(Vector vec, IClientEntity* ent) {
-	if (!ent) return;
-	Vector vel = GetEntityValue<Vector>(ent, eoffsets.vVelocity);
-	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
-			interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
-	vec += vel * latency;
-}
-
 bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
+	//logging::Info("Aiming!");
 	Vector hit;
 	Vector angles;
 	if (!entity) return false;
 	if (IsPlayer(entity)) {
+		//logging::Info("A");
 		GetHitboxPosition(entity, m_iHitbox, hit);
-		PredictPosition(hit, entity);
+		//logging::Info("B");
+		SimpleLatencyPrediction(entity, m_iHitbox);
+		//logging::Info("C");
 	} else if (IsBuilding(entity)) {
 		hit = GetBuildingPosition(entity);
 	}
@@ -340,9 +334,10 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		if (m_bProjectileMode) {
 			if (v_iOverrideProjSpeed->GetBool())
 				m_flProjSpeed = v_iOverrideProjSpeed->GetFloat();
-			PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, hit);
+			hit = ProjectilePrediction(entity, m_iHitbox, m_flProjSpeed, m_flProjGravity);
 		}
 	}
+	//logging::Info("ayyming!");
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
 	Vector tr = (hit - g_pLocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);

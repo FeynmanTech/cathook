@@ -69,7 +69,8 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	fClampAngle(angles);
 	cmd->viewangles = angles;
 	g_pLocalPlayer->bUseSilentAngles = true;
-	cmd->buttons |= IN_ATTACK2;
+	if (!(cmd->buttons & IN_ATTACK))
+		cmd->buttons |= IN_ATTACK2;
 
 	return true;
 }

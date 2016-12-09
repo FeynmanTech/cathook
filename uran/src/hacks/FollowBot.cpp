@@ -114,7 +114,10 @@ void FollowBot::Tick(CUserCmd* cmd) {
 		}
 	}
 	if (!owner_entity) return;
-
+	if (m_iForceHealTicks && m_iForceHealTicks < 20) {
+		m_iForceHealTicks++;
+		cmd->buttons |= IN_ATTACK;
+	} else m_iForceHealTicks = 0;
 	switch (v_iBotPackage->GetInt()) {
 	case botpackage::BOT_FOLLOW: {
 
@@ -157,6 +160,8 @@ void FollowBot::Tick(CUserCmd* cmd) {
 		break;
 	}
 	}
+	if (v_iBotPackage->GetInt() == botpackage::BOT_DUMMY) return;
+
 
 	if (v_iBotPackage->GetInt() == botpackage::BOT_MEDIC) {
 		IClientEntity* healtr = this->GetBestHealingTarget();
@@ -197,7 +202,6 @@ void FollowBot::Tick(CUserCmd* cmd) {
 void FollowBot::ActuallyCreateMove(CUserCmd* cmd) {
 	IClientEntity* tr_follow = interfaces::entityList->GetClientEntity(this->m_hTargetFollowing);
 	QAngle angles = VectorToQAngle(cmd->viewangles);
-
 	if (tr_follow) {
 		AimAtHitbox(tr_follow, 4, cmd);
 		angles = VectorToQAngle(cmd->viewangles);
@@ -261,7 +265,6 @@ IClientEntity* FollowBot::GetBestHealingTarget() {
 
 bool FollowBot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
-
 	Tick(cmd);
 	g_nTick++;
 	this->ActuallyCreateMove(cmd);
@@ -332,15 +335,24 @@ void CC_SetOwner(const CCommand& args) {
 	g_phFollowBot->m_nOwnerID = id;
 }
 
+void CC_HealOwner(const CCommand& args) {
+	g_phFollowBot->m_hTargetHealing = g_phFollowBot->m_nOwnerID;
+	g_phFollowBot->m_iForceHealTicks = 1;
+}
+
 void CC_BotCommand(const CCommand& args) {
 	if (args.ArgC() < 2) return;
 	int bot_id = strtol(args.Arg(1), 0, 0);
-	if (!bot_id) {
-		logging::Info("Executing command `%s` on EACH bot.", args.Arg(2));
-	} else {
-		logging::Info("Executing command `%s` on bot %i.", args.Arg(2), bot_id);
+	char* buf = new char[256];
+	for (int i = 2; i < args.ArgC(); i++) {
+		strcat(buf, strfmt("%s ", args.Arg(i)));
 	}
-	g_phFollowBot->m_pIPC->WriteBotCommand(bot_id, (char*)args.Arg(2));
+	if (!bot_id) {
+		logging::Info("Executing command `%s` on EACH bot.", buf);
+	} else {
+		logging::Info("Executing command `%s` on bot %i.", buf, bot_id);
+	}
+	g_phFollowBot->m_pIPC->WriteBotCommand(bot_id, (char*)buf);
 }
 
 void CC_IPCList(const CCommand& args) {
@@ -363,7 +375,7 @@ FollowBot::FollowBot() {
 	c_ResetList = CreateConCommand("u_bot_reset", CC_ResetList, "Resets bot list");
 	c_BotCommand = CreateConCommand("u_bot_command", CC_BotCommand, "Sends bot commands");
 	c_IPCList = CreateConCommand("u_bot_ipclist", CC_IPCList, "Lists IPC status");
-
+	c_HealOwner = CreateConCommand("u_bot_healowner", CC_HealOwner, "Heals owner");
 	m_nOwnerID = 0;
 
 	this->last_command_global = 0;

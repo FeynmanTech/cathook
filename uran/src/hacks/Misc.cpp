@@ -12,6 +12,7 @@
 #include "../hack.h"
 #include "../common.h"
 #include "../sdk.h"
+#include "../netmessage.h"
 
 DEFINE_HACK_SINGLETON(Misc);
 
@@ -125,11 +126,36 @@ void LockConCommands(bool lock) {
 
 ConCommandBase* teamname = 0;
 
+void CC_SetName(const CCommand& args) {
+	char* name = new char[32];
+	snprintf(name, 32, "%s", args.Arg(1));
+	if (args.ArgC() > 1 && atoi(args.Arg(2))) {
+		for (int i = 0; i < strlen(name); i++) {
+			if (name[i] == '^') name[i] = '\n';
+		}
+	}
+	NET_SetConVar setname("name", (const char*)name);
+	//logging::Info("Created!");
+	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+	setname.SetNetChannel(ch);
+	setname.SetReliable(false);
+	//logging::Info("Sending!");
+	ch->SendNetMsg(setname, false);
+}
+
 void CC_Lockee(const CCommand& args) {
 	if (args.ArgC() > 1) {
 		LockConCommands(atoi(args.Arg(1)));
 	}
-}
+	ConVar* name = interfaces::cvar->FindVar("name");
+	/*name->m_fnChangeCallback = 0;
+	logging::Info("callback: 0x%08x", name->m_fnChangeCallback);
+	name->SetValue(g_phMisc->v_strName->GetString());
+	name->InternalSetValue(g_phMisc->v_strName->GetString());
+	name->m_StringLength = strlen(g_phMisc->v_strName->GetString());
+	name->m_pszString = (char*)g_phMisc->v_strName->GetString();
+	logging::Info("set %s, value: %s", g_phMisc->v_strName->GetString(), name->GetString());
+*/}
 
 void CC_Teamname(const CCommand& args) {
 	if (!teamname) {
@@ -190,7 +216,7 @@ void CC_DumpAttribs(const CCommand& args) {
 
 Misc::Misc() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
-	v_strName = CreateConVar("u_name", "", "Crash the game if changed");
+	c_Name = CreateConCommand("u_name", CC_SetName, "Sets custom name");
 	c_DumpItemAttributes = CreateConCommand("u_dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
 	c_SayLine = CreateConCommand("u_say_lines", CC_SayLines, "Uses ^ as a newline character");
 	c_Shutdown = CreateConCommand("u_shutdown", CC_Shutdown, "Stops the hack");
@@ -204,6 +230,7 @@ Misc::Misc() {
 	c_Disconnect = CreateConCommand("u_disconnect", CC_Disconnect, "Disconnect");
 	c_DisconnectVAC = CreateConCommand("u_disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
 	v_bInfoSpam = CreateConVar("u_info_spam", "0", "Info spam");
+	v_bFakeCrouch = CreateConVar("u_fakecrouch", "0", "Fake crouch");
 }
 
 int sa_switch = 0;
@@ -211,14 +238,24 @@ int sa_switch = 0;
 
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 	//SetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::taunting);
-	/*if (v_strName->m_StringLength) {
-		logging::Info("Creating NetMsg!");
+	/*if (false && v_strName->GetString()[0] != '\0') {
+		//logging::Info("Name: %s", v_strName->GetString());
 		NET_SetConVar setname("name", v_strName->GetString());
+		//logging::Info("Created!");
 		INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
 		setname.SetNetChannel(ch);
-		logging::Info("Sending!");
-		ch->SendNetMsg(*(INetMessage*)&setname);
+		setname.SetReliable(false);
+		//logging::Info("Sending!");
+		ch->SendNetMsg(setname, false);
+		//logging::Info("Sent!");
+		//ch->SendNetMsg(*(INetMessage*)&setname);
+		//setname.WriteToBuffer(0);
 	}*/
+	if (v_bFakeCrouch->GetBool()) {
+		if (interfaces::gvars->tickcount % 2 == 0) {
+			cmd->buttons &= ~IN_DUCK;
+		}
+	}
 	static int curindex = 0;
 	static int lastsay = 0;
 	if (lastsay && lastsay < 200) {
@@ -267,6 +304,14 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(draw::white, draw::black, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
 			AddSideString(draw::white, draw::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) > 0.95);
 			AddSideString(draw::white, draw::black, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
+			AddSideString(draw::white, draw::black, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
+			AddSideString(draw::white, draw::black, "ServerTime: %f", GetEntityValue<float>(g_pLocalPlayer->entity, eoffsets.nTickBase) * interfaces::gvars->interval_per_tick);
+			AddSideString(draw::white, draw::black, "CurTime: %f", interfaces::gvars->curtime);
+			float speed, gravity;
+			bool arc;
+			GetProjectileData(g_pLocalPlayer->weapon, speed, arc, gravity);
+			AddSideString(draw::white, draw::black, "Speed: %f", speed);
+			AddSideString(draw::white, draw::black, "Gravity: %f", gravity);
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
 			//y += 14;

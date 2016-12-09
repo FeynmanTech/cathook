@@ -21,5 +21,6 @@
 #include "relations.h"
 #include "usercmd.h"
 #include "trace.h"
+#include "prediction.h"
 
 #endif /* COMMON_H_ */

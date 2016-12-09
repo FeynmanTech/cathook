@@ -32,6 +32,9 @@
 #include <vgui/ISurface.h>
 #include <vgui/IPanel.h>
 #include <mathlib/vmatrix.h>
+#include <inetmessage.h>
+#include <iclient.h>
+#include <iserver.h>
 #include <view_shared.h>
 
 #include "sdk/in_buttons.h"

@@ -26,7 +26,7 @@ float spin = -180;
 
 bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
-	if ((cmd->buttons & (IN_ATTACK | IN_ATTACK2 | IN_USE))) return true;
+	if ((cmd->buttons & (IN_ATTACK | IN_USE))) return true;
 	if (g_pLocalPlayer->bAttackLastTick) return true;
 	spin += v_flSpinSpeed->GetFloat();
 	if (spin > 180) spin = -180;

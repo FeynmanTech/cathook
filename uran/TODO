@@ -1,7 +1,6 @@
 MAX -> MIN priority
 
 AirStuck FIX
-FIX Followbot Crash
 Huntsman autoshoot
 Aim Stickies
 Proj Aim Buildings
@@ -24,7 +23,7 @@ Make hacks respect Mannpower powerups and other conditions when calcuating damag
 Fake Lag
 Engine Prediction
 An option to ignore taunting enemies
-AutoSticky
+AutoSticky improve
 No AutoShoot when disguised
 Fixing NoZoom flickering
 Ambassador bodyshotting
@@ -34,11 +33,20 @@ More projectile weapons aimbot (wrap assassin, wrangler, stickybomb, airstrike)
 Recalculate rifles' headshot ability (Bazaar + Precision rifles)
 Auto Uber Flash
 Auto trigger DR before rockets
-AutoHeal
+Building box opacity
+AutoUber
+Sticky vischeck
+AutoBHop (Speed)
+Airstuck Kick
+newline nicknames
+dark building esp
+Anti Backstab
 Critical rifles bodyshotting
 Show spectators
+Hitbox position cache
 Spy alert uses angles
 More esp tweaking
+carrying esp
 Tracers/Spy Cam
 Glow Hack
 Proper medic followbot AI

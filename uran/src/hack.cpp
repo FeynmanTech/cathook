@@ -41,6 +41,7 @@
 #include "common.h"
 #include "sharedobj.h"
 #include "hooks.h"
+#include "netmessage.h"
 #include "targeting/ITargetSystem.h"
 #include "profiler.h"
 
@@ -70,6 +71,31 @@ void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
 
 void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
+	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
+	if (g_phFollowBot->v_bEnabled->GetBool()) {
+		ipc_bot_seg* seg_g = g_phFollowBot->m_pIPC->GetBotCommand(0);
+		ipc_bot_seg* seg_l = g_phFollowBot->m_pIPC->GetBotCommand(g_phFollowBot->m_pIPC->bot_id);
+
+		if (seg_g == 0) {
+			logging::Info("!!! seg_g == 0 !!!");
+		}
+		if (seg_l == 0) {
+			logging::Info("!!! seg_l == 0 !!!");
+		}
+
+		if (seg_g && seg_g->command_number > g_phFollowBot->last_command_global) {
+			logging::Info("Executing `%s`", seg_g->command_buffer);
+			if (g_phFollowBot->last_command_global) interfaces::engineClient->ExecuteClientCmd(seg_g->command_buffer);
+			g_phFollowBot->last_command_global = seg_g->command_number;
+		}
+		if (seg_l && seg_l->command_number > g_phFollowBot->last_command_local) {
+			logging::Info("Executing `%s`", seg_l->command_buffer);
+			if (g_phFollowBot->last_command_local) interfaces::engineClient->ExecuteClientCmd(seg_l->command_buffer);
+			g_phFollowBot->last_command_local = seg_l->command_number;
+		}
+	}
+
+
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
 	}
@@ -90,7 +116,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {
 			AddSideString(colors::green, colors::black, "cathook by d4rkc4t");
-			AddSideString(colors::green, colors::black, "build " __DATE__ " " __TIME__);
+			AddSideString(colors::tf_red, colors::black, "DEVELOPMENT BUILD");
 		}
 		for (IHack* i_hack : hack::hacks) {
 			//PROF_BEGIN();
@@ -121,7 +147,23 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 
 typedef bool(CanPacket_t)(void* thisptr);
 bool Hk_CanPacket(void* thisptr) {
-	return false;//g_Settings.bSendPackets->GetBool() && ((CanPacket_t*)hooks::hkNetChannel->GetMethod(hooks::offCanPacket))(thisptr);
+	return g_Settings.bSendPackets->GetBool() && ((CanPacket_t*)hooks::hkNetChannel->GetMethod(hooks::offCanPacket))(thisptr);
+}
+
+typedef bool(SendNetMsg_t)(void* thisptr, INetMessage& msg, bool forcereliable, bool voice);
+bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false, bool bVoice = false) {
+	//logging::Info("Sending NetMsg! %i", msg.GetType());
+	if (g_phAirstuck->v_bStuck->GetBool()) {
+		switch (msg.GetType()) {
+		case net_NOP:
+		case net_SignonState:
+		case net_StringCmd:
+			break;
+		default:
+			return false;
+		}
+	}
+	return ((SendNetMsg_t*)hooks::hkNetChannel->GetMethod(hooks::offSendNetMsg))(thisptr, msg, bForceReliable, bVoice);
 }
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
@@ -131,17 +173,18 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		return true;
 	}
 
-	/*INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
-	if (ch && !hooks::IsHooked(ch)) {
-		logging::Info("NCI not hooked!");
+	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+	if (ch && !hooks::IsHooked((void*)((uintptr_t)ch))) {
+		logging::Info("Hooking INetChannel!");
 		hooks::hkNetChannel = new hooks::VMTHook();
 		hooks::hkNetChannel->Init(ch, 0);
 		hooks::hkNetChannel->HookMethod((void*)Hk_CanPacket, hooks::offCanPacket);
+		hooks::hkNetChannel->HookMethod((void*)Hk_SendNetMsg, hooks::offSendNetMsg);
 		hooks::hkNetChannel->Apply();
-		logging::Info("Applied!");
+		logging::Info("NetChannel Hooked!");
 	}
-	logging::Info("Can packet? %i", ch->CanPacket());*/
-	if (!cmd) return ret;
+	//logging::Info("canpacket: %i", ch->CanPacket());
+	//if (!cmd) return ret;
 
 	g_pPlayerResource->Update();
 
@@ -202,15 +245,12 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 			SetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex, 1006);
 		}
 	}
+	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 	if (g_Settings.bNoZoom->GetBool()) {
-		if (g_pLocalPlayer->entity) {
-			bool zoomed = (g_pLocalPlayer->cond_0 & cond::zoomed);
-			if (zoomed) {
+			if (g_pLocalPlayer->entity) {
 				SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
 			}
 		}
-	}
-	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 }
 
 bool hack::Hk_DispatchUserMessage(void* thisptr, int type, bf_read& buf) {
@@ -306,28 +346,6 @@ void hack::Initialize() {
 void hack::Think() {
 	//logging::Info("Hack::Think");
 	// Fucking TODo
-	if (g_phFollowBot->v_bEnabled->GetBool()) {
-		ipc_bot_seg* seg_g = g_phFollowBot->m_pIPC->GetBotCommand(0);
-		ipc_bot_seg* seg_l = g_phFollowBot->m_pIPC->GetBotCommand(g_phFollowBot->m_pIPC->bot_id);
-
-		if (seg_g == 0) {
-			logging::Info("!!! seg_g == 0 !!!");
-		}
-		if (seg_l == 0) {
-			logging::Info("!!! seg_l == 0 !!!");
-		}
-
-		if (seg_g && seg_g->command_number > g_phFollowBot->last_command_global) {
-			logging::Info("Executing `%s`", seg_g->command_buffer);
-			if (g_phFollowBot->last_command_global) interfaces::engineClient->ExecuteClientCmd(seg_g->command_buffer);
-			g_phFollowBot->last_command_global = seg_g->command_number;
-		}
-		if (seg_l && seg_l->command_number > g_phFollowBot->last_command_local) {
-			logging::Info("Executing `%s`", seg_l->command_buffer);
-			if (g_phFollowBot->last_command_local) interfaces::engineClient->ExecuteClientCmd(seg_l->command_buffer);
-			g_phFollowBot->last_command_local = seg_l->command_number;
-		}
-	}
 	usleep(250000);
 }
 

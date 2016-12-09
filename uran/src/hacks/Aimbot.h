@@ -12,6 +12,7 @@
 
 class ConVar;
 class IClientEntity;
+class Vector;
 
 class Aimbot : public IHack {
 public:
@@ -24,6 +25,7 @@ public:
 	float m_flProjSpeed;
 	float m_flProjGravity;
 	bool m_bProjArc;
+	//Vector m_vPredictedProjTarget;
 
 	int m_iLastTarget;
 	int m_iHitbox;

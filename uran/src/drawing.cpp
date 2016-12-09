@@ -95,8 +95,8 @@ Color colors::tf_blu(88,  133, 162, 255);
 Color colors::yellow(255, 255, 0,   255);
 Color colors::orange(255, 128,  0,  255);
 Color colors::green(0,  255,  0,   255);
-Color colors::dk_red(150, 75,  75,  255);
-Color colors::dk_blu(75,  75,  150, 255);
+Color colors::dk_red(150, 75,  75,  180);
+Color colors::dk_blu(75,  75,  150, 180);
 Color colors::bg_red(64,  32,  32,  255);
 Color colors::bg_blu(32,  32,  64,  255);
 Color colors::dbgred(48,  16,  16,  255);
@@ -180,7 +180,9 @@ void draw::DrawString(int x, int y, Color color, Color background, bool center, 
 		x -= (l / 2);
 	}
 	draw::GetStringLength((char*)text, l, h);
-	draw::DrawRect(x, y + 1, l + 2, h - 4, background);
+	Color clr = background;
+	clr._color[3] = (unsigned char)180;
+	draw::DrawRect(x, y + 1, l + 2, h - 4, clr);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 

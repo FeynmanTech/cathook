@@ -19,8 +19,9 @@ public:
 	Misc();
 	//ConVar* v_bNoShootUntilCanHeadshot;
 	ConVar* v_bDbWeaponInfo;
-	ConVar* v_strName;
+	ConCommand* c_Name;
 	ConVar* v_bInfoSpam;
+	ConVar* v_bFakeCrouch;
 	ConCommand* c_DumpItemAttributes;
 	ConCommand* c_SayLine;
 	ConCommand* c_Shutdown;

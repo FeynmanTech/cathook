@@ -15,7 +15,8 @@ unsigned int hooks::offCreateMove = 22;
 unsigned int hooks::offPaintTraverse = 42;
 unsigned int hooks::offOverrideView = 17;
 unsigned int hooks::offFrameStageNotify = 35;
-unsigned int hooks::offCanPacket = 30;
+unsigned int hooks::offCanPacket = 57;
+unsigned int hooks::offSendNetMsg = 41;
 
 // This thing had been copypasted from somewhere, maybe from F1Public.
 

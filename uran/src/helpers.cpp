@@ -6,6 +6,7 @@
  */
 
 #include "common.h"
+#include "hooks.h"
 #include "sdk.h"
 
 
@@ -400,6 +401,7 @@ weaponmode GetWeaponMode(IClientEntity* player) {
 	switch (weapon->GetClientClass()->m_ClassID) {
 	case ClassID::CTFLunchBox:
 	case ClassID::CTFLunchBox_Drink:
+	case ClassID::CTFBuffItem:
 		return weaponmode::weapon_consumable;
 	case ClassID::CTFRocketLauncher_DirectHit:
 	case ClassID::CTFRocketLauncher:
@@ -441,22 +443,31 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gr
 		//rgrav = 0.5f;
 	break;
 	case ClassID::CTFCompoundBow: {
+		// TODO VMT Stuff!
+		float servertime = (float)GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase) * interfaces::gvars->interval_per_tick;
+		float curtime_old = interfaces::gvars->curtime;
+		interfaces::gvars->curtime = servertime;
+		typedef float(GetProjectileData)(IClientEntity*);
+		rspeed = (reinterpret_cast<GetProjectileData*>(*(*(const void ***) weapon + 527)))(weapon);
+		rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(weapon);
+		//logging::Info("%f", ((GetProjectileData*)(hooks::GetVMT(weapon, 0)[457]))(weapon));
+		interfaces::gvars->curtime = curtime_old;
 		// TODO curtime
-		float begincharge = GetEntityValue<float>(weapon, eoffsets.flChargeBeginTime);
+		/*float begincharge = GetEntityValue<float>(weapon, eoffsets.flChargeBeginTime);
 		float charge = 0;
 		if (begincharge != 0) {
-			charge = interfaces::gvars->curtime - begincharge;
+			charge = servertime - begincharge;
 			if (charge > 1.0f) charge = 1.0f;
-		}
+		}*/
 		//rgrav = ( ( ( 1.3 - charge ) / 3 ) * 1000 ) / 800; // F1Public's method
 		/*if (charge <= 0.5f) {
 			rgrav = 0.5 - 0.4 * charge;
 		} else {
 			rgrav = 0.4 - 0.3 * charge;
 		}*/
-		rgrav = 0.5 - 0.4 * (charge);
+		//rgrav = 0.5 - 0.4 * (charge);
 
-		rspeed = 1800 + 800 * charge;
+		//rspeed = 1800 + 800 * charge;
 		rarc = true;
 	} break;
 	case ClassID::CTFBat_Wood:
@@ -480,6 +491,7 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gr
 	speed = rspeed;
 	arc = rarc;
 	gravity = rgrav;
+	if (!arc) gravity = 0;
 	return true;
 }
 
@@ -521,7 +533,7 @@ bool IsVectorVisible(Vector origin, Vector target) {
 	return (dist1 <= dist2);
 }
 
-bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float speed, bool arc, float gravity, Vector& result) {
+/*bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox_t hb, float speed, bool arc, float gravity, Vector& result) {
 	if (!target) return false;
 	//logging::Info("PRED PROJ AIM");
 	//logging::Info("ProjSpeed: %f", speed);
@@ -545,7 +557,7 @@ bool PredictProjectileAim(Vector origin, IClientEntity* target, hitbox hb, float
 	result = res1;
 	//if (!IsVisible();
 	return IsVectorVisible(origin, res1);
-}
+}*/
 
 relation GetRelation(IClientEntity* ent) {
 	if (!ent) return relation::NEUTRAL;
@@ -562,6 +574,7 @@ relation GetRelation(IClientEntity* ent) {
 }
 
 bool IsSentryBuster(IClientEntity* entity) {
+	// TODO
 	return (entity && entity->GetClientClass()->m_ClassID == ClassID::CTFPlayer && GetEntityValue<int>(entity, eoffsets.iClass) == tf_class::tf_demoman && g_pPlayerResource->GetMaxHealth(entity) == 2500);
 }
 

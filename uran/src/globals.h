@@ -22,6 +22,7 @@ public:
 	ConVar* bNoFlinch;
 	ConVar* bSendPackets;
 	ConVar* bShowLogo;
+	ConVar* flDrawingOpacity;
 };
 
 extern GlobalSettings g_Settings;

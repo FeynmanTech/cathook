@@ -41,6 +41,7 @@ extern unsigned int offCreateMove;
 extern unsigned int offOverrideView;
 extern unsigned int offFrameStageNotify;
 extern unsigned int offCanPacket;
+extern unsigned int offSendNetMsg;
 
 }
 

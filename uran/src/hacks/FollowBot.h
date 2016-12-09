@@ -21,7 +21,8 @@ void CC_SetOwner(const CCommand& args);
 enum botpackage {
 	BOT_FOLLOW = 0,
 	BOT_MEDIC,
-	BOT_SNIPER
+	BOT_SNIPER,
+	BOT_DUMMY
 };
 
 class FollowBot : public IHack {
@@ -50,12 +51,13 @@ public:
 	ConCommand* cmd_Status;
 
 	ConVar* v_bEnabled;
-
+	int m_iForceHealTicks;
 	int m_iShouldUbercharge;
 	ConVar* v_iBotPackage;
 	ConCommand* c_AddBotID;
 	ConCommand* c_SetOwner;
 	ConCommand* c_ResetList;
+	ConCommand* c_HealOwner;
 	ConCommand* c_BotCommand;
 	ConCommand* c_IPCList;
 	uint32 m_nOwnerID;

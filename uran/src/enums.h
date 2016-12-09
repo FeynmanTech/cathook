@@ -533,8 +533,27 @@ enum weaponmode {
 	weapon_consumable
 };
 
-enum hitbox {
-	hb_head = 0
+enum hitbox_t {
+	hb_head = 0,
+	hb_neck,
+	hb_necklower,
+	hb_pelvis,
+	hb_body,
+	hb_lowerchest,
+	hb_chest,
+	hb_upperchest,
+	hb_rightthigh,
+	hb_leftthigh,
+	hb_rightshin,
+	hb_leftshin,
+	hb_rightfoot,
+	hb_leftfoot,
+	hb_righthand,
+	hb_lefthand,
+	hb_rightupperarm,
+	hb_rightlowerarm,
+	hb_leftupperArm,
+	hb_leftlowerArm
 };
 
 enum relation {
