@@ -42,6 +42,8 @@ Aimbot::Aimbot() {
 	target_systems[0] = new TargetSystemSmart();
 	target_systems[1] = new TargetSystemFOV();
 	target_systems[2] = new TargetSystemDistance();
+	m_bAimKeySwitch = false;
+	this->v_iAimKeyMode = CreateConVar("u_aimbot_aimkey_mode", "1", "AimKey mode [DISABLED/PTE/PTD/TOGGLE]");
 	this->v_bEnabled = CreateConVar("u_aimbot_enabled", "0", "Enables aimbot. EXPERIMENTAL AND TOTALLY NOT LEGIT");
 	this->v_iHitbox = CreateConVar("u_aimbot_hitbox", "0", "Hitbox");
 	this->v_bAutoHitbox = CreateConVar("u_aimbot_autohitbox", "1", "Autohitbox");
@@ -58,7 +60,7 @@ Aimbot::Aimbot() {
 	this->v_bProjectileAimbot = CreateConVar("u_aimbot_projectile", "1", "Projectile aimbot (EXPERIMENTAL)");
 	this->v_iOverrideProjSpeed = CreateConVar("u_aimbot_proj_speed", "0", "Override proj speed");
 	this->v_bDebug = CreateConVar("u_aimbot_debug", "0", "Aimbot debug");
-	this->v_iFOV = CreateConVar("u_aimbot_fov", "0", "FOV aimbot (experimental)");
+	this->v_fFOV = CreateConVar("u_aimbot_fov", "0", "Aimbot fov");
 	this->v_bMachinaPenetration = CreateConVar("u_aimbot_machina", "0", "Machina penetration aimbot (just for fun)");
 	this->v_bSmooth = CreateConVar("u_aimbot_smooth", "0", "Smooth aimbot");
 	this->v_flAutoShootHuntsmanCharge = CreateConVar("u_aimbot_huntsman_charge", "0.5", "Huntsman autoshoot charge");
@@ -76,11 +78,16 @@ Aimbot::Aimbot() {
 bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	this->m_iLastTarget = -1;
-	if (this->v_iAimKey->GetBool()) {
-		//bool down = false;
-		//interfaces::baseClient->IN_IsKeyDown(this->v_iAimKey->GetString(), down);
-		if (!interfaces::input->IsButtonDown((ButtonCode_t)this->v_iAimKey->GetInt())) {
+	if (this->v_iAimKey->GetBool() && this->v_iAimKeyMode->GetBool()) {
+		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_iAimKey->GetInt());
+		switch (this->v_iAimKeyMode->GetInt()) {
+		case AimKeyMode_t::PRESS_TO_ENABLE:
+			break;
+		case AimKeyMode_t::PRESS_TO_DISABLE:
 			return true;
+		case AimKeyMode_t::PRESS_TO_TOGGLE:
+			m_bAimKeySwitch = !m_bAimKeySwitch;
+			if (!m_bAimKeySwitch) return true;
 		}
 	}
 
@@ -286,7 +293,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 				if (!IsEntityVisible(entity, m_iHitbox)) return false;
 			}
 		}
-		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_iFOV->GetFloat())) return false;
+		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return false;
 		return true;
 	} else if (IsBuilding(entity)) {
 		if (!v_bAimBuildings->GetBool()) return false;
@@ -307,7 +314,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 			if (!IsBuildingVisible(entity)) return false;
 		}
 		//logging::Info("IsFOV?");
-		if (v_iFOV->GetBool() && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_iFOV->GetFloat())) return false;
+		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return false;
 		//logging::Info("Tru");
 		return true;
 	} else {

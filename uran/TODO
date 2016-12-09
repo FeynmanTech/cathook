@@ -1,19 +1,18 @@
 MAX -> MIN priority
 
 AirStuck FIX
-Huntsman autoshoot
 Aim Stickies
 Proj Aim Buildings
 no aim sapper/banner
 Triggerbot ignores vaccinator ubers
 Proper ambassador detection (not just CTFRevolver)
-No AutoShoot (aimbot/trigger) on consumables and PDAs
+No AutoShoot (trigger) on consumables and PDAs
 Improve Projectile Aimbot. A lot.
 Integrate SEGVCATCH
 Proper AutoHitbox
 Smoothe the smooth aim
+Display on the left
 Jumping ProjAim
-Aim Key mode (inverse/normal/disabled)
 Flare aim on fire
 Trigger ambassador correction
 ESP Icons
@@ -25,7 +24,6 @@ Engine Prediction
 An option to ignore taunting enemies
 AutoSticky improve
 No AutoShoot when disguised
-Fixing NoZoom flickering
 Ambassador bodyshotting
 No Trigger Mediguns
 FOV = Float

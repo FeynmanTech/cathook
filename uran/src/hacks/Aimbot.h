@@ -14,6 +14,15 @@ class ConVar;
 class IClientEntity;
 class Vector;
 
+struct AimKeyMode_t {
+	enum {
+		DISABLED,
+		PRESS_TO_ENABLE,
+		PRESS_TO_DISABLE,
+		PRESS_TO_TOGGLE
+	};
+};
+
 class Aimbot : public IHack {
 public:
 	DECLARE_HACK_METHODS();
@@ -29,12 +38,14 @@ public:
 
 	int m_iLastTarget;
 	int m_iHitbox;
+	bool m_bAimKeySwitch;
 	ConVar* v_iAimKey;
+	ConVar* v_iAimKeyMode;
 	ConVar* v_bSmooth;
 	ConVar* v_fSmoothValue;
 	ConVar* v_bDebug;
 	ConVar* v_bEnabled;
-	ConVar* v_iFOV;
+	ConVar* v_fFOV;
 	ConVar* v_iHitbox;
 	ConVar* v_bAutoHitbox;
 	ConVar* v_bPrediction;
