@@ -29,6 +29,10 @@ class Vector;
 
 // TODO split this shit
 
+extern FILE* hConVarsFile;
+void BeginConVars();
+void EndConVars();
+
 bool IsPlayerCritBoosted(IClientEntity* player);
 bool IsPlayerInvulnerable(IClientEntity* player);
 bool IsPlayerInvisible(IClientEntity* player);
@@ -62,6 +66,7 @@ bool IsVectorVisible(Vector a, Vector b);
 relation GetRelation(IClientEntity* ent);
 bool IsSentryBuster(IClientEntity* ent);
 char* strfmt(const char* fmt, ...);
+bool IsAmbassador(IClientEntity* ent);
 
 void AimAt(Vector origin, Vector target, CUserCmd* cmd);
 void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd);

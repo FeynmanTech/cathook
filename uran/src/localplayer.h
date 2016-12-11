@@ -26,6 +26,8 @@ public:
 	int cond_2;
 	int cond_3;
 
+	bool bWasZoomed;
+
 	bool bIsReloading;
 
 	Vector v_ViewOffset;

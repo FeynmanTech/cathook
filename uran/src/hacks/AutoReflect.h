@@ -19,6 +19,8 @@ public:
 	DECLARE_HACK_METHODS();
 	AutoReflect();
 	ConVar* v_bEnabled;
+	ConVar* v_bDisableWhenAttacking;
+	ConVar* v_bReflectStickies;
 	ConVar* v_iReflectDistance;
 };
 

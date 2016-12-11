@@ -50,6 +50,8 @@ void EntityVariables::Init() {
 	this->flLastFireTime = gNetvars.get_offset("DT_TFWeaponBase", "LocalActiveTFWeaponData", "m_flLastFireTime");
 	this->hThrower = gNetvars.get_offset("DT_BaseGrenade", "m_hThrower");
 	this->hMyWeapons = gNetvars.get_offset("DT_BaseCombatCharacter", "m_hMyWeapons");
+	this->iObserverMode = gNetvars.get_offset("DT_BasePlayer", "m_iObserverMode");
+	this->hObserverTarget = gNetvars.get_offset("DT_BasePlayer", "m_hObserverTarget");
 }
 
 void InitEntityOffsets() {

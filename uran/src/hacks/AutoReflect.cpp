@@ -27,9 +27,10 @@ bool IsReflectableProjectile(IClientEntity* ent) {
 	case ClassID::CTFProjectile_JarMilk:
 	case ClassID::CTFProjectile_Rocket:
 	case ClassID::CTFProjectile_SentryRocket:
-	case ClassID::CTFGrenadePipebombProjectile:
 	case ClassID::CTFProjectile_EnergyBall:
 		return true;
+	case ClassID::CTFGrenadePipebombProjectile:
+
 	}
 	return false;
 }
@@ -37,8 +38,10 @@ bool IsReflectableProjectile(IClientEntity* ent) {
 // Hack Methods
 
 AutoReflect::AutoReflect() {
-	v_bEnabled = CreateConVar("u_reflect_enabled", "0", "Reflectbot enabled");
-	v_iReflectDistance = CreateConVar("u_reflect_distance", "300", "Reflectbot distance");
+	v_bEnabled = CreateConVar("u_reflect_enabled", "0", "Autoreflect");
+	v_iReflectDistance = CreateConVar("u_reflect_distance", "200", "Autoreflect distance");
+	v_bDisableWhenAttacking = CreateConVar("u_reflect_only_idle", "0", "Autoreflect active only when not shooting");
+	v_bReflectStickies = CreateConVar("u_reflect_stickybombs", "0", "Reflect stickies");
 }
 // TODO
 bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {

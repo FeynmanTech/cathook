@@ -10,7 +10,7 @@
 
 class IClientEntity;
 
-bool IsAmbassador(IClientEntity* entity);
+//bool IsAmbassador(IClientEntity* entity);
 
 /*extern int g_MeleeList[];
 

@@ -17,7 +17,9 @@ const char* Bunnyhop::GetName() {
 }
 
 Bunnyhop::Bunnyhop() {
-	this->v_bEnabled = CreateConVar("u_bhop_enabled", "1", "Enable/Disable BunnyHop");
+	this->v_bEnabled = CreateConVar("u_bhop_enabled", "0", "Enable/Disable BunnyHop");
+	this->v_bAutoJump = CreateConVar("u_bhop_autojump", "0", "AutoJump");
+	this->v_iAutoJumpSpeed = CreateConVar("u_bhop_autojump_speed", "300", "AutoJump speed");
 }
 
 bool bDoubleJumpFix = false;
@@ -29,6 +31,14 @@ bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	int cond3 = GetEntityValue<int>(entity, eoffsets.iCond3);
 	if (cond3 & cond_ex3::grappling) return true;
 	int flags = GetEntityValue<int>(entity, eoffsets.iFlags);
+
+	if (v_bAutoJump->GetBool()) {
+		Vector vel = GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vVelocity);
+		if (sqrt((vel.x * vel.x + vel.y * vel.y)) > v_iAutoJumpSpeed->GetInt()) {
+			cmd->buttons |= IN_JUMP;
+		}
+	}
+
 	bool ground = (flags & (1 << 0));
 	bool jump = (cmd->buttons & IN_JUMP);
 

@@ -17,6 +17,8 @@ public:
 	DECLARE_HACK_METHODS();
 	Bunnyhop();
 	ConVar* v_bEnabled;
+	ConVar* v_bAutoJump;
+	ConVar* v_iAutoJumpSpeed;
 };
 
 DECLARE_HACK_SINGLETON(Bunnyhop);

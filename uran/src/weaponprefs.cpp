@@ -12,9 +12,9 @@
 #include "fixsdk.h"
 #include <icliententity.h>
 
-bool IsAmbassador(IClientEntity* weapon) {
-	return false;
-}
+//bool IsAmbassador(IClientEntity* weapon) {
+//	return false;
+//}
 
 /*int g_MeleeList[] = {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 37,

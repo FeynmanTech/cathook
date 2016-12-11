@@ -72,6 +72,9 @@ public:
 	offset_t vecPunchAngle;
 	offset_t vecPunchAngleVel;
 
+	offset_t iObserverMode;
+	offset_t hObserverTarget;
+
 	offset_t flChargeBeginTime;
 	offset_t flLastFireTime;
 	offset_t hThrower;

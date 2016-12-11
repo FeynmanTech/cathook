@@ -62,7 +62,6 @@ public:
 	ConVar* v_bProjectileAimbot;
 	ConVar* v_iOverrideProjSpeed;
 	ConVar* v_bMachinaPenetration;
-	ConVar* v_bAmbassador;
 	ConVar* v_bAimBuildings;
 	ConVar* v_bActiveOnlyWhenCanShoot;
 	ConVar* v_fSmoothAutoshootTreshold;

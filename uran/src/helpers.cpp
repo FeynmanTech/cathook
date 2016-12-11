@@ -9,6 +9,21 @@
 #include "hooks.h"
 #include "sdk.h"
 
+#include <pwd.h>
+
+FILE* hConVarsFile = 0;
+void BeginConVars() {
+	passwd* pwd = getpwuid(getuid());
+	char* user = pwd->pw_name;
+	hConVarsFile = fopen(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/tf/cfg/uran.cfg", user), "w");
+	SetCVarInterface(interfaces::cvar);
+}
+
+void EndConVars() {
+	fclose(hConVarsFile);
+	ConVar_Register();
+}
+
 
 bool IsPlayerInvulnerable(IClientEntity* player) {
 	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
@@ -37,6 +52,7 @@ bool IsPlayerCritBoosted(IClientEntity* player) {
 
 ConVar* CreateConVar(const char* name, const char* value, const char* help) {
 	ConVar* ret = new ConVar(name, value, 0, help);
+	fprintf(hConVarsFile, "%s %s\n", name, value);
 	interfaces::cvar->RegisterConCommand(ret);
 	return ret;
 }
@@ -576,6 +592,18 @@ relation GetRelation(IClientEntity* ent) {
 bool IsSentryBuster(IClientEntity* entity) {
 	// TODO
 	return (entity && entity->GetClientClass()->m_ClassID == ClassID::CTFPlayer && GetEntityValue<int>(entity, eoffsets.iClass) == tf_class::tf_demoman && g_pPlayerResource->GetMaxHealth(entity) == 2500);
+}
+
+bool IsAmbassador(IClientEntity* entity) {
+	if (!entity) return false;
+	if (entity->GetClientClass()->m_ClassID != ClassID::CTFRevolver) return false;
+	int defidx = GetEntityValue<int>(entity, eoffsets.iItemDefinitionIndex);
+	switch (defidx) {
+	case 61:
+	case 1006:
+		return true;
+	}
+	return false;
 }
 
 bool CheckCE(CachedEntity* entity) {

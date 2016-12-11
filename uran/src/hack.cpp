@@ -167,6 +167,11 @@ bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false,
 }
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
+	if (g_pLocalPlayer->entity) {
+		if (g_pLocalPlayer->bWasZoomed) {
+			SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 |= cond::zoomed);
+		}
+	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 	if (!interfaces::engineClient->IsInGame()) {
 		hack::invalidated = true;
@@ -213,6 +218,12 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 			ret = false;
 		}
 	}*/
+	if (g_pLocalPlayer->entity) {
+		if (g_Settings.bNoZoom->GetBool()) {
+			SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &= ~cond::zoomed);
+		}
+	}
+
 	hack::invalidated = false;
 	if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
@@ -230,6 +241,13 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
+	if (g_pLocalPlayer->weapon) {
+		int defidx = GetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex);
+		if (defidx == 61) {
+			SetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex, 1006);
+		}
+	}
+	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 	if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 		static Vector oldPunchAngles = Vector();
 		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vecPunchAngle);
@@ -239,18 +257,13 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 		oldPunchAngles = punchAngles;
 		interfaces::engineClient->SetViewAngles(viewAngles);
 	}
-	if (g_pLocalPlayer->weapon) {
-		int defidx = GetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex);
-		if (defidx == 61) {
-			SetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex, 1006);
+
+	if (g_Settings.bNoZoom->GetBool()) {
+		if (g_pLocalPlayer->entity) {
+			g_pLocalPlayer->bWasZoomed = GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond) & cond::zoomed;
+			SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
 		}
 	}
-	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
-	if (g_Settings.bNoZoom->GetBool()) {
-			if (g_pLocalPlayer->entity) {
-				SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
-			}
-		}
 }
 
 bool hack::Hk_DispatchUserMessage(void* thisptr, int type, bf_read& buf) {
@@ -305,12 +318,12 @@ void hack::Initialize() {
 	logging::Info("Initializing surface...");
 	draw::Initialize();
 	logging::Info("Adding hacks...");
-	SetCVarInterface(interfaces::cvar);
+	BeginConVars();
 	hack::InitHacks();
 	logging::Info("Init global settings");
 	g_Settings.Init();
 	InitTargetingConVars();
-	ConVar_Register();
+	EndConVars();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();
 	logging::Info("Initializing entity offsets...");

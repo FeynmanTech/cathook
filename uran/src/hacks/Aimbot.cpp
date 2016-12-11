@@ -66,7 +66,6 @@ Aimbot::Aimbot() {
 	this->v_flAutoShootHuntsmanCharge = CreateConVar("u_aimbot_huntsman_charge", "0.5", "Huntsman autoshoot charge");
 	this->v_fSmoothValue = CreateConVar("u_aimbot_smooth_value", "0.2", "Smooth value");
 	this->v_iAimKey = CreateConVar("u_aimbot_aimkey", "0", "Aim Key");
-	this->v_bAmbassador = CreateConVar("u_aimbot_ambassador", "0", "Ambassador mode."); // TODO
 	this->v_iPriorityMode = CreateConVar("u_aimbot_prioritymode", "0", "Priority mode [SMART/FOV/DISTANCE/HEALTH]");
 	v_bAimBuildings = CreateConVar("u_aimbot_buildings", "1", "Aim at buildings");
 	v_bActiveOnlyWhenCanShoot = CreateConVar("u_aimbot_only_when_can_shoot", "1", "Aimbot active only when can shoot");
@@ -82,9 +81,11 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_iAimKey->GetInt());
 		switch (this->v_iAimKeyMode->GetInt()) {
 		case AimKeyMode_t::PRESS_TO_ENABLE:
-			break;
+			if (key_down) break;
+			else return true;
 		case AimKeyMode_t::PRESS_TO_DISABLE:
-			return true;
+			if (key_down) return true;
+			else break;
 		case AimKeyMode_t::PRESS_TO_TOGGLE:
 			m_bAimKeySwitch = !m_bAimKeySwitch;
 			if (!m_bAimKeySwitch) return true;
@@ -116,12 +117,9 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (this->v_bAmbassador->GetBool()) {
-		//  TODO defindex check
-		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFRevolver) {
-			if ((interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) <= 1.0) {
-				return true;
-			}
+	if (IsAmbassador(g_pLocalPlayer->weapon)) {
+		if ((interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flLastFireTime)) <= 1.0) {
+			return true;
 		}
 	}
 
@@ -149,7 +147,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 			m_iHitbox = 0;
 			break;
 		case ClassID::CTFRevolver:
-			if (this->v_bAmbassador->GetBool()) {
+			if (IsAmbassador(g_pLocalPlayer->weapon)) {
 				m_iHitbox = 0;
 			}
 		}

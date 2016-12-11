@@ -15,7 +15,7 @@ DEFINE_HACK_SINGLETON(SpyAlert);
 const char* SpyAlert::GetName() { return "SPY ALERT"; }
 
 SpyAlert::SpyAlert() {
-	this->v_bEnabled = CreateConVar("u_spyalert_enabled", "1", "Spy alert enabled");
+	this->v_bEnabled = CreateConVar("u_spyalert_enabled", "0", "Spy alert enabled");
 	this->v_flWarningDistance = CreateConVar("u_spyalert_warning", "500.0", "Spy warning distance");
 	this->v_flBackstabDistance = CreateConVar("u_spyalert_backstab", "200.0", "Spy backstab warning distance");
 }

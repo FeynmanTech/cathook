@@ -35,7 +35,7 @@ void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 ESP::ESP() {
-	this->v_bEnabled = CreateConVar("u_esp_enabled", "1", "Enables ESP");
+	this->v_bEnabled = CreateConVar("u_esp_enabled", "0", "Enables ESP");
 	this->v_bEntityESP = CreateConVar("u_esp_entity", "0", "Entity ESP (dev)");
 	this->v_bTeammates = CreateConVar("u_esp_teammates", "0", "ESP own team");
 	this->v_bItemESP = CreateConVar("u_esp_item", "0", "Item ESP (powerups, health packs, etc)");
@@ -53,6 +53,7 @@ ESP::ESP() {
 	v_bShowHealthPacks = CreateConVar("u_esp_item_health", "1", "Show health packs");
 	v_bShowPowerups = CreateConVar("u_esp_item_powerups", "1", "Show powerups");
 	v_bShowHealthNumbers = CreateConVar("u_esp_health_num", "1", "Show health number");
+	v_bShowMoney = CreateConVar("u_esp_money", "1", "MvM money");
 }
 
 #define ESP_HEIGHT 14
@@ -138,7 +139,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 			}
 		}
 		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
-		color = colors::GetTeamColor(ent->Var<int>(eoffsets.iTeamNum), false);
+		color = colors::GetTeamColor(ent->Var<int>(eoffsets.iTeamNum), !ent->m_bIsVisible);
 		DrawBox(ent, color, 1.0f, 0.0f, true, ent->Var<int>(eoffsets.iBuildingHealth), ent->Var<int>(eoffsets.iBuildingMaxHealth));
 	break;
 	}
@@ -175,6 +176,12 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		}
 		break;
 	}
+	case ClassID::CCurrencyPack: {
+		if (!v_bShowMoney->GetBool()) break;
+		color = colors::green;
+		ent->AddESPString(color, bgclr, "$$$");
+		ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+	} break;
 	case ClassID::CBaseAnimating: {
 		if (!this->v_bItemESP->GetBool()) break;
 		item_type type = GetItemType(ent->m_pEntity);

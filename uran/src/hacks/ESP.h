@@ -30,6 +30,7 @@ public:
 	ConVar* v_bShowAmmoPacks;
 	ConVar* v_bShowHealthPacks;
 	ConVar* v_bShowPowerups;
+	ConVar* v_bShowMoney;
 	ConVar* v_bTeammatePowerup;
 	ConVar* v_bShowHead;
 	ConVar* v_bShowEntityID;
