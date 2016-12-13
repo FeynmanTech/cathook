@@ -36,8 +36,6 @@
 #include "hacks/SpyAlert.h"
 #include "hacks/Trigger.h"
 
-#include "followbot/ipcctl.h"
-
 #include "common.h"
 #include "sharedobj.h"
 #include "hooks.h"
@@ -49,6 +47,7 @@
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
+#include "ipc/ipcctl.h"
 
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
@@ -73,8 +72,8 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	if (g_phFollowBot->v_bEnabled->GetBool()) {
-		ipc_bot_seg* seg_g = g_phFollowBot->m_pIPC->GetBotCommand(0);
-		ipc_bot_seg* seg_l = g_phFollowBot->m_pIPC->GetBotCommand(g_phFollowBot->m_pIPC->bot_id);
+		ipc_client_seg* seg_g = g_phFollowBot->m_pIPC->GetClientSegment(0);
+		ipc_client_seg* seg_l = g_phFollowBot->m_pIPC->GetClientSegment(g_phFollowBot->m_pIPC->client_id);
 
 		if (seg_g == 0) {
 			logging::Info("!!! seg_g == 0 !!!");

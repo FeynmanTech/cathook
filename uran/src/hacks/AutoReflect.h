@@ -12,12 +12,11 @@
 
 class IClientEntity;
 
-bool IsReflectableProjectile(IClientEntity* ent);
-
 class AutoReflect : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	AutoReflect();
+	bool ShouldReflect(IClientEntity* ent);
 	ConVar* v_bEnabled;
 	ConVar* v_bDisableWhenAttacking;
 	ConVar* v_bReflectStickies;

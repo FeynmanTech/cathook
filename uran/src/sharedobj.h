@@ -11,6 +11,8 @@
 struct link_map;
 typedef void *(*fn_CreateInterface_t)(const char*, int*);
 
+const char* path_from_proc_maps(const char* path);
+
 namespace sharedobj {
 
 class SharedObject {

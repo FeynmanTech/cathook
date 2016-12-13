@@ -214,6 +214,13 @@ void CC_DumpAttribs(const CCommand& args) {
 	}
 }
 
+void CC_SetValue(const CCommand& args) {
+	ConVar* var = interfaces::cvar->FindVar(args.Arg(1));
+	if (!var) return;
+	var->SetValue(args.Arg(2));
+	logging::Info("Set '%s' to '%s'", args.Arg(1), args.Arg(2));
+}
+
 Misc::Misc() {
 	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
 	c_Name = CreateConCommand("u_name", CC_SetName, "Sets custom name");
@@ -231,6 +238,7 @@ Misc::Misc() {
 	c_DisconnectVAC = CreateConCommand("u_disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
 	v_bInfoSpam = CreateConVar("u_info_spam", "0", "Info spam");
 	v_bFakeCrouch = CreateConVar("u_fakecrouch", "0", "Fake crouch");
+	CreateConCommand("u_set", CC_SetValue, "Set ConVar");
 }
 
 int sa_switch = 0;
@@ -313,6 +321,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(draw::white, draw::black, "Speed: %f", speed);
 			AddSideString(draw::white, draw::black, "Gravity: %f", gravity);
 			AddSideString(draw::white, draw::black, "IsZoomed: %i", g_pLocalPlayer->bWasZoomed);
+			AddSideString(draw::white, draw::black, "???: %f", *(float*)((uintptr_t)g_pLocalPlayer->entity + 2908) - interfaces::gvars->curtime);
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
 			//y += 14;

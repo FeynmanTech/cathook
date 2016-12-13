@@ -10,9 +10,9 @@
 #include <signal.h>
 
 #include "../common.h"
+#include "../ipc/ipcctl.h"
 #include "../sdk.h"
 
-#include "../followbot/ipcctl.h"
 
 
 DEFINE_HACK_SINGLETON(FollowBot);
@@ -352,12 +352,12 @@ void CC_BotCommand(const CCommand& args) {
 	} else {
 		logging::Info("Executing command `%s` on bot %i.", buf, bot_id);
 	}
-	g_phFollowBot->m_pIPC->WriteBotCommand(bot_id, (char*)buf);
+	g_phFollowBot->m_pIPC->SetCommand(bot_id, (char*)buf);
 }
 
 void CC_IPCList(const CCommand& args) {
 	for (int i = 1; i < MAX_SEGS; i++) {
-		ipc_bot_seg seg = g_phFollowBot->m_pIPC->mem->segments[i];
+		ipc_client_seg seg = g_phFollowBot->m_pIPC->mem->segments[i];
 		if (seg.initialized && (time(0) - seg.last_access_time < ACCESS_TIMEOUT)) {
 			if (kill(seg.owner_pid, 0) == -1) {
 				if (errno == ESRCH) continue;
@@ -392,7 +392,7 @@ FollowBot::FollowBot() {
 	m_pIPC = new ipcctl();
 	if (m_pIPC->Init()) {
 		logging::Info("Successfully allocated shared memory!");
-		logging::Info("Bot ID: %i", m_pIPC->bot_id);
+		logging::Info("Bot ID: %i", m_pIPC->client_id);
 	} else {
 		logging::Info("Failed to allocate shared memory for bot.");
 	}

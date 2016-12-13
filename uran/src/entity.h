@@ -79,6 +79,9 @@ public:
 	offset_t flLastFireTime;
 	offset_t hThrower;
 	offset_t hMyWeapons;
+
+	offset_t Rocket_iDeflected;
+	offset_t Grenade_iDeflected;
 };
 
 // TODO globals

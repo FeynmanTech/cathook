@@ -12,8 +12,28 @@
 #include <unistd.h>
 #include <link.h>
 #include <dlfcn.h>
-#include <libgen.h>
-#include <pwd.h>
+
+const char* path_from_proc_maps(const char* name) {
+	FILE* proc_maps = fopen(strfmt("/proc/%i/maps", getpid()), "r");
+	if (!proc_maps) return (const char*)0;
+	char* buffer = new char[512];
+	while (fgets(buffer, 512, proc_maps)) {
+		size_t length = strlen(buffer);
+		size_t path_begin = 0;
+		size_t filename_begin = 0;
+		for (size_t i = 0; i < length; i++) {
+			if (*(char*)((size_t)buffer + i) == '/' && !path_begin) path_begin = i;
+			if (*(char*)((size_t)buffer + i) == '/') filename_begin = i + 1;
+		}
+		if (!path_begin || !filename_begin) continue;
+		char* filename = buffer + filename_begin;
+		filename[strlen(filename) - 1] = '\0';
+		if (!strcmp(name, filename)) {
+			return buffer + path_begin;
+		}
+	}
+	return (const char*)0;
+}
 
 namespace logging {
 void Info(const char* fmt, ...);
@@ -28,9 +48,11 @@ sharedobj::SharedObject* sharedobj::vstdlib = 0;
 sharedobj::SharedObject* sharedobj::tier0 = 0;
 sharedobj::SharedObject* sharedobj::inputsystem = 0;
 
-sharedobj::SharedObject::SharedObject(const char* path, bool factory) {
-	this->path = path;
-	logging::Info("Loading SharedObject: %s", path);
+sharedobj::SharedObject::SharedObject(const char* name, bool factory) {
+	logging::Info("Loading SharedObject: %s", name);
+	while (!(this->path = path_from_proc_maps(name))) {
+		sleep(1);
+	}
 	while (!(lmap = (link_map*)dlopen(path, RTLD_NOLOAD))) {
 		sleep(1);
 		if (0 != dlerror()) {
@@ -64,15 +86,13 @@ void* sharedobj::SharedObject::CreateInterface(const char* name) {
 }
 
 void sharedobj::LoadAllSharedObjects() {
-	passwd* pwd = getpwuid(getuid());
-	char* user = pwd->pw_name;
-	sharedobj::client = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/tf/bin/client.so", user), true);
-	sharedobj::engine = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/engine.so", user), true);
-	sharedobj::steamclient = new SharedObject(strfmt("/home/%s/.local/share/Steam/linux32/steamclient.so", user), true);
-	sharedobj::tier0 = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/libtier0.so", user), false);
-	sharedobj::vgui2 = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/vgui2.so", user), true);
-	sharedobj::vguimatsurface = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/vguimatsurface.so", user), true);
-	sharedobj::vstdlib = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/libvstdlib.so", user), true);
-	sharedobj::inputsystem = new SharedObject(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/bin/inputsystem.so", user), true);
+	sharedobj::client = new SharedObject("client.so", true);
+	sharedobj::engine = new SharedObject("engine.so", true);
+	sharedobj::steamclient = new SharedObject("steamclient.so", true);
+	sharedobj::tier0 = new SharedObject("libtier0.so", false);
+	sharedobj::vgui2 = new SharedObject("vgui2.so", true);
+	sharedobj::vguimatsurface = new SharedObject("vguimatsurface.so", true);
+	sharedobj::vstdlib = new SharedObject("libvstdlib.so", true);
+	sharedobj::inputsystem = new SharedObject("inputsystem.so", true);
 }
 

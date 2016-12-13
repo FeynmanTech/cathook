@@ -8,6 +8,8 @@
 #ifndef CVARSPOOF_H_
 #define CVARSPOOF_H_
 
+// TODO
+
 class SpoofedConVar {
 public:
 	SpoofedConVar(const char* name);

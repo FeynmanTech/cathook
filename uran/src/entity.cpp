@@ -52,6 +52,8 @@ void EntityVariables::Init() {
 	this->hMyWeapons = gNetvars.get_offset("DT_BaseCombatCharacter", "m_hMyWeapons");
 	this->iObserverMode = gNetvars.get_offset("DT_BasePlayer", "m_iObserverMode");
 	this->hObserverTarget = gNetvars.get_offset("DT_BasePlayer", "m_hObserverTarget");
+	this->Rocket_iDeflected = gNetvars.get_offset("DT_TFBaseRocket", "m_iDeflected");
+	this->Grenade_iDeflected = gNetvars.get_offset("DT_TFWeaponBaseGrenadeProj", "m_iDeflected");
 }
 
 void InitEntityOffsets() {
