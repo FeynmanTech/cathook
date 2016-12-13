@@ -27,6 +27,7 @@ public:
 	int cond_3;
 
 	bool bWasZoomed;
+	float flZoomBegin;
 
 	bool bIsReloading;
 

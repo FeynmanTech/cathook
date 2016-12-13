@@ -439,59 +439,46 @@ weaponmode GetWeaponMode(IClientEntity* player) {
 }
 
 // TODO FIX this function
-bool GetProjectileData(IClientEntity* weapon, float& speed, bool& arc, float& gravity) {
+bool GetProjectileData(IClientEntity* weapon, float& speed, float& gravity) {
 	if (!weapon) return false;
-	float rspeed;
-	bool rarc;
-	float rgrav = 0.5f;
+	float rspeed = 0.0f;
+	float rgrav = 0.0f;
+	typedef float(GetProjectileData)(IClientEntity*);
 	switch (weapon->GetClientClass()->m_ClassID) {
 	case ClassID::CTFRocketLauncher_DirectHit:
 		rspeed = 1980.0f;
-		rarc = false;
-		//rgrav = 0.0f;
 	break;
 	case ClassID::CTFRocketLauncher:
 		rspeed = 1100.0f;
-		rarc = false;
-		//rgrav = 0.0f;
 	break;
 	case ClassID::CTFGrenadeLauncher:
-		rspeed = 1200.0f; // TODO Loch-N-Load: 1500u
-		rarc = true;
-		//rgrav = 0.5f;
+		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 528))(weapon);
 	break;
 	case ClassID::CTFCompoundBow: {
 		float servertime = (float)GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase) * interfaces::gvars->interval_per_tick;
 		float curtime_old = interfaces::gvars->curtime;
 		interfaces::gvars->curtime = servertime;
-		typedef float(GetProjectileData)(IClientEntity*);
-		rspeed = (reinterpret_cast<GetProjectileData*>(*(*(const void ***) weapon + 527)))(weapon);
+		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(weapon);
 		rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(weapon);
 		interfaces::gvars->curtime = curtime_old;
-		rarc = true;
 	} break;
 	case ClassID::CTFBat_Wood:
-		//rgrav = 1.0f;
 		rspeed = 3000.0f;
-		rarc = true;
+		rgrav = 0.5f;
 	break;
 	case ClassID::CTFFlareGun:
-		//rgrav = 1.0f;
 		rspeed = 2000.0f;
-		rarc = true;
+		rgrav = 0.5f;
 	break;
 	case ClassID::CTFSyringeGun:
 		rgrav = 0.2f;
 		rspeed = 990.0f;
-		rarc = true;
 	break;
 	default:
 		return false;
 	}
 	speed = rspeed;
-	arc = rarc;
 	gravity = rgrav;
-	if (!arc) gravity = 0;
 	return true;
 }
 
@@ -647,38 +634,7 @@ float GetFov(Vector angle, Vector src, Vector dst)
 }
 
 bool CanHeadshot(IClientEntity* player) {
-	int weapon_handle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
-	IClientEntity* weapon = interfaces::entityList->GetClientEntity(weapon_handle & 0xFFF);
-	if (!weapon) return false;
-	float charged_damage = GetEntityValue<float>(weapon, eoffsets.flChargedDamage);
-	switch(weapon->GetClientClass()->m_ClassID) {
-	case ClassID::CTFSniperRifle:
-		return charged_damage >= 15.0f;
-	case ClassID::CTFSniperRifleDecap: {
-		int decaps = GetEntityValue<int>(player, eoffsets.iDecapitations);
-		switch (decaps) { // TODO VALUES ARE NOT PRECISE
-		// noobish
-		case 0:
-			return charged_damage >= 7.5f;
-		case 1:
-			return charged_damage >= 13.0f;
-		case 2:
-			return charged_damage >= 15.0f;
-		case 3:
-			return charged_damage >= 18.5f;
-		case 4:
-			return charged_damage >= 22.5f;
-		case 5:
-			return charged_damage >= 24.0f;
-		default:
-			return charged_damage >= 25.0f;
-		}
-		break;
-	}
-	case ClassID::CTFSniperRifleClassic:
-		return false; // NO!!! IT CANNOT!!! Fuck classic.
-	}
-	return false;
+	return (g_pLocalPlayer->flZoomBegin > 0.0f && (interfaces::gvars->curtime - g_pLocalPlayer->flZoomBegin > 0.2f));
 }
 
 bool BulletTime() {
@@ -689,11 +645,11 @@ bool BulletTime() {
 
 // TODO casting
 QAngle VectorToQAngle(Vector in) {
-	return QAngle(in.x, in.y, in.z);
+	return *(QAngle*)&in;
 }
 
 Vector QAngleToVector(QAngle in) {
-	return Vector(in.x, in.y, in.z);
+	return *(Vector*)&in;
 }
 
 void AimAt(Vector origin, Vector target, CUserCmd* cmd) {

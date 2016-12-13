@@ -133,23 +133,29 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (player->IsDormant()) return true;
 	m_iHitbox = this->v_iHitbox->GetInt();
 	if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 7;
-	if (g_pLocalPlayer->weapon) {
+	if (g_pLocalPlayer->weapon && this->v_bAutoHitbox->GetBool()) {
 		switch (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID) {
 		case ClassID::CTFSniperRifle:
 		case ClassID::CTFSniperRifleDecap:
 			if (!CanHeadshot(g_pLocalPlayer->entity)) {
 				if (this->v_bZoomedOnly->GetBool()) return true;
 			} else {
-				if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 0;
+				m_iHitbox = 0;
 			}
-			break;
+		break;
 		case ClassID::CTFCompoundBow:
 			m_iHitbox = 0;
-			break;
+		break;
 		case ClassID::CTFRevolver:
 			if (IsAmbassador(g_pLocalPlayer->weapon)) {
 				m_iHitbox = 0;
 			}
+		break;
+		case ClassID::CTFRocketLauncher:
+		case ClassID::CTFRocketLauncher_AirStrike:
+		case ClassID::CTFRocketLauncher_DirectHit:
+		case ClassID::CTFRocketLauncher_Mortar:
+			m_iHitbox = 14;
 		}
 	}
 
@@ -166,7 +172,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == 210) return true;
 	}
 
-	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_bProjArc, m_flProjGravity));
+	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_flProjGravity));
 	// TODO priority modes (FOV, Smart, Distance, etc)
 	IClientEntity* target_highest = 0;
 	float target_highest_score = -256;

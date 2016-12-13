@@ -5,10 +5,7 @@
  *      Author: nullifiedcat
  */
 
-#include "localplayer.h"
-#include "interfaces.h"
-#include "entity.h"
-
+#include "common.h"
 #include "sdk.h"
 
 void LocalPlayer::Update() {
@@ -23,6 +20,11 @@ void LocalPlayer::Update() {
 	clazz = GetEntityValue<int>(entity, eoffsets.iClass);
 	health = GetEntityValue<int>(entity, eoffsets.iHealth);
 	this->bUseSilentAngles = false;
+	if (cond_0 & cond::zoomed) {
+		if (flZoomBegin == 0.0f) flZoomBegin = interfaces::gvars->curtime;
+	} else {
+		flZoomBegin = 0.0f;
+	}
 
 
 	int hWeapon = GetEntityValue<int>(entity, eoffsets.hActiveWeapon);

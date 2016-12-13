@@ -82,6 +82,8 @@ public:
 
 	offset_t Rocket_iDeflected;
 	offset_t Grenade_iDeflected;
+
+	offset_t test;
 };
 
 // TODO globals
