@@ -17,6 +17,7 @@ unsigned int hooks::offOverrideView = 17;
 unsigned int hooks::offFrameStageNotify = 35;
 unsigned int hooks::offCanPacket = 57;
 unsigned int hooks::offSendNetMsg = 41;
+unsigned int hooks::offShutdown = 37;
 
 // This thing had been copypasted from somewhere, maybe from F1Public.
 

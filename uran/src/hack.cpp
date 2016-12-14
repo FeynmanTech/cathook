@@ -165,6 +165,17 @@ bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false,
 	return ((SendNetMsg_t*)hooks::hkNetChannel->GetMethod(hooks::offSendNetMsg))(thisptr, msg, bForceReliable, bVoice);
 }
 
+typedef void(Shutdown_t)(void*, const char*);
+void Hk_Shutdown(void* thisptr, const char* reason) {
+	const char* new_reason;
+	if (g_Settings.sDisconnectMsg->m_StringLength > 0) {
+		new_reason = g_Settings.sDisconnectMsg->GetString();
+	} else {
+		new_reason = reason;
+	}
+	((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, new_reason);
+}
+
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	if (g_pLocalPlayer->entity) {
 		if (g_pLocalPlayer->bWasZoomed) {
@@ -184,6 +195,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		hooks::hkNetChannel->Init(ch, 0);
 		hooks::hkNetChannel->HookMethod((void*)Hk_CanPacket, hooks::offCanPacket);
 		hooks::hkNetChannel->HookMethod((void*)Hk_SendNetMsg, hooks::offSendNetMsg);
+		hooks::hkNetChannel->HookMethod((void*)Hk_Shutdown, hooks::offShutdown);
 		hooks::hkNetChannel->Apply();
 		logging::Info("NetChannel Hooked!");
 	}

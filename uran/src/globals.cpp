@@ -18,6 +18,7 @@ void GlobalSettings::Init() {
 	this->bNoFlinch = CreateConVar("u_noflinch", "0", "No-Flinch");
 	this->bSendPackets = CreateConVar("u_sendpackets", "1", "Send packets");
 	this->bShowLogo = CreateConVar("u_logo", "1", "Show logo");
+	this->sDisconnectMsg = CreateConVar("u_disconnect_msg", "", "Set custom disconnect message");
 }
 
 GlobalSettings g_Settings;

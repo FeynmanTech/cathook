@@ -23,6 +23,7 @@ public:
 	ConVar* bSendPackets;
 	ConVar* bShowLogo;
 	ConVar* flDrawingOpacity;
+	ConVar* sDisconnectMsg;
 };
 
 extern GlobalSettings g_Settings;

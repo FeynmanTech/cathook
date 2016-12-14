@@ -215,10 +215,18 @@ void CC_DumpAttribs(const CCommand& args) {
 }
 
 void CC_SetValue(const CCommand& args) {
+	if (args.ArgC() < 2) return;
 	ConVar* var = interfaces::cvar->FindVar(args.Arg(1));
 	if (!var) return;
-	var->SetValue(args.Arg(2));
-	logging::Info("Set '%s' to '%s'", args.Arg(1), args.Arg(2));
+	char* value = new char[256];
+	snprintf(value, 256, "%s", args.Arg(2));
+	if (args.ArgC() > 2 && atoi(args.Arg(3))) {
+		for (size_t i = 0; i < strlen(value); i++) {
+			if (value[i] == '^') value[i] = '\n';
+		}
+	}
+	var->SetValue(value);
+	logging::Info("Set '%s' to '%s'", args.Arg(1), value);
 }
 
 Misc::Misc() {
@@ -238,7 +246,7 @@ Misc::Misc() {
 	c_DisconnectVAC = CreateConCommand("u_disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
 	v_bInfoSpam = CreateConVar("u_info_spam", "0", "Info spam");
 	v_bFakeCrouch = CreateConVar("u_fakecrouch", "0", "Fake crouch");
-	CreateConCommand("u_set", CC_SetValue, "Set ConVar");
+	CreateConCommand("u_set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
 }
 
 int sa_switch = 0;

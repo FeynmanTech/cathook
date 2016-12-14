@@ -3,22 +3,20 @@ MAX -> MIN priority
 pNoZoom and zoomed aimbot!!!
 
 Deflected by enemy player
-Disconnect ConVar
-ProjAim Feet
 AirStuck FIX
 Aim Stickies
 Proj Aim Buildings
-no aim sapper/banner
+no aim sapper
 Triggerbot ignores vaccinator ubers
-Proper ambassador detection (not just CTFRevolver)
 No AutoShoot (trigger) on consumables and PDAs
 Improve Projectile Aimbot. A lot.
 Integrate SEGVCATCH
 Proper AutoHitbox
 Smoothe the smooth aim
+Extract TF2 path from /proc/maps
 Display on the left
 Flare aim on fire
-Trigger ambassador correction
+Triggerbot ambassador correction
 Melee Aimbot
 Hook + Aimbot FIX
 ESP Icons
@@ -32,20 +30,16 @@ AutoSticky improve
 No AutoShoot when disguised
 Ambassador bodyshotting
 No Trigger Mediguns
-FOV = Float
 More projectile weapons aimbot (wrap assassin, wrangler, stickybomb, airstrike)
-Recalculate rifles' headshot ability (Bazaar + Precision rifles)
 Auto Uber Flash
 Auto trigger DR before rockets
-Building box opacity
 AutoUber
 Sticky vischeck
 KillSay
 InsultSpam
-Airstuck Kick
+Airstuck Idle Kick fix
 Anti Backstab
 Critical rifles bodyshotting
-Show spectators
 Hitbox position cache
 Spy alert uses angles
 More esp tweaking
