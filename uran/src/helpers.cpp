@@ -15,7 +15,7 @@ FILE* hConVarsFile = 0;
 void BeginConVars() {
 	passwd* pwd = getpwuid(getuid());
 	char* user = pwd->pw_name;
-	hConVarsFile = fopen(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/tf/cfg/uran.cfg", user), "w");
+	hConVarsFile = fopen(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/tf/cfg/cat_defaults.cfg", user), "w");
 	SetCVarInterface(interfaces::cvar);
 }
 
