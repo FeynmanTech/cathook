@@ -24,7 +24,7 @@ bool AutoStrafe::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
 	if (g_pLocalPlayer->entity && !g_pLocalPlayer->life_state) {
 		// TODO FL_ONGROUND
-		if (GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iFlags) & (1 << 0)) return true;
+		if (GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iFlags) & (1 << 0)) return true;
 		if (abs(cmd->mousedx) > 1) {
 			cmd->sidemove = (cmd->mousedx) < 0.0f ? -450.0f : 450.0f;
 		}

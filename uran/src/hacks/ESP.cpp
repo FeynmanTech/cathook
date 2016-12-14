@@ -111,12 +111,12 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	switch (ent->m_iClassID) {
 	case ClassID::CTFPlayer: {
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent->m_pEntity)) {
-			if (ent->Var<int>(eoffsets.iCond) & cond::cloaked) return;
+			if (ent->Var<int>(netvar.iCond) & cond::cloaked) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
-		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !GetRelation(ent->m_pEntity)) break;
+		if (ent->Var<int>(netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !GetRelation(ent->m_pEntity)) break;
 		if (!ent->m_bAlivePlayer) break;
 		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
 		switch (GetRelation(ent->m_pEntity)) {
@@ -127,7 +127,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 			color = colors::yellow;
 			break;
 		}
-		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(eoffsets.iHealth), ent->m_iMaxHealth);
+		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(netvar.iHealth), ent->m_iMaxHealth);
 	break;
 	}
 	case ClassID::CObjectSentrygun:
@@ -138,9 +138,9 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 				return;
 			}
 		}
-		if (ent->Var<int>(eoffsets.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
-		color = colors::GetTeamColor(ent->Var<int>(eoffsets.iTeamNum), !ent->m_bIsVisible);
-		DrawBox(ent, color, 1.0f, 0.0f, true, ent->Var<int>(eoffsets.iBuildingHealth), ent->Var<int>(eoffsets.iBuildingMaxHealth));
+		if (ent->Var<int>(netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
+		color = colors::GetTeamColor(ent->Var<int>(netvar.iTeamNum), !ent->m_bIsVisible);
+		DrawBox(ent, color, 1.0f, 0.0f, true, ent->Var<int>(netvar.iBuildingHealth), ent->Var<int>(netvar.iBuildingMaxHealth));
 	break;
 	}
 	}
@@ -214,8 +214,8 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	case ClassID::CTFPlayer: {
 		if (!ent->m_bAlivePlayer) break;
 		if (ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
-		int pclass = ent->Var<int>(eoffsets.iClass);
-		int pcond = ent->Var<int>(eoffsets.iCond);
+		int pclass = ent->Var<int>(netvar.iClass);
+		int pcond = ent->Var<int>(netvar.iCond);
 		player_info_t info;
 		if (!interfaces::engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
 		powerup_type power = GetPowerupOnPlayer(ent->m_pEntity);
@@ -270,7 +270,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	case ClassID::CObjectDispenser:
 	case ClassID::CObjectTeleporter: {
 		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) break;
-		int level = ent->Var<int>(eoffsets.iUpgradeLevel);
+		int level = ent->Var<int>(netvar.iUpgradeLevel);
 		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
 		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {

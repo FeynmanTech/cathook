@@ -23,7 +23,6 @@ const char* Airstuck::GetName() {
 }
 
 bool Airstuck::CreateMove(void*, float, CUserCmd* cmd) {
-	// TODO Airstuck.
 	interfaces::cvar->FindVar("net_fakeloss")->SetValue(0);
 	interfaces::cvar->FindVar("host_timescale")->SetValue(1.0f);
 	if (v_bStuck->GetBool()) {

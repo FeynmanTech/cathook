@@ -26,8 +26,8 @@ void EndConVars() {
 
 
 bool IsPlayerInvulnerable(IClientEntity* player) {
-	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
-	int cond2 = GetEntityValue<int>(player, eoffsets.iCond1);
+	int cond1 = GetEntityValue<int>(player, netvar.iCond);
+	int cond2 = GetEntityValue<int>(player, netvar.iCond1);
 	int uber_mask_1 = (cond::uber | cond::bonk);
 	int uber_mask_2 = (cond_ex::hidden_uber | cond_ex::canteen_uber | cond_ex::misc_uber | cond_ex::phlog_uber);
 	if ((cond1 & uber_mask_1) || (cond2 & uber_mask_2)) {
@@ -39,9 +39,9 @@ bool IsPlayerInvulnerable(IClientEntity* player) {
 }
 
 bool IsPlayerCritBoosted(IClientEntity* player) {
-	int cond1 = GetEntityValue<int>(player, eoffsets.iCond);
-	int cond2 = GetEntityValue<int>(player, eoffsets.iCond1);
-	int cond4 = GetEntityValue<int>(player, eoffsets.iCond3);
+	int cond1 = GetEntityValue<int>(player, netvar.iCond);
+	int cond2 = GetEntityValue<int>(player, netvar.iCond1);
+	int cond4 = GetEntityValue<int>(player, netvar.iCond3);
 	int crit_mask_1 = (cond::kritzkrieg);
 	int crit_mask_2 = (cond_ex::halloween_crit | cond_ex::canteen_crit | cond_ex::first_blood_crit | cond_ex::winning_crit |
 			cond_ex::intelligence_crit | cond_ex::on_kill_crit | cond_ex::phlog_crit | cond_ex::misc_crit);
@@ -197,8 +197,8 @@ powerup_type GetPowerupType(IClientEntity* ent) {
 
 powerup_type GetPowerupOnPlayer(IClientEntity* player) {
 	if (!player) return powerup_type::not_powerup;
-	uint32_t cond2 = GetEntityValue<uint32_t>(player, eoffsets.iCond2);
-	uint32_t cond3 = GetEntityValue<uint32_t>(player, eoffsets.iCond3);
+	uint32_t cond2 = GetEntityValue<uint32_t>(player, netvar.iCond2);
+	uint32_t cond3 = GetEntityValue<uint32_t>(player, netvar.iCond3);
 	//if (!(cond2 & cond_ex2::powerup_generic)) return powerup_type::not_powerup;
 	if (cond2 & cond_ex2::powerup_strength) return powerup_type::strength;
 	if (cond2 & cond_ex2::powerup_haste) return powerup_type::haste;
@@ -231,7 +231,7 @@ int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
 	if (!shdr) return 2;
 	// TODO rewrite
 
-	mstudiohitboxset_t* set = shdr->pHitboxSet(GetEntityValue<int>(entity, eoffsets.iHitboxSet));
+	mstudiohitboxset_t* set = shdr->pHitboxSet(GetEntityValue<int>(entity, netvar.iHitboxSet));
 	if (!set) return 4;
 	mstudiobbox_t* box = set->pHitbox(hb);
 	if (!box) return 5;
@@ -314,7 +314,7 @@ bool IsEntityVisible(IClientEntity* entity, int hb) {
 		//logging::Info("Couldn't get hitbox position: %i", hb);
 		return false;
 	}
-	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);
+	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, netvar.vViewOffset), hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
 	if (trace_visible.m_pEnt) {
 		return ((IClientEntity*)trace_visible.m_pEnt) == entity;
@@ -332,7 +332,7 @@ Vector GetBuildingPosition(IClientEntity* ent) {
 		res.z += 8;
 		break;
 	case ClassID::CObjectSentrygun:
-		switch (GetEntityValue<int>(ent, eoffsets.iUpgradeLevel)) {
+		switch (GetEntityValue<int>(ent, netvar.iUpgradeLevel)) {
 		case 1:
 			res.z += 30;
 			break;
@@ -411,8 +411,8 @@ float DistToSqr(IClientEntity* entity) {
 
 weaponmode GetWeaponMode(IClientEntity* player) {
 	if (!player) return weapon_invalid;
-	int weapon_handle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
-	if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 2)) return weaponmode::weapon_melee;
+	int weapon_handle = GetEntityValue<int>(player, netvar.hActiveWeapon);
+	if (weapon_handle == GetEntityValue<int>(player, netvar.hMyWeapons + sizeof(int) * 2)) return weaponmode::weapon_melee;
 	IClientEntity* weapon = interfaces::entityList->GetClientEntity(weapon_handle & 0xFFF);
 	if (!weapon) return weaponmode::weapon_invalid;
 	switch (weapon->GetClientClass()->m_ClassID) {
@@ -431,9 +431,9 @@ weaponmode GetWeaponMode(IClientEntity* player) {
 	case ClassID::CTFSyringeGun:
 		return weaponmode::weapon_projectile;
 	};
-	if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 3)) return weaponmode::weapon_pda;
-	if (GetEntityValue<int>(player, eoffsets.iClass) == tf_class::tf_medic) {
-		if (weapon_handle == GetEntityValue<int>(player, eoffsets.hMyWeapons + sizeof(int) * 1)) return weaponmode::weapon_medigun;
+	if (weapon_handle == GetEntityValue<int>(player, netvar.hMyWeapons + sizeof(int) * 3)) return weaponmode::weapon_pda;
+	if (GetEntityValue<int>(player, netvar.iClass) == tf_class::tf_medic) {
+		if (weapon_handle == GetEntityValue<int>(player, netvar.hMyWeapons + sizeof(int) * 1)) return weaponmode::weapon_medigun;
 	}
 	return weaponmode::weapon_hitscan;
 }
@@ -455,7 +455,7 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, float& gravity) {
 		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 528))(weapon);
 	break;
 	case ClassID::CTFCompoundBow: {
-		float servertime = (float)GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase) * interfaces::gvars->interval_per_tick;
+		float servertime = (float)GetEntityValue<int>(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
 		float curtime_old = interfaces::gvars->curtime;
 		interfaces::gvars->curtime = servertime;
 		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(weapon);
@@ -487,16 +487,16 @@ const char* MakeInfoString(IClientEntity* player) {
 	player_info_t info;
 	if (!interfaces::engineClient->GetPlayerInfo(player->entindex(), &info)) return (const char*)0;
 	logging::Info("a");
-	int hWeapon = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
-	if (GetEntityValue<char>(player, eoffsets.iLifeState)) {
-		sprintf(buf, "%s is dead %s", info.name, tfclasses[GetEntityValue<int>(player, eoffsets.iClass)]);
+	int hWeapon = GetEntityValue<int>(player, netvar.hActiveWeapon);
+	if (GetEntityValue<char>(player, netvar.iLifeState)) {
+		sprintf(buf, "%s is dead %s", info.name, tfclasses[GetEntityValue<int>(player, netvar.iClass)]);
 		return buf;
 	}
 	if (hWeapon) {
 		IClientEntity* weapon = interfaces::entityList->GetClientEntity(hWeapon & 0xFFF);
-		sprintf(buf, "%s is %s with %i health using %s", info.name, tfclasses[GetEntityValue<int>(player, eoffsets.iClass)], GetEntityValue<int>(player, eoffsets.iHealth), weapon->GetClientClass()->GetName());
+		sprintf(buf, "%s is %s with %i health using %s", info.name, tfclasses[GetEntityValue<int>(player, netvar.iClass)], GetEntityValue<int>(player, netvar.iHealth), weapon->GetClientClass()->GetName());
 	} else {
-		sprintf(buf, "%s is %s with %i health", info.name, tfclasses[GetEntityValue<int>(player, eoffsets.iClass)], GetEntityValue<int>(player, eoffsets.iHealth));
+		sprintf(buf, "%s is %s with %i health", info.name, tfclasses[GetEntityValue<int>(player, netvar.iClass)], GetEntityValue<int>(player, netvar.iHealth));
 	}
 	logging::Info("Result: %s", buf);
 	return buf;
@@ -561,14 +561,13 @@ relation GetRelation(IClientEntity* ent) {
 }
 
 bool IsSentryBuster(IClientEntity* entity) {
-	// TODO
-	return (entity && entity->GetClientClass()->m_ClassID == ClassID::CTFPlayer && GetEntityValue<int>(entity, eoffsets.iClass) == tf_class::tf_demoman && g_pPlayerResource->GetMaxHealth(entity) == 2500);
+	return (entity && entity->GetClientClass()->m_ClassID == ClassID::CTFPlayer && GetEntityValue<int>(entity, netvar.iClass) == tf_class::tf_demoman && g_pPlayerResource->GetMaxHealth(entity) == 2500);
 }
 
 bool IsAmbassador(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->GetClientClass()->m_ClassID != ClassID::CTFRevolver) return false;
-	int defidx = GetEntityValue<int>(entity, eoffsets.iItemDefinitionIndex);
+	int defidx = GetEntityValue<int>(entity, netvar.iItemDefinitionIndex);
 	switch (defidx) {
 	case 61:
 	case 1006:
@@ -638,12 +637,11 @@ bool CanHeadshot(IClientEntity* player) {
 }
 
 bool BulletTime() {
-	float tickbase = (float)(GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.nTickBase)) * interfaces::gvars->interval_per_tick;
-	float nextattack = GetEntityValue<float>(g_pLocalPlayer->weapon, eoffsets.flNextPrimaryAttack);
+	float tickbase = (float)(GetEntityValue<int>(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick;
+	float nextattack = GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack);
 	return nextattack <= tickbase;
 }
 
-// TODO casting
 QAngle VectorToQAngle(Vector in) {
 	return *(QAngle*)&in;
 }
@@ -681,7 +679,7 @@ bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {
 	if (ret) {
 		return false;
 	}
-	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, eoffsets.vViewOffset), hit);
+	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, netvar.vViewOffset), hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterPenetration, &trace_visible);
 	bool s = false;
 	if (trace_visible.m_pEnt) {
@@ -752,7 +750,7 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	SetEntityValue<void *>(ent, 0x105C, ucmd);
 
 	// set up the globals
-	interfaces::gvars->curtime =  interfaces::gvars->interval_per_tick * GetEntityValue<int>(ent, eoffsets.nTickBase);
+	interfaces::gvars->curtime =  interfaces::gvars->interval_per_tick * GetEntityValue<int>(ent, netvar.nTickBase);
 	interfaces::gvars->frametime = interfaces::gvars->interval_per_tick;
 
 	oStartTrackPredictionErrors(ent);

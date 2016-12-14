@@ -46,21 +46,21 @@ void CachedEntity::Update(int idx) {
 	}
 	m_bAlivePlayer = false;
 	if (m_iClassID == ClassID::CTFPlayer) {
-		m_bAlivePlayer = !(m_bNULL || m_bDormant || GetEntityValue<char>(m_pEntity, eoffsets.iLifeState));
-		m_iTeam = Var<int>(eoffsets.iTeamNum); // TODO
+		m_bAlivePlayer = !(m_bNULL || m_bDormant || GetEntityValue<char>(m_pEntity, netvar.iLifeState));
+		m_iTeam = Var<int>(netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_bIsVisible = (IsEntityVisible(m_pEntity, 0) || IsEntityVisible(m_pEntity, 4));
-		m_iHealth = Var<int>(eoffsets.iHealth);
+		m_iHealth = Var<int>(netvar.iHealth);
 		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(m_pEntity);
 		if (m_bIsVisible) m_lLastSeen = 0;
 		else m_lLastSeen++;
 	}
 	if (m_iClassID == ClassID::CObjectSentrygun || m_iClassID == ClassID::CObjectDispenser || m_iClassID == ClassID::CObjectTeleporter) {
-		m_iTeam = Var<int>(eoffsets.iTeamNum); // TODO
+		m_iTeam = Var<int>(netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_bIsVisible = (IsEntityVisible(m_pEntity, 0));
-		m_iHealth = Var<int>(eoffsets.iBuildingHealth);
-		m_iMaxHealth = Var<int>(eoffsets.iBuildingMaxHealth);
+		m_iHealth = Var<int>(netvar.iBuildingHealth);
+		m_iMaxHealth = Var<int>(netvar.iBuildingMaxHealth);
 		if (m_bIsVisible) m_lLastSeen = 0;
 		else m_lLastSeen++;
 	}

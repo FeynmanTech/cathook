@@ -8,8 +8,7 @@ a * entity.cpp
 #include "copypasted/Netvar.h"
 #include "common.h"
 
-// TODO globals
-EntityVariables eoffsets;
+EntityVariables netvar;
 
 void EntityVariables::Init() {
 	this->iCond = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCond");
@@ -58,5 +57,5 @@ void EntityVariables::Init() {
 }
 
 void InitEntityOffsets() {
-	eoffsets.Init();
+	netvar.Init();
 }

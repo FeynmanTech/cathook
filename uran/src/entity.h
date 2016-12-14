@@ -86,7 +86,6 @@ public:
 	offset_t test;
 };
 
-// TODO globals
-extern EntityVariables eoffsets;
+extern EntityVariables netvar;
 
 #endif /* ENTITY_H_ */

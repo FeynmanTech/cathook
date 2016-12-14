@@ -179,7 +179,7 @@ void Hk_Shutdown(void* thisptr, const char* reason) {
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	if (g_pLocalPlayer->entity) {
 		if (g_pLocalPlayer->bWasZoomed) {
-			SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 |= cond::zoomed);
+			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 |= cond::zoomed);
 		}
 	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
@@ -231,7 +231,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	}*/
 	if (g_pLocalPlayer->entity) {
 		if (g_Settings.bNoZoom->GetBool()) {
-			SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &= ~cond::zoomed);
+			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 &= ~cond::zoomed);
 		}
 	}
 
@@ -253,15 +253,15 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
 	if (g_pLocalPlayer->weapon) {
-		int defidx = GetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex);
+		int defidx = GetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
 		if (defidx == 61) {
-			SetEntityValue<int>(g_pLocalPlayer->weapon, eoffsets.iItemDefinitionIndex, 1006);
+			SetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex, 1006);
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 	if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 		static Vector oldPunchAngles = Vector();
-		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, eoffsets.vecPunchAngle);
+		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, netvar.vecPunchAngle);
 		QAngle viewAngles;
 		interfaces::engineClient->GetViewAngles(viewAngles);
 		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
@@ -271,8 +271,8 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 
 	if (g_Settings.bNoZoom->GetBool()) {
 		if (g_pLocalPlayer->entity) {
-			g_pLocalPlayer->bWasZoomed = GetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond) & cond::zoomed;
-			SetEntityValue(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
+			g_pLocalPlayer->bWasZoomed = GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
+			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
 		}
 	}
 }
@@ -311,14 +311,9 @@ void hack::InitHacks() {
 
 void hack::Initialize() {
 	logging::Initialize();
-	//std::string test = "";
 	logging::Info("Build: " __DATE__ " " __TIME__);
 	logging::Info("Loading shared objects...");
 	sharedobj::LoadAllSharedObjects();
-	/* TODO */
-	//logging::Info("TRYIN' SHIT");
-	//CGlowObject* gom = (CGlowObject*)((uintptr_t)sharedobj::client->lmap->l_addr + 0x01FC6260);
-	//logging::Info("MANAGER?? 0x%08f", gom);
 	logging::Info("Creating interfaces...");
 	interfaces::CreateInterfaces();
 	logging::Info("Interfaces created!");
@@ -368,8 +363,6 @@ void hack::Initialize() {
 }
 
 void hack::Think() {
-	//logging::Info("Hack::Think");
-	// Fucking TODo
 	usleep(250000);
 }
 

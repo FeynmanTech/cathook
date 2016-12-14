@@ -30,7 +30,7 @@ bool AutoSticky::ShouldDetonate(IClientEntity* bomb) {
 		CachedEntity* ent = gEntityCache.GetEntity(i);
 		if (ent->m_bNULL) continue;
 		if (ent->m_iClassID != ClassID::CTFPlayer && !(this->v_bBuildings->GetBool() && IsBuilding(ent->m_pEntity))) continue;
-		if (ent->m_iTeam == GetEntityValue<int>(bomb, eoffsets.iTeamNum)) continue;
+		if (ent->m_iTeam == GetEntityValue<int>(bomb, netvar.iTeamNum)) continue;
 		if (ent->m_pEntity->GetAbsOrigin().DistToSqr(bomb->GetAbsOrigin()) > this->v_flDetonateDistance->GetFloat() * this->v_flDetonateDistance->GetFloat()) continue;
 		return true;
 	}
@@ -44,7 +44,7 @@ bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 		if (ent->m_bNULL) continue;
 		if (ent->m_iClassID != ClassID::CTFGrenadePipebombProjectile) continue;
 		if (g_pLocalPlayer->entity) {
-			IClientEntity* owner = interfaces::entityList->GetClientEntity(ent->Var<int>(eoffsets.hThrower) & 0xFFF);
+			IClientEntity* owner = interfaces::entityList->GetClientEntity(ent->Var<int>(netvar.hThrower) & 0xFFF);
 			//logging::Info("Owner: 0x%08x", owner);
 			if (!owner) continue;
 			if (owner != g_pLocalPlayer->entity) continue;

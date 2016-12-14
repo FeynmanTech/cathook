@@ -26,8 +26,8 @@ void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
 		if (!ent) continue;
 		if (ent->GetClientClass()->m_ClassID == ClassID::CTFPlayer) {
-			if (GetEntityValue<int>(ent, eoffsets.iClass) == tf_class::tf_spy) {
-				SetEntityValue<int>(ent, eoffsets.iCond, GetEntityValue<int>(ent, eoffsets.iCond) &~ cond::disguised);
+			if (GetEntityValue<int>(ent, netvar.iClass) == tf_class::tf_spy) {
+				SetEntityValue<int>(ent, netvar.iCond, GetEntityValue<int>(ent, netvar.iCond) &~ cond::disguised);
 			}
 		}
 	}

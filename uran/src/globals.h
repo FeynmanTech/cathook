@@ -13,7 +13,6 @@ class ConVar;
 class GlobalSettings {
 public:
 	void Init();
-	// TODO
 	ConVar* flForceFOV;
 	ConVar* bHackEnabled;
 	ConVar* bIgnoreTaunting;

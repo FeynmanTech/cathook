@@ -39,12 +39,12 @@ int GetScoreForEntity(IClientEntity* entity) {
 		}
 		return 0;
 	}
-	int clazz = GetEntityValue<int>(entity, eoffsets.iClass);
-	int health = GetEntityValue<int>(entity, eoffsets.iHealth);
+	int clazz = GetEntityValue<int>(entity, netvar.iClass);
+	int health = GetEntityValue<int>(entity, netvar.iHealth);
 	float distance = (g_pLocalPlayer->v_Origin - entity->GetAbsOrigin()).Length();
-	bool zoomed = (GetEntityValue<int>(entity, eoffsets.iCond) & cond::zoomed);
-	int condx = (GetEntityValue<int>(entity, eoffsets.iCond1));
-	int condx2 = (GetEntityValue<int>(entity, eoffsets.iCond2));
+	bool zoomed = (GetEntityValue<int>(entity, netvar.iCond) & cond::zoomed);
+	int condx = (GetEntityValue<int>(entity, netvar.iCond1));
+	int condx2 = (GetEntityValue<int>(entity, netvar.iCond2));
 	bool pbullet = (condx & cond_ex::vacc_pbullet);
 	bool special = false;
 	bool kritz = IsPlayerCritBoosted(entity);

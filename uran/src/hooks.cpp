@@ -68,7 +68,6 @@ void hooks::VMTHook::Apply() {
 	*vmt = array + 3;
 }
 
-// TODO rename these
 hooks::VMTHook* hooks::hkClientMode = 0;
 hooks::VMTHook* hooks::hkPanel = 0;
 hooks::VMTHook* hooks::hkClient = 0;
