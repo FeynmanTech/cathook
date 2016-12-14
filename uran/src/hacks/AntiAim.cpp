@@ -17,9 +17,9 @@ const char* AntiAim::GetName() {
 }
 
 AntiAim::AntiAim() {
-	this->v_bEnabled = CreateConVar("u_aa_enabled", "0", "Enable AntiAim");
-	this->v_flPitch = CreateConVar("u_aa_pitch", "-89.0", "Pitch");
-	this->v_flSpinSpeed = CreateConVar("u_aa_spin", "10.0", "Spin speed");
+	this->v_bEnabled = CreateConVar(CON_PREFIX "aa_enabled", "0", "Enable AntiAim");
+	this->v_flPitch = CreateConVar(CON_PREFIX "aa_pitch", "-89.0", "Pitch");
+	this->v_flSpinSpeed = CreateConVar(CON_PREFIX "aa_spin", "10.0", "Spin speed");
 }
 
 float spin = -180;

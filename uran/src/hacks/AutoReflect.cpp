@@ -54,10 +54,10 @@ bool AutoReflect::ShouldReflect(IClientEntity* ent) {
 // Hack Methods
 
 AutoReflect::AutoReflect() {
-	v_bEnabled = CreateConVar("u_reflect_enabled", "0", "Autoreflect");
-	v_iReflectDistance = CreateConVar("u_reflect_distance", "200", "Autoreflect distance");
-	v_bDisableWhenAttacking = CreateConVar("u_reflect_only_idle", "0", "Autoreflect active only when not shooting");
-	v_bReflectStickies = CreateConVar("u_reflect_stickybombs", "0", "Reflect stickies");
+	v_bEnabled = CreateConVar(CON_PREFIX "reflect_enabled", "0", "Autoreflect");
+	v_iReflectDistance = CreateConVar(CON_PREFIX "reflect_distance", "200", "Autoreflect distance");
+	v_bDisableWhenAttacking = CreateConVar(CON_PREFIX "reflect_only_idle", "0", "Autoreflect active only when not shooting");
+	v_bReflectStickies = CreateConVar(CON_PREFIX "reflect_stickybombs", "0", "Reflect stickies");
 }
 // TODO
 bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {

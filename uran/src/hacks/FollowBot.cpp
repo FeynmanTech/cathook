@@ -368,14 +368,14 @@ void CC_IPCList(const CCommand& args) {
 }
 
 FollowBot::FollowBot() {
-	v_bEnabled = CreateConVar("u_bot_enabled", "0", "Enables followbot");
-	v_iBotPackage = CreateConVar("u_bot_ai", "0", "AI Package (FOLLOW, MEDIC, SNIPER)");
-	c_AddBotID = CreateConCommand("u_bot_addbot", CC_AddBotID, "Adds another bot's ID");
-	c_SetOwner = CreateConCommand("u_bot_owner", CC_SetOwner, "Set followbot owner");
-	c_ResetList = CreateConCommand("u_bot_reset", CC_ResetList, "Resets bot list");
-	c_BotCommand = CreateConCommand("u_bot_command", CC_BotCommand, "Sends bot commands");
-	c_IPCList = CreateConCommand("u_bot_ipclist", CC_IPCList, "Lists IPC status");
-	c_HealOwner = CreateConCommand("u_bot_healowner", CC_HealOwner, "Heals owner");
+	v_bEnabled = CreateConVar(CON_PREFIX "bot_enabled", "0", "Enables followbot");
+	v_iBotPackage = CreateConVar(CON_PREFIX "bot_ai", "0", "AI Package (FOLLOW, MEDIC, SNIPER)");
+	c_AddBotID = CreateConCommand(CON_PREFIX "bot_addbot", CC_AddBotID, "Adds another bot's ID");
+	c_SetOwner = CreateConCommand(CON_PREFIX "bot_owner", CC_SetOwner, "Set followbot owner");
+	c_ResetList = CreateConCommand(CON_PREFIX "bot_reset", CC_ResetList, "Resets bot list");
+	c_BotCommand = CreateConCommand(CON_PREFIX "bot_command", CC_BotCommand, "Sends bot commands");
+	c_IPCList = CreateConCommand(CON_PREFIX "bot_ipclist", CC_IPCList, "Lists IPC status");
+	c_HealOwner = CreateConCommand(CON_PREFIX "bot_healowner", CC_HealOwner, "Heals owner");
 	m_nOwnerID = 0;
 
 	this->last_command_global = 0;
@@ -384,7 +384,7 @@ FollowBot::FollowBot() {
 	m_hTargetFollowing = 0;
 	m_hTargetHealing = 0;
 
-	cmd_Status = CreateConCommand("u_bot_status", CC_BotStatus, "Status");
+	cmd_Status = CreateConCommand(CON_PREFIX "bot_status", CC_BotStatus, "Status");
 	g_pListener = new MedicCallListener();
 	interfaces::eventManager->AddListener(g_pListener, "player_calledformedic", false);
 

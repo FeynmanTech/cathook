@@ -15,7 +15,7 @@
 DEFINE_HACK_SINGLETON(Airstuck);
 
 Airstuck::Airstuck() {
-	v_bStuck = CreateConVar("u_airstuck", "0", "Toggle airstuck");
+	v_bStuck = CreateConVar(CON_PREFIX "airstuck", "0", "Toggle airstuck");
 }
 
 const char* Airstuck::GetName() {

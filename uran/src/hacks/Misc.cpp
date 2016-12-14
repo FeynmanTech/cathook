@@ -230,23 +230,23 @@ void CC_SetValue(const CCommand& args) {
 }
 
 Misc::Misc() {
-	v_bDbWeaponInfo = CreateConVar("u_misc_debug_weapon", "0", "Debug info: Weapon");
-	c_Name = CreateConCommand("u_name", CC_SetName, "Sets custom name");
-	c_DumpItemAttributes = CreateConCommand("u_dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
-	c_SayLine = CreateConCommand("u_say_lines", CC_SayLines, "Uses ^ as a newline character");
-	c_Shutdown = CreateConCommand("u_shutdown", CC_Shutdown, "Stops the hack");
-	c_AddFriend = CreateConCommand("u_addfriend", CC_AddFriend, "Adds a friend");
-	c_AddRage = CreateConCommand("u_addrage", CC_AddRage, "Adds player to rage list");
-	c_DumpVars = CreateConCommand("u_dumpent", CC_DumpVars, "Dumps entity data");
-	c_DumpPlayers = CreateConCommand("u_dumpplayers", CC_DumpPlayers, "Dumps player data");
-	c_Teamname = CreateConCommand("u_teamname", CC_Teamname, "Team name");
-	c_Lockee = CreateConCommand("u_lockee", CC_Lockee, "Lock/Unlock commands");
-	c_Reset = CreateConCommand("u_reset_lists", CC_ResetLists, "Remove all friends and rage");
-	c_Disconnect = CreateConCommand("u_disconnect", CC_Disconnect, "Disconnect");
-	c_DisconnectVAC = CreateConCommand("u_disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
-	v_bInfoSpam = CreateConVar("u_info_spam", "0", "Info spam");
-	v_bFakeCrouch = CreateConVar("u_fakecrouch", "0", "Fake crouch");
-	CreateConCommand("u_set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
+	v_bDbWeaponInfo = CreateConVar(CON_PREFIX "misc_debug_weapon", "0", "Debug info: Weapon");
+	c_Name = CreateConCommand(CON_PREFIX "name", CC_SetName, "Sets custom name");
+	c_DumpItemAttributes = CreateConCommand(CON_PREFIX "dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
+	c_SayLine = CreateConCommand(CON_PREFIX "say_lines", CC_SayLines, "Uses ^ as a newline character");
+	c_Shutdown = CreateConCommand(CON_PREFIX "shutdown", CC_Shutdown, "Stops the hack");
+	c_AddFriend = CreateConCommand(CON_PREFIX "addfriend", CC_AddFriend, "Adds a friend");
+	c_AddRage = CreateConCommand(CON_PREFIX "addrage", CC_AddRage, "Adds player to rage list");
+	c_DumpVars = CreateConCommand(CON_PREFIX "dumpent", CC_DumpVars, "Dumps entity data");
+	c_DumpPlayers = CreateConCommand(CON_PREFIX "dumpplayers", CC_DumpPlayers, "Dumps player data");
+	c_Teamname = CreateConCommand(CON_PREFIX "teamname", CC_Teamname, "Team name");
+	c_Lockee = CreateConCommand(CON_PREFIX "lockee", CC_Lockee, "Lock/Unlock commands");
+	c_Reset = CreateConCommand(CON_PREFIX "reset_lists", CC_ResetLists, "Remove all friends and rage");
+	c_Disconnect = CreateConCommand(CON_PREFIX "disconnect", CC_Disconnect, "Disconnect");
+	c_DisconnectVAC = CreateConCommand(CON_PREFIX "disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
+	v_bInfoSpam = CreateConVar(CON_PREFIX "info_spam", "0", "Info spam");
+	v_bFakeCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fake crouch");
+	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
 }
 
 int sa_switch = 0;
