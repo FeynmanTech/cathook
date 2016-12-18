@@ -17,7 +17,7 @@ const char* AutoStrafe::GetName() {
 }
 
 AutoStrafe::AutoStrafe() {
-	v_bEnabled = CreateConVar(CON_PREFIX "autostrafe", "0", "Autostrafe enabled");
+	v_bEnabled = CreateConVar(CON_PREFIX "autostrafe", "0", "Enable AutoStrafe");
 }
 
 bool AutoStrafe::CreateMove(void*, float, CUserCmd* cmd) {

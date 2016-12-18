@@ -25,7 +25,9 @@ extern Color TEAM_COLORS[4];
 
 namespace colors {
 extern Color pink;
+extern Color pinka;
 extern Color white;
+extern Color bg_blk;
 extern Color black;
 extern Color tf_red;
 extern Color tf_blu;
@@ -70,6 +72,7 @@ extern Color black;
 void Initialize();
 void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);
 void DrawString(int x, int y, Color color, Color background, bool center, const char* text, ...);
+void DrawString(int x, int y, Color color, const char* text, ...);
 void DrawRect(int x, int y, int w, int h, Color color);
 bool WorldToScreen(Vector &origin, Vector &screen);
 bool EntityCenterToScreen(IClientEntity* entity, Vector& out);

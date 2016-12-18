@@ -22,7 +22,6 @@ public:
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);
 	ConVar* v_bEnabled;
-	ConVar* v_bBoxESP;
 	ConVar* v_bEntityESP;
 	ConVar* v_bTeammates;
 	ConVar* v_bItemESP;

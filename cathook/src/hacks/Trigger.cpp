@@ -23,14 +23,14 @@ trace::FilterDefault* filter;
 Triggerbot::Triggerbot() {
 	filter = new trace::FilterDefault();
 	enemy_trace = new trace_t();
-	this->v_bBodyshot = CreateConVar(CON_PREFIX "trigger_bodyshot", "1", "Enables bodyshotting when there is enough charge to oneshot enemy");
-	this->v_bEnabled = CreateConVar(CON_PREFIX "trigger_enabled", "0", "Triggerbot enabled");
-	this->v_bFinishingHit = CreateConVar(CON_PREFIX "trigger_finish", "1", "Allows noscope bodyshots when enemy is at <50 health");
-	this->v_bIgnoreCloak = CreateConVar(CON_PREFIX "trigger_cloak", "0", "Gets triggered at cloaked spies");
-	this->v_bZoomedOnly = CreateConVar(CON_PREFIX "trigger_zoomed", "1", "Trigger is only active when you are zoomed (as sniper)");
-	this->v_iHitbox = CreateConVar(CON_PREFIX "trigger_hitbox", "-1", "Hitbox (-1: whole body)");
-	this->v_iMinRange = CreateConVar(CON_PREFIX "trigger_range", "0", "Trigger is activated only at certain range");
-	this->v_bBuildings = CreateConVar(CON_PREFIX "trigger_buildings", "1", "Trigger is activated at buildings");
+	this->v_bBodyshot = CreateConVar(CON_PREFIX "trigger_bodyshot", "1", "Bodyshot");
+	this->v_bEnabled = CreateConVar(CON_PREFIX "trigger_enabled", "0", "Enable");
+	this->v_bFinishingHit = CreateConVar(CON_PREFIX "trigger_finish", "1", "Noscope weak enemies");
+	this->v_bIgnoreCloak = CreateConVar(CON_PREFIX "trigger_cloak", "0", "Ignore cloak");
+	this->v_bZoomedOnly = CreateConVar(CON_PREFIX "trigger_zoomed", "1", "Zoomed only");
+	this->v_iHitbox = CreateConVar(CON_PREFIX "trigger_hitbox", "-1", "Hitbox");
+	this->v_iMinRange = CreateConVar(CON_PREFIX "trigger_range", "0", "Max range");
+	this->v_bBuildings = CreateConVar(CON_PREFIX "trigger_buildings", "1", "Trigger @ Buildings");
 }
 
 bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {

@@ -31,6 +31,7 @@
 #endif
 
 /* URAN */
+#define Q_snprintf snprintf
 #include "../logging.h"
 #include "../interfaces.h"
 
@@ -943,7 +944,7 @@ void ConVar::InternalSetIntValue( int nValue )
 	if ( !( m_nFlags & FCVAR_NEVER_AS_STRING ) )
 	{
 		char tempVal[ 32 ];
-		Q_snprintf( tempVal, sizeof( tempVal ), "%d", m_nValue );
+		snprintf( tempVal, sizeof( tempVal ), "%d", m_nValue );
 		ChangeStringValue( tempVal, flOldValue );
 	}
 	else

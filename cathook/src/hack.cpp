@@ -43,6 +43,8 @@
 #include "targeting/ITargetSystem.h"
 #include "profiler.h"
 #include "gui/gui.h"
+#include "gui/controls.h"
+#include "cvwrapper.h"
 
 #include "sdk.h"
 #include "copypasted/CSignature.h"
@@ -351,6 +353,8 @@ void hack::Initialize() {
 	g_Settings.Init();
 	InitTargetingConVars();
 	EndConVars();
+	g_pGUI = new GUI();
+	g_pGUI->Setup();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();
 	logging::Info("Initializing entity offsets...");
@@ -369,7 +373,6 @@ void hack::Initialize() {
 	while(!(clientMode = **(uintptr_t***)((uintptr_t)((*(void***)interfaces::baseClient)[10]) + 1))) {
 		sleep(1);
 	}
-	g_pGUI = new GUI();
 	hooks::hkClientMode->Init((void*)clientMode, 0);
 	hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
 	hooks::hkClientMode->HookMethod((void*)&hack::Hk_OverrideView, hooks::offOverrideView);

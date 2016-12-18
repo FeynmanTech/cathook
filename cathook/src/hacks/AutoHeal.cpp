@@ -63,8 +63,8 @@ bool AutoHeal::CanHeal(int idx) {
 }
 
 AutoHeal::AutoHeal() {
-	this->v_bEnabled = CreateConVar(CON_PREFIX "autoheal_enabled", "0", "Enable AutoHeal");
-	this->v_bSilent = CreateConVar(CON_PREFIX "autoheal_silent", "1", "Silent AutoHeal");
+	this->v_bEnabled = CreateConVar(CON_PREFIX "autoheal_enabled", "0", "Enable");
+	this->v_bSilent = CreateConVar(CON_PREFIX "autoheal_silent", "1", "Silent");
 	m_iCurrentHealingTarget = -1;
 }
 

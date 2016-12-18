@@ -17,7 +17,7 @@ const char* Bunnyhop::GetName() {
 }
 
 Bunnyhop::Bunnyhop() {
-	this->v_bEnabled = CreateConVar(CON_PREFIX "bhop_enabled", "0", "Enable/Disable BunnyHop");
+	this->v_bEnabled = CreateConVar(CON_PREFIX "bhop_enabled", "0", "Enable");
 	this->v_bAutoJump = CreateConVar(CON_PREFIX "bhop_autojump", "0", "AutoJump");
 	this->v_iAutoJumpSpeed = CreateConVar(CON_PREFIX "bhop_autojump_speed", "300", "AutoJump speed");
 }

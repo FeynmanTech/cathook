@@ -18,10 +18,10 @@ const char* AutoSticky::GetName() {
 
 // TODO scottish cyclops
 AutoSticky::AutoSticky() {
-	this->v_flDetonateDistance = CreateConVar(CON_PREFIX "sticky_distance", "200", "Sticky detonation distance");
-	this->v_bBuildings = CreateConVar(CON_PREFIX "sticky_buildings", "1", "Stickies detonate at enemies' buildings");
-	this->v_bEnabled = CreateConVar(CON_PREFIX "sticky_enabled", "0", "Enable stickybot");
-	this->v_bScottish = CreateConVar(CON_PREFIX "sticky_scottish", "0", "Enable stickybot scottish resistance compatability");
+	this->v_flDetonateDistance = CreateConVar(CON_PREFIX "sticky_distance", "200", "Distance");
+	this->v_bBuildings = CreateConVar(CON_PREFIX "sticky_buildings", "1", "Detonate buildings");
+	this->v_bEnabled = CreateConVar(CON_PREFIX "sticky_enabled", "0", "Enable");
+	this->v_bScottish = CreateConVar(CON_PREFIX "sticky_scottish", "0", "Scottish");
 }
 
 bool AutoSticky::ShouldDetonate(IClientEntity* bomb) {

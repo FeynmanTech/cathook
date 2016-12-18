@@ -11,23 +11,21 @@
 class ConVar;
 
 enum CatVar_t {
+	CV_SWITCH,
 	CV_INT,
 	CV_FLOAT,
 	CV_STRING
 };
 
-class ICatVar {
+class CatVar {
 public:
-	virtual ~ICatVar();
-	virtual CatVar_t GetType() = 0;
-	virtual ConVar* GetConVar() = 0;
-};
+	inline CatVar(ConVar* var, CatVar_t type) { m_pConVar = var; m_Type = type; }
+	inline CatVar_t GetType() { return m_Type; }
+	inline ConVar* GetConVar() { return m_pConVar; }
+	void Increment();
+	void Decrement();
 
-class CatVar_INT : public ICatVar {
-public:
-	CatVar_t GetType() { return CatVar_t::CV_INT; }
-	ConVar* GetConVar() { return m_pConVar; }
-
+	CatVar_t m_Type;
 	ConVar* m_pConVar;
 };
 

@@ -35,25 +35,25 @@ void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 ESP::ESP() {
-	this->v_bEnabled = CreateConVar(CON_PREFIX "esp_enabled", "0", "Enables ESP");
-	this->v_bEntityESP = CreateConVar(CON_PREFIX "esp_entity", "0", "Entity ESP (dev)");
-	this->v_bTeammates = CreateConVar(CON_PREFIX "esp_teammates", "0", "ESP own team");
-	this->v_bItemESP = CreateConVar(CON_PREFIX "esp_item", "1", "Item ESP (powerups, health packs, etc)");
-	this->v_bTeammatePowerup = CreateConVar(CON_PREFIX "esp_powerup_team", "1", "Show powerups on teammates if u_esp_teammates is 0");
-	this->v_bShowEntityID = CreateConVar(CON_PREFIX "esp_entity_id", "0", "Shows EID");
+	this->v_bEnabled = CreateConVar(CON_PREFIX "esp_enabled", "0", "ESP");
+	this->v_bEntityESP = CreateConVar(CON_PREFIX "esp_entity", "0", "Entity ESP");
+	this->v_bTeammates = CreateConVar(CON_PREFIX "esp_teammates", "0", "ESP Teammates");
+	this->v_bItemESP = CreateConVar(CON_PREFIX "esp_item", "1", "Item ESP");
+	this->v_bTeammatePowerup = CreateConVar(CON_PREFIX "esp_powerup_team", "1", "Teammate powerups");
+	this->v_bShowEntityID = CreateConVar(CON_PREFIX "esp_entity_id", "0", "Entity ID");
 	this->v_bShowDistance = CreateConVar(CON_PREFIX "esp_distance", "1", "Distance ESP");
 	this->v_bBox = CreateConVar(CON_PREFIX "esp_box", "1", "Box");
-	this->v_bShowFriendID = CreateConVar(CON_PREFIX "esp_friendid", "0", "Show friend ID");
+	this->v_bShowFriendID = CreateConVar(CON_PREFIX "esp_friendid", "0", "Show FriendID");
 	this->v_bShowFriends = CreateConVar(CON_PREFIX "esp_friends", "1", "Show friends");
-	this->v_bVisCheck = CreateConVar(CON_PREFIX "esp_vischeck", "1", "Visibility Checking");
-	this->v_bLegit = CreateConVar(CON_PREFIX "esp_legit", "0", "'legit' esp mode");
-	this->v_iLegitSeenTicks = CreateConVar(CON_PREFIX "esp_legit_seenticks", "150", "Ticks the entity is still shown after being hidden");
-	v_bShowDroppedWeapons = CreateConVar(CON_PREFIX "esp_item_weapons", "0", "Show dropped weapons");
-	v_bShowAmmoPacks = CreateConVar(CON_PREFIX "esp_item_ammo", "0", "Show ammo packs");
-	v_bShowHealthPacks = CreateConVar(CON_PREFIX "esp_item_health", "1", "Show health packs");
-	v_bShowPowerups = CreateConVar(CON_PREFIX "esp_item_powerups", "1", "Show powerups");
-	this->v_bShowTank = CreateConVar(CON_PREFIX "esp_show_tank", "1", "Tank ESP");
-	v_bShowHealthNumbers = CreateConVar(CON_PREFIX "esp_health_num", "1", "Show health number");
+	this->v_bVisCheck = CreateConVar(CON_PREFIX "esp_vischeck", "1", "VisCheck");
+	this->v_bLegit = CreateConVar(CON_PREFIX "esp_legit", "0", "Legit Mode");
+	this->v_iLegitSeenTicks = CreateConVar(CON_PREFIX "esp_legit_seenticks", "150", "Legit delay");
+	v_bShowDroppedWeapons = CreateConVar(CON_PREFIX "esp_item_weapons", "0", "Dropped weapons");
+	v_bShowAmmoPacks = CreateConVar(CON_PREFIX "esp_item_ammo", "0", "Ammo packs");
+	v_bShowHealthPacks = CreateConVar(CON_PREFIX "esp_item_health", "1", "Health packs");
+	v_bShowPowerups = CreateConVar(CON_PREFIX "esp_item_powerups", "1", "Powerups");
+	this->v_bShowTank = CreateConVar(CON_PREFIX "esp_show_tank", "1", "Show tank");
+	v_bShowHealthNumbers = CreateConVar(CON_PREFIX "esp_health_num", "1", "Health in numbers");
 	v_bShowMoney = CreateConVar(CON_PREFIX "esp_money", "1", "MvM money");
 	v_bShowRedMoney = CreateConVar(CON_PREFIX "esp_money_red", "1", "Red MvM money");
 }

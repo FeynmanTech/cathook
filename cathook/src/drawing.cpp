@@ -90,6 +90,8 @@ Color draw::black(0, 0, 0, 255);
 
 Color colors::white(255, 255, 255, 255);
 Color colors::pink (255, 105, 180, 255);
+Color colors::pinka(255, 105, 180, 180);
+Color colors::bg_blk(0, 0, 0, 180);
 Color colors::black(0,  0,  0,   255);
 Color colors::tf_red(184, 56,  59,  255);
 Color colors::tf_blu(88,  133, 162, 255);
@@ -184,6 +186,18 @@ void draw::DrawString(int x, int y, Color color, Color background, bool center, 
 	Color clr = background;
 	clr._color[3] = (unsigned char)180;
 	draw::DrawRect(x, y + 1, l + 2, h - 4, clr);
+	draw::DrawString(draw::font_handle, x, y, color, string);
+}
+
+void draw::DrawString(int x, int y, Color color, const char* text, ...) {
+	if (!text) return;
+	va_list list;
+	char buffer[1024] = { '\0' };
+	wchar_t string[1024] = { '\0' };
+	va_start(list, text);
+	vsprintf(buffer, text, list);
+	va_end(list);
+	swprintf(string, 1024, L"%s", buffer);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 
