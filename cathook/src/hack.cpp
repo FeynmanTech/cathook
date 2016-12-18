@@ -42,6 +42,7 @@
 #include "netmessage.h"
 #include "targeting/ITargetSystem.h"
 #include "profiler.h"
+#include "gui/gui.h"
 
 #include "sdk.h"
 #include "copypasted/CSignature.h"
@@ -140,6 +141,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				}
 			}
 		}
+		g_pGUI->Draw();
 		DrawStrings();
 	}
 }
@@ -147,6 +149,14 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 typedef bool(CanPacket_t)(void* thisptr);
 bool Hk_CanPacket(void* thisptr) {
 	return g_Settings.bSendPackets->GetBool() && ((CanPacket_t*)hooks::hkNetChannel->GetMethod(hooks::offCanPacket))(thisptr);
+}
+
+typedef int(IN_KeyEvent_t)(void* thisptr, int eventcode, ButtonCode_t keynum, const char* pszCurrentBinding);
+int Hk_IN_KeyEvent(void* thisptr, int eventcode, ButtonCode_t keynum, const char* pszCurrentBinding) {
+	if (eventcode == 1) {
+		if (g_pGUI->KeyEvent(keynum)) return 1;
+	}
+	return ((IN_KeyEvent_t*)hooks::hkClient->GetMethod(hooks::offKeyEvent))(thisptr, eventcode, keynum, pszCurrentBinding);
 }
 
 typedef bool(SendNetMsg_t)(void* thisptr, INetMessage& msg, bool forcereliable, bool voice);
@@ -168,7 +178,7 @@ bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false,
 typedef void(Shutdown_t)(void*, const char*);
 void Hk_Shutdown(void* thisptr, const char* reason) {
 	const char* new_reason;
-	if (g_Settings.sDisconnectMsg->m_StringLength > 0) {
+	if (g_Settings.sDisconnectMsg->m_StringLength > 1) {
 		new_reason = g_Settings.sDisconnectMsg->GetString();
 	} else {
 		new_reason = reason;
@@ -309,6 +319,16 @@ void hack::InitHacks() {
 	ADD_HACK(SpyAlert);
 }
 
+ConCommand* hack::c_Cat = 0;
+
+void hack::CC_Cat(const CCommand& args) {
+	interfaces::cvar->ConsoleColorPrintf(colors::tf_blu, "CatHook");
+	interfaces::cvar->ConsoleColorPrintf(colors::white, " by ");
+	interfaces::cvar->ConsoleColorPrintf(colors::tf_blu, "d4rkc4t\n");
+	interfaces::cvar->ConsoleColorPrintf(colors::white, "Build: " __DATE__ " " __TIME__"\n");
+	interfaces::cvar->ConsoleColorPrintf(colors::tf_red, "[DEVELOPER BUILD]\n");
+}
+
 void hack::Initialize() {
 	logging::Initialize();
 	logging::Info("Build: " __DATE__ " " __TIME__);
@@ -325,6 +345,7 @@ void hack::Initialize() {
 	draw::Initialize();
 	logging::Info("Adding hacks...");
 	BeginConVars();
+	hack::c_Cat = CreateConCommand(CON_NAME, &hack::CC_Cat, "Info");
 	hack::InitHacks();
 	logging::Info("Init global settings");
 	g_Settings.Init();
@@ -348,6 +369,7 @@ void hack::Initialize() {
 	while(!(clientMode = **(uintptr_t***)((uintptr_t)((*(void***)interfaces::baseClient)[10]) + 1))) {
 		sleep(1);
 	}
+	g_pGUI = new GUI();
 	hooks::hkClientMode->Init((void*)clientMode, 0);
 	hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
 	hooks::hkClientMode->HookMethod((void*)&hack::Hk_OverrideView, hooks::offOverrideView);
@@ -356,6 +378,7 @@ void hack::Initialize() {
 	hooks::hkClient->Init((void*)interfaces::baseClient, 0);
 	hooks::hkClient->HookMethod((void*)&hack::Hk_FrameStageNotify, hooks::offFrameStageNotify);
 	hooks::hkClient->HookMethod((void*)&hack::Hk_DispatchUserMessage, hooks::offFrameStageNotify + 1);
+	hooks::hkClient->HookMethod((void*)&Hk_IN_KeyEvent, hooks::offKeyEvent);
 	hooks::hkClient->Apply();
 	logging::Info("Hooked!");
 	InitStrings();

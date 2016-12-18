@@ -83,6 +83,9 @@ bool IsEntityVisiblePenetration(IClientEntity* entity, int hb);
 
 void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd = NULL);
 
+void StartPrediction(CUserCmd* cmd);
+void EndPrediction();
+
 // Stolen Code
 
 // F1 c&p

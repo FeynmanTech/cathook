@@ -41,6 +41,7 @@ public:
 	bool m_bAimKeySwitch;
 	ConVar* v_iAimKey;
 	ConVar* v_iAimKeyMode;
+	ConVar* v_bMinigunFix;
 	ConVar* v_bSmooth;
 	ConVar* v_fSmoothValue;
 	ConVar* v_bDebug;
@@ -48,6 +49,7 @@ public:
 	ConVar* v_fFOV;
 	ConVar* v_iHitbox;
 	ConVar* v_bAutoHitbox;
+	ConVar* v_iSeenDelay;
 	ConVar* v_bPrediction;
 	ConVar* v_bAutoShoot;
 	ConVar* v_bSilent;

@@ -430,6 +430,9 @@ weaponmode GetWeaponMode(IClientEntity* player) {
 	case ClassID::CTFFlareGun_Revenge:
 	case ClassID::CTFSyringeGun:
 		return weaponmode::weapon_projectile;
+	case ClassID::CTFJar:
+	case ClassID::CTFJarMilk:
+		return weaponmode::weapon_throwable;
 	};
 	if (weapon_handle == GetEntityValue<int>(player, netvar.hMyWeapons + sizeof(int) * 3)) return weaponmode::weapon_pda;
 	if (GetEntityValue<int>(player, netvar.iClass) == tf_class::tf_medic) {
@@ -773,6 +776,22 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	interfaces::gvars->curtime = curTime;
 
 	return;
+}
+
+float oldCurtime;
+float oldFrametime;
+
+void StartPrediction(CUserCmd* cmd) {
+	oldCurtime = interfaces::gvars->curtime;
+	oldFrametime = interfaces::gvars->frametime;
+	interfaces::gvars->curtime = GetEntityValue<int>(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
+	interfaces::gvars->frametime = interfaces::gvars->interval_per_tick;
+	//interfaces::gamemovement->
+}
+
+void EndPrediction() {
+	interfaces::gvars->curtime = oldCurtime;
+	interfaces::gvars->frametime = oldFrametime;
 }
 
 char* strfmt(const char* fmt, ...) {

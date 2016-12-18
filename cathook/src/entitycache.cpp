@@ -52,8 +52,13 @@ void CachedEntity::Update(int idx) {
 		m_bIsVisible = (IsEntityVisible(m_pEntity, 0) || IsEntityVisible(m_pEntity, 4));
 		m_iHealth = Var<int>(netvar.iHealth);
 		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(m_pEntity);
-		if (m_bIsVisible) m_lLastSeen = 0;
-		else m_lLastSeen++;
+		if (m_bIsVisible) {
+			m_lLastSeen = 0;
+			m_lSeenTicks++;
+		} else {
+			m_lSeenTicks = 0;
+			m_lLastSeen++;
+		}
 	}
 	if (m_iClassID == ClassID::CObjectSentrygun || m_iClassID == ClassID::CObjectDispenser || m_iClassID == ClassID::CObjectTeleporter) {
 		m_iTeam = Var<int>(netvar.iTeamNum); // TODO
@@ -61,8 +66,13 @@ void CachedEntity::Update(int idx) {
 		m_bIsVisible = (IsEntityVisible(m_pEntity, 0));
 		m_iHealth = Var<int>(netvar.iBuildingHealth);
 		m_iMaxHealth = Var<int>(netvar.iBuildingMaxHealth);
-		if (m_bIsVisible) m_lLastSeen = 0;
-		else m_lLastSeen++;
+		if (m_bIsVisible) {
+			m_lLastSeen = 0;
+			m_lSeenTicks++;
+		} else {
+			m_lSeenTicks = 0;
+			m_lLastSeen++;
+		}
 	}
 }
 

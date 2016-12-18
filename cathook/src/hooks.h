@@ -35,6 +35,7 @@ extern VMTHook* hkPanel;
 extern VMTHook* hkClientMode;
 extern VMTHook* hkClient;
 extern VMTHook* hkNetChannel;
+extern VMTHook* hkClientDLL;
 
 extern unsigned int offPaintTraverse;
 extern unsigned int offCreateMove;
@@ -43,6 +44,7 @@ extern unsigned int offFrameStageNotify;
 extern unsigned int offCanPacket;
 extern unsigned int offSendNetMsg;
 extern unsigned int offShutdown;
+extern unsigned int offKeyEvent;
 
 }
 

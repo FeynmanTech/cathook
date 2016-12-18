@@ -20,7 +20,7 @@ FILE* logging::handle = 0;
 void logging::Initialize() {
 	passwd* pwd = getpwuid(getuid());
 	char* user = pwd->pw_name;
-	logging::handle = fopen(strfmt("/tmp/uran-%s.log", user), "w");
+	logging::handle = fopen(strfmt("/tmp/cathook-%s.log", user), "w");
 }
 
 void logging::Info(const char* fmt, ...) {
@@ -32,7 +32,7 @@ void logging::Info(const char* fmt, ...) {
 	va_end(list);
 	size_t length = strlen(buffer);
 	char* result = new char[length + 9];
-	sprintf(result, "[Hack] %s\n", buffer);
+	sprintf(result, "[CAT] %s\n", buffer);
 	fprintf(logging::handle, "%s", result);
 	fflush(logging::handle);
 	if (interfaces::cvar) {

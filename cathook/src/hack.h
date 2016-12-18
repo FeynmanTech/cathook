@@ -20,6 +20,8 @@ class IHack;
 class CUserCmd;
 class CViewSetup;
 class bf_read;
+class ConCommand;
+class CCommand;
 
 namespace hack {
 
@@ -40,6 +42,9 @@ void Think();
 void Shutdown();
 
 void InitHacks();
+
+void CC_Cat(const CCommand& args);
+extern ConCommand* c_Cat;
 
 }
 

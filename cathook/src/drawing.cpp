@@ -89,6 +89,7 @@ Color draw::yellow(255, 255, 0, 255);
 Color draw::black(0, 0, 0, 255);
 
 Color colors::white(255, 255, 255, 255);
+Color colors::pink (255, 105, 180, 255);
 Color colors::black(0,  0,  0,   255);
 Color colors::tf_red(184, 56,  59,  255);
 Color colors::tf_blu(88,  133, 162, 255);

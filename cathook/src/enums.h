@@ -530,7 +530,8 @@ enum weaponmode {
 	weapon_melee,
 	weapon_pda,
 	weapon_medigun,
-	weapon_consumable
+	weapon_consumable,
+	weapon_throwable
 };
 
 enum hitbox_t {

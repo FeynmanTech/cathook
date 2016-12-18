@@ -24,6 +24,7 @@ struct ESPStringCompound {
 extern Color TEAM_COLORS[4];
 
 namespace colors {
+extern Color pink;
 extern Color white;
 extern Color black;
 extern Color tf_red;

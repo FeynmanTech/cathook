@@ -328,7 +328,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(draw::white, draw::black, "Speed: %f", speed);
 			AddSideString(draw::white, draw::black, "Gravity: %f", gravity);
 			AddSideString(draw::white, draw::black, "IsZoomed: %i", g_pLocalPlayer->bWasZoomed);
-			AddSideString(draw::white, draw::black, "???: %f", GetEntityValue<float>(g_pLocalPlayer->entity, netvar.test));
+			//AddSideString(draw::white, draw::black, "???: %f", GetEntityValue<float>(g_pLocalPlayer->entity, netvar.test));
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
 			//y += 14;

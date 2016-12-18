@@ -38,7 +38,7 @@ ESP::ESP() {
 	this->v_bEnabled = CreateConVar(CON_PREFIX "esp_enabled", "0", "Enables ESP");
 	this->v_bEntityESP = CreateConVar(CON_PREFIX "esp_entity", "0", "Entity ESP (dev)");
 	this->v_bTeammates = CreateConVar(CON_PREFIX "esp_teammates", "0", "ESP own team");
-	this->v_bItemESP = CreateConVar(CON_PREFIX "esp_item", "0", "Item ESP (powerups, health packs, etc)");
+	this->v_bItemESP = CreateConVar(CON_PREFIX "esp_item", "1", "Item ESP (powerups, health packs, etc)");
 	this->v_bTeammatePowerup = CreateConVar(CON_PREFIX "esp_powerup_team", "1", "Show powerups on teammates if u_esp_teammates is 0");
 	this->v_bShowEntityID = CreateConVar(CON_PREFIX "esp_entity_id", "0", "Shows EID");
 	this->v_bShowDistance = CreateConVar(CON_PREFIX "esp_distance", "1", "Distance ESP");
@@ -52,8 +52,10 @@ ESP::ESP() {
 	v_bShowAmmoPacks = CreateConVar(CON_PREFIX "esp_item_ammo", "0", "Show ammo packs");
 	v_bShowHealthPacks = CreateConVar(CON_PREFIX "esp_item_health", "1", "Show health packs");
 	v_bShowPowerups = CreateConVar(CON_PREFIX "esp_item_powerups", "1", "Show powerups");
+	this->v_bShowTank = CreateConVar(CON_PREFIX "esp_show_tank", "1", "Tank ESP");
 	v_bShowHealthNumbers = CreateConVar(CON_PREFIX "esp_health_num", "1", "Show health number");
 	v_bShowMoney = CreateConVar(CON_PREFIX "esp_money", "1", "MvM money");
+	v_bShowRedMoney = CreateConVar(CON_PREFIX "esp_money_red", "1", "Red MvM money");
 }
 
 #define ESP_HEIGHT 14
@@ -158,6 +160,10 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	}
 
 	switch (ent->m_iClassID) {
+	case ClassID::CTFTankBoss: {
+		if (!this->v_bShowTank->GetBool()) break;
+		ent->AddESPString(color, bgclr, "Tank");
+	} break;
 	case ClassID::CTFDroppedWeapon: {
 		if (!this->v_bItemESP->GetBool()) break;
 		if (!this->v_bShowDroppedWeapons->GetBool()) break;
@@ -178,9 +184,17 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	}
 	case ClassID::CCurrencyPack: {
 		if (!v_bShowMoney->GetBool()) break;
-		color = colors::green;
-		ent->AddESPString(color, bgclr, "$$$");
-		ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		if (false && ent->Var<int>(netvar.bDistributed)) {
+			if (this->v_bShowRedMoney->GetBool()) {
+				color = colors::tf_red;
+				ent->AddESPString(color, bgclr, "$$$");
+				ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			}
+		} else {
+			color = colors::green;
+			ent->AddESPString(color, bgclr, "$$$");
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
 	} break;
 	case ClassID::CBaseAnimating: {
 		if (!this->v_bItemESP->GetBool()) break;

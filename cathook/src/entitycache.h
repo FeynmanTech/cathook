@@ -42,6 +42,7 @@ public:
 	int m_iHealth;
 
 	bool m_bIsVisible;
+	unsigned long m_lSeenTicks;
 	unsigned long m_lLastSeen;
 
 

@@ -18,6 +18,7 @@ unsigned int hooks::offFrameStageNotify = 35;
 unsigned int hooks::offCanPacket = 57;
 unsigned int hooks::offSendNetMsg = 41;
 unsigned int hooks::offShutdown = 37;
+unsigned int hooks::offKeyEvent = 20;
 
 // This thing had been copypasted from somewhere, maybe from F1Public.
 
@@ -72,3 +73,4 @@ hooks::VMTHook* hooks::hkClientMode = 0;
 hooks::VMTHook* hooks::hkPanel = 0;
 hooks::VMTHook* hooks::hkClient = 0;
 hooks::VMTHook* hooks::hkNetChannel = 0;
+hooks::VMTHook* hooks::hkClientDLL = 0;

@@ -67,10 +67,12 @@ Aimbot::Aimbot() {
 	this->v_fSmoothValue = CreateConVar(CON_PREFIX "aimbot_smooth_value", "0.2", "Smooth value");
 	this->v_iAimKey = CreateConVar(CON_PREFIX "aimbot_aimkey", "0", "Aim Key");
 	this->v_iPriorityMode = CreateConVar(CON_PREFIX "aimbot_prioritymode", "0", "Priority mode [SMART/FOV/DISTANCE/HEALTH]");
+	this->v_bMinigunFix = CreateConVar(CON_PREFIX "aimbot_minigun_fix", "1", "Minigun fix [EXPERIMENTAL]");
 	v_bAimBuildings = CreateConVar(CON_PREFIX "aimbot_buildings", "1", "Aim at buildings");
 	v_bActiveOnlyWhenCanShoot = CreateConVar(CON_PREFIX "aimbot_only_when_can_shoot", "1", "Aimbot active only when can shoot");
 	v_fSmoothAutoshootTreshold = CreateConVar(CON_PREFIX "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth aim autoshoot treshold");
 	this->v_fSmoothRandomness = CreateConVar(CON_PREFIX "aimbot_smooth_randomness", "1.0", "Smooth randomness");
+	this->v_iSeenDelay = CreateConVar(CON_PREFIX "aimbot_delay", "0", "Delay before shooting if enemy was invisible");
 	fix_silent = false;
 }
 
@@ -96,6 +98,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	case weapon_medigun:
 	case weapon_pda:
 	case weapon_consumable:
+	case weapon_throwable:
 		return true;
 	};
 
@@ -259,6 +262,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
 	if (IsPlayer(entity)) {
+		if (gEntityCache.GetEntity(entity->entindex())->m_lSeenTicks < this->v_iSeenDelay->GetInt()) return false;
 		if (IsPlayerInvulnerable(entity)) return false;
 		int team = GetEntityValue<int>(entity, netvar.iTeamNum);
 		int local = interfaces::engineClient->GetLocalPlayer();

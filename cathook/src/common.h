@@ -23,6 +23,7 @@
 #include "trace.h"
 #include "prediction.h"
 
-#define CON_PREFIX "cat_"
+#define CON_NAME "cat"
+#define CON_PREFIX CON_NAME "_"
 
 #endif /* COMMON_H_ */
