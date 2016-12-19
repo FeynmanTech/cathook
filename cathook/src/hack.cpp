@@ -62,6 +62,8 @@ typedef void(OverrideView_t)(void*, CViewSetup*);
 typedef void(FrameStageNotify_t)(void*, int);
 typedef bool(DispatchUserMessage_t)(void*, int, bf_read&);
 
+Vector last_angles(0.0f, 0.0f, 0.0f);
+
 bool hack::invalidated = true;
 
 void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
@@ -256,8 +258,9 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
 		cmd->sidemove = sin(yaw) * speed;
-		return false;
+		ret = false;
 	}
+	last_angles = cmd->viewangles;
 	return ret;
 }
 
@@ -268,6 +271,15 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 		int defidx = GetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
 		if (defidx == 61) {
 			SetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex, 1006);
+		}
+	}
+	if (g_Settings.bThirdperson->GetBool()) {
+		interfaces::iinput->CAM_ToFirstPerson();
+	}
+	if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
+		if (g_pLocalPlayer->entity) {
+			SetEntityValue<float>(g_pLocalPlayer->entity, netvar.deadflag + 4, last_angles.x);
+			SetEntityValue<float>(g_pLocalPlayer->entity, netvar.deadflag + 8, last_angles.y);
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);

@@ -230,7 +230,7 @@ void CC_SetValue(const CCommand& args) {
 }
 
 Misc::Misc() {
-	v_bDbWeaponInfo = CreateConVar(CON_PREFIX "misc_debug_weapon", "0", "Debug info: Weapon");
+	v_bDebugInfo = CreateConVar(CON_PREFIX "misc_debug", "0", "Debug info");
 	c_Name = CreateConCommand(CON_PREFIX "name", CC_SetName, "Sets custom name");
 	c_DumpItemAttributes = CreateConCommand(CON_PREFIX "dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
 	c_SayLine = CreateConCommand(CON_PREFIX "say_lines", CC_SayLines, "Uses ^ as a newline character");
@@ -299,7 +299,7 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 
 void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 
-	if (!v_bDbWeaponInfo->GetBool())return;
+	if (!v_bDebugInfo->GetBool())return;
 	/*if (!interfaces::input->IsButtonDown(ButtonCode_t::KEY_F)) {
 		interfaces::baseClient->IN_ActivateMouse();
 	} else {
@@ -328,6 +328,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(draw::white, draw::black, "Speed: %f", speed);
 			AddSideString(draw::white, draw::black, "Gravity: %f", gravity);
 			AddSideString(draw::white, draw::black, "IsZoomed: %i", g_pLocalPlayer->bWasZoomed);
+			AddSideString(draw::white, draw::black, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
 			//AddSideString(draw::white, draw::black, "???: %f", GetEntityValue<float>(g_pLocalPlayer->entity, netvar.test));
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);

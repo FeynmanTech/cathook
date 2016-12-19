@@ -90,7 +90,7 @@ Color draw::black(0, 0, 0, 255);
 
 Color colors::white(255, 255, 255, 255);
 Color colors::pink (255, 105, 180, 255);
-Color colors::pinka(255, 105, 180, 180);
+Color colors::pinka(255, 105, 180, 100);
 Color colors::bg_blk(0, 0, 0, 180);
 Color colors::black(0,  0,  0,   255);
 Color colors::tf_red(184, 56,  59,  255);

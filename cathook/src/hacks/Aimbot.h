@@ -39,6 +39,7 @@ public:
 	int m_iLastTarget;
 	int m_iHitbox;
 	bool m_bAimKeySwitch;
+	int m_nMinigunFixTicks;
 	ConVar* v_iAimKey;
 	ConVar* v_iAimKeyMode;
 	ConVar* v_bMinigunFix;

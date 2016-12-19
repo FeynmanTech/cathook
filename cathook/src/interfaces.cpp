@@ -30,6 +30,7 @@ ICvar* interfaces::cvar = 0;
 CGlobalVarsBase* interfaces::gvars = 0;
 IPrediction* interfaces::prediction = 0;
 IGameMovement* interfaces::gamemovement = 0;
+IInput* interfaces::iinput = 0;
 
 void interfaces::CreateInterfaces() {
 	interfaces::centerPrint = reinterpret_cast<ICenterPrint*>(sharedobj::client->fptr("VCENTERPRINT002", nullptr));
@@ -54,6 +55,6 @@ void interfaces::CreateInterfaces() {
 	//interfaces::gvars = *reinterpret_cast<CGlobalVarsBase**>(hudupdate + 13 + *reinterpret_cast<uint32_t*>(hudupdate + 13 + 3) + 7);
 	interfaces::prediction = reinterpret_cast<IPrediction*>(sharedobj::client->CreateInterface("VClientPrediction001"));
 	interfaces::gamemovement = reinterpret_cast<IGameMovement*>(sharedobj::client->CreateInterface("GameMovement001"));
-
+	interfaces::iinput = **(reinterpret_cast<IInput***>((uintptr_t)1 + gSignatures.GetClientSignature("A1 ? ? ? ? C6 05 ? ? ? ? 01 8B 10 89 04 24 FF 92 B4 00 00 00 A1 ? ? ? ? 8B 10")));
 
 }

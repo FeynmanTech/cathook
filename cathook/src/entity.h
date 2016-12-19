@@ -84,6 +84,9 @@ public:
 	offset_t Grenade_iDeflected;
 
 	offset_t bDistributed;
+
+	offset_t angEyeAngles;
+	offset_t deadflag;
 };
 
 extern EntityVariables netvar;

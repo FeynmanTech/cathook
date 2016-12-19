@@ -99,13 +99,14 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	case weapon_pda:
 	case weapon_consumable:
 	case weapon_throwable:
+	case weapon_invalid:
 		return true;
 	};
 
 	if (g_pLocalPlayer->cond_0 & cond::cloaked) return true; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
-
-	if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime()) return true;
+	if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFMinigun)
+		if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime()) return true;
 
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return true;
@@ -117,6 +118,10 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 		if (!(cmd->buttons & IN_ATTACK2)) {
 			return true;
+		}
+		if (m_nMinigunFixTicks > 0) {
+			m_nMinigunFixTicks--;
+			cmd->buttons |= IN_ATTACK;
 		}
 	}
 
@@ -237,6 +242,8 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (target_highest != 0) {
 		this->m_iLastTarget = target_highest->entindex();
 		Aim(target_highest, cmd);
+		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun)
+			m_nMinigunFixTicks = 10;
 	}
 	return !this->v_bSilent->GetBool();
 }

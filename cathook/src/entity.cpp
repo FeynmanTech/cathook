@@ -54,6 +54,8 @@ void EntityVariables::Init() {
 	this->Rocket_iDeflected = gNetvars.get_offset("DT_TFBaseRocket", "m_iDeflected");
 	this->Grenade_iDeflected = gNetvars.get_offset("DT_TFWeaponBaseGrenadeProj", "m_iDeflected");
 	this->bDistributed = gNetvars.get_offset("DT_CurrencyPack", "m_bDistributed");
+	this->angEyeAngles = gNetvars.get_offset("DT_TFPlayer", "tfnonlocaldata", "m_angEyeAngles[0]");
+	this->deadflag = gNetvars.get_offset("DT_BasePlayer", "pl", "deadflag");
 }
 
 void InitEntityOffsets() {

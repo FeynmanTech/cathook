@@ -18,7 +18,7 @@ public:
 	DECLARE_HACK_METHODS();
 	Misc();
 	//ConVar* v_bNoShootUntilCanHeadshot;
-	ConVar* v_bDbWeaponInfo;
+	ConVar* v_bDebugInfo;
 	ConCommand* c_Name;
 	ConVar* v_bInfoSpam;
 	ConVar* v_bFakeCrouch;

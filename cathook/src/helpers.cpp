@@ -455,7 +455,8 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, float& gravity) {
 		rspeed = 1100.0f;
 	break;
 	case ClassID::CTFGrenadeLauncher:
-		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 528))(weapon);
+		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(weapon);
+		rgrav = 0.5f;
 	break;
 	case ClassID::CTFCompoundBow: {
 		float servertime = (float)GetEntityValue<int>(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;

@@ -23,6 +23,8 @@ public:
 	ConVar* bShowLogo;
 	ConVar* flDrawingOpacity;
 	ConVar* sDisconnectMsg;
+	ConVar* bShowAntiAim;
+	ConVar* bThirdperson;
 };
 
 extern GlobalSettings g_Settings;

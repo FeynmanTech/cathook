@@ -17,6 +17,8 @@ void GlobalSettings::Init() {
 	this->bSendPackets = CreateConVar(CON_PREFIX "sendpackets", "1", "Send packets");
 	this->bShowLogo = CreateConVar(CON_PREFIX "logo", "1", "Show logo");
 	this->sDisconnectMsg = CreateConVar(CON_PREFIX "disconnect_msg", "", "Set custom disconnect message");
+	this->bShowAntiAim = CreateConVar(CON_PREFIX "show_antiaim", "0", "Real angles in thirdperson");
+	this->bThirdperson = CreateConVar(CON_PREFIX "thirdpeson", "0", "Thirdperson");
 }
 
 GlobalSettings g_Settings;

@@ -38,5 +38,6 @@
 #include <view_shared.h>
 
 #include "sdk/in_buttons.h"
+#include "sdk/iinput.h"
 
 #endif /* SDK_H_ */

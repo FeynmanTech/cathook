@@ -29,6 +29,7 @@ class IClient;
 class CGlobalVarsBase;
 class IPrediction;
 class IGameMovement;
+class IInput;
 
 namespace interfaces {
 
@@ -48,6 +49,7 @@ extern IInputSystem* input;
 extern CGlobalVarsBase* gvars;
 extern IPrediction* prediction;
 extern IGameMovement* gamemovement;
+extern IInput* iinput;
 
 void CreateInterfaces();
 
