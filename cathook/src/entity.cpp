@@ -56,6 +56,7 @@ void EntityVariables::Init() {
 	this->bDistributed = gNetvars.get_offset("DT_CurrencyPack", "m_bDistributed");
 	this->angEyeAngles = gNetvars.get_offset("DT_TFPlayer", "tfnonlocaldata", "m_angEyeAngles[0]");
 	this->deadflag = gNetvars.get_offset("DT_BasePlayer", "pl", "deadflag");
+	this->nForceTauntCam = gNetvars.get_offset("DT_TFPlayer", "m_nForceTauntCam");
 }
 
 void InitEntityOffsets() {

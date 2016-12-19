@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <cstring>
 #include <memory>
+#include "segvcatch/segvcatch.h"
 #include <csignal>
 
 // All Hacks
@@ -67,13 +68,22 @@ Vector last_angles(0.0f, 0.0f, 0.0f);
 bool hack::invalidated = true;
 
 void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
+	SEGV_BEGIN;
 	((OverrideView_t*)hooks::hkClientMode->GetMethod(hooks::offOverrideView))(thisptr, setup);
 	if (g_Settings.flForceFOV && g_Settings.flForceFOV->GetBool()) {
 		setup->fov = g_Settings.flForceFOV->GetFloat();
 	}
+	SEGV_END;
 }
 
 void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
+	if (!segvcatch::handler_fpe || !segvcatch::handler_segv) {
+		segvcatch::init_segv();
+		segvcatch::init_fpe();
+		logging::Info("segvcatch init!");
+	}
+
+	SEGV_BEGIN;
 	((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	if (g_phFollowBot->v_bEnabled->GetBool()) {
@@ -148,23 +158,32 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		g_pGUI->Draw();
 		DrawStrings();
 	}
+	SEGV_END;
 }
 
 typedef bool(CanPacket_t)(void* thisptr);
 bool Hk_CanPacket(void* thisptr) {
+	SEGV_BEGIN;
 	return g_Settings.bSendPackets->GetBool() && ((CanPacket_t*)hooks::hkNetChannel->GetMethod(hooks::offCanPacket))(thisptr);
+	SEGV_END;
+	return false;
 }
 
 typedef int(IN_KeyEvent_t)(void* thisptr, int eventcode, ButtonCode_t keynum, const char* pszCurrentBinding);
 int Hk_IN_KeyEvent(void* thisptr, int eventcode, ButtonCode_t keynum, const char* pszCurrentBinding) {
+	SEGV_BEGIN;
 	if (eventcode == 1) {
 		if (g_pGUI->KeyEvent(keynum)) return 1;
 	}
 	return ((IN_KeyEvent_t*)hooks::hkClient->GetMethod(hooks::offKeyEvent))(thisptr, eventcode, keynum, pszCurrentBinding);
+	SEGV_END;
+	return 0;
 }
 
 typedef bool(SendNetMsg_t)(void* thisptr, INetMessage& msg, bool forcereliable, bool voice);
 bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false, bool bVoice = false) {
+	SEGV_BEGIN;
+
 	//logging::Info("Sending NetMsg! %i", msg.GetType());
 	if (g_phAirstuck->v_bStuck->GetBool()) {
 		switch (msg.GetType()) {
@@ -177,10 +196,13 @@ bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false,
 		}
 	}
 	return ((SendNetMsg_t*)hooks::hkNetChannel->GetMethod(hooks::offSendNetMsg))(thisptr, msg, bForceReliable, bVoice);
+	SEGV_END;
+	return false;
 }
 
 typedef void(Shutdown_t)(void*, const char*);
 void Hk_Shutdown(void* thisptr, const char* reason) {
+	SEGV_BEGIN;
 	const char* new_reason;
 	if (g_Settings.sDisconnectMsg->m_StringLength > 1) {
 		new_reason = g_Settings.sDisconnectMsg->GetString();
@@ -188,9 +210,12 @@ void Hk_Shutdown(void* thisptr, const char* reason) {
 		new_reason = reason;
 	}
 	((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, new_reason);
+	SEGV_END;
 }
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
+	SEGV_BEGIN;
+
 	if (g_pLocalPlayer->entity) {
 		if (g_pLocalPlayer->bWasZoomed) {
 			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 |= cond::zoomed);
@@ -222,21 +247,22 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	gEntityCache.Update();
 
-	CREATE_MOVE(Bunnyhop);
+
+	SAFE_CALL(CREATE_MOVE(Bunnyhop));
 	//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
-	CREATE_MOVE(ESP);
-	CREATE_MOVE(Aimbot);
-	CREATE_MOVE(Airstuck);
-	CREATE_MOVE(AntiAim);
-	CREATE_MOVE(AntiDisguise);
-	CREATE_MOVE(AutoHeal);
-	CREATE_MOVE(AutoSticky);
-	CREATE_MOVE(AutoReflect);
-	CREATE_MOVE(AutoStrafe);
-	CREATE_MOVE(FollowBot);
-	CREATE_MOVE(Misc);
-	CREATE_MOVE(Triggerbot);
-	CREATE_MOVE(HuntsmanCompensation);
+	SAFE_CALL(CREATE_MOVE(ESP));
+	SAFE_CALL(CREATE_MOVE(Aimbot));
+	SAFE_CALL(CREATE_MOVE(Airstuck));
+	SAFE_CALL(CREATE_MOVE(AntiAim));
+	SAFE_CALL(CREATE_MOVE(AntiDisguise));
+	SAFE_CALL(CREATE_MOVE(AutoHeal));
+	SAFE_CALL(CREATE_MOVE(AutoSticky));
+	SAFE_CALL(CREATE_MOVE(AutoReflect));
+	SAFE_CALL(CREATE_MOVE(AutoStrafe));
+	SAFE_CALL(CREATE_MOVE(FollowBot));
+	SAFE_CALL(CREATE_MOVE(Misc));
+	SAFE_CALL(CREATE_MOVE(Triggerbot));
+	SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
 
 	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
@@ -260,11 +286,16 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		cmd->sidemove = sin(yaw) * speed;
 		ret = false;
 	}
-	last_angles = cmd->viewangles;
+	if (cmd)
+		last_angles = cmd->viewangles;
 	return ret;
+
+	SEGV_END;
+	return true;
 }
 
 void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
+	SEGV_BEGIN;
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
 	if (g_pLocalPlayer->weapon) {
@@ -273,8 +304,8 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 			SetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex, 1006);
 		}
 	}
-	if (g_Settings.bThirdperson->GetBool()) {
-		interfaces::iinput->CAM_ToFirstPerson();
+	if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
+		SetEntityValue<int>(g_pLocalPlayer->entity, netvar.nForceTauntCam, 1);
 	}
 	if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
 		if (g_pLocalPlayer->entity) {
@@ -299,6 +330,7 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
 		}
 	}
+	SEGV_END;
 }
 
 bool hack::Hk_DispatchUserMessage(void* thisptr, int type, bf_read& buf) {

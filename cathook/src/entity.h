@@ -87,6 +87,7 @@ public:
 
 	offset_t angEyeAngles;
 	offset_t deadflag;
+	offset_t nForceTauntCam;
 };
 
 extern EntityVariables netvar;

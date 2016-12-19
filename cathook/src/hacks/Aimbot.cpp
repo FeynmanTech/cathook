@@ -105,7 +105,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if (g_pLocalPlayer->cond_0 & cond::cloaked) return true; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
-	if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFMinigun)
+	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFMinigun)
 		if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime()) return true;
 
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
@@ -242,8 +242,14 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (target_highest != 0) {
 		this->m_iLastTarget = target_highest->entindex();
 		Aim(target_highest, cmd);
-		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun)
-			m_nMinigunFixTicks = 10;
+		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun)
+			m_nMinigunFixTicks = 40;
+	}
+	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun &&
+			target_highest == 0 &&
+			interfaces::entityList->GetClientEntity(m_iLastTarget) &&
+			m_nMinigunFixTicks) {
+		Aim(interfaces::entityList->GetClientEntity(m_iLastTarget), cmd);
 	}
 	return !this->v_bSilent->GetBool();
 }
