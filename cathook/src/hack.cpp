@@ -216,11 +216,6 @@ void Hk_Shutdown(void* thisptr, const char* reason) {
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
 
-	if (g_pLocalPlayer->entity) {
-		if (g_pLocalPlayer->bWasZoomed) {
-			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 |= cond::zoomed);
-		}
-	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 	if (!interfaces::engineClient->IsInGame()) {
 		hack::invalidated = true;
@@ -269,12 +264,6 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 			ret = false;
 		}
 	}*/
-	if (g_pLocalPlayer->entity) {
-		if (g_Settings.bNoZoom->GetBool()) {
-			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 &= ~cond::zoomed);
-		}
-	}
-
 	hack::invalidated = false;
 	if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);

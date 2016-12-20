@@ -393,7 +393,7 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	}
 	if (!smoothed && this->v_bAutoShoot->GetBool()) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
-			if (g_pLocalPlayer->cond_0 & cond::zoomed) {
+			if (g_pLocalPlayer->bZoomed) {
 				if (this->v_iAutoShootCharge->GetBool()) {
 					int rifleHandle = GetEntityValue<int>(local, netvar.hActiveWeapon);
 					IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);

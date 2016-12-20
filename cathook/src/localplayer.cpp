@@ -20,8 +20,8 @@ void LocalPlayer::Update() {
 	clazz = GetEntityValue<int>(entity, netvar.iClass);
 	health = GetEntityValue<int>(entity, netvar.iHealth);
 	this->bUseSilentAngles = false;
-	bZoomed = GetEntityValue<int>(entity, netvar.iFOV) != GetEntityValue<int>(entity, netvar.iDefaultFOV);
-	if (cond_0 & cond::zoomed) {
+	bZoomed = GetEntityValue<int>(entity, netvar.iFOV) == 20; //!= GetEntityValue<int>(entity, netvar.iDefaultFOV);
+	if (bZoomed) {
 		if (flZoomBegin == 0.0f) flZoomBegin = interfaces::gvars->curtime;
 	} else {
 		flZoomBegin = 0.0f;

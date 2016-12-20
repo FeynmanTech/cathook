@@ -327,7 +327,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			GetProjectileData(g_pLocalPlayer->weapon, speed, gravity);
 			AddSideString(draw::white, draw::black, "Speed: %f", speed);
 			AddSideString(draw::white, draw::black, "Gravity: %f", gravity);
-			AddSideString(draw::white, draw::black, "IsZoomed: %i", g_pLocalPlayer->bWasZoomed);
+			AddSideString(draw::white, draw::black, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
 			AddSideString(draw::white, draw::black, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
 			//AddSideString(draw::white, draw::black, "???: %f", GetEntityValue<float>(g_pLocalPlayer->entity, netvar.test));
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);

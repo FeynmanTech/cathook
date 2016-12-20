@@ -107,7 +107,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 
 	}
 	if (!bodyshot && (g_pLocalPlayer->clazz == tf_class::tf_sniper) && this->v_bZoomedOnly->GetBool() &&
-		!((g_pLocalPlayer->cond_0 & cond::zoomed) && CanHeadshot(g_pLocalPlayer->entity))) {
+		!((g_pLocalPlayer->bZoomed) && CanHeadshot(g_pLocalPlayer->entity))) {
 		return true;
 	}
 	//IClientEntity* weapon;
