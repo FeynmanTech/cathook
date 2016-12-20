@@ -326,7 +326,7 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 
 	if (g_Settings.bNoZoom->GetBool()) {
 		if (g_pLocalPlayer->entity) {
-			g_pLocalPlayer->bWasZoomed = GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
+			//g_pLocalPlayer->bWasZoomed = GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
 			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
 		}
 	}

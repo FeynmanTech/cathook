@@ -35,6 +35,7 @@ void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 ESP::ESP() {
+	this->v_bSeeLocal = CreateConVar(CON_PREFIX "esp_local", "1", "Local ESP in thirdperson");
 	this->v_bEnabled = CreateConVar(CON_PREFIX "esp_enabled", "0", "ESP");
 	this->v_bEntityESP = CreateConVar(CON_PREFIX "esp_entity", "0", "Entity ESP");
 	this->v_bTeammates = CreateConVar(CON_PREFIX "esp_teammates", "0", "ESP Teammates");
@@ -108,7 +109,8 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (!this->v_bBox->GetBool()) return;
 	if (!CheckCE(ent)) return;
-	if (ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
+	if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
+		ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
 	Color color;
 	switch (ent->m_iClassID) {
 	case ClassID::CTFPlayer: {
@@ -128,6 +130,9 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 		case relation::RAGE:
 			color = colors::yellow;
 			break;
+		}
+		if (Developer(ent->m_pEntity)) {
+			color = colors::RainbowCurrent();
 		}
 		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(netvar.iHealth), ent->m_iMaxHealth);
 	break;
@@ -227,7 +232,8 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	}
 	case ClassID::CTFPlayer: {
 		if (!ent->m_bAlivePlayer) break;
-		if (ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
+		if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
+			ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
 		int pclass = ent->Var<int>(netvar.iClass);
 		int pcond = ent->Var<int>(netvar.iCond);
 		player_info_t info;
@@ -244,7 +250,13 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			color = colors::yellow;
 			break;
 		}
+
 		bgclr = colors::GetTeamBgColor(ent->m_iTeam, !ent->m_bIsVisible);
+
+		if (Developer(ent->m_pEntity)) {
+			color = colors::RainbowCurrent();
+			bgclr = colors::black;
+		}
 
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent->m_pEntity)) {
 			if (pcond & cond::cloaked) return;

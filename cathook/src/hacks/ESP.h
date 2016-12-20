@@ -21,6 +21,7 @@ public:
 	void DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);
+	ConVar* v_bSeeLocal;
 	ConVar* v_bEnabled;
 	ConVar* v_bEntityESP;
 	ConVar* v_bTeammates;

@@ -560,7 +560,8 @@ enum hitbox_t {
 enum relation {
 	NEUTRAL = 0,
 	FRIEND = 1,
-	RAGE = 2
+	RAGE = 2,
+	DEVELOPER = 3
 };
 
 #endif /* ENUMS_H_ */

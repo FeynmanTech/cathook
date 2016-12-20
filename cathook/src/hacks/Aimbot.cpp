@@ -78,6 +78,7 @@ Aimbot::Aimbot() {
 
 bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
+	if (g_pLocalPlayer->entity && g_pLocalPlayer->life_state) return true;
 	this->m_iLastTarget = -1;
 	if (this->v_iAimKey->GetBool() && this->v_iAimKeyMode->GetBool()) {
 		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_iAimKey->GetInt());
@@ -106,7 +107,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (g_pLocalPlayer->cond_0 & cond::cloaked) return true; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
 	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFMinigun)
-		if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime()) return true;
+		if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime() && !(GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee)) return true;
 
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return true;
@@ -189,28 +190,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		if (ent == 0) continue;
 		if (!(IsPlayer(ent) || IsBuilding(ent))) continue;
 		if (ShouldTarget(ent)) {
-			switch (this->v_iPriorityMode->GetInt()) {
-			case 0: {
-				int scr = GetScoreForEntity(ent);
-				if (scr > target_highest_score) {
-					target_highest_score = scr;
-					target_highest = ent;
-				}
-			} break;
-			case 1: {
-				Vector result;
-				if (IsBuilding(ent)) {
-					result = GetBuildingPosition(ent);
-				} else {
-					GetHitboxPosition(ent, m_iHitbox, result);
-				}
-				float scr = 360.0f - GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, result);
-				if (scr > target_highest_score) {
-					target_highest_score = scr;
-					target_highest = ent;
-				}
-			} break;
-			case 2: {
+			if (GetWeaponMode(player) == weaponmode::weapon_melee || this->v_iPriorityMode->GetInt() == 2) {
 				Vector result;
 				if (IsBuilding(ent)) {
 					result = GetBuildingPosition(ent);
@@ -222,21 +202,42 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 					target_highest_score = scr;
 					target_highest = ent;
 				}
-			} break;
-			case 3: {
-				float scr;
-				if (IsBuilding(ent)) {
-					scr = 450.0f - GetEntityValue<int>(ent, netvar.iBuildingHealth);
-				} else {
-					scr = 450.0f - GetEntityValue<int>(ent, netvar.iHealth);
+			} else {
+				switch (this->v_iPriorityMode->GetInt()) {
+				case 0: {
+					int scr = GetScoreForEntity(ent);
+					if (scr > target_highest_score) {
+						target_highest_score = scr;
+						target_highest = ent;
+					}
+				} break;
+				case 1: {
+					Vector result;
+					if (IsBuilding(ent)) {
+						result = GetBuildingPosition(ent);
+					} else {
+						GetHitboxPosition(ent, m_iHitbox, result);
+					}
+					float scr = 360.0f - GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, result);
+					if (scr > target_highest_score) {
+						target_highest_score = scr;
+						target_highest = ent;
+					}
+				} break;
+				case 3: {
+					float scr;
+					if (IsBuilding(ent)) {
+						scr = 450.0f - GetEntityValue<int>(ent, netvar.iBuildingHealth);
+					} else {
+						scr = 450.0f - GetEntityValue<int>(ent, netvar.iHealth);
+					}
+					if (scr > target_highest_score) {
+						target_highest_score = scr;
+						target_highest = ent;
+					}
 				}
-				if (scr > target_highest_score) {
-					target_highest_score = scr;
-					target_highest = ent;
 				}
 			}
-			}
-
 		}
 	}
 	if (target_highest != 0) {
@@ -275,6 +276,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
 	if (IsPlayer(entity)) {
+		if (Developer(entity)) return false;
 		if (gEntityCache.GetEntity(entity->entindex())->m_lSeenTicks < this->v_iSeenDelay->GetInt()) return false;
 		if (IsPlayerInvulnerable(entity)) return false;
 		int team = GetEntityValue<int>(entity, netvar.iTeamNum);
@@ -298,6 +300,9 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		Vector my_pos = player->GetAbsOrigin();
 		if (v_iMaxRange->GetInt() > 0) {
 			if ((enemy_pos - my_pos).Length() > v_iMaxRange->GetInt()) return false;
+		}
+		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
+			if ((enemy_pos - my_pos).Length() > 120) return false;
 		}
 		int econd = GetEntityValue<int>(entity, netvar.iCond1);
 		if ((econd & cond_ex::vacc_bullet)) return false;
@@ -323,6 +328,9 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		Vector enemy_pos = entity->GetAbsOrigin();
 		if (v_iMaxRange->GetInt() > 0) {
 			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > v_iMaxRange->GetInt()) return false;
+		}
+		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
+			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > 120) return false;
 		}
 		Vector resultAim;
 		// TODO fix proj buildings
@@ -353,7 +361,7 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		//logging::Info("A");
 		GetHitboxPosition(entity, m_iHitbox, hit);
 		//logging::Info("B");
-		SimpleLatencyPrediction(entity, m_iHitbox);
+		if (this->v_bPrediction->GetBool()) SimpleLatencyPrediction(entity, m_iHitbox);
 		//logging::Info("C");
 	} else if (IsBuilding(entity)) {
 		hit = GetBuildingPosition(entity);

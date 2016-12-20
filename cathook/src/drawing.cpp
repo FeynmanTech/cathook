@@ -105,6 +105,43 @@ Color colors::bg_blu(32,  32,  64,  255);
 Color colors::dbgred(48,  16,  16,  255);
 Color colors::dbgblu(16,  16,  48,  255);
 
+Color colors::RainbowCurrent() {
+	return colors::FromHSL(fmodf(interfaces::gvars->curtime * 50.0f, 360.0f), 0.85f, 0.9f);
+}
+
+Color colors::FromHSL(float h, float s, float v) {
+	double      hh, p, q, t, ff;
+	long        i;
+
+	if(s <= 0.0) {       // < is bogus, just shuts up warnings
+		return Color(v * 255, v * 255, v * 255, 255);
+	}
+	hh = h;
+	if(hh >= 360.0) hh = 0.0;
+	hh /= 60.0;
+	i = (long)hh;
+	ff = hh - i;
+	p = v * (1.0 - s);
+	q = v * (1.0 - (s * ff));
+	t = v * (1.0 - (s * (1.0 - ff)));
+
+	switch(i) {
+	case 0:
+		return Color(v * 255, t * 255, p * 255, 255);
+	case 1:
+		return Color(q * 255, v * 255, p * 255, 255);
+	case 2:
+		return Color(p * 255, v * 255, t * 255, 255);
+	case 3:
+		return Color(p * 255, q * 255, v * 255, 255);
+		break;
+	case 4:
+		return Color(t * 255, p * 255, v * 255, 255);
+	case 5:
+	default:
+		return Color(v * 255, p * 255, q * 255, 255);
+	}
+}
 
 Color colors::GetTeamColor(int team, bool dark) {
 	if (team == 2) {

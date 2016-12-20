@@ -40,6 +40,10 @@ extern Color bg_red;
 extern Color bg_blu;
 extern Color dbgred;
 extern Color dbgblu;
+
+Color FromHSL(float h, float s, float l);
+Color RainbowCurrent();
+
 Color GetTeamColor(int team, bool dark);
 Color GetTeamBgColor(int team, bool dark);
 Color GetHealthColor(int health, int max);

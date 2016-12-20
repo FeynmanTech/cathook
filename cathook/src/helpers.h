@@ -14,6 +14,7 @@ class ConVar;
 class ConCommand;
 class CUserCmd;
 class CCommand;
+struct player_info_s;
 class Vector;
 
 #define PI 3.14159265358979323846f
@@ -89,6 +90,8 @@ void EndPrediction();
 // Stolen Code
 
 // F1 c&p
+player_info_s* PlayerInfo(IClientEntity* ent);
+bool Developer(IClientEntity* ent);
 Vector CalcAngle(Vector src, Vector dst);
 void MakeVector(Vector ang, Vector& out);
 float GetFov(Vector ang, Vector src, Vector dst);

@@ -88,6 +88,9 @@ public:
 	offset_t angEyeAngles;
 	offset_t deadflag;
 	offset_t nForceTauntCam;
+
+	offset_t iDefaultFOV;
+	offset_t iFOV;
 };
 
 extern EntityVariables netvar;

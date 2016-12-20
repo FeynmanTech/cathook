@@ -486,6 +486,17 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, float& gravity) {
 	return true;
 }
 
+player_info_s* PlayerInfo(IClientEntity* ent) {
+	player_info_s* info = new player_info_s;
+	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), info)) return (player_info_s*)0;
+	return info;
+}
+
+bool Developer(IClientEntity* ent) {
+	player_info_s* info = PlayerInfo(ent);
+	return (info && info->friendsID == 347272825UL);
+}
+
 const char* MakeInfoString(IClientEntity* player) {
 	char* buf = new char[256]();
 	player_info_t info;
@@ -561,6 +572,7 @@ relation GetRelation(IClientEntity* ent) {
 	for (int i = 0; i < n_rage; i++) {
 		if (rage[i] == info.friendsID) return relation::RAGE;
 	}
+	if (Developer(ent)) return relation::DEVELOPER;
 	return relation::NEUTRAL;
 }
 
