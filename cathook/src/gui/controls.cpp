@@ -24,7 +24,7 @@ void GUI_List::Move(int x, int y) {
 
 void GUI_List::Draw() {
 	IGUIListElement* current = m_pFirst;
-	draw::DrawRect(x, y, LIST_WIDTH, m_nElementCount * VERTICAL_SPACING, colors::bg_blk);
+	draw::DrawRect(x, y, LIST_WIDTH, m_nElementCount * VERTICAL_SPACING, colors::Transparent(colors::black));
 	int curidx = 0;
 	while (current) {
 		current->Draw(x + 1, y + 1 + curidx++ * VERTICAL_SPACING, (current == m_pSelected));
@@ -103,23 +103,23 @@ GUIListElement_Var::GUIListElement_Var(CatVar* var) {
 void GUIListElement_Var::Draw(int x, int y, bool selected) {
 	switch (m_pCatVar->m_Type) {
 	case CatVar_t::CV_SWITCH: {
-		draw::DrawString(x, y, selected ? colors::pink : colors::pinka, "%s", m_pCatVar->GetConVar()->GetHelpText());
+		draw::DrawString(x, y, selected ? colors::pink : colors::Transparent(colors::pink), "%s", m_pCatVar->GetConVar()->GetHelpText());
 		int l, h;
 		bool enabled = m_pCatVar->GetConVar()->GetInt();
 		draw::GetStringLength(enabled ? (char*)"ON" : (char*)"OFF", l, h);
-		draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::pinka, enabled ? "ON" : "OFF");
+		draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::Transparent(colors::pink), enabled ? "ON" : "OFF");
 	} break;
 	case CatVar_t::CV_FLOAT: {
-		draw::DrawString(x, y, selected ? colors::pink : colors::pinka, "%s", m_pCatVar->GetConVar()->GetHelpText());
+		draw::DrawString(x, y, selected ? colors::pink : colors::Transparent(colors::pink), "%s", m_pCatVar->GetConVar()->GetHelpText());
 		int l, h;
 		draw::GetStringLength(strfmt("%.1f", m_pCatVar->GetConVar()->GetFloat()), l, h);
-		draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::pinka, "%.1f", m_pCatVar->GetConVar()->GetFloat());
+		draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::Transparent(colors::pink), "%.1f", m_pCatVar->GetConVar()->GetFloat());
 	} break;
 	case CatVar_t::CV_INT: {
-		draw::DrawString(x, y, selected ? colors::pink : colors::pinka, "%s", m_pCatVar->GetConVar()->GetHelpText());
+		draw::DrawString(x, y, selected ? colors::pink : colors::Transparent(colors::pink), "%s", m_pCatVar->GetConVar()->GetHelpText());
 		int l, h;
 		draw::GetStringLength(strfmt("%i", m_pCatVar->GetConVar()->GetInt()), l, h);
-		draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::pinka, "%i", m_pCatVar->GetConVar()->GetInt());
+		draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::Transparent(colors::pink), "%i", m_pCatVar->GetConVar()->GetInt());
 	} break;
 	}
 }
@@ -146,7 +146,7 @@ GUIListElement_SubList::GUIListElement_SubList(GUI_List* list) {
 }
 
 void GUIListElement_SubList::Draw(int x, int y, bool selected) {
-	draw::DrawString(x, y, selected ? colors::pink : colors::pinka, "> %s", m_pList->m_pszListTitle);
+	draw::DrawString(x, y, selected ? colors::pink : colors::Transparent(colors::pink), "> %s", m_pList->m_pszListTitle);
 }
 
 void GUIListElement_SubList::KeyEvent(ButtonCode_t key) {

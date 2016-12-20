@@ -20,13 +20,13 @@ void GlobalSettings::Init() {
 	this->bIgnoreTaunting = CreateConVar(CON_PREFIX "ignore_taunting", "1", "Ignore taunting players");
 	this->flForceFOV = CreateConVar(CON_PREFIX "fov", "0", "Forces FOV");
 	this->bProfiler = CreateConVar(CON_PREFIX "profiler", "0", "Profiler output enabled");
-	this->bNoZoom = CreateConVar(CON_PREFIX "nozoom", "0", "No Zoom (Breaks aimbot)");
-	this->bNoFlinch = CreateConVar(CON_PREFIX "noflinch", "0", "No-Flinch");
+	this->bNoZoom = CreateConVar(CON_PREFIX "nozoom", "0", "No Zoom");
+	this->bNoFlinch = CreateConVar(CON_PREFIX "noflinch", "0", "No-Flinch (broken)");
 	this->bSendPackets = CreateConVar(CON_PREFIX "sendpackets", "1", "Send packets");
 	this->bShowLogo = CreateConVar(CON_PREFIX "logo", "1", "Show logo");
 	this->sDisconnectMsg = CreateConVar(CON_PREFIX "disconnect_msg", "", "Set custom disconnect message");
 	this->bShowAntiAim = CreateConVar(CON_PREFIX "thirdperson_angles", "1", "Real angles in thirdperson");
-	this->bThirdperson = CreateConVar(CON_PREFIX "thirdpeson", "0", "Thirdperson");
+	this->bThirdperson = CreateConVar(CON_PREFIX "thirdperson", "0", "Thirdperson");
 	this->bThirdperson->InstallChangeCallback(ThirdpersonCallback);
 }
 

@@ -1,7 +1,4 @@
 MAX -> MIN priority
-
-pNoZoom and zoomed aimbot!!!
-
 Crit Hack
 Deflected by enemy player
 AirStuck FIX
@@ -17,6 +14,7 @@ Smoothe the smooth aim
 Extract TF2 path from /proc/maps
 Display on the left
 Flare aim on fire
+VACC esp
 Triggerbot ambassador correction
 Aim Sticky
 Melee Aimbot
@@ -30,6 +28,7 @@ Engine Prediction
 An option to ignore taunting enemies
 AutoSticky improve
 No AutoShoot when disguised
+Cloaked ESP
 Ambassador bodyshotting
 No Trigger Mediguns
 More projectile weapons aimbot (wrap assassin, wrangler, stickybomb, airstrike)

@@ -16,7 +16,10 @@ public:
 	AntiAim();
 	ConVar* v_bEnabled;
 	ConVar* v_flSpinSpeed;
+	ConVar* v_flYaw;
 	ConVar* v_flPitch;
+	ConVar* v_PitchMode;
+	ConVar* v_YawMode;
 };
 
 DECLARE_HACK_SINGLETON(AntiAim);

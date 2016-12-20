@@ -86,6 +86,7 @@ void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd = NULL);
 
 void StartPrediction(CUserCmd* cmd);
 void EndPrediction();
+float RandFloatRange(float min, float max);
 
 // Stolen Code
 

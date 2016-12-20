@@ -130,7 +130,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {
 			AddSideString(colors::green, colors::black, "cathook by d4rkc4t");
-			AddSideString(colors::tf_red, colors::black, "DEVELOPMENT BUILD");
+			AddSideString(colors::red, colors::black, "DEVELOPER BUILD");
 		}
 		for (IHack* i_hack : hack::hacks) {
 			//PROF_BEGIN();
@@ -316,7 +316,7 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	if (g_Settings.bNoZoom->GetBool()) {
 		if (g_pLocalPlayer->entity) {
 			//g_pLocalPlayer->bWasZoomed = GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
-			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, g_pLocalPlayer->cond_0 &~ cond::zoomed);
+			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed);
 		}
 	}
 	SEGV_END;
@@ -357,11 +357,11 @@ void hack::InitHacks() {
 ConCommand* hack::c_Cat = 0;
 
 void hack::CC_Cat(const CCommand& args) {
-	interfaces::cvar->ConsoleColorPrintf(colors::tf_blu, "CatHook");
+	interfaces::cvar->ConsoleColorPrintf(colors::blu, "CatHook");
 	interfaces::cvar->ConsoleColorPrintf(colors::white, " by ");
-	interfaces::cvar->ConsoleColorPrintf(colors::tf_blu, "d4rkc4t\n");
+	interfaces::cvar->ConsoleColorPrintf(colors::blu, "d4rkc4t\n");
 	interfaces::cvar->ConsoleColorPrintf(colors::white, "Build: " __DATE__ " " __TIME__"\n");
-	interfaces::cvar->ConsoleColorPrintf(colors::tf_red, "[DEVELOPER BUILD]\n");
+	interfaces::cvar->ConsoleColorPrintf(colors::red, "[DEVELOPER BUILD]\n");
 }
 
 void hack::Initialize() {
@@ -378,7 +378,10 @@ void hack::Initialize() {
 	//dumper.SaveDump();
 	logging::Info("Initializing surface...");
 	draw::Initialize();
+	logging::Info("Colorizing...");
+	colors::Init();
 	logging::Info("Adding hacks...");
+
 	BeginConVars();
 	hack::c_Cat = CreateConCommand(CON_NAME, &hack::CC_Cat, "Info");
 	hack::InitHacks();

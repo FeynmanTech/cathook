@@ -63,6 +63,7 @@ ESP::ESP() {
 
 void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (!CheckCE(ent)) return;
+	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && (ent->Var<int>(netvar.iCond) & cond::cloaked);
 	Vector min, max;
 	ent->m_pEntity->GetRenderBounds(min, max);
 	Vector origin = ent->m_pEntity->GetAbsOrigin();
@@ -88,17 +89,16 @@ void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeig
 	//draw::DrawString((int)so.x, (int)so.y, draw::white, false, "origin");
 	ent->m_ESPOrigin.x = so.x + width / 2 + 1;
 	ent->m_ESPOrigin.y = so.y - height;
-	unsigned char opacity = clr._color[3];
-	Color blacko = draw::black;
-	blacko._color[3] = opacity;
-	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, blacko);
+	float trf = (float)((float)clr[3] / 255);
+	Color border = cloak ? Color(127, 127, 127, clr[3]) : colors::Transparent(colors::black, trf);
+
+	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, border);
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
-	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, blacko);
+	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, border);
 	if (healthbar) {
-		Color hp = colors::GetHealthColor(health, healthmax);
-		hp._color[3] = opacity;
+		Color hp = colors::Transparent(colors::Health(health, healthmax), trf);
 		int hbh = (height) * min((float)health / (float)healthmax, 1.0f);
-		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, blacko);
+		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, border);
 		draw::DrawRect(so.x - width / 2 - 6, so.y - hbh, 5, hbh, hp);
 	}
 	//draw::OutlineRect(min(smin.x, smax.x) - 1, min(smin.y, smax.y) - 1, max(smin.x, smax.x), max(smin.y, smax.y), draw::black);
@@ -111,30 +111,20 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (!CheckCE(ent)) return;
 	if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
 		ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
-	Color color;
+	Color fg = colors::EntityF(ent);
 	switch (ent->m_iClassID) {
 	case ClassID::CTFPlayer: {
+		bool cloak = ent->Var<int>(netvar.iCond) & cond::cloaked;
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent->m_pEntity)) {
-			if (ent->Var<int>(netvar.iCond) & cond::cloaked) return;
+			if (cloak) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
 		if (ent->Var<int>(netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !GetRelation(ent->m_pEntity)) break;
 		if (!ent->m_bAlivePlayer) break;
-		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
-		switch (GetRelation(ent->m_pEntity)) {
-		case relation::FRIEND:
-			color = colors::green;
-			break;
-		case relation::RAGE:
-			color = colors::yellow;
-			break;
-		}
-		if (Developer(ent->m_pEntity)) {
-			color = colors::RainbowCurrent();
-		}
-		DrawBox(ent, color, 3.0f, -15.0f, true, ent->Var<int>(netvar.iHealth), ent->m_iMaxHealth);
+
+		DrawBox(ent, fg, 3.0f, -15.0f, true, ent->Var<int>(netvar.iHealth), ent->m_iMaxHealth);
 	break;
 	}
 	case ClassID::CObjectSentrygun:
@@ -146,8 +136,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 			}
 		}
 		if (ent->Var<int>(netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
-		color = colors::GetTeamColor(ent->Var<int>(netvar.iTeamNum), !ent->m_bIsVisible);
-		DrawBox(ent, color, 1.0f, 0.0f, true, ent->Var<int>(netvar.iBuildingHealth), ent->Var<int>(netvar.iBuildingMaxHealth));
+		DrawBox(ent, fg, 1.0f, 0.0f, true, ent->Var<int>(netvar.iBuildingHealth), ent->Var<int>(netvar.iBuildingMaxHealth));
 	break;
 	}
 	}
@@ -157,8 +146,8 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (!CheckCE(ent)) return;
 
-	Color color = draw::white;
-	Color bgclr = draw::black;
+	Color color = colors::EntityF(ent);
+	Color bgclr = colors::EntityB(ent);
 
 	if (v_bEntityESP->GetBool()) {
 		ent->AddESPString(color, bgclr, "%s [%i]", ent->m_pEntity->GetClientClass()->m_pNetworkName, ent->m_iClassID);
@@ -191,12 +180,10 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!v_bShowMoney->GetBool()) break;
 		if (false && ent->Var<int>(netvar.bDistributed)) {
 			if (this->v_bShowRedMoney->GetBool()) {
-				color = colors::tf_red;
 				ent->AddESPString(color, bgclr, "$$$");
 				ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 			}
 		} else {
-			color = colors::green;
 			ent->AddESPString(color, bgclr, "$$$");
 			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
@@ -207,21 +194,12 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (type == item_type::item_null) break;
 		bool shown = false;
 		if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
-			color = colors::green;
 			ent->AddESPString(color, bgclr,"%s HEALTH", packs[type - item_medkit_small]);
 			shown = true;
 		} else if (type >= item_ammo_small && type <= item_ammo_large && this->v_bShowAmmoPacks->GetBool()) {
 			ent->AddESPString(color, bgclr,"%s AMMO", packs[type - item_ammo_small]);
 			shown = true;
 		} else if (type >= item_mp_strength && type <= item_mp_crit && this->v_bShowPowerups->GetBool()) {
-			int skin = ent->m_pEntity->GetSkin();
-			if (skin == 1) {
-				color = draw::red;
-			} else if (skin == 2) {
-				color = draw::blue;
-			} else {
-				color = draw::yellow;
-			}
 			ent->AddESPString(color, bgclr, "%s PICKUP", powerups[type - item_mp_strength]);
 			shown = true;
 		}
@@ -241,23 +219,6 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		powerup_type power = GetPowerupOnPlayer(ent->m_pEntity);
 		// If target is enemy, always show powerups, if player is teammate, show powerups
 		// only if bTeammatePowerup or bTeammates is true
-		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
-		switch (GetRelation(ent->m_pEntity)) {
-		case relation::FRIEND:
-			color = colors::green;
-			break;
-		case relation::RAGE:
-			color = colors::yellow;
-			break;
-		}
-
-		bgclr = colors::GetTeamBgColor(ent->m_iTeam, !ent->m_bIsVisible);
-
-		if (Developer(ent->m_pEntity)) {
-			color = colors::RainbowCurrent();
-			bgclr = colors::black;
-		}
-
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent->m_pEntity)) {
 			if (pcond & cond::cloaked) return;
 			if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {
@@ -298,14 +259,11 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) break;
 		int level = ent->Var<int>(netvar.iUpgradeLevel);
 		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
-		color = colors::GetTeamColor(ent->m_iTeam, !ent->m_bIsVisible);
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
-		bgclr = colors::GetTeamBgColor(ent->m_iTeam, !ent->m_bIsVisible);
-
 		ent->AddESPString(color, bgclr, "LV %i %s", level, name);
 		if (this->v_bShowHealthNumbers->GetBool()) {
 			ent->AddESPString(color, bgclr, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);

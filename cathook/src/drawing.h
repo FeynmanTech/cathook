@@ -11,6 +11,7 @@
 #include "fixsdk.h"
 #include <Color.h>
 
+class CachedEntity;
 class Vector;
 class IClientEntity;
 
@@ -25,28 +26,27 @@ extern Color TEAM_COLORS[4];
 
 namespace colors {
 extern Color pink;
-extern Color pinka;
+
 extern Color white;
-extern Color bg_blk;
 extern Color black;
-extern Color tf_red;
-extern Color tf_blu;
-extern Color yellow;
+
+extern Color red,    blu;
+extern Color red_b,  blu_b;  // Background
+extern Color red_i,  blu_i;  // Invis
+extern Color red_u,  blu_u;  // Ubercharged
+extern Color yellow; // Deprecated
 extern Color orange;
 extern Color green;
-extern Color dk_red;
-extern Color dk_blu;
-extern Color bg_red;
-extern Color bg_blu;
-extern Color dbgred;
-extern Color dbgblu;
 
+void Init();
+
+Color Transparent(Color base, float mod = 0.5f);
 Color FromHSL(float h, float s, float l);
 Color RainbowCurrent();
+Color Health(int health, int max);
+Color EntityF(CachedEntity* ent);
+Color EntityB(CachedEntity* ent);
 
-Color GetTeamColor(int team, bool dark);
-Color GetTeamBgColor(int team, bool dark);
-Color GetHealthColor(int health, int max);
 }
 
 void InitStrings();
@@ -67,11 +67,6 @@ extern unsigned long font_handle_large;
 extern unsigned long panel_top;
 extern int width;
 extern int height;
-extern Color white;
-extern Color blue;
-extern Color red;
-extern Color yellow;
-extern Color black;
 
 void Initialize();
 void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);

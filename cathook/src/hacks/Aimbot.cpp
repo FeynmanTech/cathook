@@ -95,6 +95,8 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
+	if (g_pLocalPlayer->cond_0 & cond::taunting) return true;
+
 	switch (GetWeaponMode(g_pLocalPlayer->entity)) {
 	case weapon_medigun:
 	case weapon_pda:
@@ -276,6 +278,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
 	if (IsPlayer(entity)) {
+		if (g_Settings.bIgnoreTaunting->GetBool() && (GetEntityValue<int>(entity, netvar.iCond) & cond::taunting)) return false;
 		if (Developer(entity)) return false;
 		if (gEntityCache.GetEntity(entity->entindex())->m_lSeenTicks < this->v_iSeenDelay->GetInt()) return false;
 		if (IsPlayerInvulnerable(entity)) return false;

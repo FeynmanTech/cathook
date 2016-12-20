@@ -19,18 +19,51 @@ const char* AntiAim::GetName() {
 AntiAim::AntiAim() {
 	this->v_bEnabled = CreateConVar(CON_PREFIX "aa_enabled", "0", "Enable");
 	this->v_flPitch = CreateConVar(CON_PREFIX "aa_pitch", "-89.0", "Pitch");
+	this->v_flYaw = CreateConVar(CON_PREFIX "aa_yaw", "0.0", "Yaw");
 	this->v_flSpinSpeed = CreateConVar(CON_PREFIX "aa_spin", "10.0", "Spin speed");
+	this->v_PitchMode = CreateConVar(CON_PREFIX "aa_pitch_mode", "1", "Pitch mode");
+	this->v_YawMode = CreateConVar(CON_PREFIX "aa_yaw_mode", "3", "Yaw mode");
 }
 
-float spin = -180;
+float yaw = -180;
+float pitch = -89;
 
 bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
-	if ((cmd->buttons & (IN_ATTACK | IN_USE))) return true;
+	if (cmd->buttons & IN_USE) {
+		return true;
+	}
+	if (cmd->buttons & IN_ATTACK) {
+		if (BulletTime()) return true;
+	}
+	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFLunchBox) return true;
 	if (g_pLocalPlayer->bAttackLastTick) return true;
-	spin += v_flSpinSpeed->GetFloat();
-	if (spin > 180) spin = -180;
-	Vector angl = Vector(v_flPitch->GetFloat(), spin, 0);
+	if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) return true;
+	float p = cmd->viewangles.x;
+	float y = cmd->viewangles.y;
+	switch (this->v_YawMode->GetInt()) {
+	case 1: // FIXED
+		y = this->v_flYaw->GetFloat();
+		break;
+	case 2: // RANDOM
+		y = RandFloatRange(-180.0f, 180.0f);
+		break;
+	case 3: // SPIN
+		yaw += v_flSpinSpeed->GetFloat();
+		if (yaw > 180) yaw = -180;
+		y = yaw;
+		break;
+	}
+	switch (this->v_PitchMode->GetInt()) {
+	case 1:
+		p = this->v_flPitch->GetFloat();
+		break;
+	case 2:
+		p = RandFloatRange(-89.0f, 89.0f);
+		break;
+	}
+
+	Vector angl = Vector(p, y, 0);
 	fClampAngle(angl);
 	//angl.z = 180;
 	cmd->viewangles = angl;

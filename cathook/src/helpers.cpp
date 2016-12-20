@@ -299,8 +299,14 @@ bool IsPlayerInvisible(IClientEntity* player) {
 	return false; // TODO stumpy.flv
 }
 
+float RandFloatRange(float min, float max)
+{
+    return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));
+}
+
 trace::FilterDefault* trace_filter;
 bool IsEntityVisible(IClientEntity* entity, int hb) {
+	if (entity == g_pLocalPlayer->entity) return true;
 	if (!trace_filter) {
 		trace_filter = new trace::FilterDefault();
 	}

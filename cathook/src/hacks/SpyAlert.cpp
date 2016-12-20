@@ -36,7 +36,7 @@ void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
 		Vector mypos = g_pLocalPlayer->v_Origin;
 		float distance = spypos.DistTo(mypos);
 		if (distance < this->v_flBackstabDistance->GetFloat()) {
-			AddCenterString(colors::yellow, colors::tf_red, "BACKSTAB WARNING! %im", (int)(distance / 64 * 1.22f));
+			AddCenterString(colors::yellow, colors::red, "BACKSTAB WARNING! %im", (int)(distance / 64 * 1.22f));
 		} else if (distance < this->v_flWarningDistance->GetFloat()) {
 			AddCenterString(colors::yellow, colors::black, "Incoming spy! %im", (int)(distance / 64 * 1.22f));
 		}
