@@ -174,6 +174,15 @@ Color colors::EntityF(CachedEntity* ent) {
 		result = green; // TODO currency pack (red)
 	}
 
+	if (IsProjectile(ent->m_pEntity)) {
+		if (ent->m_iTeam == TEAM_BLU) result = blu;
+		else if (ent->m_iTeam == TEAM_RED) result = red;
+		if (ent->m_bCritProjectile) {
+			if (ent->m_iTeam == TEAM_BLU) result = blu_u;
+			else if (ent->m_iTeam == TEAM_RED) result = red_u;
+		}
+	}
+
 	if (IsPlayer(ent->m_pEntity) || IsBuilding(ent->m_pEntity)) {
 		if (ent->m_iTeam == TEAM_BLU) result = blu;
 		else if (ent->m_iTeam == TEAM_RED) result = red;

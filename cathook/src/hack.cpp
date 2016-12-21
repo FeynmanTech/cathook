@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sys/prctl.h>
 //#include <cstring>
 #include <unistd.h>
 #include <link.h>
@@ -366,6 +367,7 @@ void hack::CC_Cat(const CCommand& args) {
 
 void hack::Initialize() {
 	logging::Initialize();
+	prctl(PR_SET_DUMPABLE,0,42,42,42);
 	logging::Info("Build: " __DATE__ " " __TIME__);
 	logging::Info("Loading shared objects...");
 	sharedobj::LoadAllSharedObjects();
