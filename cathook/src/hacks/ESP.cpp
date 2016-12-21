@@ -244,6 +244,12 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (IsPlayerInvulnerable(ent->m_pEntity)) {
 				ent->AddESPString(color, bgclr, "INVULNERABLE");
 			}
+			if (ent->Var<int>(netvar.iCond1) & cond_ex::vacc_bullet) {
+				ent->AddESPString(color, bgclr, "VACCINATOR ACTIVE");
+			}
+			if (ent->Var<int>(netvar.iCond1) & cond_ex::vacc_pbullet) {
+				ent->AddESPString(color, bgclr, "VACCINATOR PASSIVE");
+			}
 			if (IsPlayerCritBoosted(ent->m_pEntity)) {
 				ent->AddESPString(color, bgclr, "CRIT BOOSTED");
 			}

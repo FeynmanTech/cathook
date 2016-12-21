@@ -72,6 +72,8 @@ bool IsAmbassador(IClientEntity* ent);
 void AimAt(Vector origin, Vector target, CUserCmd* cmd);
 void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd);
 
+bool IsMeleeWeapon(IClientEntity* ent);
+
 QAngle VectorToQAngle(Vector in);
 Vector QAngleToVector(QAngle in);
 

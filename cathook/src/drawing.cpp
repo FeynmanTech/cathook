@@ -92,7 +92,7 @@ Color black;
 
 Color red,    blu;
 Color red_b,  blu_b;  // Background
-Color red_i,  blu_i;  // Invis
+Color red_v,  blu_v;  // Invis
 Color red_u,  blu_u;
 
 Color yellow; // Deprecated
@@ -124,8 +124,8 @@ void colors::Init() {
 	blu = Color(28, 108, 237, 255);
 	red_b = Color(64, 32, 32, 178);
 	blu_b = Color(32, 32, 64, 178);
-	red_i = Color(252, 159, 159, 255);
-	blu_i = Color(159, 191, 252, 255);
+	red_v = Color(196, 102, 108, 255);
+	blu_v = Color(102, 182, 196, 255);
 	red_u = Color(216, 34, 186, 255);
 	blu_u = Color(167, 75, 252, 255);
 	yellow = Color(255, 255, 0, 255);
@@ -182,9 +182,9 @@ Color colors::EntityF(CachedEntity* ent) {
 				if (ent->m_iTeam == TEAM_BLU) result = blu_u;
 				else if (ent->m_iTeam == TEAM_RED) result = red_u;
 			}
-			if (ent->Var<int>(netvar.iCond) & cond::cloaked) {
-				if (ent->m_iTeam == TEAM_BLU) result = blu_i;
-				else if (ent->m_iTeam == TEAM_RED) result = red_i;
+			if (ent->Var<int>(netvar.iCond2) & cond_ex::vacc_bullet) {
+				if (ent->m_iTeam == TEAM_BLU) result = blu_v;
+				else if (ent->m_iTeam == TEAM_RED) result = red_v;
 			}
 			switch (GetRelation(ent->m_pEntity)) {
 			case FRIEND:

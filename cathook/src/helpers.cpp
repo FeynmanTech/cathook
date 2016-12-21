@@ -415,12 +415,35 @@ float DistToSqr(IClientEntity* entity) {
 	return g_pLocalPlayer->v_Origin.DistToSqr(entity->GetAbsOrigin());
 }
 
+bool IsMeleeWeapon(IClientEntity* ent) {
+	if (!ent) return false;
+	switch (ent->GetClientClass()->m_ClassID) {
+	case ClassID::CTFBat:
+	case ClassID::CTFBat_Fish:
+	case ClassID::CTFBat_Giftwrap:
+	case ClassID::CTFBat_Wood:
+	case ClassID::CTFShovel:
+	case ClassID::CTFKatana:
+	case ClassID::CTFFireAxe:
+	case ClassID::CTFBottle:
+	case ClassID::CTFSword:
+	case ClassID::CTFFists:
+	case ClassID::CTFWrench:
+	case ClassID::CTFRobotArm:
+	case ClassID::CTFBonesaw:
+	case ClassID::CTFClub:
+	case ClassID::CTFKnife:
+		return true;
+	}
+	return false;
+}
+
 weaponmode GetWeaponMode(IClientEntity* player) {
 	if (!player) return weapon_invalid;
 	int weapon_handle = GetEntityValue<int>(player, netvar.hActiveWeapon);
-	if (weapon_handle == GetEntityValue<int>(player, netvar.hMyWeapons + sizeof(int) * 2)) return weaponmode::weapon_melee;
 	IClientEntity* weapon = interfaces::entityList->GetClientEntity(weapon_handle & 0xFFF);
 	if (!weapon) return weaponmode::weapon_invalid;
+	if (IsMeleeWeapon(weapon)) return weaponmode::weapon_melee;
 	switch (weapon->GetClientClass()->m_ClassID) {
 	case ClassID::CTFLunchBox:
 	case ClassID::CTFLunchBox_Drink:

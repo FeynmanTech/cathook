@@ -32,7 +32,7 @@ extern Color black;
 
 extern Color red,    blu;
 extern Color red_b,  blu_b;  // Background
-extern Color red_i,  blu_i;  // Invis
+extern Color red_v,  blu_v;  // Vaccinator
 extern Color red_u,  blu_u;  // Ubercharged
 extern Color yellow; // Deprecated
 extern Color orange;
