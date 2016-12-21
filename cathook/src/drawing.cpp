@@ -182,7 +182,7 @@ Color colors::EntityF(CachedEntity* ent) {
 				if (ent->m_iTeam == TEAM_BLU) result = blu_u;
 				else if (ent->m_iTeam == TEAM_RED) result = red_u;
 			}
-			if (ent->Var<int>(netvar.iCond2) & cond_ex::vacc_bullet) {
+			if (ent->Var<int>(netvar.iCond1) & cond_ex::vacc_bullet) {
 				if (ent->m_iTeam == TEAM_BLU) result = blu_v;
 				else if (ent->m_iTeam == TEAM_RED) result = red_v;
 			}

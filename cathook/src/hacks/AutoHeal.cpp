@@ -54,6 +54,7 @@ bool AutoHeal::CanHeal(int idx) {
 	IClientEntity* ent = interfaces::entityList->GetClientEntity(idx);
 	if (!ent) return false;
 	if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) return false;
+	if (interfaces::engineClient->GetLocalPlayer() == idx) return false;
 	if (GetEntityValue<char>(ent, netvar.iLifeState)) return false;
 	if (g_pLocalPlayer->team != GetEntityValue<int>(ent, netvar.iTeamNum)) return false;
 	if (g_pLocalPlayer->v_Origin.DistToSqr(ent->GetAbsOrigin()) > 420 * 420) return false;

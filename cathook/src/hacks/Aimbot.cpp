@@ -305,7 +305,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 			if ((enemy_pos - my_pos).Length() > v_iMaxRange->GetInt()) return false;
 		}
 		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
-			if ((enemy_pos - my_pos).Length() > 120) return false;
+			if ((enemy_pos - my_pos).Length() > 105) return false;
 		}
 		int econd = GetEntityValue<int>(entity, netvar.iCond1);
 		if ((econd & cond_ex::vacc_bullet)) return false;
@@ -333,7 +333,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > v_iMaxRange->GetInt()) return false;
 		}
 		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
-			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > 120) return false;
+			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > 105) return false;
 		}
 		Vector resultAim;
 		// TODO fix proj buildings
