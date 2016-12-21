@@ -1,6 +1,5 @@
 #include "Netvar.h"
 
-//#include "SDK.h"
 #include "../interfaces.h"
 #include "../logging.h"
 #include <memory>

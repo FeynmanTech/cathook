@@ -10,6 +10,7 @@
 #include "sdk.h"
 
 #include <pwd.h>
+#include <sys/mman.h>
 
 FILE* hConVarsFile = 0;
 void BeginConVars() {
@@ -296,7 +297,12 @@ float deg2rad(float deg) {
 }
 
 bool IsPlayerInvisible(IClientEntity* player) {
-	return false; // TODO stumpy.flv
+	int cond = GetEntityValue<int>(player, netvar.iCond);
+	int mask = cloaked;
+	int cond_1 = GetEntityValue<int>(player, netvar.iCond1);
+	int mask_1 = cond_ex2::cloak_spell | cond_ex2::cloak_spell_fading;
+	int mask_v = on_fire | jarate | milk;
+	return !((cond & mask_v) || !((cond & mask) || (cond_1 & mask_1)));
 }
 
 float RandFloatRange(float min, float max)
@@ -458,6 +464,13 @@ bool IsProjectile(IClientEntity* ent) {
 		return true;
 	}
 	return false;
+}
+
+void Patch(void* address, void* patch, size_t length) {
+	void* page = (void*)((uintptr_t)address &~ 0xFFF);
+	mprotect(page, 0xFFF, PROT_WRITE | PROT_EXEC);
+	memcpy(address, patch, length);
+	mprotect(page, 0xFFF, PROT_EXEC);
 }
 
 bool IsProjectileCrit(IClientEntity* ent) {

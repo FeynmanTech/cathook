@@ -52,18 +52,35 @@ void GUI::Draw() {
 	}
 }
 
-bool GUI::KeyEvent(ButtonCode_t key) {
-	if (key == KEY_INSERT)
-		m_bActive = !m_bActive;
-	if (!m_bActive) return false;
-	if (key == KEY_BACKSPACE) {
-		PopList();
-		return false;
+void GUI::UpdateKeys() {
+	for (int i = 0; i < ButtonCode_t::KEY_COUNT; i++) {
+		bool down = interfaces::input->IsButtonDown((ButtonCode_t)(KEY_FIRST + i));
+		bool changed = m_bPressedState[i] != down;
+		if (changed && down) m_iPressedFrame[i] = interfaces::gvars->framecount;
+		m_bPressedState[i] = down;
+		if (m_bKeysInit) {
+			if (changed) {
+				KeyEvent((ButtonCode_t)i);
+			}
+		}
 	}
+	if (!m_bKeysInit) m_bKeysInit = 1;
+}
 
-	if (m_nStackSize) {
-		if (m_ListStack[m_nStackSize - 1])
-			m_ListStack[m_nStackSize - 1]->KeyEvent(key);
+bool GUI::KeyEvent(ButtonCode_t key) {
+	if (m_bPressedState[key]) {
+		if (key == KEY_INSERT)
+			m_bActive = !m_bActive;
+		if (!m_bActive) return false;
+		if (key == KEY_BACKSPACE) {
+			PopList();
+			return false;
+		}
+
+		if (m_nStackSize) {
+			if (m_ListStack[m_nStackSize - 1])
+				m_ListStack[m_nStackSize - 1]->KeyEvent(key);
+		}
 	}
 	return false;
 }
@@ -83,6 +100,9 @@ bool GUI::KeyEvent(ButtonCode_t key) {
 
 #define ADD_FLOAT(list, var) \
 	list_##list->AddElement(new GUIListElement_Var(new CatVar(var, CatVar_t::CV_FLOAT)));
+
+#define ADD_VAR(list, var) \
+	list_##list->AddElement(new GUIListElement_Var(var));
 
 
 void GUI::Setup() {
@@ -106,24 +126,24 @@ void GUI::Setup() {
 	ADD_SUBLIST(main, autoheal);
 	ADD_SUBLIST(main, bhop);
 
-	ADD_SWITCH(aimbot, g_phAimbot->v_bEnabled);
+	ADD_VAR(aimbot, g_phAimbot->v_bEnabled);
 	// TODO enums
-	ADD_INT(aimbot, g_phAimbot->v_iAimKeyMode);
-	ADD_INT(aimbot, g_phAimbot->v_iAimKey);
-	ADD_INT(aimbot, g_phAimbot->v_iHitbox);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bAutoHitbox);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bPrediction);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bAutoShoot);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bSilent);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bZoomedOnly);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bRespectCloak);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bAimBuildings);
-	ADD_FLOAT(aimbot, g_phAimbot->v_fFOV);
-	ADD_SWITCH(aimbot, g_phAimbot->v_bMachinaPenetration);
+	ADD_VAR(aimbot, g_phAimbot->v_eAimKeyMode);
+	ADD_VAR(aimbot, g_phAimbot->v_eAimKey);
+	ADD_VAR(aimbot, g_phAimbot->v_eHitbox);
+	ADD_VAR(aimbot, g_phAimbot->v_bAutoHitbox);
+	ADD_VAR(aimbot, g_phAimbot->v_bPrediction);
+	ADD_VAR(aimbot, g_phAimbot->v_bAutoShoot);
+	ADD_VAR(aimbot, g_phAimbot->v_bSilent);
+	ADD_VAR(aimbot, g_phAimbot->v_bZoomedOnly);
+	ADD_VAR(aimbot, g_phAimbot->v_bRespectCloak);
+	ADD_VAR(aimbot, g_phAimbot->v_bAimBuildings);
+	ADD_VAR(aimbot, g_phAimbot->v_fFOV);
+	ADD_VAR(aimbot, g_phAimbot->v_bMachinaPenetration);
 	CREATE_LIST(aimbot_smooth, "Smooth")
 	ADD_SUBLIST(aimbot, aimbot_smooth);
-	ADD_SWITCH(aimbot_smooth, g_phAimbot->v_bSmooth);
-	ADD_INT(aimbot, g_phAimbot->v_iSeenDelay);
+	ADD_VAR(aimbot_smooth, g_phAimbot->v_bSmooth);
+	ADD_VAR(aimbot, g_phAimbot->v_iSeenDelay);
 
 	ADD_SWITCH(antiaim, g_phAntiAim->v_bEnabled);
 	ADD_FLOAT(antiaim, g_phAntiAim->v_flPitch);

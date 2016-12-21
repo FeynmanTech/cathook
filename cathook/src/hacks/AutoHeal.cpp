@@ -59,7 +59,7 @@ bool AutoHeal::CanHeal(int idx) {
 	if (g_pLocalPlayer->team != GetEntityValue<int>(ent, netvar.iTeamNum)) return false;
 	if (g_pLocalPlayer->v_Origin.DistToSqr(ent->GetAbsOrigin()) > 420 * 420) return false;
 	if (!IsEntityVisible(ent, 7)) return false;
-	if (GetEntityValue<int>(ent, netvar.iCond) & cond::cloaked) return false;
+	if (IsPlayerInvisible(ent)) return false;
 	return true;
 }
 

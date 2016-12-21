@@ -30,6 +30,7 @@ class CGlobalVarsBase;
 class IPrediction;
 class IGameMovement;
 class IInput;
+class IMatSystemSurface;
 
 namespace interfaces {
 
@@ -50,6 +51,7 @@ extern CGlobalVarsBase* gvars;
 extern IPrediction* prediction;
 extern IGameMovement* gamemovement;
 extern IInput* iinput;
+extern IMatSystemSurface* matsurface;
 
 void CreateInterfaces();
 

@@ -23,9 +23,13 @@ public:
 
 	void PushList(const char* id);
 	void PopList();
+	void UpdateKeys();
 
 	void Setup();
 
+	bool m_bKeysInit;
+	bool m_bPressedState[ButtonCode_t::KEY_COUNT];
+	int m_iPressedFrame[ButtonCode_t::KEY_COUNT];
 	GUI_List** m_Lists;
 	GUI_List** m_ListStack;
 	int m_nListCount;

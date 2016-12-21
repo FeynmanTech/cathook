@@ -10,6 +10,7 @@
 
 class CUserCmd;
 class ConVar;
+class CatVar;
 class ConCommand;
 class CCommand;
 

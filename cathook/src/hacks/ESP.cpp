@@ -69,7 +69,7 @@ ESP::ESP() {
 
 void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (!CheckCE(ent)) return;
-	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && (ent->Var<int>(netvar.iCond) & cond::cloaked);
+	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent->m_pEntity);//(ent->Var<int>(netvar.iCond) & cond::cloaked);
 	Vector min, max;
 	ent->m_pEntity->GetRenderBounds(min, max);
 	Vector origin = ent->m_pEntity->GetAbsOrigin();
@@ -120,7 +120,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	Color fg = colors::EntityF(ent);
 	switch (ent->m_iClassID) {
 	case ClassID::CTFPlayer: {
-		bool cloak = ent->Var<int>(netvar.iCond) & cond::cloaked;
+		bool cloak = IsPlayerInvisible(ent->m_pEntity);//ent->Var<int>(netvar.iCond) & cond::cloaked;
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent->m_pEntity)) {
 			if (cloak) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
@@ -272,7 +272,8 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		// If target is enemy, always show powerups, if player is teammate, show powerups
 		// only if bTeammatePowerup or bTeammates is true
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent->m_pEntity)) {
-			if (pcond & cond::cloaked) return;
+			//if (pcond & cond::cloaked) return;
+			if (IsPlayerInvisible(ent->m_pEntity)) return;
 			if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {
 				return;
 			}

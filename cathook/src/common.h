@@ -21,6 +21,7 @@
 #include "relations.h"
 #include "usercmd.h"
 #include "trace.h"
+#include "cvwrapper.h"
 #include "prediction.h"
 
 #define CON_NAME "cat"

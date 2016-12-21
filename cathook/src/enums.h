@@ -535,26 +535,24 @@ enum weaponmode {
 };
 
 enum hitbox_t {
-	hb_head = 0,
-	hb_neck,
-	hb_necklower,
-	hb_pelvis,
-	hb_body,
-	hb_lowerchest,
-	hb_chest,
-	hb_upperchest,
-	hb_rightthigh,
-	hb_leftthigh,
-	hb_rightshin,
-	hb_leftshin,
-	hb_rightfoot,
-	hb_leftfoot,
-	hb_righthand,
-	hb_lefthand,
-	hb_rightupperarm,
-	hb_rightlowerarm,
-	hb_leftupperArm,
-	hb_leftlowerArm
+	head = 0,
+	pelvis = 1,
+	spine_0 = 2,
+	spine_1 = 3,
+	spine_2 = 4,
+	spine_3 = 5,
+	upperArm_L = 6,
+	lowerArm_L = 7,
+	hand_L = 8,
+	upperArm_R = 9,
+	lowerArm_R = 10,
+	hand_R = 11,
+	hip_L = 12,
+	knee_L = 13,
+	foot_L = 14,
+	hip_R = 15,
+	knee_R = 16,
+	foot_R = 17
 };
 
 enum relation {

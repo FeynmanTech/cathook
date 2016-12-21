@@ -323,6 +323,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(colors::white, colors::black, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
 			AddSideString(colors::white, colors::black, "ServerTime: %f", GetEntityValue<float>(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, colors::black, "CurTime: %f", interfaces::gvars->curtime);
+			AddSideString(colors::white, colors::black, "FrameCount: %i", interfaces::gvars->framecount);
 			float speed, gravity;
 			GetProjectileData(g_pLocalPlayer->weapon, speed, gravity);
 			AddSideString(colors::white, colors::black, "Speed: %f", speed);

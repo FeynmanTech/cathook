@@ -36,7 +36,9 @@ extern VMTHook* hkClientMode;
 extern VMTHook* hkClient;
 extern VMTHook* hkNetChannel;
 extern VMTHook* hkClientDLL;
+extern VMTHook* hkMatSurface;
 
+extern unsigned int offHandleInputEvent;
 extern unsigned int offPaintTraverse;
 extern unsigned int offCreateMove;
 extern unsigned int offOverrideView;

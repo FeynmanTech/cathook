@@ -69,6 +69,8 @@ bool IsSentryBuster(IClientEntity* ent);
 char* strfmt(const char* fmt, ...);
 bool IsAmbassador(IClientEntity* ent);
 
+void Patch(void* address, void* patch, size_t length);
+
 void AimAt(Vector origin, Vector target, CUserCmd* cmd);
 void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd);
 

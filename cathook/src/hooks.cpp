@@ -19,6 +19,7 @@ unsigned int hooks::offCanPacket = 57;
 unsigned int hooks::offSendNetMsg = 41;
 unsigned int hooks::offShutdown = 37;
 unsigned int hooks::offKeyEvent = 20;
+unsigned int hooks::offHandleInputEvent = 78;
 
 // This thing had been copypasted from somewhere, maybe from F1Public.
 
@@ -74,3 +75,4 @@ hooks::VMTHook* hooks::hkPanel = 0;
 hooks::VMTHook* hooks::hkClient = 0;
 hooks::VMTHook* hooks::hkNetChannel = 0;
 hooks::VMTHook* hooks::hkClientDLL = 0;
+hooks::VMTHook* hooks::hkMatSurface = 0;

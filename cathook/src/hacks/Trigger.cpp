@@ -89,7 +89,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	if (rel == relation::FRIEND || rel == relation::DEVELOPER) return true;
 	if (IsPlayerInvulnerable(entity)) return true;
 	if (!this->v_bIgnoreCloak->GetBool() &&
-		((GetEntityValue<int>(entity, netvar.iCond)) & cond::cloaked)) return true;
+		(IsPlayerInvisible(entity))) return true;
 	int health = GetEntityValue<int>(entity, netvar.iHealth);
 	bool bodyshot = false;
 	if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {

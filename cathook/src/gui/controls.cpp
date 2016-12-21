@@ -121,20 +121,35 @@ void GUIListElement_Var::Draw(int x, int y, bool selected) {
 		draw::GetStringLength(strfmt("%i", m_pCatVar->GetConVar()->GetInt()), l, h);
 		draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::Transparent(colors::pink), "%i", m_pCatVar->GetConVar()->GetInt());
 	} break;
+	case CatVar_t::CV_ENUM: {
+		draw::DrawString(x, y, selected ? colors::pink : colors::Transparent(colors::pink), "%s", m_pCatVar->GetConVar()->GetHelpText());
+		int l, h;
+		const char* str = m_pCatVar->m_EnumType->Name(m_pCatVar->GetInt());
+		if (str) {
+			draw::GetStringLength((char*)str, l, h);
+			draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::Transparent(colors::pink), str);
+		} else {
+			draw::GetStringLength(strfmt("%i", m_pCatVar->GetConVar()->GetInt()), l, h);
+			draw::DrawString(x + LIST_WIDTH - l - 3, y, selected ? colors::pink : colors::Transparent(colors::pink), "%i", m_pCatVar->GetConVar()->GetInt());
+		}
+	} break;
 	}
 }
 
 void GUIListElement_Var::KeyEvent(ButtonCode_t key) {
+	int factor = 1;
+	if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LSHIFT]) factor *= 10;
+	if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LCONTROL]) factor *= 100;
 	switch (key) {
 	case ButtonCode_t::KEY_SPACE:
 	case ButtonCode_t::KEY_ENTER:
-		m_pCatVar->Increment();
+		m_pCatVar->Increment(factor);
 		break;
 	case ButtonCode_t::KEY_RIGHT:
-		m_pCatVar->Increment();
+		m_pCatVar->Increment(factor);
 		break;
 	case ButtonCode_t::KEY_LEFT:
-		m_pCatVar->Decrement();
+		m_pCatVar->Decrement(factor);
 		break;
 	}
 }

@@ -36,6 +36,7 @@
 #include <iclient.h>
 #include <iserver.h>
 #include <view_shared.h>
+#include <VGuiMatSurface/IMatSystemSurface.h>
 
 #include "sdk/in_buttons.h"
 #include "sdk/iinput.h"

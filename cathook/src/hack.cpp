@@ -85,7 +85,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	}
 
 	SEGV_BEGIN;
-	((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar);
+	SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	if (g_phFollowBot->v_bEnabled->GetBool()) {
 		ipc_client_seg* seg_g = g_phFollowBot->m_pIPC->GetClientSegment(0);
@@ -156,6 +156,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				}
 			}
 		}
+		g_pGUI->UpdateKeys();
 		g_pGUI->Draw();
 		DrawStrings();
 	}
@@ -365,6 +366,12 @@ void hack::CC_Cat(const CCommand& args) {
 	interfaces::cvar->ConsoleColorPrintf(colors::red, "[DEVELOPER BUILD]\n");
 }
 
+typedef bool(HandleInputEvent_t)(IMatSystemSurface* thisptr, const InputEvent_t& event);
+bool hk_HandleInputEvent(IMatSystemSurface* thisptr, const InputEvent_t& event) {
+	//logging::Info("Handling event %u [%u]", event.m_nType, event.m_nData);
+	return ((HandleInputEvent_t*)hooks::hkMatSurface->GetMethod(hooks::offHandleInputEvent))(thisptr, event);
+}
+
 void hack::Initialize() {
 	logging::Initialize();
 	prctl(PR_SET_DUMPABLE,0,42,42,42);
@@ -382,6 +389,14 @@ void hack::Initialize() {
 	draw::Initialize();
 	logging::Info("Colorizing...");
 	colors::Init();
+	logging::Info("Boosting luck...");
+	uintptr_t mmmf = (gSignatures.GetClientSignature("C7 44 24 04 09 00 00 00 BB ? ? ? ? C7 04 24 00 00 00 00 E8 ? ? ? ? BA ? ? ? ? 85 C0 B8 ? ? ? ? 0F 44 DA") + 37);
+	if (mmmf) {
+		unsigned char patch1[] = { 0x89, 0xD3, 0x90 };
+		unsigned char patch2[] = { 0x89, 0xC2, 0x90 };
+		Patch((void*)mmmf, (void*)patch1, 3);
+		Patch((void*)(mmmf + 8), (void*)patch2, 3);
+	} else logging::Info("You are already filled with luck.");
 	logging::Info("Adding hacks...");
 
 	BeginConVars();
@@ -421,6 +436,11 @@ void hack::Initialize() {
 	hooks::hkClient->HookMethod((void*)&hack::Hk_DispatchUserMessage, hooks::offFrameStageNotify + 1);
 	hooks::hkClient->HookMethod((void*)&Hk_IN_KeyEvent, hooks::offKeyEvent);
 	hooks::hkClient->Apply();
+	/*hooks::hkMatSurface = new hooks::VMTHook();
+	hooks::hkMatSurface->Init((void*)interfaces::matsurface, 0);
+	hooks::hkMatSurface->HookMethod((void*)hk_HandleInputEvent, hooks::offHandleInputEvent);
+	hooks::hkMatSurface->Apply();
+	logging::Info("MatSurface Hooked? %f", interfaces::matsurface->DrawGetAlphaMultiplier());*/
 	logging::Info("Hooked!");
 	InitStrings();
 	logging::Info("Init done!");
@@ -436,9 +456,10 @@ void hack::Shutdown() {
 	logging::Info("Shutting down...");
 	logging::Shutdown();
 	ConVar_Unregister();
-	hooks::hkPanel->Kill();
-	hooks::hkClientMode->Kill();
-	hooks::hkClient->Kill();
+	if (hooks::hkPanel) hooks::hkPanel->Kill();
+	if (hooks::hkClientMode) hooks::hkClientMode->Kill();
+	if (hooks::hkClient) hooks::hkClient->Kill();
+	if (hooks::hkMatSurface) hooks::hkMatSurface->Kill();
 	for (IHack* i_hack : hack::hacks) {
 		delete i_hack;
 	}

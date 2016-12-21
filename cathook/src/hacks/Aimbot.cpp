@@ -38,41 +38,51 @@ const char* Aimbot::GetName() {
 }
 
 /* null-safe */
+
+const char* psza__AimKeyMode[] = { "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" };
+const char* psza__Hitbox[] = {
+	"HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
+	"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
+	"KNEE R", "FOOT R"
+};
+const char* psza__Priority[] = {
+	"SMART", "FOV", "DISTANCE", "HEALTH"
+};
+
 Aimbot::Aimbot() {
 	target_systems[0] = new TargetSystemSmart();
 	target_systems[1] = new TargetSystemFOV();
 	target_systems[2] = new TargetSystemDistance();
 	m_bAimKeySwitch = false;
-	this->v_iAimKeyMode = CreateConVar(CON_PREFIX "aimbot_aimkey_mode", "1", "Aimkey Mode");
-	this->v_bEnabled = CreateConVar(CON_PREFIX "aimbot_enabled", "0", "Enabled");
-	this->v_iHitbox = CreateConVar(CON_PREFIX "aimbot_hitbox", "0", "Hitbox");
-	this->v_bAutoHitbox = CreateConVar(CON_PREFIX "aimbot_autohitbox", "1", "Autohitbox");
-	this->v_bPrediction = CreateConVar(CON_PREFIX "aimbot_prediction", "1", "Latency pred");
-	this->v_bAutoShoot = CreateConVar(CON_PREFIX "aimbot_autoshoot", "1", "Autoshoot");
-	this->v_bSilent = CreateConVar(CON_PREFIX "aimbot_silent", "1", "Silent");
-	this->v_bZoomedOnly = CreateConVar(CON_PREFIX "aimbot_zoomed", "1", "Zoomed Only");
-	this->v_iAutoShootCharge = CreateConVar(CON_PREFIX "aimbot_autoshoot_charge", "0.0", "Autoshoot Charge");
-	this->v_iMaxRange = CreateConVar(CON_PREFIX "aimbot_maxrange", "0", "Max distance");
-	this->v_bRespectCloak = CreateConVar(CON_PREFIX "aimbot_respect_cloak", "1", "Respect cloak");
-	this->v_bCharge = CreateConVar(CON_PREFIX "aimbot_charge", "0", "Wait for charge");
-	this->v_bEnabledAttacking = CreateConVar(CON_PREFIX "aimbot_enable_attack_only", "0", "Active when attacking");
-	this->v_bStrictAttack = CreateConVar(CON_PREFIX "aimbot_strict_attack", "0", "Strict attack");
-	this->v_bProjectileAimbot = CreateConVar(CON_PREFIX "aimbot_projectile", "1", "Projectile aimbot");
-	this->v_iOverrideProjSpeed = CreateConVar(CON_PREFIX "aimbot_proj_speed", "0", "Projectile speed");
-	this->v_bDebug = CreateConVar(CON_PREFIX "aimbot_debug", "0", "Debug");
-	this->v_fFOV = CreateConVar(CON_PREFIX "aimbot_fov", "0", "FOV");
-	this->v_bMachinaPenetration = CreateConVar(CON_PREFIX "aimbot_machina", "0", "Machina Mode");
-	this->v_bSmooth = CreateConVar(CON_PREFIX "aimbot_smooth", "0", "Smooth");
-	this->v_flAutoShootHuntsmanCharge = CreateConVar(CON_PREFIX "aimbot_huntsman_charge", "0.5", "Huntsman charge");
-	this->v_fSmoothValue = CreateConVar(CON_PREFIX "aimbot_smooth_value", "0.2", "Smooth value");
-	this->v_iAimKey = CreateConVar(CON_PREFIX "aimbot_aimkey", "0", "Aimkey");
-	this->v_iPriorityMode = CreateConVar(CON_PREFIX "aimbot_prioritymode", "0", "Priority mode");
-	this->v_bMinigunFix = CreateConVar(CON_PREFIX "aimbot_minigun_fix", "1", "Minigun fix");
-	v_bAimBuildings = CreateConVar(CON_PREFIX "aimbot_buildings", "1", "Aim @ Buildings");
-	v_bActiveOnlyWhenCanShoot = CreateConVar(CON_PREFIX "aimbot_only_when_can_shoot", "1", "Active when can shoot");
-	v_fSmoothAutoshootTreshold = CreateConVar(CON_PREFIX "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
-	this->v_fSmoothRandomness = CreateConVar(CON_PREFIX "aimbot_smooth_randomness", "1.0", "Smooth randomness");
-	this->v_iSeenDelay = CreateConVar(CON_PREFIX "aimbot_delay", "0", "Aimbot delay");
+	this->v_eAimKeyMode = CREATE_CV(new CatEnum(psza__AimKeyMode, ARRAYSIZE(psza__AimKeyMode)), "aimbot_aimkey_mode", "1", "Aimkey Mode");
+	this->v_bEnabled = CREATE_CV(CV_SWITCH, "aimbot_enabled", "0", "Enabled");
+	this->v_eHitbox = CREATE_CV(new CatEnum(psza__Hitbox, ARRAYSIZE(psza__Hitbox)), "aimbot_hitbox", "0", "Hitbox");
+	this->v_bAutoHitbox = CREATE_CV(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox");
+	this->v_bPrediction = CREATE_CV(CV_SWITCH, "aimbot_prediction", "1", "Latency pred");
+	this->v_bAutoShoot = CREATE_CV(CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot");
+	this->v_bSilent = CREATE_CV(CV_SWITCH, "aimbot_silent", "1", "Silent");
+	this->v_bZoomedOnly = CREATE_CV(CV_SWITCH, "aimbot_zoomed", "1", "Zoomed Only");
+	this->v_iAutoShootCharge = CREATE_CV(CV_FLOAT, "aimbot_autoshoot_charge", "0.0", "Autoshoot Charge");
+	this->v_iMaxRange = CREATE_CV(CV_INT, "aimbot_maxrange", "0", "Max distance");
+	this->v_bRespectCloak = CREATE_CV(CV_SWITCH, "aimbot_respect_cloak", "1", "Respect cloak");
+	this->v_bCharge = CREATE_CV(CV_SWITCH, "aimbot_charge", "0", "Wait for charge");
+	this->v_bEnabledAttacking = CREATE_CV(CV_SWITCH, "aimbot_enable_attack_only", "0", "Active when attacking");
+	this->v_bTriggerMode = CREATE_CV(CV_SWITCH, "aimbot_triggerlock", "0", "Trigger lock");
+	this->v_bProjectileAimbot = CREATE_CV(CV_SWITCH, "aimbot_projectile", "1", "Projectile aimbot");
+	this->v_fOverrideProjSpeed = CREATE_CV(CV_FLOAT, "aimbot_proj_speed", "0", "Projectile speed");
+	this->v_bDebug = CREATE_CV(CV_SWITCH, "aimbot_debug", "0", "Debug");
+	this->v_fFOV = CREATE_CV(CV_FLOAT, "aimbot_fov", "0", "FOV");
+	this->v_bMachinaPenetration = CREATE_CV(CV_SWITCH, "aimbot_machina", "0", "Machina Mode");
+	this->v_bSmooth = CREATE_CV(CV_SWITCH, "aimbot_smooth", "0", "Smooth");
+	this->v_fAutoShootHuntsmanCharge = CREATE_CV(CV_FLOAT, "aimbot_huntsman_charge", "0.5", "Huntsman charge");
+	this->v_fSmoothValue = CREATE_CV(CV_FLOAT, "aimbot_smooth_value", "0.2", "Smooth value");
+	this->v_eAimKey = CREATE_CV(CV_INT, "aimbot_aimkey", "0", "Aimkey");
+	this->v_ePriorityMode = CREATE_CV(new CatEnum(psza__Priority, ARRAYSIZE(psza__Priority)), "aimbot_prioritymode", "0", "Priority mode");
+	v_bAimBuildings = CREATE_CV(CV_SWITCH, "aimbot_buildings", "1", "Aim @ Buildings");
+	v_bActiveOnlyWhenCanShoot = CREATE_CV(CV_SWITCH, "aimbot_only_when_can_shoot", "1", "Active when can shoot");
+	v_fSmoothAutoshootTreshold = CREATE_CV(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
+	this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
+	this->v_iSeenDelay = CREATE_CV(CV_INT, "aimbot_delay", "0", "Aimbot delay");
 	fix_silent = false;
 }
 
@@ -80,9 +90,9 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if (g_pLocalPlayer->entity && g_pLocalPlayer->life_state) return true;
 	this->m_iLastTarget = -1;
-	if (this->v_iAimKey->GetBool() && this->v_iAimKeyMode->GetBool()) {
-		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_iAimKey->GetInt());
-		switch (this->v_iAimKeyMode->GetInt()) {
+	if (this->v_eAimKey->GetBool() && this->v_eAimKeyMode->GetBool()) {
+		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_eAimKey->GetInt());
+		switch (this->v_eAimKeyMode->GetInt()) {
 		case AimKeyMode_t::PRESS_TO_ENABLE:
 			if (key_down) break;
 			else return true;
@@ -136,13 +146,13 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if(cmd->buttons & IN_USE) return true;
 
-	if (this->v_bStrictAttack->GetBool() ) {
+	if (this->v_bTriggerMode->GetBool() ) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
 	}
 	IClientEntity* player = g_pLocalPlayer->entity;
 	if (!player) return true;
 	if (player->IsDormant()) return true;
-	m_iHitbox = this->v_iHitbox->GetInt();
+	m_iHitbox = this->v_eHitbox->GetInt();
 	if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 7;
 	if (g_pLocalPlayer->weapon && this->v_bAutoHitbox->GetBool()) {
 		switch (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID) {
@@ -192,7 +202,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		if (ent == 0) continue;
 		if (!(IsPlayer(ent) || IsBuilding(ent))) continue;
 		if (ShouldTarget(ent)) {
-			if (GetWeaponMode(player) == weaponmode::weapon_melee || this->v_iPriorityMode->GetInt() == 2) {
+			if (GetWeaponMode(player) == weaponmode::weapon_melee || this->v_ePriorityMode->GetInt() == 2) {
 				Vector result;
 				if (IsBuilding(ent)) {
 					result = GetBuildingPosition(ent);
@@ -205,7 +215,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 					target_highest = ent;
 				}
 			} else {
-				switch (this->v_iPriorityMode->GetInt()) {
+				switch (this->v_ePriorityMode->GetInt()) {
 				case 0: {
 					int scr = GetScoreForEntity(ent);
 					if (scr > target_highest_score) {
@@ -288,7 +298,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		char life_state = GetEntityValue<char>(entity, netvar.iLifeState);
 		if (life_state) return false;
 		if (!player) return false;
-		if (v_bRespectCloak->GetBool() && (GetEntityValue<int>(entity, netvar.iCond) & cond::cloaked)) return false;
+		if (v_bRespectCloak->GetBool() && IsPlayerInvisible(entity)) return false;
 		int health = GetEntityValue<int>(entity, netvar.iHealth);
 		/*if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
 			int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
@@ -316,7 +326,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
 				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
-				if (!IsEntityVisiblePenetration(entity, v_iHitbox->GetInt())) return false;
+				if (!IsEntityVisiblePenetration(entity, v_eHitbox->GetInt())) return false;
 			} else {
 				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
 				if (!IsEntityVisible(entity, m_iHitbox)) return false;
@@ -371,8 +381,8 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	}
 	if (v_bProjectileAimbot->GetBool()) {
 		if (m_bProjectileMode) {
-			if (v_iOverrideProjSpeed->GetBool())
-				m_flProjSpeed = v_iOverrideProjSpeed->GetFloat();
+			if (v_fOverrideProjSpeed->GetBool())
+				m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
 			hit = ProjectilePrediction(entity, m_iHitbox, m_flProjSpeed, m_flProjGravity);
 		}
 	}
@@ -414,7 +424,7 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 				charge = interfaces::gvars->curtime - begincharge;
 				if (charge > 1.0f) charge = 1.0f;
 			}
-			if (charge >= v_flAutoShootHuntsmanCharge->GetFloat()) {
+			if (charge >= v_fAutoShootHuntsmanCharge->GetFloat()) {
 				cmd->buttons &= ~IN_ATTACK;
 			}
 		} else {

@@ -16,7 +16,7 @@
 #define CREATE_MOVE(x) \
 	g_ph##x->CreateMove(thisptr, inputSample, cmd)
 
-#define DEBUG_SEGV false
+#define DEBUG_SEGV true
 
 #if DEBUG_SEGV == true
 
