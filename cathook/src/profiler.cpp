@@ -7,11 +7,8 @@
 
 #include "profiler.h"
 
-#include "logging.h"
-#include "globals.h"
-
-#include "fixsdk.h"
-#include <convar.h>
+#include "common.h"
+#include "sdk.h"
 
 int g_ProfilerDepth = 0;
 time_t g_ProfilerSections[MAX_PROFILER_SECTIONS];

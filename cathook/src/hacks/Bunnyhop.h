@@ -16,9 +16,9 @@ class Bunnyhop : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	Bunnyhop();
-	ConVar* v_bEnabled;
-	ConVar* v_bAutoJump;
-	ConVar* v_iAutoJumpSpeed;
+	CatVar* v_bEnabled;
+	CatVar* v_bAutoJump;
+	CatVar* v_iAutoJumpSpeed;
 };
 
 DECLARE_HACK_SINGLETON(Bunnyhop);

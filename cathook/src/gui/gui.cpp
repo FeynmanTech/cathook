@@ -92,15 +92,6 @@ bool GUI::KeyEvent(ButtonCode_t key) {
 #define ADD_SUBLIST(list, sublist) \
 	list_##list->AddElement(new GUIListElement_SubList(list_##sublist));
 
-#define ADD_SWITCH(list, var) \
-	list_##list->AddElement(new GUIListElement_Var(new CatVar(var, CatVar_t::CV_SWITCH)));
-
-#define ADD_INT(list, var) \
-	list_##list->AddElement(new GUIListElement_Var(new CatVar(var, CatVar_t::CV_INT)));
-
-#define ADD_FLOAT(list, var) \
-	list_##list->AddElement(new GUIListElement_Var(new CatVar(var, CatVar_t::CV_FLOAT)));
-
 #define ADD_VAR(list, var) \
 	list_##list->AddElement(new GUIListElement_Var(var));
 
@@ -115,6 +106,7 @@ void GUI::Setup() {
 	CREATE_LIST(esp, "ESP");
 	CREATE_LIST(bhop, "Bunnyhop");
 	CREATE_LIST(trigger, "Triggerbot");
+	CREATE_LIST(spy, "Spy Alert");
 
 	list_main->Move(100, 100);
 
@@ -125,11 +117,14 @@ void GUI::Setup() {
 	ADD_SUBLIST(main, esp);
 	ADD_SUBLIST(main, autoheal);
 	ADD_SUBLIST(main, bhop);
+	ADD_SUBLIST(main, trigger);
+	ADD_SUBLIST(main, spy);
 
 	ADD_VAR(aimbot, g_phAimbot->v_bEnabled);
 	// TODO enums
 	ADD_VAR(aimbot, g_phAimbot->v_eAimKeyMode);
 	ADD_VAR(aimbot, g_phAimbot->v_eAimKey);
+	ADD_VAR(aimbot, g_phAimbot->v_ePriorityMode);
 	ADD_VAR(aimbot, g_phAimbot->v_eHitbox);
 	ADD_VAR(aimbot, g_phAimbot->v_bAutoHitbox);
 	ADD_VAR(aimbot, g_phAimbot->v_bPrediction);
@@ -140,53 +135,102 @@ void GUI::Setup() {
 	ADD_VAR(aimbot, g_phAimbot->v_bAimBuildings);
 	ADD_VAR(aimbot, g_phAimbot->v_fFOV);
 	ADD_VAR(aimbot, g_phAimbot->v_bMachinaPenetration);
+	ADD_VAR(aimbot, g_phAimbot->v_fAutoShootHuntsmanCharge);
+	ADD_VAR(aimbot, g_phAimbot->v_iAutoShootCharge);
+	ADD_VAR(aimbot, g_phAimbot->v_iMaxRange);
+	ADD_VAR(aimbot, g_phAimbot->v_bCharge);
+	ADD_VAR(aimbot, g_phAimbot->v_bEnabledAttacking);
+	ADD_VAR(aimbot, g_phAimbot->v_bTriggerMode);
+	ADD_VAR(aimbot, g_phAimbot->v_bProjectileAimbot);
+	ADD_VAR(aimbot, g_phAimbot->v_fOverrideProjSpeed);
 	CREATE_LIST(aimbot_smooth, "Smooth")
 	ADD_SUBLIST(aimbot, aimbot_smooth);
 	ADD_VAR(aimbot_smooth, g_phAimbot->v_bSmooth);
+	// TODO inverse step multipilers
+	ADD_VAR(aimbot_smooth, g_phAimbot->v_fSmoothAutoshootTreshold);
+	ADD_VAR(aimbot_smooth, g_phAimbot->v_fSmoothRandomness);
+	ADD_VAR(aimbot_smooth, g_phAimbot->v_fSmoothValue);
 	ADD_VAR(aimbot, g_phAimbot->v_iSeenDelay);
 
-	ADD_SWITCH(antiaim, g_phAntiAim->v_bEnabled);
-	ADD_FLOAT(antiaim, g_phAntiAim->v_flPitch);
-	ADD_FLOAT(antiaim, g_phAntiAim->v_flSpinSpeed);
+	ADD_VAR(antiaim, g_phAntiAim->v_bEnabled);
+	ADD_VAR(antiaim, g_phAntiAim->v_PitchMode);
+	ADD_VAR(antiaim, g_phAntiAim->v_flPitch);
+	ADD_VAR(antiaim, g_phAntiAim->v_YawMode);
+	ADD_VAR(antiaim, g_phAntiAim->v_flYaw);
+	ADD_VAR(antiaim, g_phAntiAim->v_flSpinSpeed);
 
-	ADD_SWITCH(main, g_phAntiDisguise->v_bEnabled);
-	ADD_SWITCH(autoheal, g_phAutoHeal->v_bEnabled);
-	ADD_SWITCH(autoheal, g_phAutoHeal->v_bSilent);
+	ADD_VAR(autoheal, g_phAutoHeal->v_bEnabled);
+	ADD_VAR(autoheal, g_phAutoHeal->v_bSilent);
 
-	ADD_SWITCH(autoreflect, g_phAutoReflect->v_bEnabled);
-	ADD_SWITCH(autoreflect, g_phAutoReflect->v_bDisableWhenAttacking);
-	ADD_SWITCH(autoreflect, g_phAutoReflect->v_bReflectStickies);
-	ADD_INT(autoreflect, g_phAutoReflect->v_iReflectDistance);
+	ADD_VAR(autoreflect, g_phAutoReflect->v_bEnabled);
+	ADD_VAR(autoreflect, g_phAutoReflect->v_bDisableWhenAttacking);
+	ADD_VAR(autoreflect, g_phAutoReflect->v_bReflectStickies);
+	ADD_VAR(autoreflect, g_phAutoReflect->v_iReflectDistance);
 
-	ADD_SWITCH(autosticky, g_phAutoSticky->v_bEnabled);
-	// TODO step increment
+	ADD_VAR(autosticky, g_phAutoSticky->v_bEnabled);
+	ADD_VAR(autosticky, g_phAutoSticky->v_bBuildings);
+	ADD_VAR(autosticky, g_phAutoSticky->v_bScottish);
+	ADD_VAR(autosticky, g_phAutoSticky->v_flDetonateDistance);
 
-	ADD_SWITCH(esp, g_phESP->v_bEnabled);
-	ADD_SWITCH(esp, g_phESP->v_bBox);
-	ADD_SWITCH(esp, g_phESP->v_bEntityESP);
+	ADD_VAR(esp, g_phESP->v_bEnabled);
+
 	CREATE_LIST(esp_item, "Item ESP");
-
+		ADD_VAR(esp_item, g_phESP->v_bItemESP);
+		ADD_VAR(esp_item, g_phESP->v_bShowAmmoPacks);
+		ADD_VAR(esp_item, g_phESP->v_bShowHealthPacks);
+		ADD_VAR(esp_item, g_phESP->v_bShowDroppedWeapons);
+		ADD_VAR(esp_item, g_phESP->v_bShowPowerups);
 	ADD_SUBLIST(esp, esp_item);
-	ADD_SWITCH(esp_item, g_phESP->v_bItemESP);
-	ADD_SWITCH(esp_item, g_phESP->v_bShowAmmoPacks);
-	ADD_SWITCH(esp_item, g_phESP->v_bShowHealthPacks);
-	ADD_SWITCH(esp_item, g_phESP->v_bShowDroppedWeapons);
-	ADD_SWITCH(esp_item, g_phESP->v_bShowPowerups);
-	ADD_SWITCH(esp, g_phESP->v_bLegit);
-	ADD_INT(esp, g_phESP->v_iLegitSeenTicks);
-	ADD_SWITCH(esp, g_phESP->v_bVisCheck);
-	ADD_SWITCH(esp, g_phESP->v_bTeammatePowerup);
-	ADD_SWITCH(esp, g_phESP->v_bTeammates);
+	CREATE_LIST(esp_proj, "Projectile ESP");
+		ADD_VAR(esp_proj, g_phESP->v_bProjectileESP);
+		ADD_VAR(esp_proj, g_phESP->v_bOnlyEnemyProjectiles);
+		ADD_VAR(esp_proj, g_phESP->v_iShowRockets);
+		ADD_VAR(esp_proj, g_phESP->v_iShowPipes);
+		ADD_VAR(esp_proj, g_phESP->v_iShowStickies);
+		ADD_VAR(esp_proj, g_phESP->v_iShowArrows);
+	ADD_SUBLIST(esp, esp_proj);
 
-	ADD_SWITCH(bhop, g_phBunnyhop->v_bEnabled);
-	ADD_SWITCH(bhop, g_phBunnyhop->v_bAutoJump);
+	ADD_VAR(esp, g_phESP->v_bBox);
+	ADD_VAR(esp, g_phESP->v_bEntityESP);
+	ADD_VAR(esp, g_phESP->v_bLegit);
+	ADD_VAR(esp, g_phESP->v_iLegitSeenTicks);
+	ADD_VAR(esp, g_phESP->v_bVisCheck);
+	ADD_VAR(esp, g_phESP->v_bTeammatePowerup);
+	ADD_VAR(esp, g_phESP->v_bTeammates);
+	ADD_VAR(esp, g_phESP->v_bSeeLocal);
+	ADD_VAR(esp, g_phESP->v_bShowTank);
+	ADD_VAR(esp, g_phESP->v_bShowDistance);
+	ADD_VAR(esp, g_phESP->v_bShowFriendID);
+	ADD_VAR(esp, g_phESP->v_bShowFriends);
+	ADD_VAR(esp, g_phESP->v_bShowHealthNumbers);
 
-	ADD_SWITCH(trigger, g_phTriggerbot->v_bBodyshot);
-	ADD_SWITCH(trigger, g_phTriggerbot->v_bBuildings);
-	ADD_SWITCH(trigger, g_phTriggerbot->v_bEnabled);
-	ADD_SWITCH(trigger, g_phTriggerbot->v_bFinishingHit);
-	ADD_SWITCH(trigger, g_phTriggerbot->v_bIgnoreCloak);
-	ADD_SWITCH(trigger, g_phTriggerbot->v_bZoomedOnly);
+	ADD_VAR(bhop, g_phBunnyhop->v_bEnabled);
+	ADD_VAR(bhop, g_phBunnyhop->v_bAutoJump);
+	ADD_VAR(bhop, g_phBunnyhop->v_iAutoJumpSpeed);
+
+	ADD_VAR(trigger, g_phTriggerbot->v_bEnabled);
+	ADD_VAR(trigger, g_phTriggerbot->v_iHitbox);
+	ADD_VAR(trigger, g_phTriggerbot->v_iMinRange);
+	ADD_VAR(trigger, g_phTriggerbot->v_bBodyshot);
+	ADD_VAR(trigger, g_phTriggerbot->v_bBuildings);
+	ADD_VAR(trigger, g_phTriggerbot->v_bFinishingHit);
+	ADD_VAR(trigger, g_phTriggerbot->v_bIgnoreCloak);
+	ADD_VAR(trigger, g_phTriggerbot->v_bZoomedOnly);
+
+	ADD_VAR(spy, g_phSpyAlert->v_bEnabled);
+	ADD_VAR(spy, g_phSpyAlert->v_flBackstabDistance);
+	ADD_VAR(spy, g_phSpyAlert->v_flWarningDistance);
+
+	ADD_VAR(main, g_phAntiDisguise->v_bEnabled);
+	ADD_VAR(main, g_phAutoStrafe->v_bEnabled);
+
+	ADD_VAR(main, g_Settings.flForceFOV);
+	ADD_VAR(main, g_Settings.bIgnoreTaunting);
+	ADD_VAR(main, g_Settings.bNoZoom);
+	ADD_VAR(main, g_Settings.bNoFlinch);
+	ADD_VAR(main, g_Settings.bShowLogo);
+	ADD_VAR(main, g_Settings.bShowAntiAim);
+	ADD_VAR(main, g_Settings.bThirdperson);
 
 	PushList("main");
 }

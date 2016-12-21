@@ -34,35 +34,38 @@ void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
 	}
 }
 
+const char* psza__ProjectileESP[] = { "OFF", "ALL", "CRIT" };
+
 ESP::ESP() {
-	this->v_bSeeLocal = CreateConVar(CON_PREFIX "esp_local", "1", "Local ESP in thirdperson");
-	this->v_bEnabled = CreateConVar(CON_PREFIX "esp_enabled", "0", "ESP");
-	this->v_bEntityESP = CreateConVar(CON_PREFIX "esp_entity", "0", "Entity ESP");
-	this->v_bTeammates = CreateConVar(CON_PREFIX "esp_teammates", "0", "ESP Teammates");
-	this->v_bItemESP = CreateConVar(CON_PREFIX "esp_item", "1", "Item ESP");
-	this->v_bTeammatePowerup = CreateConVar(CON_PREFIX "esp_powerup_team", "1", "Teammate powerups");
-	this->v_bShowEntityID = CreateConVar(CON_PREFIX "esp_entity_id", "0", "Entity ID");
-	this->v_bShowDistance = CreateConVar(CON_PREFIX "esp_distance", "1", "Distance ESP");
-	this->v_bBox = CreateConVar(CON_PREFIX "esp_box", "1", "Box");
-	this->v_bShowFriendID = CreateConVar(CON_PREFIX "esp_friendid", "0", "Show FriendID");
-	this->v_bShowFriends = CreateConVar(CON_PREFIX "esp_friends", "1", "Show friends");
-	this->v_bVisCheck = CreateConVar(CON_PREFIX "esp_vischeck", "1", "VisCheck");
-	this->v_bLegit = CreateConVar(CON_PREFIX "esp_legit", "0", "Legit Mode");
-	this->v_iLegitSeenTicks = CreateConVar(CON_PREFIX "esp_legit_seenticks", "150", "Legit delay");
-	v_bShowDroppedWeapons = CreateConVar(CON_PREFIX "esp_item_weapons", "0", "Dropped weapons");
-	v_bShowAmmoPacks = CreateConVar(CON_PREFIX "esp_item_ammo", "0", "Ammo packs");
-	v_bShowHealthPacks = CreateConVar(CON_PREFIX "esp_item_health", "1", "Health packs");
-	v_bShowPowerups = CreateConVar(CON_PREFIX "esp_item_powerups", "1", "Powerups");
-	this->v_bShowTank = CreateConVar(CON_PREFIX "esp_show_tank", "1", "Show tank");
-	v_bShowHealthNumbers = CreateConVar(CON_PREFIX "esp_health_num", "1", "Health in numbers");
-	v_bShowMoney = CreateConVar(CON_PREFIX "esp_money", "1", "MvM money");
-	v_bShowRedMoney = CreateConVar(CON_PREFIX "esp_money_red", "1", "Red MvM money");
-	this->v_iShowRockets = CreateConVar(CON_PREFIX "esp_proj_rockets", "1", "Rockets");
-	this->v_iShowArrows = CreateConVar(CON_PREFIX "esp_proj_arrows", "1", "Arrows");
-	this->v_iShowStickies = CreateConVar(CON_PREFIX "esp_proj_stickies", "1", "Stickies");
-	this->v_iShowPipes = CreateConVar(CON_PREFIX "esp_proj_pipes", "1", "Pipes");
-	this->v_bOnlyEnemyProjectiles = CreateConVar(CON_PREFIX "esp_proj_enemy", "Only enemy projectiles", "0");
-	this->v_bProjectileESP = CreateConVar(CON_PREFIX "esp_proj", "1", "Projectile ESP");
+	this->v_bSeeLocal = CREATE_CV(CV_SWITCH, "esp_local", "1", "Local ESP in thirdperson");
+	this->v_bEnabled = CREATE_CV(CV_SWITCH, "esp_enabled", "0", "ESP");
+	this->v_bEntityESP = CREATE_CV(CV_SWITCH, "esp_entity", "0", "Entity ESP");
+	this->v_bTeammates = CREATE_CV(CV_SWITCH, "esp_teammates", "0", "ESP Teammates");
+	this->v_bItemESP = CREATE_CV(CV_SWITCH, "esp_item", "1", "Item ESP");
+	this->v_bTeammatePowerup = CREATE_CV(CV_SWITCH, "esp_powerup_team", "1", "Teammate powerups");
+	this->v_bShowEntityID = CREATE_CV(CV_SWITCH, "esp_entity_id", "0", "Entity ID");
+	this->v_bShowDistance = CREATE_CV(CV_SWITCH, "esp_distance", "1", "Distance ESP");
+	this->v_bBox = CREATE_CV(CV_SWITCH, "esp_box", "1", "Box");
+	this->v_bShowFriendID = CREATE_CV(CV_SWITCH, "esp_friendid", "0", "Show FriendID");
+	this->v_bShowFriends = CREATE_CV(CV_SWITCH, "esp_friends", "1", "Show friends");
+	this->v_bVisCheck = CREATE_CV(CV_SWITCH, "esp_vischeck", "1", "VisCheck");
+	this->v_bLegit = CREATE_CV(CV_SWITCH, "esp_legit", "0", "Legit Mode");
+	this->v_iLegitSeenTicks = CREATE_CV(CV_INT, "esp_legit_seenticks", "150", "Legit delay");
+	v_bShowDroppedWeapons = CREATE_CV(CV_SWITCH, "esp_item_weapons", "0", "Dropped weapons");
+	v_bShowAmmoPacks = CREATE_CV(CV_SWITCH, "esp_item_ammo", "0", "Ammo packs");
+	v_bShowHealthPacks = CREATE_CV(CV_SWITCH, "esp_item_health", "1", "Health packs");
+	v_bShowPowerups = CREATE_CV(CV_SWITCH, "esp_item_powerups", "1", "Powerups");
+	this->v_bShowTank = CREATE_CV(CV_SWITCH, "esp_show_tank", "1", "Show tank");
+	v_bShowHealthNumbers = CREATE_CV(CV_SWITCH, "esp_health_num", "1", "Health in numbers");
+	v_bShowMoney = CREATE_CV(CV_SWITCH, "esp_money", "1", "MvM money");
+	v_bShowRedMoney = CREATE_CV(CV_SWITCH, "esp_money_red", "1", "Red MvM money");
+	CatEnum* proj = new CatEnum(psza__ProjectileESP, ARRAYSIZE(psza__ProjectileESP));
+	this->v_iShowRockets = CREATE_CV(proj, "esp_proj_rockets", "1", "Rockets");
+	this->v_iShowArrows = CREATE_CV(proj, "esp_proj_arrows", "1", "Arrows");
+	this->v_iShowStickies = CREATE_CV(proj, "esp_proj_stickies", "1", "Stickies");
+	this->v_iShowPipes = CREATE_CV(proj, "esp_proj_pipes", "1", "Pipes");
+	this->v_bOnlyEnemyProjectiles = CREATE_CV(CV_SWITCH, "esp_proj_enemy", "Only enemy projectiles", "0");
+	this->v_bProjectileESP = CREATE_CV(CV_SWITCH, "esp_proj", "1", "Projectile ESP");
 }
 
 #define ESP_HEIGHT 14

@@ -16,13 +16,17 @@ const char* AntiAim::GetName() {
 	return "ANTI-AIM";
 }
 
+const char* psza__YawMode[] = { "KEEP", "STATIC", "RANDOM", "SPIN" };
+const char* psza__PitchMode[] = { "KEEP", "STATIC", "RANDOM" };
+
+
 AntiAim::AntiAim() {
-	this->v_bEnabled = CreateConVar(CON_PREFIX "aa_enabled", "0", "Enable");
-	this->v_flPitch = CreateConVar(CON_PREFIX "aa_pitch", "-89.0", "Pitch");
-	this->v_flYaw = CreateConVar(CON_PREFIX "aa_yaw", "0.0", "Yaw");
-	this->v_flSpinSpeed = CreateConVar(CON_PREFIX "aa_spin", "10.0", "Spin speed");
-	this->v_PitchMode = CreateConVar(CON_PREFIX "aa_pitch_mode", "1", "Pitch mode");
-	this->v_YawMode = CreateConVar(CON_PREFIX "aa_yaw_mode", "3", "Yaw mode");
+	this->v_bEnabled = CREATE_CV(CV_SWITCH, "aa_enabled", "0", "Enable");
+	this->v_flPitch = CREATE_CV(CV_FLOAT, "aa_pitch", "-89.0", "Pitch");
+	this->v_flYaw = CREATE_CV(CV_FLOAT, "aa_yaw", "0.0", "Yaw");
+	this->v_flSpinSpeed = CREATE_CV(CV_FLOAT, "aa_spin", "10.0", "Spin speed");
+	this->v_PitchMode = CREATE_CV(new CatEnum(psza__PitchMode, ARRAYSIZE(psza__PitchMode)), "aa_pitch_mode", "1", "Pitch mode");
+	this->v_YawMode = CREATE_CV(new CatEnum(psza__YawMode, ARRAYSIZE(psza__YawMode)), "aa_yaw_mode", "3", "Yaw mode");
 }
 
 float yaw = -180;

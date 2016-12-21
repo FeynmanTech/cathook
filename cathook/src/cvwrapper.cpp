@@ -19,8 +19,8 @@ CatEnum::CatEnum(const char** values, int size, int min) {
 }
 
 const char* CatEnum::Name(int value) {
-	if (value + m_iMin >= 0 && value + m_iMin < m_iMax) {
-		return m_Values[value + m_iMin];
+	if (value - m_iMin >= 0 && value - m_iMin <= m_iMax) {
+		return m_Values[value - m_iMin];
 	}
 	return (const char*)0;
 }

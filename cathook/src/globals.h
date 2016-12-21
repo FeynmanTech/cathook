@@ -10,21 +10,23 @@
 
 class ConVar;
 
+class CatVar;
+
 class GlobalSettings {
 public:
 	void Init();
-	ConVar* flForceFOV;
-	ConVar* bHackEnabled;
-	ConVar* bIgnoreTaunting;
-	ConVar* bProfiler;
-	ConVar* bNoZoom;
-	ConVar* bNoFlinch;
-	ConVar* bSendPackets;
-	ConVar* bShowLogo;
-	ConVar* flDrawingOpacity;
+	CatVar* flForceFOV;
+	CatVar* bHackEnabled;
+	CatVar* bIgnoreTaunting;
+	CatVar* bProfiler;
+	CatVar* bNoZoom;
+	CatVar* bNoFlinch;
+	CatVar* bSendPackets;
+	CatVar* bShowLogo;
+	CatVar* flDrawingOpacity;
 	ConVar* sDisconnectMsg;
-	ConVar* bShowAntiAim;
-	ConVar* bThirdperson;
+	CatVar* bShowAntiAim;
+	CatVar* bThirdperson;
 };
 
 extern GlobalSettings g_Settings;

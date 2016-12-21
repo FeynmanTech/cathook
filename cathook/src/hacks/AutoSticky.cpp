@@ -18,10 +18,10 @@ const char* AutoSticky::GetName() {
 
 // TODO scottish cyclops
 AutoSticky::AutoSticky() {
-	this->v_flDetonateDistance = CreateConVar(CON_PREFIX "sticky_distance", "200", "Distance");
-	this->v_bBuildings = CreateConVar(CON_PREFIX "sticky_buildings", "1", "Detonate buildings");
-	this->v_bEnabled = CreateConVar(CON_PREFIX "sticky_enabled", "0", "Enable");
-	this->v_bScottish = CreateConVar(CON_PREFIX "sticky_scottish", "0", "Scottish");
+	this->v_flDetonateDistance = CREATE_CV(CV_INT, "sticky_distance", "200", "Distance");
+	this->v_bBuildings = CREATE_CV(CV_SWITCH, "sticky_buildings", "1", "Detonate buildings");
+	this->v_bEnabled = CREATE_CV(CV_SWITCH, "sticky_enabled", "0", "Enable");
+	this->v_bScottish = CREATE_CV(CV_SWITCH, "sticky_scottish", "0", "Scottish");
 }
 
 bool AutoSticky::ShouldDetonate(IClientEntity* bomb) {

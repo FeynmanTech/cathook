@@ -17,10 +17,10 @@ public:
 	DECLARE_HACK_METHODS();
 	AutoSticky();
 	bool ShouldDetonate(IClientEntity* bomb);
-	ConVar* v_bEnabled;
-	ConVar* v_bBuildings;
-	ConVar* v_bScottish;
-	ConVar* v_flDetonateDistance;
+	CatVar* v_bEnabled;
+	CatVar* v_bBuildings;
+	CatVar* v_bScottish;
+	CatVar* v_flDetonateDistance;
 };
 
 DECLARE_HACK_SINGLETON(AutoSticky);

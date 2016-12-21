@@ -20,17 +20,23 @@ Vector eye;
 trace_t* enemy_trace;
 trace::FilterDefault* filter;
 
+const char* psza__HitboxT[] = {
+	"ANY", "HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
+	"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
+	"KNEE R", "FOOT R"
+};
+
 Triggerbot::Triggerbot() {
 	filter = new trace::FilterDefault();
 	enemy_trace = new trace_t();
-	this->v_bBodyshot = CreateConVar(CON_PREFIX "trigger_bodyshot", "1", "Bodyshot");
-	this->v_bEnabled = CreateConVar(CON_PREFIX "trigger_enabled", "0", "Enable");
-	this->v_bFinishingHit = CreateConVar(CON_PREFIX "trigger_finish", "1", "Noscope weak enemies");
-	this->v_bIgnoreCloak = CreateConVar(CON_PREFIX "trigger_cloak", "0", "Ignore cloak");
-	this->v_bZoomedOnly = CreateConVar(CON_PREFIX "trigger_zoomed", "1", "Zoomed only");
-	this->v_iHitbox = CreateConVar(CON_PREFIX "trigger_hitbox", "-1", "Hitbox");
-	this->v_iMinRange = CreateConVar(CON_PREFIX "trigger_range", "0", "Max range");
-	this->v_bBuildings = CreateConVar(CON_PREFIX "trigger_buildings", "1", "Trigger @ Buildings");
+	this->v_bBodyshot = CREATE_CV(CV_SWITCH, "trigger_bodyshot", "1", "Bodyshot");
+	this->v_bEnabled = CREATE_CV(CV_SWITCH, "trigger_enabled", "0", "Enable");
+	this->v_bFinishingHit = CREATE_CV(CV_SWITCH, "trigger_finish", "1", "Noscope weak enemies");
+	this->v_bIgnoreCloak = CREATE_CV(CV_SWITCH, "trigger_cloak", "0", "Ignore cloak");
+	this->v_bZoomedOnly = CREATE_CV(CV_SWITCH, "trigger_zoomed", "1", "Zoomed only");
+	this->v_iHitbox = CREATE_CV(new CatEnum(psza__HitboxT, ARRAYSIZE(psza__HitboxT), -1), "trigger_hitbox", "-1", "Hitbox");
+	this->v_iMinRange = CREATE_CV(CV_INT, "trigger_range", "0", "Max range");
+	this->v_bBuildings = CREATE_CV(CV_SWITCH, "trigger_buildings", "1", "Trigger @ Buildings");
 }
 
 bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {

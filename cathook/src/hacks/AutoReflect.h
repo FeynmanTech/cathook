@@ -17,10 +17,10 @@ public:
 	DECLARE_HACK_METHODS();
 	AutoReflect();
 	bool ShouldReflect(IClientEntity* ent);
-	ConVar* v_bEnabled;
-	ConVar* v_bDisableWhenAttacking;
-	ConVar* v_bReflectStickies;
-	ConVar* v_iReflectDistance;
+	CatVar* v_bEnabled;
+	CatVar* v_bDisableWhenAttacking;
+	CatVar* v_bReflectStickies;
+	CatVar* v_iReflectDistance;
 };
 
 DECLARE_HACK_SINGLETON(AutoReflect);

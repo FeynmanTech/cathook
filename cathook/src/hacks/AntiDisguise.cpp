@@ -17,7 +17,7 @@ const char* AntiDisguise::GetName() {
 }
 
 AntiDisguise::AntiDisguise() {
-	v_bEnabled = CreateConVar(CON_PREFIX "antidisguise", "0", "Remove spy disguise");
+	v_bEnabled = CREATE_CV(CV_SWITCH, "antidisguise", "0", "Remove spy disguise");
 }
 
 void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {

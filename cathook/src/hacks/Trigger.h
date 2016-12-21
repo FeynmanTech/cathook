@@ -10,22 +10,22 @@
 
 #include "IHack.h"
 
-class ConVar;
+class CatVar;
 
 class Triggerbot : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	Triggerbot();
 	~Triggerbot();
-	ConVar* v_bEnabled;
-	ConVar* v_bIgnoreCloak;
-	ConVar* v_bZoomedOnly;
-	ConVar* v_iHitbox;
-	ConVar* v_bBodyshot;
-	ConVar* v_bFinishingHit;
-	ConVar* v_iMinRange;
-	ConVar* v_bBuildings;
-	ConVar* v_bIgnoreVaccinator;
+	CatVar* v_bEnabled;
+	CatVar* v_bIgnoreCloak;
+	CatVar* v_bZoomedOnly;
+	CatVar* v_iHitbox;
+	CatVar* v_bBodyshot;
+	CatVar* v_bFinishingHit;
+	CatVar* v_iMinRange;
+	CatVar* v_bBuildings;
+	CatVar* v_bIgnoreVaccinator;
 };
 
 DECLARE_HACK_SINGLETON(Triggerbot);

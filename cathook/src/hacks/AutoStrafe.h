@@ -14,7 +14,7 @@ class AutoStrafe : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	AutoStrafe();
-	ConVar* v_bEnabled;
+	CatVar* v_bEnabled;
 };
 
 DECLARE_HACK_SINGLETON(AutoStrafe);

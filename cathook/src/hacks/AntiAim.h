@@ -14,12 +14,12 @@ class AntiAim : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	AntiAim();
-	ConVar* v_bEnabled;
-	ConVar* v_flSpinSpeed;
-	ConVar* v_flYaw;
-	ConVar* v_flPitch;
-	ConVar* v_PitchMode;
-	ConVar* v_YawMode;
+	CatVar* v_bEnabled;
+	CatVar* v_flSpinSpeed;
+	CatVar* v_flYaw;
+	CatVar* v_flPitch;
+	CatVar* v_PitchMode;
+	CatVar* v_YawMode;
 };
 
 DECLARE_HACK_SINGLETON(AntiAim);

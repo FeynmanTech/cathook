@@ -14,9 +14,9 @@ class SpyAlert : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	SpyAlert();
-	ConVar* v_bEnabled;
-	ConVar* v_flWarningDistance;
-	ConVar* v_flBackstabDistance;
+	CatVar* v_bEnabled;
+	CatVar* v_flWarningDistance;
+	CatVar* v_flBackstabDistance;
 };
 
 DECLARE_HACK_SINGLETON(SpyAlert);
