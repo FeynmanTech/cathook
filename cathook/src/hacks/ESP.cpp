@@ -157,6 +157,9 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 
 	if (v_bEntityESP->GetBool()) {
 		ent->AddESPString(color, bgclr, "%s [%i]", ent->m_pEntity->GetClientClass()->m_pNetworkName, ent->m_iClassID);
+		if (v_bShowEntityID->GetBool()) {
+			ent->AddESPString(color, bgclr, "%i", ent->m_IDX);
+		}
 	}
 
 	switch (ent->m_iClassID) {
@@ -182,6 +185,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (!v_iShowPipes->GetBool()) break;
 			if (v_iShowPipes->GetInt() == 2 && !ent->m_bCritProjectile) break;
 			ent->AddESPString(color, bgclr, "[ (PP) ]");
+			break;
 		case 1:
 			if (!v_iShowStickies->GetBool()) break;
 			if (v_iShowStickies->GetInt() == 2 && !ent->m_bCritProjectile) break;

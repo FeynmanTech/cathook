@@ -469,12 +469,12 @@ bool IsProjectileCrit(IClientEntity* ent) {
 	case ClassID::CTFProjectile_Rocket:
 	case ClassID::CTFProjectile_SentryRocket:
 	case ClassID::CTFProjectile_EnergyBall:
-		return GetEntityValue<int>(ent, netvar.Rocket_bCritical);
+		return GetEntityValue<unsigned char>(ent, netvar.Rocket_bCritical);
 	case ClassID::CTFProjectile_Cleaver:
 	case ClassID::CTFProjectile_Jar:
 	case ClassID::CTFProjectile_JarMilk:
 	case ClassID::CTFGrenadePipebombProjectile:
-		return GetEntityValue<int>(ent, netvar.Grenade_bCritical);
+		return GetEntityValue<unsigned char>(ent, netvar.Grenade_bCritical);
 	}
 	return false;
 }
