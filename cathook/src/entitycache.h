@@ -35,6 +35,8 @@ public:
 	int m_iClassID;
 	float m_flDistance;
 
+	bool m_bCritProjectile;
+
 	int  m_iTeam;
 	bool m_bAlivePlayer;
 	bool m_bEnemy;

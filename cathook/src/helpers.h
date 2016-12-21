@@ -73,6 +73,8 @@ void AimAt(Vector origin, Vector target, CUserCmd* cmd);
 void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd);
 
 bool IsMeleeWeapon(IClientEntity* ent);
+bool IsProjectile(IClientEntity* ent);
+bool IsProjectileCrit(IClientEntity* ent);
 
 QAngle VectorToQAngle(Vector in);
 Vector QAngleToVector(QAngle in);

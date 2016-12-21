@@ -315,10 +315,14 @@ bool IsEntityVisible(IClientEntity* entity, int hb) {
 	IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
 	trace_filter->SetSelf(local);
 	Vector hit;
-	int ret = GetHitboxPosition(entity, hb, hit);
-	if (ret) {
-		//logging::Info("Couldn't get hitbox position: %i", hb);
-		return false;
+	if (hb == -1) {
+		hit = entity->GetAbsOrigin();
+	} else {
+		int ret = GetHitboxPosition(entity, hb, hit);
+		if (ret) {
+			//logging::Info("Couldn't get hitbox position: %i", hb);
+			return false;
+		}
 	}
 	ray.Init(local->GetAbsOrigin() + GetEntityValue<Vector>(local, netvar.vViewOffset), hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
@@ -434,6 +438,43 @@ bool IsMeleeWeapon(IClientEntity* ent) {
 	case ClassID::CTFClub:
 	case ClassID::CTFKnife:
 		return true;
+	}
+	return false;
+}
+
+bool IsProjectile(IClientEntity* ent) {
+	if (!ent) return false;
+	switch (ent->GetClientClass()->m_ClassID) {
+	case ClassID::CTFProjectile_Arrow:
+	case ClassID::CTFProjectile_Flare:
+	case ClassID::CTFProjectile_HealingBolt:
+	case ClassID::CTFProjectile_Rocket:
+	case ClassID::CTFProjectile_SentryRocket:
+	case ClassID::CTFProjectile_EnergyBall:
+	case ClassID::CTFProjectile_Cleaver:
+	case ClassID::CTFProjectile_Jar:
+	case ClassID::CTFProjectile_JarMilk:
+	case ClassID::CTFGrenadePipebombProjectile:
+		return true;
+	}
+	return false;
+}
+
+bool IsProjectileCrit(IClientEntity* ent) {
+	if (!ent) return false;
+	switch (ent->GetClientClass()->m_ClassID) {
+	case ClassID::CTFProjectile_Arrow:
+	case ClassID::CTFProjectile_Flare:
+	case ClassID::CTFProjectile_HealingBolt:
+	case ClassID::CTFProjectile_Rocket:
+	case ClassID::CTFProjectile_SentryRocket:
+	case ClassID::CTFProjectile_EnergyBall:
+		return GetEntityValue<int>(ent, netvar.Rocket_bCritical);
+	case ClassID::CTFProjectile_Cleaver:
+	case ClassID::CTFProjectile_Jar:
+	case ClassID::CTFProjectile_JarMilk:
+	case ClassID::CTFGrenadePipebombProjectile:
+		return GetEntityValue<int>(ent, netvar.Grenade_bCritical);
 	}
 	return false;
 }

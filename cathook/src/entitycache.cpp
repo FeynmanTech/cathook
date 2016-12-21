@@ -45,6 +45,13 @@ void CachedEntity::Update(int idx) {
 		m_flDistance = (g_pLocalPlayer->entity->GetAbsOrigin().DistTo(m_pEntity->GetAbsOrigin()));
 	}
 	m_bAlivePlayer = false;
+	if (IsProjectile(m_pEntity)) {
+		m_bCritProjectile = IsProjectileCrit(m_pEntity);
+		m_bIsVisible = IsEntityVisible(m_pEntity, -1);
+		m_iTeam = Var<int>(netvar.iTeamNum);
+		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
+	}
+
 	if (m_iClassID == ClassID::CTFPlayer) {
 		m_bAlivePlayer = !(m_bNULL || m_bDormant || GetEntityValue<char>(m_pEntity, netvar.iLifeState));
 		m_iTeam = Var<int>(netvar.iTeamNum); // TODO

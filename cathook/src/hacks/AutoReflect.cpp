@@ -33,13 +33,13 @@ bool AutoReflect::ShouldReflect(IClientEntity* ent) {
 	case ClassID::CTFProjectile_Cleaver:
 	case ClassID::CTFProjectile_Jar:
 	case ClassID::CTFProjectile_JarMilk: {
-		int deflected = GetEntityValue<int>(ent, netvar.Rocket_iDeflected);
+		int deflected = GetEntityValue<int>(ent, netvar.Grenade_iDeflected);
 		if (deflected) return false;
 		if (GetEntityValue<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
 		return true;
 	} break;
 	case ClassID::CTFGrenadePipebombProjectile: {
-		int deflected = GetEntityValue<int>(ent, netvar.Rocket_iDeflected);
+		int deflected = GetEntityValue<int>(ent, netvar.Grenade_iDeflected);
 		if (deflected) return false;
 		if (GetEntityValue<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
 		if (GetEntityValue<int>(ent, netvar.iPipeType) == 1) {

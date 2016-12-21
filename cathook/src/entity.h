@@ -82,6 +82,8 @@ public:
 
 	offset_t Rocket_iDeflected;
 	offset_t Grenade_iDeflected;
+	offset_t Rocket_bCritical;
+	offset_t Grenade_bCritical;
 
 	offset_t bDistributed;
 

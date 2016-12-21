@@ -44,6 +44,15 @@ public:
 	ConVar* v_bLegit;
 	ConVar* v_bShowHealthNumbers;
 	ConVar* v_iLegitSeenTicks;
+
+	ConVar* v_iShowRockets;
+	ConVar* v_iShowArrows;
+	ConVar* v_iShowPipes;
+	ConVar* v_iShowStickies;
+
+	ConVar* v_bOnlyEnemyProjectiles;
+	ConVar* v_bProjectileESP;
+
 	//ConVar* v_bModelInfo;
 };
 

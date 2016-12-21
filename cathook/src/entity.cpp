@@ -59,6 +59,8 @@ void EntityVariables::Init() {
 	this->nForceTauntCam = gNetvars.get_offset("DT_TFPlayer", "m_nForceTauntCam");
 	this->iFOV = gNetvars.get_offset("DT_BasePlayer", "m_iFOV");
 	this->iDefaultFOV = gNetvars.get_offset("DT_BasePlayer", "m_iDefaultFOV");
+	this->Rocket_bCritical = gNetvars.get_offset("DT_TFBaseRocket", "m_bCritical");
+	this->Grenade_bCritical = gNetvars.get_offset("DT_TFWeaponBaseGrenadeProj", "m_bCritical");
 }
 
 void InitEntityOffsets() {

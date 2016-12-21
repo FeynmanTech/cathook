@@ -57,6 +57,12 @@ ESP::ESP() {
 	v_bShowHealthNumbers = CreateConVar(CON_PREFIX "esp_health_num", "1", "Health in numbers");
 	v_bShowMoney = CreateConVar(CON_PREFIX "esp_money", "1", "MvM money");
 	v_bShowRedMoney = CreateConVar(CON_PREFIX "esp_money_red", "1", "Red MvM money");
+	this->v_iShowRockets = CreateConVar(CON_PREFIX "esp_proj_rockets", "1", "Rockets");
+	this->v_iShowArrows = CreateConVar(CON_PREFIX "esp_proj_arrows", "1", "Arrows");
+	this->v_iShowStickies = CreateConVar(CON_PREFIX "esp_proj_stickies", "1", "Stickies");
+	this->v_iShowPipes = CreateConVar(CON_PREFIX "esp_proj_pipes", "1", "Pipes");
+	this->v_bOnlyEnemyProjectiles = CreateConVar(CON_PREFIX "esp_proj_enemy", "Only enemy projectiles", "0");
+	this->v_bProjectileESP = CreateConVar(CON_PREFIX "esp_proj", "1", "Projectile ESP");
 }
 
 #define ESP_HEIGHT 14
@@ -154,6 +160,48 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	}
 
 	switch (ent->m_iClassID) {
+	case ClassID::CTFProjectile_Rocket:
+	case ClassID::CTFProjectile_SentryRocket: {
+		if (!v_bProjectileESP->GetBool() || !v_iShowRockets->GetBool()) break;
+		if (v_iShowRockets->GetInt() == 2 && !ent->m_bCritProjectile) break;
+		if (!ent->m_bEnemy) {
+			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
+		}
+		ent->AddESPString(color, bgclr, "[ ==> ]");
+		if (this->v_bShowDistance) {
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
+	} break;
+	case ClassID::CTFGrenadePipebombProjectile: {
+		if (!v_bProjectileESP->GetBool()) break;
+		if (!ent->m_bEnemy) {
+			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
+		}
+		switch (ent->Var<int>(netvar.iPipeType)) {
+		case 0:
+			if (!v_iShowPipes->GetBool()) break;
+			if (v_iShowPipes->GetInt() == 2 && !ent->m_bCritProjectile) break;
+			ent->AddESPString(color, bgclr, "[ (PP) ]");
+		case 1:
+			if (!v_iShowStickies->GetBool()) break;
+			if (v_iShowStickies->GetInt() == 2 && !ent->m_bCritProjectile) break;
+			ent->AddESPString(color, bgclr, "[ {*} ]");
+		}
+		if (this->v_bShowDistance) {
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
+	} break;
+	case ClassID::CTFProjectile_Arrow: {
+		if (!v_bProjectileESP->GetBool() || !v_iShowArrows->GetBool()) break;
+		if (v_iShowArrows->GetInt() == 2 && !ent->m_bCritProjectile) break;
+		if (!ent->m_bEnemy) {
+			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
+		}
+		ent->AddESPString(color, bgclr, "[ >>---> ]");
+		if (this->v_bShowDistance) {
+			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
+	} break;
 	case ClassID::CTFTankBoss: {
 		if (!this->v_bShowTank->GetBool()) break;
 		ent->AddESPString(color, bgclr, "Tank");
