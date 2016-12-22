@@ -25,24 +25,24 @@ bool AutoReflect::ShouldReflect(IClientEntity* ent) {
 	case ClassID::CTFProjectile_Rocket:
 	case ClassID::CTFProjectile_SentryRocket:
 	case ClassID::CTFProjectile_EnergyBall: {
-		int deflected = GetEntityValue<int>(ent, netvar.Rocket_iDeflected);
+		int deflected = GetVar<int>(ent, netvar.Rocket_iDeflected);
 		if (deflected) return false; // TODO deflected by enemy player
-		if (GetEntityValue<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
+		if (GetVar<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
 		return true;
 	} break;
 	case ClassID::CTFProjectile_Cleaver:
 	case ClassID::CTFProjectile_Jar:
 	case ClassID::CTFProjectile_JarMilk: {
-		int deflected = GetEntityValue<int>(ent, netvar.Grenade_iDeflected);
+		int deflected = GetVar<int>(ent, netvar.Grenade_iDeflected);
 		if (deflected) return false;
-		if (GetEntityValue<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
+		if (GetVar<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
 		return true;
 	} break;
 	case ClassID::CTFGrenadePipebombProjectile: {
-		int deflected = GetEntityValue<int>(ent, netvar.Grenade_iDeflected);
+		int deflected = GetVar<int>(ent, netvar.Grenade_iDeflected);
 		if (deflected) return false;
-		if (GetEntityValue<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
-		if (GetEntityValue<int>(ent, netvar.iPipeType) == 1) {
+		if (GetVar<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
+		if (GetVar<int>(ent, netvar.iPipeType) == 1) {
 			if (!v_bReflectStickies->GetBool()) return false;
 		}
 		return true;

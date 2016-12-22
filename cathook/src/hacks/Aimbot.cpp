@@ -139,7 +139,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	}
 
 	if (IsAmbassador(g_pLocalPlayer->weapon)) {
-		if ((interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.flLastFireTime)) <= 1.0) {
+		if ((interfaces::gvars->curtime - GetVar<float>(g_pLocalPlayer->weapon, netvar.flLastFireTime)) <= 1.0) {
 			return true;
 		}
 	}
@@ -239,9 +239,9 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 				case 3: {
 					float scr;
 					if (IsBuilding(ent)) {
-						scr = 450.0f - GetEntityValue<int>(ent, netvar.iBuildingHealth);
+						scr = 450.0f - GetVar<int>(ent, netvar.iBuildingHealth);
 					} else {
-						scr = 450.0f - GetEntityValue<int>(ent, netvar.iHealth);
+						scr = 450.0f - GetVar<int>(ent, netvar.iHealth);
 					}
 					if (scr > target_highest_score) {
 						target_highest_score = scr;
@@ -273,13 +273,13 @@ void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 	IClientEntity* ent = interfaces::entityList->GetClientEntity(this->m_iLastTarget);
 	if (!ent) return;
 	if (IsPlayer(ent)) {
-		int clazz = GetEntityValue<int>(ent, netvar.iClass);
+		int clazz = GetVar<int>(ent, netvar.iClass);
 		if (clazz < 0 || clazz > 9) return;
 		player_info_t info;
 		if (!interfaces::engineClient->GetPlayerInfo(this->m_iLastTarget, &info)) return;
-		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", GetEntityValue<int>(ent, netvar.iHealth), tfclasses[clazz], info.name);
+		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", GetVar<int>(ent, netvar.iHealth), tfclasses[clazz], info.name);
 	} else if (IsBuilding(ent)) {
-		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", GetEntityValue<int>(ent, netvar.iBuildingHealth), GetEntityValue<int>(ent, netvar.iUpgradeLevel), GetBuildingType(ent));
+		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", GetVar<int>(ent, netvar.iBuildingHealth), GetVar<int>(ent, netvar.iUpgradeLevel), GetBuildingType(ent));
 	}
 }
 
@@ -288,26 +288,26 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 	if (!entity) return false;
 	if (entity->IsDormant()) return false;
 	if (IsPlayer(entity)) {
-		if (g_Settings.bIgnoreTaunting->GetBool() && (GetEntityValue<int>(entity, netvar.iCond) & cond::taunting)) return false;
+		if (g_Settings.bIgnoreTaunting->GetBool() && (GetVar<int>(entity, netvar.iCond) & cond::taunting)) return false;
 		if (Developer(entity)) return false;
 		if (gEntityCache.GetEntity(entity->entindex())->m_lSeenTicks < this->v_iSeenDelay->GetInt()) return false;
 		if (IsPlayerInvulnerable(entity)) return false;
-		int team = GetEntityValue<int>(entity, netvar.iTeamNum);
+		int team = GetVar<int>(entity, netvar.iTeamNum);
 		int local = interfaces::engineClient->GetLocalPlayer();
 		IClientEntity* player = interfaces::entityList->GetClientEntity(local);
-		char life_state = GetEntityValue<char>(entity, netvar.iLifeState);
+		char life_state = GetVar<char>(entity, netvar.iLifeState);
 		if (life_state) return false;
 		if (!player) return false;
 		if (v_bRespectCloak->GetBool() && IsPlayerInvisible(entity)) return false;
-		int health = GetEntityValue<int>(entity, netvar.iHealth);
-		/*if (this->v_bCharge->GetBool() && (GetEntityValue<int>(player, eoffsets.iClass) == 2)) {
-			int rifleHandle = GetEntityValue<int>(player, eoffsets.hActiveWeapon);
+		int health = GetVar<int>(entity, netvar.iHealth);
+		/*if (this->v_bCharge->GetBool() && (GetVar<int>(player, eoffsets.iClass) == 2)) {
+			int rifleHandle = GetVar<int>(player, eoffsets.hActiveWeapon);
 			IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
 			if (!rifle) return false;
-			float bdmg = GetEntityValue<float>(rifle, eoffsets.flChargedDamage);
+			float bdmg = GetVar<float>(rifle, eoffsets.flChargedDamage);
 			if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
 		}*/
-		int team_my = GetEntityValue<int>(player, netvar.iTeamNum);
+		int team_my = GetVar<int>(player, netvar.iTeamNum);
 		if (team == team_my) return false;
 		Vector enemy_pos = entity->GetAbsOrigin();
 		Vector my_pos = player->GetAbsOrigin();
@@ -317,7 +317,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
 			if ((enemy_pos - my_pos).Length() > 95) return false;
 		}
-		int econd = GetEntityValue<int>(entity, netvar.iCond1);
+		int econd = GetVar<int>(entity, netvar.iCond1);
 		if ((econd & cond_ex::vacc_bullet)) return false;
 		if (GetRelation(entity) == relation::FRIEND) return false;
 		Vector resultAim;
@@ -336,7 +336,7 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		return true;
 	} else if (IsBuilding(entity)) {
 		if (!v_bAimBuildings->GetBool()) return false;
-		int team = GetEntityValue<int>(entity, netvar.iTeamNum);
+		int team = GetVar<int>(entity, netvar.iTeamNum);
 		if (team == g_pLocalPlayer->team) return false;
 		Vector enemy_pos = entity->GetAbsOrigin();
 		if (v_iMaxRange->GetInt() > 0) {
@@ -408,9 +408,9 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 			if (g_pLocalPlayer->bZoomed) {
 				if (this->v_iAutoShootCharge->GetBool()) {
-					int rifleHandle = GetEntityValue<int>(local, netvar.hActiveWeapon);
+					int rifleHandle = GetVar<int>(local, netvar.hActiveWeapon);
 					IClientEntity* rifle = interfaces::entityList->GetClientEntity(rifleHandle & 0xFFF);
-					float bdmg = GetEntityValue<float>(rifle, netvar.flChargedDamage);
+					float bdmg = GetVar<float>(rifle, netvar.flChargedDamage);
 					if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
 				} else {
 					if (!CanHeadshot(g_pLocalPlayer->entity)) return true;
@@ -418,7 +418,7 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 			}
 		}
 		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFCompoundBow) {
-			float begincharge = GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.flChargeBeginTime);
+			float begincharge = GetVar<float>(g_pLocalPlayer->weapon, netvar.flChargeBeginTime);
 			float charge = 0;
 			if (begincharge != 0) {
 				charge = interfaces::gvars->curtime - begincharge;

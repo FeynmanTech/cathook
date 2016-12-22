@@ -29,9 +29,9 @@ void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
 	for (int i = 0; i < interfaces::entityList->GetHighestEntityIndex() && i < 64; i++) {
 		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
 		if (!ent) continue;
-		if (GetEntityValue<char>(ent, netvar.iLifeState)) continue;
-		if (GetEntityValue<int>(ent, netvar.iClass) != tf_class::tf_spy) continue;
-		if (GetEntityValue<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) continue;
+		if (GetVar<char>(ent, netvar.iLifeState)) continue;
+		if (GetVar<int>(ent, netvar.iClass) != tf_class::tf_spy) continue;
+		if (GetVar<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) continue;
 		Vector spypos = ent->GetAbsOrigin();
 		Vector mypos = g_pLocalPlayer->v_Origin;
 		float distance = spypos.DistTo(mypos);

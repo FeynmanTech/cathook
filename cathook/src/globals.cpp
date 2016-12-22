@@ -11,7 +11,7 @@
 void ThirdpersonCallback(IConVar* var, const char* pOldValue, float flOldValue) {
 	if (g_Settings.bThirdperson && !g_Settings.bThirdperson->GetBool()) {
 		if (g_pLocalPlayer && g_pLocalPlayer->entity)
-			SetEntityValue<int>(g_pLocalPlayer->entity, netvar.nForceTauntCam, 0);
+			SetVar<int>(g_pLocalPlayer->entity, netvar.nForceTauntCam, 0);
 	}
 }
 

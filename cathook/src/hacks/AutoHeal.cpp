@@ -33,7 +33,7 @@ int AutoHeal::GetHealingPriority(int idx) {
 	if (!CanHeal(idx)) return -1;
 	IClientEntity* ent = interfaces::entityList->GetClientEntity(idx);
 	int priority = 0;
-	int health = GetEntityValue<int>(ent, netvar.iHealth);
+	int health = GetVar<int>(ent, netvar.iHealth);
 	int maxhealth = g_pPlayerResource->GetMaxHealth(ent);
 	int maxbuffedhealth = maxhealth * 1.5;
 	int maxoverheal = maxbuffedhealth - maxhealth;
@@ -55,8 +55,8 @@ bool AutoHeal::CanHeal(int idx) {
 	if (!ent) return false;
 	if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) return false;
 	if (interfaces::engineClient->GetLocalPlayer() == idx) return false;
-	if (GetEntityValue<char>(ent, netvar.iLifeState)) return false;
-	if (g_pLocalPlayer->team != GetEntityValue<int>(ent, netvar.iTeamNum)) return false;
+	if (GetVar<char>(ent, netvar.iLifeState)) return false;
+	if (g_pLocalPlayer->team != GetVar<int>(ent, netvar.iTeamNum)) return false;
 	if (g_pLocalPlayer->v_Origin.DistToSqr(ent->GetAbsOrigin()) > 420 * 420) return false;
 	if (!IsEntityVisible(ent, 7)) return false;
 	if (IsPlayerInvisible(ent)) return false;

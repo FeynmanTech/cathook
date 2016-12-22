@@ -24,7 +24,7 @@ T CachedEntity::Var(unsigned int offset) {
 		logging::Info("Trying to get netvar of NULL entity!");
 		return reinterpret_cast<T>(0);
 	}
-	return GetEntityValue<T>(m_pEntity, offset);
+	return GetVar<T>(m_pEntity, offset);
 }
 
 void CachedEntity::Update(int idx) {
@@ -53,7 +53,7 @@ void CachedEntity::Update(int idx) {
 	}
 
 	if (m_iClassID == ClassID::CTFPlayer) {
-		m_bAlivePlayer = !(m_bNULL || m_bDormant || GetEntityValue<char>(m_pEntity, netvar.iLifeState));
+		m_bAlivePlayer = !(m_bNULL || m_bDormant || GetVar<char>(m_pEntity, netvar.iLifeState));
 		m_iTeam = Var<int>(netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_bIsVisible = (IsEntityVisible(m_pEntity, 0) || IsEntityVisible(m_pEntity, 4));

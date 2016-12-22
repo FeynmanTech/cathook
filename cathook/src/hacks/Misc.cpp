@@ -60,19 +60,19 @@ void DumpRecvTable(IClientEntity* ent, RecvTable* table, int depth, const char* 
 		if (ft && strcmp(ft, table->GetName())) continue;
 		switch (prop->GetType()) {
 		case SendPropType::DPT_Float:
-			logging::Info("%s [0x%04x] = %f", prop->GetName(), prop->GetOffset(), GetEntityValue<float>(ent, prop->GetOffset()));
+			logging::Info("%s [0x%04x] = %f", prop->GetName(), prop->GetOffset(), GetVar<float>(ent, prop->GetOffset()));
 		break;
 		case SendPropType::DPT_Int:
-			logging::Info("%s [0x%04x] = %i", prop->GetName(), prop->GetOffset(), GetEntityValue<int>(ent, prop->GetOffset()));
+			logging::Info("%s [0x%04x] = %i", prop->GetName(), prop->GetOffset(), GetVar<int>(ent, prop->GetOffset()));
 		break;
 		case SendPropType::DPT_String:
-			logging::Info("%s [0x%04x] = %s", prop->GetName(), prop->GetOffset(), GetEntityValue<char*>(ent, prop->GetOffset()));
+			logging::Info("%s [0x%04x] = %s", prop->GetName(), prop->GetOffset(), GetVar<char*>(ent, prop->GetOffset()));
 		break;
 		case SendPropType::DPT_Vector:
-			logging::Info("%s [0x%04x] = (%f, %f, %f)", prop->GetName(), prop->GetOffset(), GetEntityValue<float>(ent, prop->GetOffset()), GetEntityValue<float>(ent, prop->GetOffset() + 4), GetEntityValue<float>(ent, prop->GetOffset() + 8));
+			logging::Info("%s [0x%04x] = (%f, %f, %f)", prop->GetName(), prop->GetOffset(), GetVar<float>(ent, prop->GetOffset()), GetVar<float>(ent, prop->GetOffset() + 4), GetVar<float>(ent, prop->GetOffset() + 8));
 		break;
 		case SendPropType::DPT_VectorXY:
-			logging::Info("%s [0x%04x] = (%f, %f)", prop->GetName(), prop->GetOffset(), GetEntityValue<float>(ent, prop->GetOffset()), GetEntityValue<float>(ent, prop->GetOffset() + 4));
+			logging::Info("%s [0x%04x] = (%f, %f)", prop->GetName(), prop->GetOffset(), GetVar<float>(ent, prop->GetOffset()), GetVar<float>(ent, prop->GetOffset() + 4));
 		break;
 		}
 
@@ -208,8 +208,8 @@ void CC_DisonnectVAC(const CCommand& args) {
 void CC_DumpAttribs(const CCommand& args) {
 	if (g_pLocalPlayer->weapon) {
 		for (int i = 0; i < 15; i++) {
-			logging::Info("%i %f", GetEntityValue<int>(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12),
-					GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12 + 4));
+			logging::Info("%i %f", GetVar<int>(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12),
+					GetVar<float>(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12 + 4));
 		}
 	}
 }
@@ -285,7 +285,7 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 		//logging::Info("a");
 		if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) goto breakif;
 		//logging::Info("a");
-		if (GetEntityValue<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) goto breakif;
+		if (GetVar<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) goto breakif;
 		//logging::Info("Making string for %i", curindex);
 		const char* str = MakeInfoString(ent);
 		if (str) {
@@ -309,19 +309,19 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 		if (g_pLocalPlayer->weapon) {
 			IClientEntity* weapon = g_pLocalPlayer->weapon;
 			AddSideString(colors::white, colors::black, "Weapon: %s [%i]", weapon->GetClientClass()->GetName(), weapon->GetClientClass()->m_ClassID);
-			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack));
-			AddSideString(colors::white, colors::black, "nTickBase: %f", (float)(GetEntityValue<int>(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
+			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", GetVar<float>(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack));
+			AddSideString(colors::white, colors::black, "nTickBase: %f", (float)(GetVar<int>(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, colors::black, "CanShoot: %i", BulletTime());
-			AddSideString(colors::white, colors::black, "Decaps: %i", GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iDecapitations));
-			AddSideString(colors::white, colors::black, "Damage: %f", GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.flChargedDamage));
-			AddSideString(colors::white, colors::black, "DefIndex: %i", GetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex));
+			AddSideString(colors::white, colors::black, "Decaps: %i", GetVar<int>(g_pLocalPlayer->entity, netvar.iDecapitations));
+			AddSideString(colors::white, colors::black, "Damage: %f", GetVar<float>(g_pLocalPlayer->weapon, netvar.flChargedDamage));
+			AddSideString(colors::white, colors::black, "DefIndex: %i", GetVar<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex));
 			AddSideString(colors::white, colors::black, "GlobalVars: 0x%08x", interfaces::gvars);
 			AddSideString(colors::white, colors::black, "realtime: %f", interfaces::gvars->realtime);
 			AddSideString(colors::white, colors::black, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, colors::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.flLastFireTime)) > 0.95);
+			AddSideString(colors::white, colors::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - GetVar<float>(g_pLocalPlayer->weapon, netvar.flLastFireTime)) > 0.95);
 			AddSideString(colors::white, colors::black, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
 			AddSideString(colors::white, colors::black, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
-			AddSideString(colors::white, colors::black, "ServerTime: %f", GetEntityValue<float>(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
+			AddSideString(colors::white, colors::black, "ServerTime: %f", GetVar<float>(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, colors::black, "CurTime: %f", interfaces::gvars->curtime);
 			AddSideString(colors::white, colors::black, "FrameCount: %i", interfaces::gvars->framecount);
 			float speed, gravity;
@@ -330,7 +330,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(colors::white, colors::black, "Gravity: %f", gravity);
 			AddSideString(colors::white, colors::black, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
 			AddSideString(colors::white, colors::black, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
-			//AddSideString(draw::white, draw::black, "???: %f", GetEntityValue<float>(g_pLocalPlayer->entity, netvar.test));
+			//AddSideString(draw::white, draw::black, "???: %f", GetVar<float>(g_pLocalPlayer->entity, netvar.test));
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
 			//y += 14;

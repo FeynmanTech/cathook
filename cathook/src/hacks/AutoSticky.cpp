@@ -30,7 +30,7 @@ bool AutoSticky::ShouldDetonate(IClientEntity* bomb) {
 		CachedEntity* ent = gEntityCache.GetEntity(i);
 		if (ent->m_bNULL) continue;
 		if (ent->m_iClassID != ClassID::CTFPlayer && !(this->v_bBuildings->GetBool() && IsBuilding(ent->m_pEntity))) continue;
-		if (ent->m_iTeam == GetEntityValue<int>(bomb, netvar.iTeamNum)) continue;
+		if (ent->m_iTeam == GetVar<int>(bomb, netvar.iTeamNum)) continue;
 		if (ent->m_pEntity->GetAbsOrigin().DistToSqr(bomb->GetAbsOrigin()) > this->v_flDetonateDistance->GetFloat() * this->v_flDetonateDistance->GetFloat()) continue;
 		return true;
 	}

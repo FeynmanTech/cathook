@@ -11,16 +11,16 @@
 void LocalPlayer::Update() {
 	entity_idx = interfaces::engineClient->GetLocalPlayer();
 	entity = interfaces::entityList->GetClientEntity(entity_idx);
-	team = GetEntityValue<int>(entity, netvar.iTeamNum);
-	life_state = GetEntityValue<char>(entity, netvar.iLifeState);
-	v_ViewOffset = GetEntityValue<Vector>(entity, netvar.vViewOffset);
+	team = GetVar<int>(entity, netvar.iTeamNum);
+	life_state = GetVar<char>(entity, netvar.iLifeState);
+	v_ViewOffset = GetVar<Vector>(entity, netvar.vViewOffset);
 	v_Origin = entity->GetAbsOrigin();
 	v_Eye = v_Origin + v_ViewOffset;
-	cond_0 = GetEntityValue<int>(entity, netvar.iCond);
-	clazz = GetEntityValue<int>(entity, netvar.iClass);
-	health = GetEntityValue<int>(entity, netvar.iHealth);
+	cond_0 = GetVar<int>(entity, netvar.iCond);
+	clazz = GetVar<int>(entity, netvar.iClass);
+	health = GetVar<int>(entity, netvar.iHealth);
 	this->bUseSilentAngles = false;
-	bZoomed = GetEntityValue<int>(entity, netvar.iFOV) == 20; //!= GetEntityValue<int>(entity, netvar.iDefaultFOV);
+	bZoomed = GetVar<int>(entity, netvar.iFOV) == 20; //!= GetVar<int>(entity, netvar.iDefaultFOV);
 	if (bZoomed) {
 		if (flZoomBegin == 0.0f) flZoomBegin = interfaces::gvars->curtime;
 	} else {
@@ -28,10 +28,10 @@ void LocalPlayer::Update() {
 	}
 
 
-	int hWeapon = GetEntityValue<int>(entity, netvar.hActiveWeapon);
+	int hWeapon = GetVar<int>(entity, netvar.hActiveWeapon);
 	if (hWeapon) {
 		weapon = interfaces::entityList->GetClientEntity(hWeapon & 0xFFF);
-		bIsReloading = (GetEntityValue<int>(weapon, netvar.iReloadMode) == 1);
+		bIsReloading = (GetVar<int>(weapon, netvar.iReloadMode) == 1);
 	} else {
 		weapon = 0;
 		bIsReloading = false;

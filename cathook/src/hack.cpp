@@ -292,24 +292,24 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
 	if (g_pLocalPlayer->weapon) {
-		int defidx = GetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
+		int defidx = GetVar<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
 		if (defidx == 61) {
-			SetEntityValue<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex, 1006);
+			SetVar<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex, 1006);
 		}
 	}
 	if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
-		SetEntityValue<int>(g_pLocalPlayer->entity, netvar.nForceTauntCam, 1);
+		SetVar<int>(g_pLocalPlayer->entity, netvar.nForceTauntCam, 1);
 	}
 	if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
 		if (g_pLocalPlayer->entity) {
-			SetEntityValue<float>(g_pLocalPlayer->entity, netvar.deadflag + 4, last_angles.x);
-			SetEntityValue<float>(g_pLocalPlayer->entity, netvar.deadflag + 8, last_angles.y);
+			SetVar<float>(g_pLocalPlayer->entity, netvar.deadflag + 4, last_angles.x);
+			SetVar<float>(g_pLocalPlayer->entity, netvar.deadflag + 8, last_angles.y);
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 	if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 		static Vector oldPunchAngles = Vector();
-		Vector punchAngles = GetEntityValue<Vector>(g_pLocalPlayer->entity, netvar.vecPunchAngle);
+		Vector punchAngles = GetVar<Vector>(g_pLocalPlayer->entity, netvar.vecPunchAngle);
 		QAngle viewAngles;
 		interfaces::engineClient->GetViewAngles(viewAngles);
 		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
@@ -319,8 +319,8 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 
 	if (g_Settings.bNoZoom->GetBool()) {
 		if (g_pLocalPlayer->entity) {
-			//g_pLocalPlayer->bWasZoomed = GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
-			SetEntityValue(g_pLocalPlayer->entity, netvar.iCond, GetEntityValue<int>(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed);
+			//g_pLocalPlayer->bWasZoomed = GetVar<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
+			SetVar(g_pLocalPlayer->entity, netvar.iCond, GetVar<int>(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed);
 		}
 	}
 	SEGV_END;

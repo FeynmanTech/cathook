@@ -44,7 +44,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	if (g_pLocalPlayer->life_state) return true;
 	/*IClientEntity* local = interfaces::entityList->GetClientEntity(interfaces::engineClient->GetLocalPlayer());
 	if (!local) return;
-	if (GetEntityValue<char>(local, entityvars.iLifeState)) return;*/
+	if (GetVar<char>(local, entityvars.iLifeState)) return;*/
 	Ray_t ray;
 	filter->SetSelf(g_pLocalPlayer->entity);
 	eye = g_pLocalPlayer->v_Eye;
@@ -80,7 +80,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	return true;
 	};
 	int team = g_pLocalPlayer->team;
-	int eteam = GetEntityValue<int>(entity, netvar.iTeamNum);
+	int eteam = GetVar<int>(entity, netvar.iTeamNum);
 	if (team == eteam) return true;
 	Vector enemy_pos = entity->GetAbsOrigin();
 	Vector my_pos = g_pLocalPlayer->entity->GetAbsOrigin();
@@ -96,7 +96,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	if (IsPlayerInvulnerable(entity)) return true;
 	if (!this->v_bIgnoreCloak->GetBool() &&
 		(IsPlayerInvisible(entity))) return true;
-	int health = GetEntityValue<int>(entity, netvar.iHealth);
+	int health = GetVar<int>(entity, netvar.iHealth);
 	bool bodyshot = false;
 	if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 		// If sniper..
@@ -105,7 +105,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		}
 		// If we need charge...
 		if (!bodyshot && this->v_bBodyshot->GetBool()) {
-			float bdmg = GetEntityValue<float>(g_pLocalPlayer->weapon, netvar.flChargedDamage);
+			float bdmg = GetVar<float>(g_pLocalPlayer->weapon, netvar.flChargedDamage);
 			if (CanHeadshot(g_pLocalPlayer->entity) && (bdmg) >= health) {
 				bodyshot = true;
 			}
