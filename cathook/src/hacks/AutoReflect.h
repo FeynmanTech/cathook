@@ -16,7 +16,7 @@ class AutoReflect : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	AutoReflect();
-	bool ShouldReflect(IClientEntity* ent);
+	bool ShouldReflect(CachedEntity* ent);
 	CatVar* v_bEnabled;
 	CatVar* v_bDisableWhenAttacking;
 	CatVar* v_bReflectStickies;

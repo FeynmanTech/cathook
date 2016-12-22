@@ -10,13 +10,13 @@
 
 #include "IHack.h"
 
-class IClientEntity;
+class CachedEntity;
 
 class AutoSticky : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	AutoSticky();
-	bool ShouldDetonate(IClientEntity* bomb);
+	bool ShouldDetonate(CachedEntity* bomb);
 	CatVar* v_bEnabled;
 	CatVar* v_bBuildings;
 	CatVar* v_bScottish;

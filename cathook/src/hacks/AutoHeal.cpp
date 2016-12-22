@@ -84,7 +84,7 @@ bool AutoHeal::CreateMove(void*, float, CUserCmd* cmd) {
 	if (m_iCurrentHealingTarget == -1) return true;
 	IClientEntity* target = ENTITY(m_iCurrentHealingTarget);
 	Vector out;
-	GetHitboxPosition(target, 7, out);
+	GetHitbox(target, 7, out);
 	AimAt(g_pLocalPlayer->v_Eye, out, cmd);
 	if (v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
 	if (!m_iNewTarget && (interfaces::gvars->tickcount % 60)) cmd->buttons |= IN_ATTACK;

@@ -14,7 +14,7 @@ Vector SimpleLatencyPrediction(IClientEntity* ent, int hb) {
 	//logging::Info("Simple prediction!");
 	if (!ent) return Vector();
 	Vector result;
-	GetHitboxPosition(ent, hb, result);
+	GetHitbox(ent, hb, result);
 	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
 			interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
 	result += NET_VECTOR(ent, netvar.vVelocity) * latency;
@@ -26,7 +26,7 @@ Vector ProjectilePrediction(IClientEntity* ent, int hb, float speed, float gravi
 	if (!ent) return Vector();
 	Vector result = ent->GetAbsOrigin();
 	float dtg = DistanceToGround(result);
-	GetHitboxPosition(ent, hb, result);
+	GetHitbox(ent, hb, result);
 	Vector vel = NET_VECTOR(ent, netvar.vVelocity);
 	// TODO ProjAim
 	/*float tt = g_pLocalPlayer->v_Eye.DistTo(result) + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +

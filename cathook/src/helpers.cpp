@@ -26,9 +26,9 @@ void EndConVars() {
 }
 
 
-bool IsPlayerInvulnerable(IClientEntity* player) {
-	int cond1 = NET_INT(player, netvar.iCond);
-	int cond2 = NET_INT(player, netvar.iCond1);
+bool IsPlayerInvulnerable(CachedEntity* player) {
+	int cond1 = CE_INT(player, netvar.iCond);
+	int cond2 = CE_INT(player, netvar.iCond1);
 	int uber_mask_1 = (cond::uber | cond::bonk);
 	int uber_mask_2 = (cond_ex::hidden_uber | cond_ex::canteen_uber | cond_ex::misc_uber | cond_ex::phlog_uber);
 	if ((cond1 & uber_mask_1) || (cond2 & uber_mask_2)) {
@@ -39,10 +39,10 @@ bool IsPlayerInvulnerable(IClientEntity* player) {
 	return false;
 }
 
-bool IsPlayerCritBoosted(IClientEntity* player) {
-	int cond1 = NET_INT(player, netvar.iCond);
-	int cond2 = NET_INT(player, netvar.iCond1);
-	int cond4 = NET_INT(player, netvar.iCond3);
+bool IsPlayerCritBoosted(CachedEntity* player) {
+	int cond1 = CE_INT(player, netvar.iCond);
+	int cond2 = CE_INT(player, netvar.iCond1);
+	int cond4 = CE_INT(player, netvar.iCond3);
 	int crit_mask_1 = (cond::kritzkrieg);
 	int crit_mask_2 = (cond_ex::halloween_crit | cond_ex::canteen_crit | cond_ex::first_blood_crit | cond_ex::winning_crit |
 			cond_ex::intelligence_crit | cond_ex::on_kill_crit | cond_ex::phlog_crit | cond_ex::misc_crit);
@@ -65,15 +65,15 @@ ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, con
 	return ret;
 }
 
-const char* GetModelPath(IClientEntity* entity) {
+const char* GetModelPath(CachedEntity* entity) {
 	if (!entity) return "NULL";
-	const model_t* model = entity->GetModel();
+	const model_t* model = entity->m_pEntity->GetModel();
 	return interfaces::model->GetModelName(model);
 }
 
-const char* GetBuildingType(IClientEntity* ent) {
+const char* GetBuildingName(CachedEntity* ent) {
 	if (!ent) return "[NULL]";
-	switch (ent->GetClientClass()->m_ClassID) {
+	switch (ent->m_iClassID) {
 	case ClassID::CObjectSentrygun:
 		// TODO mini
 		return "Sentry";
@@ -142,64 +142,10 @@ item_type GetItemType(IClientEntity* entity) {
 	return item_type::item_null;
 }
 
-pack_type GetHealthPackType(IClientEntity* ent) {
-	if (!ent) return pack_type::not_pack;
-	const char* name = GetModelPath(ent);
-	// models/items/medkit_SIZE.mdl
-	if (strlen(name) >= 20 && name[13] == 'm' && name[16] == 'k') {
-		if (name[20] == 's') return pack_type::small;
-		if (name[20] == 'm') return pack_type::medium;
-		if (name[20] == 'l') return pack_type::large;
-	}
-	// models/props_halloween/halloween_medkit_SIZE.mdl
-	if (strlen(name) >= 42 && name[33] == 'm' && name[36] == 'k') {
-		if (name[40] == 's') return pack_type::small;
-		if (name[40] == 'm') return pack_type::medium;
-		if (name[40] == 'l') return pack_type::large;
-	}
-	// models/items/plate
-	if (strlen(name) >= 18 && name[13] == 'p' && name[17] == 'e') {
-		return pack_type::medium;
-	}
-	return pack_type::not_pack;
-	// TODO add halloween packs n' stuff
-}
-
-pack_type GetAmmoPackType(IClientEntity* ent) {
-	if (!ent) return pack_type::not_pack;
-	const char* name = GetModelPath(ent);
-
-	if (strlen(name) < 30) return pack_type::not_pack;
-	return pack_type::not_pack;
-}
-
-/* Strength [30]=='s' */
-
-powerup_type GetPowerupType(IClientEntity* ent) {
-	if (!ent) return powerup_type::not_powerup;
-	const char* name = GetModelPath(ent);
-	if (strlen(name) < 35) return powerup_type::not_powerup;
-	if (name[27] != 'u' || name[22] != 'p') return powerup_type::not_powerup;
-	if (name[30] == 's' && name[31] == 't') return powerup_type::strength;
-	if (name[30] == 'd' && name[32] == 'f') return powerup_type::resistance;
-	if (name[30] == 'v') return powerup_type::vampire;
-	if (name[30] == 'r' && name[32] == 'f') return powerup_type::reflect;
-	if (name[30] == 'h') return powerup_type::haste;
-	if (name[30] == 'r' && name[32] == 'g') return powerup_type::regeneration;
-	if (name[30] == 'p' && name[31] == 'r') return powerup_type::precision;
-	if (name[30] == 'a') return powerup_type::agility;
-	if (name[30] == 'k' && name[31] == 'n') return powerup_type::knockout;
-	if (name[30] == 'k' && name[31] == 'i') return powerup_type::king;
-	if (name[30] == 'p' && name[31] == 'l') return powerup_type::plague;
-	if (name[30] == 's' && name[31] == 'u') return powerup_type::supernova;
-
-	return powerup_type::not_powerup;
-}
-
-powerup_type GetPowerupOnPlayer(IClientEntity* player) {
+powerup_type GetPowerupOnPlayer(CachedEntity* player) {
 	if (!player) return powerup_type::not_powerup;
-	int cond2 = NET_INT(player, netvar.iCond2);
-	int cond3 = NET_INT(player, netvar.iCond3);
+	int cond2 = CE_INT(player, netvar.iCond2);
+	int cond3 = CE_INT(player, netvar.iCond3);
 	//if (!(cond2 & cond_ex2::powerup_generic)) return powerup_type::not_powerup;
 	if (cond2 & cond_ex2::powerup_strength) return powerup_type::strength;
 	if (cond2 & cond_ex2::powerup_haste) return powerup_type::haste;
@@ -224,27 +170,26 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 	out[2] = (in1[0] * in2[2][0] + in1[1] * in2[2][1] + in1[2] * in2[2][2]) + in2[2][3];
 }
 
-int GetHitboxPosition(IClientEntity* entity, int hb, Vector& out) {
-	if (!entity) return 1;
-	if (entity->IsDormant()) return 1;
-	const model_t* model = entity->GetModel();
+bool GetHitbox(CachedEntity* entity, int hb, Vector& out) {
+	const model_t* model = entity->m_pEntity->GetModel();
+	if (!model) return false;
 	studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);
-	if (!shdr) return 2;
-	// TODO rewrite
-
-	mstudiohitboxset_t* set = shdr->pHitboxSet(NET_INT(entity, netvar.iHitboxSet));
-	if (!set) return 4;
+	if (!shdr) return false;
+	mstudiohitboxset_t* set = shdr->pHitboxSet(CE_INT(entity, netvar.iHitboxSet));
+	if (!set) return false;
 	mstudiobbox_t* box = set->pHitbox(hb);
-	if (!box) return 5;
-	matrix3x4_t bones[128];
-	if (!entity->SetupBones(bones, 128, 0x100, 0)) return 3;
-	Vector min, max;
-	if (box->bone < 0 || box->bone >= 128) return 6;
-	VectorTransform(box->bbmin, bones[box->bone], min);
-	VectorTransform(box->bbmax, bones[box->bone], max);
-	out = (min + max) / 2;
-
-	return 0;
+	if (!box) return false;
+	if (box->bone < 0 || box->bone >= 128) return 5;
+	float *min = new float[3](),
+		  *max = new float[3]();
+	VectorTransform(box->bbmin, entity->GetBones()[box->bone], *(Vector*)min);
+	VectorTransform(box->bbmax, entity->GetBones()[box->bone], *(Vector*)max);
+	out.x = (min[0] + max[0]) / 2;
+	out.x = (min[1] + max[1]) / 2;
+	out.x = (min[2] + max[2]) / 2;
+	delete[] min;
+	delete[] max;
+	return true;
 }
 
 void VectorAngles(Vector &forward, Vector &angles) {
@@ -296,10 +241,10 @@ float deg2rad(float deg) {
 	return deg * (PI / 180);
 }
 
-bool IsPlayerInvisible(IClientEntity* player) {
-	int cond = NET_INT(player, netvar.iCond);
+bool IsPlayerInvisible(CachedEntity* player) {
+	int cond = CE_INT(player, netvar.iCond);
 	int mask = cloaked;
-	int cond_1 = NET_INT(player, netvar.iCond1);
+	int cond_1 = CE_INT(player, netvar.iCond1);
 	int mask_1 = cond_ex2::cloak_spell | cond_ex2::cloak_spell_fading;
 	int mask_v = on_fire | jarate | milk;
 	return !((cond & mask_v) || !((cond & mask) || (cond_1 & mask_1)));
@@ -311,7 +256,7 @@ float RandFloatRange(float min, float max)
 }
 
 trace::FilterDefault* trace_filter;
-bool IsEntityVisible(IClientEntity* entity, int hb) {
+bool IsEntityVisible(CachedEntity* entity, int hb) {
 	if (entity == g_pLocalPlayer->entity) return true;
 	if (!trace_filter) {
 		trace_filter = new trace::FilterDefault();
@@ -322,25 +267,23 @@ bool IsEntityVisible(IClientEntity* entity, int hb) {
 	trace_filter->SetSelf(local);
 	Vector hit;
 	if (hb == -1) {
-		hit = entity->GetAbsOrigin();
+		hit = entity->m_vecOrigin;
 	} else {
-		int ret = GetHitboxPosition(entity, hb, hit);
-		if (ret) {
-			//logging::Info("Couldn't get hitbox position: %i", hb);
+		if (!GetHitbox(entity, hb, hit)) {
 			return false;
 		}
 	}
 	ray.Init(local->GetAbsOrigin() + NET_VECTOR(local, netvar.vViewOffset), hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
 	if (trace_visible.m_pEnt) {
-		return ((IClientEntity*)trace_visible.m_pEnt) == entity;
+		return ((IClientEntity*)trace_visible.m_pEnt) == entity->m_pEntity;
 	}
 	return false;
 }
 
-Vector GetBuildingPosition(IClientEntity* ent) {
-	Vector res = ent->GetAbsOrigin();
-	switch (ent->GetClientClass()->m_ClassID) {
+Vector GetBuildingPosition(CachedEntity* ent) {
+	Vector res = ent->m_vecOrigin;
+	switch (ent->m_iClassID) {
 	case ClassID::CObjectDispenser:
 		res.z += 30;
 		break;
@@ -348,7 +291,7 @@ Vector GetBuildingPosition(IClientEntity* ent) {
 		res.z += 8;
 		break;
 	case ClassID::CObjectSentrygun:
-		switch (NET_INT(ent, netvar.iUpgradeLevel)) {
+		switch (CE_INT(ent, netvar.iUpgradeLevel)) {
 		case 1:
 			res.z += 30;
 			break;
@@ -364,7 +307,7 @@ Vector GetBuildingPosition(IClientEntity* ent) {
 	return res;
 }
 
-bool IsBuildingVisible(IClientEntity* ent) {
+bool IsBuildingVisible(CachedEntity* ent) {
 	if (!trace_filter) {
 		trace_filter = new trace::FilterDefault();
 	}
@@ -373,7 +316,7 @@ bool IsBuildingVisible(IClientEntity* ent) {
 	trace_filter->SetSelf(g_pLocalPlayer->entity);
 	ray.Init(g_pLocalPlayer->v_Eye, GetBuildingPosition(ent));
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
-	return (IClientEntity*)trace_visible.m_pEnt == ent;
+	return (IClientEntity*)trace_visible.m_pEnt == ent->m_pEntity;
 }
 
 void fVectorAngles(Vector &forward, Vector &angles) {
@@ -420,14 +363,13 @@ void fClampAngle(Vector& qaAng) {
 	qaAng.z = 0;
 }
 
-float DistToSqr(IClientEntity* entity) {
-	if (entity == 0) return 0.0f;
-	return g_pLocalPlayer->v_Origin.DistToSqr(entity->GetAbsOrigin());
+float DistToSqr(CachedEntity* entity) {
+	if (CE_BAD(entity)) return 0.0f;
+	return g_pLocalPlayer->v_Origin.DistToSqr(entity->m_vecOrigin);
 }
 
-bool IsMeleeWeapon(IClientEntity* ent) {
-	if (!ent) return false;
-	switch (ent->GetClientClass()->m_ClassID) {
+bool IsMeleeWeapon(CachedEntity* ent) {
+	switch (ent->m_iClassID) {
 	case ClassID::CTFBat:
 	case ClassID::CTFBat_Fish:
 	case ClassID::CTFBat_Giftwrap:
@@ -448,24 +390,6 @@ bool IsMeleeWeapon(IClientEntity* ent) {
 	return false;
 }
 
-bool IsProjectile(IClientEntity* ent) {
-	if (!ent) return false;
-	switch (ent->GetClientClass()->m_ClassID) {
-	case ClassID::CTFProjectile_Arrow:
-	case ClassID::CTFProjectile_Flare:
-	case ClassID::CTFProjectile_HealingBolt:
-	case ClassID::CTFProjectile_Rocket:
-	case ClassID::CTFProjectile_SentryRocket:
-	case ClassID::CTFProjectile_EnergyBall:
-	case ClassID::CTFProjectile_Cleaver:
-	case ClassID::CTFProjectile_Jar:
-	case ClassID::CTFProjectile_JarMilk:
-	case ClassID::CTFGrenadePipebombProjectile:
-		return true;
-	}
-	return false;
-}
-
 void Patch(void* address, void* patch, size_t length) {
 	void* page = (void*)((uintptr_t)address &~ 0xFFF);
 	mprotect(page, 0xFFF, PROT_WRITE | PROT_EXEC);
@@ -473,32 +397,18 @@ void Patch(void* address, void* patch, size_t length) {
 	mprotect(page, 0xFFF, PROT_EXEC);
 }
 
-bool IsProjectileCrit(IClientEntity* ent) {
-	if (!ent) return false;
-	switch (ent->GetClientClass()->m_ClassID) {
-	case ClassID::CTFProjectile_Arrow:
-	case ClassID::CTFProjectile_Flare:
-	case ClassID::CTFProjectile_HealingBolt:
-	case ClassID::CTFProjectile_Rocket:
-	case ClassID::CTFProjectile_SentryRocket:
-	case ClassID::CTFProjectile_EnergyBall:
-		return NET_BYTE(ent, netvar.Rocket_bCritical);
-	case ClassID::CTFProjectile_Cleaver:
-	case ClassID::CTFProjectile_Jar:
-	case ClassID::CTFProjectile_JarMilk:
-	case ClassID::CTFGrenadePipebombProjectile:
+bool IsProjectileCrit(CachedEntity* ent) {
+	if (ent->m_bGrenadeProjectile)
 		return NET_BYTE(ent, netvar.Grenade_bCritical);
-	}
-	return false;
+	return NET_BYTE(ent, netvar.Rocket_bCritical);
 }
 
-weaponmode GetWeaponMode(IClientEntity* player) {
-	if (!player) return weapon_invalid;
-	int weapon_handle = NET_INT(player, netvar.hActiveWeapon);
-	IClientEntity* weapon = ENTITY(weapon_handle & 0xFFF);
-	if (!weapon) return weaponmode::weapon_invalid;
+weaponmode GetWeaponMode(CachedEntity* player) {
+	int weapon_handle = CE_INT(player, netvar.hActiveWeapon);
+	CachedEntity* weapon = ENTITY(weapon_handle & 0xFFF);
+	if (CE_BAD(weapon)) return weaponmode::weapon_invalid;
 	if (IsMeleeWeapon(weapon)) return weaponmode::weapon_melee;
-	switch (weapon->GetClientClass()->m_ClassID) {
+	switch (weapon->m_iClassID) {
 	case ClassID::CTFLunchBox:
 	case ClassID::CTFLunchBox_Drink:
 	case ClassID::CTFBuffItem:
@@ -516,21 +426,23 @@ weaponmode GetWeaponMode(IClientEntity* player) {
 	case ClassID::CTFJar:
 	case ClassID::CTFJarMilk:
 		return weaponmode::weapon_throwable;
+	case ClassID::CTFWeaponPDA_Engineer_Build:
+	case ClassID::CTFWeaponPDA_Engineer_Destroy:
+	case ClassID::CTFWeaponPDA_Spy:
+		return weaponmode::weapon_pda;
+	case ClassID::CWeaponMedigun:
+		return weaponmode::weapon_medigun;
 	};
-	if (weapon_handle == NET_INT(player, netvar.hMyWeapons + sizeof(int) * 3)) return weaponmode::weapon_pda;
-	if (NET_INT(player, netvar.iClass) == tf_class::tf_medic) {
-		if (weapon_handle == NET_INT(player, netvar.hMyWeapons + sizeof(int) * 1)) return weaponmode::weapon_medigun;
-	}
 	return weaponmode::weapon_hitscan;
 }
 
 // TODO FIX this function
-bool GetProjectileData(IClientEntity* weapon, float& speed, float& gravity) {
-	if (!weapon) return false;
+bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
+	if (!CE_BAD(weapon)) return false;
 	float rspeed = 0.0f;
 	float rgrav = 0.0f;
 	typedef float(GetProjectileData)(IClientEntity*);
-	switch (weapon->GetClientClass()->m_ClassID) {
+	switch (weapon->m_iClassID) {
 	case ClassID::CTFRocketLauncher_DirectHit:
 		rspeed = 1980.0f;
 	break;
@@ -538,16 +450,14 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, float& gravity) {
 		rspeed = 1100.0f;
 	break;
 	case ClassID::CTFGrenadeLauncher:
+		// TODO offset (GetProjectileSpeed)
 		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(weapon);
+		// TODO Wrong grenade launcher gravity
 		rgrav = 0.5f;
 	break;
 	case ClassID::CTFCompoundBow: {
-		float servertime = (float)NET_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
-		float curtime_old = interfaces::gvars->curtime;
-		interfaces::gvars->curtime = servertime;
 		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(weapon);
 		rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(weapon);
-		interfaces::gvars->curtime = curtime_old;
 	} break;
 	case ClassID::CTFBat_Wood:
 		rspeed = 3000.0f;
@@ -569,18 +479,11 @@ bool GetProjectileData(IClientEntity* weapon, float& speed, float& gravity) {
 	return true;
 }
 
-player_info_s* PlayerInfo(IClientEntity* ent) {
-	player_info_s* info = new player_info_s;
-	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), info)) return (player_info_s*)0;
-	return info;
+bool Developer(CachedEntity* ent) {
+	return (ent->m_pPlayerInfo && ent->m_pPlayerInfo->friendsID == 347272825UL);
 }
 
-bool Developer(IClientEntity* ent) {
-	player_info_s* info = PlayerInfo(ent);
-	return (info && info->friendsID == 347272825UL);
-}
-
-const char* MakeInfoString(IClientEntity* player) {
+/*const char* MakeInfoString(IClientEntity* player) {
 	char* buf = new char[256]();
 	player_info_t info;
 	if (!interfaces::engineClient->GetPlayerInfo(player->entindex(), &info)) return (const char*)0;
@@ -598,7 +501,7 @@ const char* MakeInfoString(IClientEntity* player) {
 	}
 	logging::Info("Result: %s", buf);
 	return buf;
-}
+}*/
 
 trace::FilterNoPlayer* vec_filter;
 bool IsVectorVisible(Vector origin, Vector target) {
@@ -644,35 +547,28 @@ bool IsVectorVisible(Vector origin, Vector target) {
 	return IsVectorVisible(origin, res1);
 }*/
 
-relation GetRelation(IClientEntity* ent) {
-	if (!ent) return relation::NEUTRAL;
-	if (ent->IsDormant()) return relation::NEUTRAL;
-	player_info_t info;
-	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), &info)) return relation::NEUTRAL;
+relation GetRelation(CachedEntity* ent) {
+	if (!ent->m_pPlayerInfo) return relation::NEUTRAL;
 	for (int i = 0; i < n_friends; i++) {
-		if (friends[i] == info.friendsID) return relation::FRIEND;
+		if (friends[i] == ent->m_pPlayerInfo->friendsID) return relation::FRIEND;
 	}
 	for (int i = 0; i < n_rage; i++) {
-		if (rage[i] == info.friendsID) return relation::RAGE;
+		if (rage[i] == ent->m_pPlayerInfo->friendsID) return relation::RAGE;
 	}
 	if (Developer(ent)) return relation::DEVELOPER;
 	return relation::NEUTRAL;
 }
 
-bool IsSentryBuster(IClientEntity* entity) {
-	return (entity && entity->GetClientClass()->m_ClassID == ClassID::CTFPlayer && NET_INT(entity, netvar.iClass) == tf_class::tf_demoman && g_pPlayerResource->GetMaxHealth(entity) == 2500);
+bool IsSentryBuster(CachedEntity* entity) {
+	return (entity->m_Type == EntityType::ENTITY_PLAYER &&
+			CE_INT(entity, netvar.iClass) == tf_class::tf_demoman &&
+			g_pPlayerResource->GetMaxHealth(entity) == 2500);
 }
 
-bool IsAmbassador(IClientEntity* entity) {
-	if (!entity) return false;
-	if (entity->GetClientClass()->m_ClassID != ClassID::CTFRevolver) return false;
-	int defidx = NET_INT(entity, netvar.iItemDefinitionIndex);
-	switch (defidx) {
-	case 61:
-	case 1006:
-		return true;
-	}
-	return false;
+bool IsAmbassador(CachedEntity* entity) {
+	if (entity->m_iClassID != ClassID::CTFRevolver) return false;
+	int defidx = CE_INT(entity, netvar.iItemDefinitionIndex);
+	return (defidx == 61 || defidx == 1006);
 }
 
 bool CheckCE(CachedEntity* entity) {
@@ -690,21 +586,6 @@ Vector CalcAngle(Vector src, Vector dst) {
 	if(delta.x >= 0.0)
 		AimAngles.y += 180.0f;
 	return AimAngles;
-}
-
-bool IsBuilding(IClientEntity* ent) {
-	if (!ent) return false;
-	switch (ent->GetClientClass()->m_ClassID) {
-	case ClassID::CObjectSentrygun:
-	case ClassID::CObjectDispenser:
-	case ClassID::CObjectTeleporter:
-		return true;
-	}
-	return false;
-}
-
-bool IsPlayer(IClientEntity* ent) {
-	return (ent && ent->GetClientClass()->m_ClassID == ClassID::CTFPlayer);
 }
 
 void MakeVector(Vector angle, Vector& vector)
@@ -731,13 +612,13 @@ float GetFov(Vector angle, Vector src, Vector dst)
 	return RAD2DEG(acos(u_dot_v / (pow(mag, 2))));
 }
 
-bool CanHeadshot(IClientEntity* player) {
+bool CanHeadshot() {
 	return (g_pLocalPlayer->flZoomBegin > 0.0f && (interfaces::gvars->curtime - g_pLocalPlayer->flZoomBegin > 0.2f));
 }
 
-bool BulletTime() {
-	float tickbase = (float)(NET_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick;
-	float nextattack = NET_FLOAT(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack);
+bool CanShoot() {
+	float tickbase = (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick;
+	float nextattack = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack);
 	return nextattack <= tickbase;
 }
 
@@ -757,14 +638,14 @@ void AimAt(Vector origin, Vector target, CUserCmd* cmd) {
 	cmd->viewangles = angles;
 }
 
-void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd) {
+/*void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd) {
 	Vector r = ent->GetAbsOrigin();
-	GetHitboxPosition(ent, hitbox, r);
+	GetHitbox(ent, hitbox, r);
 	AimAt(g_pLocalPlayer->v_Eye, r, cmd);
 	//logging::Info("Aiming at %f %f %f", r.x, r.y, r.z);
-}
+}*/
 
-bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {
+bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
 	if (!trace::g_pFilterPenetration) {
 		trace::g_pFilterPenetration = new trace::FilterPenetration();
 	}
@@ -774,7 +655,7 @@ bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {
 	trace::g_pFilterPenetration->SetSelf(local);
 	trace::g_pFilterPenetration->Reset();
 	Vector hit;
-	int ret = GetHitboxPosition(entity, hb, hit);
+	int ret = GetHitbox(entity, hb, hit);
 	if (ret) {
 		return false;
 	}
@@ -803,7 +684,7 @@ bool IsEntityVisiblePenetration(IClientEntity* entity, int hb) {
 
 class CMoveData;
 
-void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
+/*void RunEnginePrediction(IClientEntity* ent, CUserCmd *ucmd) {
 	// we are going to require some helper functions for this to work
 	// notably SetupMove, FinishMove and ProcessMovement
 
@@ -888,7 +769,7 @@ void StartPrediction(CUserCmd* cmd) {
 void EndPrediction() {
 	interfaces::gvars->curtime = oldCurtime;
 	interfaces::gvars->frametime = oldFrametime;
-}
+}*/
 
 char* strfmt(const char* fmt, ...) {
 	char* buf = new char[1024];

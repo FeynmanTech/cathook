@@ -24,19 +24,25 @@ CachedEntity::~CachedEntity() {
 	delete m_Strings;
 }
 
+IClientEntity* CachedEntity::InternalEntity() {
+#if ENTITY_CACHE_PROFILER == true
+	gEntityCache.m_nRawEntityAccesses++;
+#endif
+	return m_pEntity;
+}
+
 void CachedEntity::Update(int idx) {
 	m_ESPOrigin.Zero();
 	m_nESPStrings = 0;
 	m_IDX = idx;
 	m_pEntity = interfaces::entityList->GetClientEntity(idx);
 	if (!m_pEntity) {
-		//logging::Info("Tried to cache entity with index %i, null");
-		m_bNULL = true;
 		return;
-	} else {
-		m_bNULL = false;
 	}
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
+
+	m_bGrenadeProjectile = false;
+	m_bBonesSetup = false;
 
 	switch (m_iClassID) {
 	case ClassID::CTFPlayer:
@@ -46,15 +52,17 @@ void CachedEntity::Update(int idx) {
 	case ClassID::CObjectDispenser:
 		m_Type = EntityType::ENTITY_BUILDING; break;
 	case ClassID::CTFGrenadePipebombProjectile:
-	case ClassID::CTFProjectile_Arrow:
 	case ClassID::CTFProjectile_Cleaver:
+	case ClassID::CTFProjectile_Jar:
+	case ClassID::CTFProjectile_JarMilk:
+		m_bGrenadeProjectile = true;
+		/* no break */
+	case ClassID::CTFProjectile_Arrow:
 	case ClassID::CTFProjectile_EnergyBall:
 	case ClassID::CTFProjectile_EnergyRing:
 	case ClassID::CTFProjectile_Flare:
 	case ClassID::CTFProjectile_GrapplingHook:
 	case ClassID::CTFProjectile_HealingBolt:
-	case ClassID::CTFProjectile_Jar:
-	case ClassID::CTFProjectile_JarMilk:
 	case ClassID::CTFProjectile_Rocket:
 	case ClassID::CTFProjectile_SentryRocket:
 		// TODO Spells
@@ -64,26 +72,26 @@ void CachedEntity::Update(int idx) {
 	}
 
 	m_vecOrigin = m_pEntity->GetAbsOrigin();
-
-	m_bDormant = m_pEntity->IsDormant();
 	if (g_pLocalPlayer->entity) {
-		m_flDistance = (g_pLocalPlayer->entity->GetAbsOrigin().DistTo(m_pEntity->GetAbsOrigin()));
+		m_flDistance = (g_pLocalPlayer->v_Origin.DistTo(m_vecOrigin));
 	}
 	m_bAlivePlayer = false;
-	if (IsProjectile(m_pEntity)) {
-		m_bCritProjectile = IsProjectileCrit(m_pEntity);
-		m_bIsVisible = IsEntityVisible(m_pEntity, -1);
+	if (m_Type == EntityType::ENTITY_PROJECTILE) {
+		m_bCritProjectile = IsProjectileCrit(this);
+		m_bIsVisible = IsEntityVisible(this, -1);
 		m_iTeam = CE_INT(this, netvar.iTeamNum);
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 	}
 
-	if (m_iClassID == ClassID::CTFPlayer) {
-		m_bAlivePlayer = !(m_bNULL || m_bDormant || NET_BYTE(m_pEntity, netvar.iLifeState));
+	if (m_Type == EntityType::ENTITY_PLAYER) {
+		m_bAlivePlayer = !(NET_BYTE(m_pEntity, netvar.iLifeState));
+		player_info_s* info = new player_info_s;
+		interfaces::engineClient->GetPlayerInfo(m_IDX, info);
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
-		m_bIsVisible = (IsEntityVisible(m_pEntity, 0) || IsEntityVisible(m_pEntity, 4));
+		m_bIsVisible = (IsEntityVisible(this, 0) || this(m_pEntity, 4));
 		m_iHealth = CE_INT(this, netvar.iHealth);
-		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(m_pEntity);
+		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(this);
 		if (m_bIsVisible) {
 			m_lLastSeen = 0;
 			m_lSeenTicks++;
@@ -95,7 +103,7 @@ void CachedEntity::Update(int idx) {
 	if (m_iClassID == ClassID::CObjectSentrygun || m_iClassID == ClassID::CObjectDispenser || m_iClassID == ClassID::CObjectTeleporter) {
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
-		m_bIsVisible = (IsEntityVisible(m_pEntity, 0));
+		m_bIsVisible = (IsEntityVisible(this, 0));
 		m_iHealth = CE_INT(this, netvar.iBuildingHealth);
 		m_iMaxHealth = CE_INT(this, netvar.iBuildingMaxHealth);
 		if (m_bIsVisible) {
@@ -146,6 +154,15 @@ ESPStringCompound CachedEntity::GetESPString(int idx) {
 	}
 }
 
+matrix3x4_t* CachedEntity::GetBones() {
+	if (!m_bBonesSetup) {
+		if (!m_Bones) m_Bones = new matrix3x4_t[128]();
+		m_pEntity->SetupBones(m_Bones, 128, 0x100, interfaces::gvars->curtime);
+		m_bBonesSetup = true;
+	}
+	return m_Bones;
+}
+
 EntityCache::EntityCache() {
 	m_pArray = new CachedEntity[4096]();
 	m_lLastLog = 0;
@@ -168,12 +185,17 @@ void EntityCache::Update() {
 	if (time(0) != m_lLastLog) {
 		m_lLastLog = time(0);
 		if (g_vEntityCacheProfiling && g_vEntityCacheProfiling->GetBool()) {
-			logging::Info("[EntityCache] TOTAL: UPS=%i QPS=%i SQPS=%i SAPS=%i", m_nUpdates, m_nQueues, m_nStringsQueued, m_nStringsAdded);
-			if (m_nUpdates != 0) logging::Info("[EntityCache] AVG: QPU=%i SQPU=%i SAPU=%i", m_nQueues / m_nUpdates, m_nStringsQueued / m_nUpdates, m_nStringsAdded / m_nUpdates);
+			logging::Info("[EntityCache] TOTAL: UPS=%i QPS=%i SQPS=%i SAPS=%i REAPS=%i", m_nUpdates, m_nQueues, m_nStringsQueued, m_nStringsAdded, m_nRawEntityAccesses);
+			if (m_nUpdates != 0) logging::Info("[EntityCache] AVG: QPU=%i SQPU=%i SAPU=%i REAPU=%i",
+					m_nQueues / m_nUpdates,
+					m_nStringsQueued / m_nUpdates,
+					m_nStringsAdded / m_nUpdates,
+					m_nRawEntityAccesses / m_nUpdates);
 			m_nUpdates = 0;
 			m_nQueues = 0;
 			m_nStringsQueued = 0;
 			m_nStringsAdded = 0;
+			m_nRawEntityAccesses = 0;
 		}
 	}
 #endif

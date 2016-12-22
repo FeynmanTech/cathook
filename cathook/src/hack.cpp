@@ -239,12 +239,15 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	}
 	//logging::Info("canpacket: %i", ch->CanPacket());
 	//if (!cmd) return ret;
-	gEntityCache.Update();
-	SAFE_CALL(g_pPlayerResource->Update());
 
+
+	float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
+	float curtime_old = interfaces::gvars->curtime;
+	interfaces::gvars->curtime = servertime;
+	SAFE_CALL(gEntityCache.Update());
+	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
-
 
 	SAFE_CALL(CREATE_MOVE(Bunnyhop));
 	//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
@@ -261,6 +264,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SAFE_CALL(CREATE_MOVE(Misc));
 	SAFE_CALL(CREATE_MOVE(Triggerbot));
 	SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
+	interfaces::gvars->curtime = curtime_old;
 
 	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {

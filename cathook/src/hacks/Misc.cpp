@@ -311,7 +311,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(colors::white, colors::black, "Weapon: %s [%i]", weapon->GetClientClass()->GetName(), weapon->GetClientClass()->m_ClassID);
 			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", NET_FLOAT(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack));
 			AddSideString(colors::white, colors::black, "nTickBase: %f", (float)(NET_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, colors::black, "CanShoot: %i", BulletTime());
+			AddSideString(colors::white, colors::black, "CanShoot: %i", CanShoot());
 			AddSideString(colors::white, colors::black, "Decaps: %i", NET_INT(g_pLocalPlayer->entity, netvar.iDecapitations));
 			AddSideString(colors::white, colors::black, "Damage: %f", NET_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage));
 			AddSideString(colors::white, colors::black, "DefIndex: %i", NET_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex));

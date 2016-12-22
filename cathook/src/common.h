@@ -25,6 +25,8 @@
 #include "prediction.h"
 #include "sdk.h"
 
+#define SQR(x) x * x
+
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"
 

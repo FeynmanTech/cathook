@@ -10,6 +10,9 @@
 
 #include "fixsdk.h"
 
+#define private public
+#define protected public
+
 #include <client_class.h>
 #include <icliententity.h>
 #include <icliententitylist.h>
@@ -40,5 +43,8 @@
 
 #include "sdk/in_buttons.h"
 #include "sdk/iinput.h"
+
+#undef private
+#undef protected
 
 #endif /* SDK_H_ */

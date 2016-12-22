@@ -8,14 +8,18 @@
 #ifndef ENTITYCACHE_H_
 #define ENTITYCACHE_H_
 
+#include "enums.h"
 #include "fixsdk.h"
 #include <mathlib/vector.h>
+
+struct matrix3x4_t;
 
 #define ENTITY_CACHE_PROFILER true
 
 class IClientEntity;
 class Color;
 struct ESPStringCompound;
+struct player_info_s;
 
 #define MAX_STRINGS 16
 
@@ -26,6 +30,33 @@ struct ESPStringCompound;
 #define CE_FLOAT(entity, offset) CE_VAR(entity, offset, float)
 #define CE_BYTE(entity, offset) CE_VAR(entity, offset, unsigned char)
 #define CE_VECTOR(entity, offset) CE_VAR(entity, offset, Vector)
+
+#define CE_GOOD(entity) (entity && entity->m_pEntity && !entity->m_pEntity->IsDormant())
+#define CE_BAD(entity) (!CE_GOOD(entity))
+
+#define PROXY_ENTITY true
+
+#if PROXY_ENTITY == true
+#define RAW_ENT(ce) ce->InternalEntity()
+#else
+#define RAW_ENT(ce) ce->m_pEntity
+#endif
+
+
+// This will be used later. maybe.
+#define ENTITY_ITERATE_INT(iterator, entity, max) \
+	for (int iterator = 0; iterator < max; iterator++) { \
+		CachedEntity* entity = gEntityCache.GetEntity(iterator); \
+		if (CE_BAD(entity)) continue;
+
+#define ENTITY_ITERATE_EVERYTHING(iterator, entity) \
+	ENTITY_ITERATE_INT(iterator, entity, gEntityCache.m_nMax)
+
+#define ENTITY_ITERATE_PLAYERS(iterator, entity) \
+	ENTITY_ITERATE_INT(iterator, entity, MIN(gEntityCache.m_nMax, 64))
+
+#define END_ENTITY_ITERATING }
+
 
 class CachedEntity {
 public:
@@ -41,12 +72,11 @@ public:
 	EntityType m_Type;
 	Vector m_vecOrigin;
 
-	bool m_bNULL;
-	bool m_bDormant;
 	int m_iClassID;
 	float m_flDistance;
 
 	bool m_bCritProjectile;
+	bool m_bGrenadeProjectile;
 
 	int  m_iTeam;
 	bool m_bAlivePlayer;
@@ -57,6 +87,11 @@ public:
 	bool m_bIsVisible;
 	unsigned long m_lSeenTicks;
 	unsigned long m_lLastSeen;
+
+	player_info_s* m_pPlayerInfo;
+	matrix3x4_t* m_Bones;
+	bool m_bBonesSetup;
+	matrix3x4_t* GetBones();
 
 
 	// CBaseEntity
@@ -92,6 +127,7 @@ public:
 	// Entity fields end here.
 
 	int m_IDX;
+	IClientEntity* InternalEntity();
 	IClientEntity* m_pEntity;
 	ESPStringCompound* m_Strings;
 	int m_nESPStrings;
@@ -107,6 +143,8 @@ public:
 	CachedEntity* GetEntity(int idx);
 
 	CachedEntity* m_pArray;
+	// Profiling variables.
+	int m_nRawEntityAccesses;
 	int m_nQueues;
 	int m_nUpdates;
 	int m_nStringsAdded;

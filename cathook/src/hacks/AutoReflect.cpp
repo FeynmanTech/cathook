@@ -16,39 +16,19 @@ const char* AutoReflect::GetName() {
 	return "AUTO-REFLECT";
 }
 
-bool AutoReflect::ShouldReflect(IClientEntity* ent) {
-	if (!ent) return false;
-	switch (ent->GetClientClass()->m_ClassID) {
-	case ClassID::CTFProjectile_Arrow:
-	case ClassID::CTFProjectile_Flare:
-	case ClassID::CTFProjectile_HealingBolt:
-	case ClassID::CTFProjectile_Rocket:
-	case ClassID::CTFProjectile_SentryRocket:
-	case ClassID::CTFProjectile_EnergyBall: {
-		int deflected = NET_INT(ent, netvar.Rocket_iDeflected);
-		if (deflected) return false; // TODO deflected by enemy player
-		if (NET_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
-		return true;
-	} break;
-	case ClassID::CTFProjectile_Cleaver:
-	case ClassID::CTFProjectile_Jar:
-	case ClassID::CTFProjectile_JarMilk: {
-		int deflected = NET_INT(ent, netvar.Grenade_iDeflected);
-		if (deflected) return false;
-		if (NET_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
-		return true;
-	} break;
-	case ClassID::CTFGrenadePipebombProjectile: {
-		int deflected = NET_INT(ent, netvar.Grenade_iDeflected);
-		if (deflected) return false;
-		if (NET_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
-		if (NET_INT(ent, netvar.iPipeType) == 1) {
+bool AutoReflect::ShouldReflect(CachedEntity* ent) {
+	if (ent->m_Type != ENTITY_PROJECTILE) return false;
+	if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
+	// If projectile is already deflected, don't deflect it again.
+	if (CE_INT(ent, ent->m_bGrenadeProjectile ?
+			/* NetVar for grenades */ netvar.Grenade_iDeflected :
+			/* For rockets */ netvar.Rocket_iDeflected)) return false;
+	if (ent->m_iClassID == ClassID::CTFGrenadePipebombProjectile) {
+		if (CE_INT(ent, netvar.iPipeType) == 1) {
 			if (!v_bReflectStickies->GetBool()) return false;
 		}
-		return true;
-	} break;
 	}
-	return false;
+	return true;
 }
 
 // Hack Methods
@@ -62,8 +42,8 @@ AutoReflect::AutoReflect() {
 // TODO
 bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
-	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFFlameThrower) return true;
-
+	if (CE_BAD(g_pLocalPlayer->weapon) || CE_BAD(g_pLocalPlayer->entity)) return true;
+	if (g_pLocalPlayer->weapon->m_iClassID != ClassID::CTFFlameThrower) return true;
 	if (v_bDisableWhenAttacking->GetBool() && (cmd->buttons & IN_ATTACK)) return false;
 
 	CachedEntity* closest = 0;
@@ -71,19 +51,19 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 
 	for (int i = 0; i < gEntityCache.m_nMax; i++) {
 		CachedEntity* ent = gEntityCache.GetEntity(i);
-		if (!ent || ent->m_bNULL || ent->m_bDormant) continue;
-		if (!ShouldReflect(ent->m_pEntity)) continue;
+		if (CE_BAD(ent)) continue;
+		if (!ShouldReflect(ent)) continue;
 		//if (ent->Var<Vector>(eoffsets.vVelocity).IsZero(1.0f)) continue;
-		float dist = ent->m_pEntity->GetAbsOrigin().DistToSqr(g_pLocalPlayer->v_Origin);
+		float dist = ent->m_vecOrigin.DistToSqr(g_pLocalPlayer->v_Origin);
 		if (dist < closest_dist || !closest) {
 			closest = ent;
 			closest_dist = dist;
 		}
 	}
 
-	if (closest_dist == 0 || closest_dist > v_iReflectDistance->GetInt() * v_iReflectDistance->GetInt()) return true;
+	if (closest_dist == 0 || closest_dist > SQR(v_iReflectDistance->GetInt())) return true;
 
-	Vector tr = (closest->m_pEntity->GetAbsOrigin() - g_pLocalPlayer->v_Eye);
+	Vector tr = (closest->m_vecOrigin - g_pLocalPlayer->v_Eye);
 	Vector angles;
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);

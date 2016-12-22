@@ -37,8 +37,6 @@ const char* Aimbot::GetName() {
 	return "AIMBOT";
 }
 
-/* null-safe */
-
 const char* psza__AimKeyMode[] = { "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" };
 const char* psza__Hitbox[] = {
 	"HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
@@ -88,8 +86,9 @@ Aimbot::Aimbot() {
 
 bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
-	if (g_pLocalPlayer->entity && g_pLocalPlayer->life_state) return true;
-	this->m_iLastTarget = -1;
+	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon)) return true;
+	if (g_pLocalPlayer->life_state) return true;
+	//this->m_iLastTarget = -1;
 	if (this->v_eAimKey->GetBool() && this->v_eAimKeyMode->GetBool()) {
 		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_eAimKey->GetInt());
 		switch (this->v_eAimKeyMode->GetInt()) {
@@ -118,14 +117,22 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if (g_pLocalPlayer->cond_0 & cond::cloaked) return true; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
-	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID != ClassID::CTFMinigun)
-		if (this->v_bActiveOnlyWhenCanShoot->GetBool() && !BulletTime() && !(GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee)) return true;
+	if (this->v_bActiveOnlyWhenCanShoot->GetBool()) {
+		// Miniguns should shoot and aim continiously. TODO smg
+		if (g_pLocalPlayer->weapon->m_iClassID != ClassID::CTFMinigun) {
+			// Melees are weird, they should aim continiously like miniguns too.
+			if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
+				// Finally, CanShoot() check.
+				if (!CanShoot()) return true;
+			}
+		}
+	}
 
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return true;
 	}
 
-	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun) {
+	if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFMinigun) {
 		if (!(g_pLocalPlayer->cond_0 & cond::slowed)) {
 			return true;
 		}
@@ -138,7 +145,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (IsAmbassador(g_pLocalPlayer->weapon)) {
+	if (IsAmbassador(g_pLocalPlayer->weapon)) { // TODO AmbassadorCanHeadshot()
 		if ((interfaces::gvars->curtime - NET_FLOAT(g_pLocalPlayer->weapon, netvar.flLastFireTime)) <= 1.0) {
 			return true;
 		}
@@ -207,7 +214,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 				if (IsBuilding(ent)) {
 					result = GetBuildingPosition(ent);
 				} else {
-					GetHitboxPosition(ent, m_iHitbox, result);
+					GetHitbox(ent, m_iHitbox, result);
 				}
 				float scr = 4096.0f - result.DistTo(g_pLocalPlayer->v_Eye);
 				if (scr > target_highest_score) {
@@ -228,7 +235,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 					if (IsBuilding(ent)) {
 						result = GetBuildingPosition(ent);
 					} else {
-						GetHitboxPosition(ent, m_iHitbox, result);
+						GetHitbox(ent, m_iHitbox, result);
 					}
 					float scr = 360.0f - GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, result);
 					if (scr > target_highest_score) {
@@ -279,7 +286,7 @@ void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 		if (!interfaces::engineClient->GetPlayerInfo(this->m_iLastTarget, &info)) return;
 		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", NET_INT(ent, netvar.iHealth), tfclasses[clazz], info.name);
 	} else if (IsBuilding(ent)) {
-		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", NET_INT(ent, netvar.iBuildingHealth), NET_INT(ent, netvar.iUpgradeLevel), GetBuildingType(ent));
+		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", NET_INT(ent, netvar.iBuildingHealth), NET_INT(ent, netvar.iUpgradeLevel), GetBuildingName(ent));
 	}
 }
 
@@ -325,10 +332,10 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, ProjectilePrediction(entity, m_iHitbox, m_flProjSpeed, m_flProjGravity))) return false;
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
-				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
+				if (GetHitbox(entity, m_iHitbox, resultAim)) return false;
 				if (!IsEntityVisiblePenetration(entity, v_eHitbox->GetInt())) return false;
 			} else {
-				if (GetHitboxPosition(entity, m_iHitbox, resultAim)) return false;
+				if (GetHitbox(entity, m_iHitbox, resultAim)) return false;
 				if (!IsEntityVisible(entity, m_iHitbox)) return false;
 			}
 		}
@@ -372,7 +379,7 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 	if (!entity) return false;
 	if (IsPlayer(entity)) {
 		//logging::Info("A");
-		GetHitboxPosition(entity, m_iHitbox, hit);
+		GetHitbox(entity, m_iHitbox, hit);
 		//logging::Info("B");
 		if (this->v_bPrediction->GetBool()) SimpleLatencyPrediction(entity, m_iHitbox);
 		//logging::Info("C");

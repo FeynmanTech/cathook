@@ -35,8 +35,8 @@ public:
 	Vector v_Origin;
 	Vector v_Eye;
 	int entity_idx;
-	IClientEntity* entity;
-	IClientEntity* weapon;
+	CachedEntity* entity;
+	CachedEntity* weapon;
 	Vector v_OrigViewangles;
 	Vector v_SilentAngles;
 	bool bUseSilentAngles;

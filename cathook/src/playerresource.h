@@ -8,15 +8,15 @@
 #ifndef PLAYERRESOURCE_H_
 #define PLAYERRESOURCE_H_
 
-class IClientEntity;
+class CachedEntity;
 
 class TFPlayerResource {
 public:
 	void Update();
-	int GetMaxHealth(IClientEntity* player);
-	int GetMaxBuffedHealth(IClientEntity* player);
+	int GetMaxHealth(CachedEntity* player);
+	int GetMaxBuffedHealth(CachedEntity* player);
 
-	IClientEntity* m_pEntity;
+	CachedEntity* m_pEntity;
 };
 
 extern TFPlayerResource* g_pPlayerResource;
