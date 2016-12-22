@@ -9,7 +9,6 @@
 #define COMMON_H_
 
 #include "drawing.h"
-#include "entity.h"
 #include "entitycache.h"
 #include "enums.h"
 #include "globals.h"
@@ -22,6 +21,7 @@
 #include "usercmd.h"
 #include "trace.h"
 #include "cvwrapper.h"
+#include "netvars.h"
 #include "prediction.h"
 
 #define CON_NAME "cat"

@@ -5,8 +5,8 @@
  *      Author: nullifiedcat
  */
 
-#ifndef ENTITY_H_
-#define ENTITY_H_
+#ifndef NETVARS_H_
+#define NETVARS_H_
 
 #include "logging.h"
 
@@ -15,7 +15,7 @@ class IClientEntity;
 typedef unsigned int offset_t;
 
 template<typename T>
-inline T GetEntityValue(IClientEntity* ent, unsigned int offset) {
+inline T GetVar(IClientEntity* ent, unsigned int offset) {
 	int nullv = 0;
 	if (ent == 0) return *(reinterpret_cast<T*>(&nullv));
 	//logging::Info("GetEntityValue 0x%08x, 0x%08x", ent, offset);
@@ -23,15 +23,15 @@ inline T GetEntityValue(IClientEntity* ent, unsigned int offset) {
 }
 
 template<typename T>
-void SetEntityValue(IClientEntity* ent, unsigned int offset, T value) {
+void SetVar(IClientEntity* ent, unsigned int offset, T value) {
 	*(reinterpret_cast<T*>((unsigned int)ent + offset)) = value;
 }
 
-void InitEntityOffsets();
+void InitNetVars();
 
 // TODO move this.
 
-class EntityVariables {
+class NetVars {
 public:
 	void Init();
 	offset_t iTeamNum;
@@ -95,6 +95,6 @@ public:
 	offset_t iFOV;
 };
 
-extern EntityVariables netvar;
+extern NetVars netvar;
 
-#endif /* ENTITY_H_ */
+#endif /* NETVARS_H_ */

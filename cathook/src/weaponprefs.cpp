@@ -7,10 +7,9 @@
 
 #include "weaponprefs.h"
 
-#include "entity.h"
-
 #include "fixsdk.h"
 #include <icliententity.h>
+#include "netvars.h"
 
 //bool IsAmbassador(IClientEntity* weapon) {
 //	return false;

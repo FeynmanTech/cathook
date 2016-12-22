@@ -6,9 +6,9 @@
  */
 
 #include "enums.h"
-#include "entity.h"
 #include "localplayer.h"
 #include "helpers.h"
+#include "netvars.h"
 
 #include "sdk.h"
 

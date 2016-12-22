@@ -406,14 +406,13 @@ void hack::Initialize() {
 	hack::InitHacks();
 	logging::Info("Init global settings");
 	g_Settings.Init();
-	InitTargetingConVars();
 	EndConVars();
 	g_pGUI = new GUI();
 	g_pGUI->Setup();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();
 	logging::Info("Initializing entity offsets...");
-	InitEntityOffsets();
+	InitNetVars();
 
 	g_pLocalPlayer = new LocalPlayer();
 	g_pPlayerResource = new TFPlayerResource();

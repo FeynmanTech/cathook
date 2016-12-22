@@ -12,8 +12,8 @@
 
 class TargetSystemFOV : public ITargetSystem {
 public:
-	bool ShouldTarget(int idx);
-	int GetScore(int idx);
+	virtual int GetScore(int idx);
+	inline virtual const char* Name() { return "FOV"; };
 };
 
 #endif /* TARGETSYSTEMFOV_H_ */

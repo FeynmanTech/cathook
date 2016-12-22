@@ -12,8 +12,8 @@
 
 class TargetSystemDistance : public ITargetSystem {
 public:
-	bool ShouldTarget(int idx);
-	int GetScore(int idx);
+	virtual int GetScore(int idx);
+	inline virtual const char* Name() { return "CLOSEST ENEMY"; };
 };
 
 #endif /* TARGETSYSTEMDISTANCE_H_ */

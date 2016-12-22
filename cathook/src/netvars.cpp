@@ -8,9 +8,9 @@ a * entity.cpp
 #include "copypasted/Netvar.h"
 #include "common.h"
 
-EntityVariables netvar;
+NetVars netvar;
 
-void EntityVariables::Init() {
+void NetVars::Init() {
 	this->iCond = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_nPlayerCond");
 	this->iFlags = gNetvars.get_offset("DT_BasePlayer", "m_fFlags");
 	this->iHealth = gNetvars.get_offset("DT_BasePlayer", "m_iHealth");
@@ -63,6 +63,6 @@ void EntityVariables::Init() {
 	this->Grenade_bCritical = gNetvars.get_offset("DT_TFWeaponBaseGrenadeProj", "m_bCritical");
 }
 
-void InitEntityOffsets() {
+void InitNetVars() {
 	netvar.Init();
 }

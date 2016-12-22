@@ -8,8 +8,7 @@
 #include "playerresource.h"
 #include "interfaces.h"
 #include "enums.h"
-#include "entity.h"
-
+#include "netvars.h"
 #include "sdk.h"
 
 void TFPlayerResource::Update() {

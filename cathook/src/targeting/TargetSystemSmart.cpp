@@ -7,10 +7,6 @@
 
 #include "TargetSystemSmart.h"
 
-bool TargetSystemSmart::ShouldTarget(int idx) {
-	return false;
-}
-
 int TargetSystemSmart::GetScore(int idx) {
 	return 0;
 }
