@@ -12,9 +12,24 @@
 
 class IClientEntity;
 
+#define NET_VAR(entity, offset, type) \
+	(*(reinterpret_cast<type*>(reinterpret_cast<uintptr_t>(entity) + offset)))
+
+#define NET_INT(entity, offset) \
+	NET_VAR(entity, offset, int)
+
+#define NET_FLOAT(entity, offset) \
+	NET_VAR(entity, offset, float)
+
+#define NET_BYTE(entity, offset) \
+	NET_VAR(entity, offset, unsigned char)
+
+#define NET_VECTOR(entity, offset) \
+	NET_VAR(entity, offset, Vector)
+
 typedef unsigned int offset_t;
 
-template<typename T>
+/*template<typename T>
 inline T GetVar(IClientEntity* ent, unsigned int offset) {
 	int nullv = 0;
 	if (ent == 0) return *(reinterpret_cast<T*>(&nullv));
@@ -25,11 +40,9 @@ inline T GetVar(IClientEntity* ent, unsigned int offset) {
 template<typename T>
 void SetVar(IClientEntity* ent, unsigned int offset, T value) {
 	*(reinterpret_cast<T*>((unsigned int)ent + offset)) = value;
-}
+}*/
 
 void InitNetVars();
-
-// TODO move this.
 
 class NetVars {
 public:

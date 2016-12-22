@@ -11,11 +11,21 @@
 #include "fixsdk.h"
 #include <mathlib/vector.h>
 
+#define ENTITY_CACHE_PROFILER true
+
 class IClientEntity;
 class Color;
 struct ESPStringCompound;
 
 #define MAX_STRINGS 16
+
+#define CE_VAR(entity, offset, type) \
+	NET_VAR(entity->m_pEntity, offset, type)
+
+#define CE_INT(entity, offset) CE_VAR(entity, offset, int)
+#define CE_FLOAT(entity, offset) CE_VAR(entity, offset, float)
+#define CE_BYTE(entity, offset) CE_VAR(entity, offset, unsigned char)
+#define CE_VECTOR(entity, offset) CE_VAR(entity, offset, Vector)
 
 class CachedEntity {
 public:
@@ -25,10 +35,11 @@ public:
 	void Update(int idx);
 	void AddESPString(Color color, Color background, const char* string, ...);
 	ESPStringCompound GetESPString(int idx);
-	template<typename T>
-	T Var(unsigned offset);
 
 	// Entity fields start here.
+
+	EntityType m_Type;
+	Vector m_vecOrigin;
 
 	bool m_bNULL;
 	bool m_bDormant;
@@ -96,9 +107,20 @@ public:
 	CachedEntity* GetEntity(int idx);
 
 	CachedEntity* m_pArray;
+	int m_nQueues;
+	int m_nUpdates;
+	int m_nStringsAdded;
+	int m_nStringsQueued;
+	unsigned long m_lLastLog;
+
 	int m_nMax;
 };
 
 extern EntityCache gEntityCache;
+
+#if ENTITY_CACHE_PROFILER == true
+	class CatVar;
+	extern CatVar* g_vEntityCacheProfiling;
+#endif
 
 #endif /* ENTITYCACHE_H_ */

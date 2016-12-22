@@ -8,6 +8,13 @@
 #ifndef ENUMS_H_
 #define ENUMS_H_
 
+enum EntityType {
+	ENTITY_GENERIC,
+	ENTITY_PLAYER,
+	ENTITY_BUILDING,
+	ENTITY_PROJECTILE
+};
+
 enum cond {
 	slowed = (1 << 0),
 	zoomed = (1 << 1),

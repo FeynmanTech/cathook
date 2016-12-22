@@ -139,7 +139,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 			//PROF_END(strfmt("%s PaintTraverse", i_hack->GetName()));
 		}
 		Vector screen;
-		for (int i = 0; i < gEntityCache.m_nMax && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
+		for (int i = 0; i < gEntityCache.m_nMax && i < HIGHEST_ENTITY; i++) {
 			CachedEntity* ce = gEntityCache.GetEntity(i);
 			if (!CheckCE(ce)) continue;
 			if (ce->m_ESPOrigin.IsZero(1.0f))
@@ -239,12 +239,11 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	}
 	//logging::Info("canpacket: %i", ch->CanPacket());
 	//if (!cmd) return ret;
-
-	g_pPlayerResource->Update();
-
-	g_pLocalPlayer->Update();
-	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	gEntityCache.Update();
+	SAFE_CALL(g_pPlayerResource->Update());
+
+	SAFE_CALL(g_pLocalPlayer->Update());
+	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 
 
 	SAFE_CALL(CREATE_MOVE(Bunnyhop));
@@ -292,24 +291,24 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
 	if (g_pLocalPlayer->weapon) {
-		int defidx = GetVar<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
+		int defidx = NET_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
 		if (defidx == 61) {
-			SetVar<int>(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex, 1006);
+			NET_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex) = 1006;
 		}
 	}
 	if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
-		SetVar<int>(g_pLocalPlayer->entity, netvar.nForceTauntCam, 1);
+		NET_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
 	}
 	if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
 		if (g_pLocalPlayer->entity) {
-			SetVar<float>(g_pLocalPlayer->entity, netvar.deadflag + 4, last_angles.x);
-			SetVar<float>(g_pLocalPlayer->entity, netvar.deadflag + 8, last_angles.y);
+			NET_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
+			NET_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 	if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 		static Vector oldPunchAngles = Vector();
-		Vector punchAngles = GetVar<Vector>(g_pLocalPlayer->entity, netvar.vecPunchAngle);
+		Vector punchAngles = NET_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
 		QAngle viewAngles;
 		interfaces::engineClient->GetViewAngles(viewAngles);
 		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
@@ -319,8 +318,8 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 
 	if (g_Settings.bNoZoom->GetBool()) {
 		if (g_pLocalPlayer->entity) {
-			//g_pLocalPlayer->bWasZoomed = GetVar<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
-			SetVar(g_pLocalPlayer->entity, netvar.iCond, GetVar<int>(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed);
+			//g_pLocalPlayer->bWasZoomed = NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
+			NET_INT(g_pLocalPlayer->entity, netvar.iCond) = NET_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
 		}
 	}
 	SEGV_END;
@@ -406,9 +405,13 @@ void hack::Initialize() {
 	hack::InitHacks();
 	logging::Info("Init global settings");
 	g_Settings.Init();
-	EndConVars();
+	if (!g_vEntityCacheProfiling) {
+		g_vEntityCacheProfiling = CREATE_CV(CV_SWITCH, "entity_cache_profiling", "0", "Entity cache profiling");
+	}
+
 	g_pGUI = new GUI();
 	g_pGUI->Setup();
+	EndConVars();
 	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();
 	logging::Info("Initializing entity offsets...");

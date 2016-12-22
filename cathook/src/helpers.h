@@ -26,6 +26,9 @@ class Vector;
 #include "fixsdk.h"
 #include <tier1/convar.h>
 
+#define HIGHEST_ENTITY gEntityCache.m_nMax
+#define ENTITY(idx) gEntityCache.GetEntity(idx)->m_pEntity
+
 //typedef void ( *FnCommandCallback_t )( const CCommand &command );
 
 // TODO split this shit

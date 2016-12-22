@@ -26,12 +26,12 @@ bool SpyAlert::CreateMove(void*, float, CUserCmd* cmd) {
 
 void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
 	if (!v_bEnabled->GetBool()) return;
-	for (int i = 0; i < interfaces::entityList->GetHighestEntityIndex() && i < 64; i++) {
-		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
+	for (int i = 0; i < HIGHEST_ENTITY && i < 64; i++) {
+		IClientEntity* ent = ENTITY(i);
 		if (!ent) continue;
-		if (GetVar<char>(ent, netvar.iLifeState)) continue;
-		if (GetVar<int>(ent, netvar.iClass) != tf_class::tf_spy) continue;
-		if (GetVar<int>(ent, netvar.iTeamNum) == g_pLocalPlayer->team) continue;
+		if (NET_BYTE(ent, netvar.iLifeState)) continue;
+		if (NET_INT(ent, netvar.iClass) != tf_class::tf_spy) continue;
+		if (NET_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) continue;
 		Vector spypos = ent->GetAbsOrigin();
 		Vector mypos = g_pLocalPlayer->v_Origin;
 		float distance = spypos.DistTo(mypos);

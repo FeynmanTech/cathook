@@ -18,7 +18,7 @@ int AutoHeal::GetBestHealingTarget() {
 	int best = -1;
 	int best_score = -65536;
 
-	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
+	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
 		int score = this->GetHealingPriority(i);
 		if (score > best_score && score != -1) {
 			best = i;
@@ -31,9 +31,9 @@ int AutoHeal::GetBestHealingTarget() {
 
 int AutoHeal::GetHealingPriority(int idx) {
 	if (!CanHeal(idx)) return -1;
-	IClientEntity* ent = interfaces::entityList->GetClientEntity(idx);
+	IClientEntity* ent = ENTITY(idx);
 	int priority = 0;
-	int health = GetVar<int>(ent, netvar.iHealth);
+	int health = NET_INT(ent, netvar.iHealth);
 	int maxhealth = g_pPlayerResource->GetMaxHealth(ent);
 	int maxbuffedhealth = maxhealth * 1.5;
 	int maxoverheal = maxbuffedhealth - maxhealth;
@@ -51,12 +51,12 @@ int AutoHeal::GetHealingPriority(int idx) {
 }
 
 bool AutoHeal::CanHeal(int idx) {
-	IClientEntity* ent = interfaces::entityList->GetClientEntity(idx);
+	IClientEntity* ent = ENTITY(idx);
 	if (!ent) return false;
 	if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) return false;
 	if (interfaces::engineClient->GetLocalPlayer() == idx) return false;
-	if (GetVar<char>(ent, netvar.iLifeState)) return false;
-	if (g_pLocalPlayer->team != GetVar<int>(ent, netvar.iTeamNum)) return false;
+	if (NET_BYTE(ent, netvar.iLifeState)) return false;
+	if (g_pLocalPlayer->team != NET_INT(ent, netvar.iTeamNum)) return false;
 	if (g_pLocalPlayer->v_Origin.DistToSqr(ent->GetAbsOrigin()) > 420 * 420) return false;
 	if (!IsEntityVisible(ent, 7)) return false;
 	if (IsPlayerInvisible(ent)) return false;
@@ -82,7 +82,7 @@ bool AutoHeal::CreateMove(void*, float, CUserCmd* cmd) {
 		m_iNewTarget = 1;
 	}
 	if (m_iCurrentHealingTarget == -1) return true;
-	IClientEntity* target = interfaces::entityList->GetClientEntity(m_iCurrentHealingTarget);
+	IClientEntity* target = ENTITY(m_iCurrentHealingTarget);
 	Vector out;
 	GetHitboxPosition(target, 7, out);
 	AimAt(g_pLocalPlayer->v_Eye, out, cmd);

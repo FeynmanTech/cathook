@@ -23,6 +23,7 @@
 #include "cvwrapper.h"
 #include "netvars.h"
 #include "prediction.h"
+#include "sdk.h"
 
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"

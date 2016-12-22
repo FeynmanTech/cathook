@@ -26,14 +26,14 @@ const char* FollowBot::GetName() {
 // TODO
 bool FollowBot::ShouldPopUber(bool force) {
 	int health_my = g_pLocalPlayer->health;
-	//int health_tr = GetVar<int>(interfaces::entityList->GetClientEntity(this->m_hTargetHealing), eoffsets.iHealth);
+	//int health_tr = NET_INT(ENTITY(this->m_hTargetHealing), eoffsets.iHealth);
 	if (health_my < 30) return true;
 	//bool other_bots_have_uber = false;
-	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
-		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
+	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
+		IClientEntity* ent = ENTITY(i);
 		if (ent == g_pLocalPlayer->entity) continue;
 		if (IsFriendlyBot(ent)) {
-			if (GetVar<char>(ent, netvar.iLifeState)) continue;
+			if (NET_BYTE(ent, netvar.iLifeState)) continue;
 			//IClientEntity* medigun;
 			// TODO
 		}
@@ -83,8 +83,8 @@ void FollowBot::ProcessEntity(IClientEntity* entity, bool enemy) {
 int FollowBot::ShouldNotTarget(IClientEntity* ent, bool notrace) {
 	if (!ent || ent->IsDormant()) return 1;
 	if (ent->GetClientClass()->m_ClassID != 241) return 2;
-	if (GetVar<char>(ent, netvar.iLifeState)) return 3;
-	bool enemy = GetVar<int>(ent, netvar.iTeamNum) != g_pLocalPlayer->team;
+	if (NET_BYTE(ent, netvar.iLifeState)) return 3;
+	bool enemy = NET_INT(ent, netvar.iTeamNum) != g_pLocalPlayer->team;
 	if (enemy) return 4;
 
 	if (!this->IsOwner(ent)) {
@@ -107,10 +107,10 @@ void FollowBot::Tick(CUserCmd* cmd) {
 	if (g_pLocalPlayer->life_state) return;
 
 	IClientEntity* owner_entity = 0;
-	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
-		if (IsOwner(interfaces::entityList->GetClientEntity(i))) {
+	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
+		if (IsOwner(ENTITY(i))) {
 			m_hTargetFollowing = i;
-			owner_entity = interfaces::entityList->GetClientEntity(i);
+			owner_entity = ENTITY(i);
 		}
 	}
 	if (!owner_entity) return;
@@ -140,17 +140,17 @@ void FollowBot::Tick(CUserCmd* cmd) {
 	}
 	case botpackage::BOT_SNIPER: {
 		if (!owner_entity) break;
-		//bool owner_zoomed = (GetVar<int>(owner_entity, eoffsets.iCond) & cond::zoomed);
+		//bool owner_zoomed = (NET_INT(owner_entity, eoffsets.iCond) & cond::zoomed);
 		//
-		if (IClientEntity* weapon = interfaces::entityList->GetClientEntity(GetVar<int>(owner_entity, netvar.hActiveWeapon) & 0xFFF)) {
+		if (IClientEntity* weapon = ENTITY(NET_INT(owner_entity, netvar.hActiveWeapon) & 0xFFF)) {
 			if (weapon) {
 				if (weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle || weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle) {
-					bool bot_zoomed = (GetVar<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed);
+					bool bot_zoomed = (NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed);
 					if (!bot_zoomed) {
 						cmd->buttons |= IN_ATTACK2;
 					}
 				} else {
-					bool bot_zoomed = (GetVar<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed);
+					bool bot_zoomed = (NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed);
 					if (bot_zoomed) {
 						cmd->buttons |= IN_ATTACK2;
 					}
@@ -167,7 +167,7 @@ void FollowBot::Tick(CUserCmd* cmd) {
 		IClientEntity* healtr = this->GetBestHealingTarget();
 		m_hTargetHealing = (healtr ? healtr->entindex() : 0);
 		if (healtr) {
-			if (GetVar<int>(healtr, netvar.iHealth) < 35 && !GetVar<char>(healtr, netvar.iLifeState)) {
+			if (NET_INT(healtr, netvar.iHealth) < 35 && !NET_BYTE(healtr, netvar.iLifeState)) {
 				m_iShouldUbercharge = 1;
 			}
 			if (g_pLocalPlayer->health < 35) {
@@ -179,7 +179,7 @@ void FollowBot::Tick(CUserCmd* cmd) {
 	if (owner_entity && (0 == (g_nTick % 20))) {
 		static bool forward = false;
 		static bool jump = false;
-		if (!jump && GetVar<Vector>(g_pLocalPlayer->entity, netvar.vVelocity).IsZero(10.0f) && !(GetVar<int>(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed)) {
+		if (!jump && NET_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity).IsZero(10.0f) && !(NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed)) {
 			interfaces::engineClient->ExecuteClientCmd("+jump");
 			jump = true;
 		} else if (jump) {
@@ -200,7 +200,7 @@ void FollowBot::Tick(CUserCmd* cmd) {
 }
 
 void FollowBot::ActuallyCreateMove(CUserCmd* cmd) {
-	IClientEntity* tr_follow = interfaces::entityList->GetClientEntity(this->m_hTargetFollowing);
+	IClientEntity* tr_follow = ENTITY(this->m_hTargetFollowing);
 	QAngle angles = VectorToQAngle(cmd->viewangles);
 	if (tr_follow) {
 		AimAtHitbox(tr_follow, 4, cmd);
@@ -209,7 +209,7 @@ void FollowBot::ActuallyCreateMove(CUserCmd* cmd) {
 	}
 
 	if (v_iBotPackage->GetInt() == botpackage::BOT_MEDIC) {
-		IClientEntity* tr_heal = interfaces::entityList->GetClientEntity(this->m_hTargetHealing);
+		IClientEntity* tr_heal = ENTITY(this->m_hTargetHealing);
 		if (tr_heal) {
 			AimAtHitbox(tr_heal, 4, cmd);
 			g_pLocalPlayer->bUseSilentAngles = true;
@@ -246,11 +246,11 @@ IClientEntity* FollowBot::GetBestHealingTarget() {
 	IClientEntity* best = 0;
 	int best_score = -65536;
 
-	for (int i = 0; i < 64 && i < interfaces::entityList->GetHighestEntityIndex(); i++) {
-		IClientEntity* cur = interfaces::entityList->GetClientEntity(i);
+	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
+		IClientEntity* cur = ENTITY(i);
 		if (cur && cur->GetClientClass()->m_ClassID == ClassID::CTFPlayer) {
-			if (GetVar<int>(cur, netvar.iTeamNum) != g_pLocalPlayer->team) continue;
-			if (GetVar<char>(cur, netvar.iLifeState)) continue;
+			if (NET_INT(cur, netvar.iTeamNum) != g_pLocalPlayer->team) continue;
+			if (NET_BYTE(cur, netvar.iLifeState)) continue;
 			if (cur == g_pLocalPlayer->entity) continue;
 			int score = this->GetHealingPriority(cur);
 			if (score > best_score && score != 0) {
@@ -275,11 +275,11 @@ int FollowBot::GetHealingPriority(IClientEntity* ent) {
 	if (!ent) return 0;
 	int result = 0;
 
-	if (GetVar<char>(ent, netvar.iLifeState)) return 0;
-	if (GetVar<int>(ent, netvar.iTeamNum) != g_pLocalPlayer->team) return 0;
+	if (NET_BYTE(ent, netvar.iLifeState)) return 0;
+	if (NET_INT(ent, netvar.iTeamNum) != g_pLocalPlayer->team) return 0;
 	if (!IsEntityVisible(ent, 4)) return 0;
 
-	int health = GetVar<int>(ent, netvar.iHealth);
+	int health = NET_INT(ent, netvar.iHealth);
 	int maxhealth = g_pPlayerResource->GetMaxHealth(ent);
 	int maxbuffedhealth = maxhealth * 1.5;
 	int maxoverheal = maxbuffedhealth - maxhealth;

@@ -5,16 +5,12 @@
  *      Author: nullifiedcat
  */
 
-#include "playerresource.h"
-#include "interfaces.h"
-#include "enums.h"
-#include "netvars.h"
-#include "sdk.h"
+#include "common.h"
 
 void TFPlayerResource::Update() {
 	m_pEntity = 0;
-	for (int i = 0; i < interfaces::entityList->GetHighestEntityIndex(); i++) {
-		IClientEntity* ent = interfaces::entityList->GetClientEntity(i);
+	for (int i = 0; i < HIGHEST_ENTITY; i++) {
+		IClientEntity* ent = ENTITY(i);
 		if (ent && ent->GetClientClass()->m_ClassID == ClassID::CTFPlayerResource) {
 			m_pEntity = ent;
 		}

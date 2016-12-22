@@ -8,6 +8,8 @@
 #ifndef TARGETHELPER_H_
 #define TARGETHELPER_H_
 
-int GetScoreForEntity(IClientEntity* entity);
+class CachedEntity;
+
+int GetScoreForEntity(CachedEntity* entity);
 
 #endif /* TARGETHELPER_H_ */

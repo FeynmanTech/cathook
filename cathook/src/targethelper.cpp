@@ -5,12 +5,7 @@
  *      Author: nullifiedcat
  */
 
-#include "enums.h"
-#include "localplayer.h"
-#include "helpers.h"
-#include "netvars.h"
-
-#include "sdk.h"
+#include "common.h"
 
 /*
  * Targeting priorities:
@@ -22,13 +17,13 @@
  */
 
 /* Assuming given entity is a valid target range 0 to 100 */
-int GetScoreForEntity(IClientEntity* entity) {
+int GetScoreForEntity(CachedEntity* entity) {
 	if (!entity) return 0;
 	// TODO
-	if (IsBuilding(entity)) {
-		switch (entity->GetClientClass()->m_ClassID) {
+	if (entity->m_Type == ENTITY_BUILDING) {
+		switch (entity->m_iClassID) {
 		case ClassID::CObjectSentrygun:
-			float distance = (g_pLocalPlayer->v_Origin - entity->GetAbsOrigin()).Length();
+			float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin).Length();
 			// TODO
 			int total = 1;
 			if (distance != 0) {
@@ -39,12 +34,12 @@ int GetScoreForEntity(IClientEntity* entity) {
 		}
 		return 0;
 	}
-	int clazz = GetVar<int>(entity, netvar.iClass);
-	int health = GetVar<int>(entity, netvar.iHealth);
-	float distance = (g_pLocalPlayer->v_Origin - entity->GetAbsOrigin()).Length();
-	bool zoomed = (GetVar<int>(entity, netvar.iCond) & cond::zoomed);
-	int condx = (GetVar<int>(entity, netvar.iCond1));
-	int condx2 = (GetVar<int>(entity, netvar.iCond2));
+	int clazz = CE_INT(entity, netvar.iClass);
+	int health = CE_INT(entity, netvar.iHealth);
+	float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin).Length();
+	bool zoomed = (CE_INT(entity, netvar.iCond) & cond::zoomed);
+	int condx = (CE_INT(entity, netvar.iCond1));
+	int condx2 = (CE_INT(entity, netvar.iCond2));
 	bool pbullet = (condx & cond_ex::vacc_pbullet);
 	bool special = false;
 	bool kritz = IsPlayerCritBoosted(entity);

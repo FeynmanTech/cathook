@@ -72,7 +72,7 @@ ESP::ESP() {
 
 void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (!CheckCE(ent)) return;
-	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent->m_pEntity);//(ent->Var<int>(netvar.iCond) & cond::cloaked);
+	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent->m_pEntity);//(CE_INT(ent, netvar.iCond) & cond::cloaked);
 	Vector min, max;
 	ent->m_pEntity->GetRenderBounds(min, max);
 	Vector origin = ent->m_pEntity->GetAbsOrigin();
@@ -123,17 +123,17 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	Color fg = colors::EntityF(ent);
 	switch (ent->m_iClassID) {
 	case ClassID::CTFPlayer: {
-		bool cloak = IsPlayerInvisible(ent->m_pEntity);//ent->Var<int>(netvar.iCond) & cond::cloaked;
+		bool cloak = IsPlayerInvisible(ent->m_pEntity);//CE_INT(ent, netvar.iCond) & cond::cloaked;
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent->m_pEntity)) {
 			if (cloak) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
-		if (ent->Var<int>(netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !GetRelation(ent->m_pEntity)) break;
+		if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !GetRelation(ent->m_pEntity)) break;
 		if (!ent->m_bAlivePlayer) break;
 
-		DrawBox(ent, fg, 3.0f, -15.0f, true, ent->Var<int>(netvar.iHealth), ent->m_iMaxHealth);
+		DrawBox(ent, fg, 3.0f, -15.0f, true, CE_INT(ent, netvar.iHealth), ent->m_iMaxHealth);
 	break;
 	}
 	case ClassID::CObjectSentrygun:
@@ -144,8 +144,8 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 				return;
 			}
 		}
-		if (ent->Var<int>(netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
-		DrawBox(ent, fg, 1.0f, 0.0f, true, ent->Var<int>(netvar.iBuildingHealth), ent->Var<int>(netvar.iBuildingMaxHealth));
+		if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
+		DrawBox(ent, fg, 1.0f, 0.0f, true, CE_INT(ent, netvar.iBuildingHealth), CE_INT(ent, netvar.iBuildingMaxHealth));
 	break;
 	}
 	}
@@ -183,7 +183,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!ent->m_bEnemy) {
 			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
 		}
-		switch (ent->Var<int>(netvar.iPipeType)) {
+		switch (CE_INT(ent, netvar.iPipeType)) {
 		case 0:
 			if (!v_iShowPipes->GetBool()) break;
 			if (v_iShowPipes->GetInt() == 2 && !ent->m_bCritProjectile) break;
@@ -233,7 +233,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	}
 	case ClassID::CCurrencyPack: {
 		if (!v_bShowMoney->GetBool()) break;
-		if (false && ent->Var<int>(netvar.bDistributed)) {
+		if (false && CE_INT(ent, netvar.bDistributed)) {
 			if (this->v_bShowRedMoney->GetBool()) {
 				ent->AddESPString(color, bgclr, "$$$");
 				ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
@@ -267,8 +267,8 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!ent->m_bAlivePlayer) break;
 		if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
 			ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
-		int pclass = ent->Var<int>(netvar.iClass);
-		int pcond = ent->Var<int>(netvar.iCond);
+		int pclass = CE_INT(ent, netvar.iClass);
+		int pcond = CE_INT(ent, netvar.iCond);
 		player_info_t info;
 		if (!interfaces::engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
 		powerup_type power = GetPowerupOnPlayer(ent->m_pEntity);
@@ -300,10 +300,10 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (IsPlayerInvulnerable(ent->m_pEntity)) {
 				ent->AddESPString(color, bgclr, "INVULNERABLE");
 			}
-			if (ent->Var<int>(netvar.iCond1) & cond_ex::vacc_bullet) {
+			if (CE_INT(ent, netvar.iCond1) & cond_ex::vacc_bullet) {
 				ent->AddESPString(color, bgclr, "VACCINATOR ACTIVE");
 			}
-			if (ent->Var<int>(netvar.iCond1) & cond_ex::vacc_pbullet) {
+			if (CE_INT(ent, netvar.iCond1) & cond_ex::vacc_pbullet) {
 				ent->AddESPString(color, bgclr, "VACCINATOR PASSIVE");
 			}
 			if (IsPlayerCritBoosted(ent->m_pEntity)) {
@@ -319,7 +319,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	case ClassID::CObjectDispenser:
 	case ClassID::CObjectTeleporter: {
 		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) break;
-		int level = ent->Var<int>(netvar.iUpgradeLevel);
+		int level = CE_INT(ent, netvar.iUpgradeLevel);
 		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
