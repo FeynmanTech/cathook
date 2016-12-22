@@ -26,9 +26,6 @@ class Vector;
 #include "fixsdk.h"
 #include <tier1/convar.h>
 
-#define HIGHEST_ENTITY gEntityCache.m_nMax
-#define ENTITY(idx) gEntityCache.GetEntity(idx)->m_pEntity
-
 //typedef void ( *FnCommandCallback_t )( const CCommand &command );
 
 // TODO split this shit
@@ -79,13 +76,13 @@ bool IsAmbassador(CachedEntity* ent);
 void Patch(void* address, void* patch, size_t length);
 
 void AimAt(Vector origin, Vector target, CUserCmd* cmd);
-void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd);
+void AimAtHitbox(CachedEntity* ent, int hitbox, CUserCmd* cmd);
 
 bool IsMeleeWeapon(CachedEntity* ent);
 bool IsProjectileCrit(CachedEntity* ent);
 
-QAngle VectorToQAngle(Vector& in);
-Vector QAngleToVector(QAngle& in);
+QAngle VectorToQAngle(Vector in);
+Vector QAngleToVector(QAngle in);
 
 bool CanHeadshot();
 bool CanShoot();

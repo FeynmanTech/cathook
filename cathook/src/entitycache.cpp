@@ -32,6 +32,8 @@ IClientEntity* CachedEntity::InternalEntity() {
 }
 
 void CachedEntity::Update(int idx) {
+	SEGV_BEGIN
+
 	m_ESPOrigin.Zero();
 	m_nESPStrings = 0;
 	m_IDX = idx;
@@ -72,7 +74,7 @@ void CachedEntity::Update(int idx) {
 	}
 
 	m_vecOrigin = m_pEntity->GetAbsOrigin();
-	if (g_pLocalPlayer->entity) {
+	if (CE_GOOD(g_pLocalPlayer->entity)) {
 		m_flDistance = (g_pLocalPlayer->v_Origin.DistTo(m_vecOrigin));
 	}
 	m_bAlivePlayer = false;
@@ -85,11 +87,11 @@ void CachedEntity::Update(int idx) {
 
 	if (m_Type == EntityType::ENTITY_PLAYER) {
 		m_bAlivePlayer = !(NET_BYTE(m_pEntity, netvar.iLifeState));
-		player_info_s* info = new player_info_s;
-		interfaces::engineClient->GetPlayerInfo(m_IDX, info);
+		m_pPlayerInfo = new player_info_s;
+		interfaces::engineClient->GetPlayerInfo(m_IDX, m_pPlayerInfo);
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
-		m_bIsVisible = (IsEntityVisible(this, 0) || this(m_pEntity, 4));
+		SAFE_CALL(m_bIsVisible = (IsEntityVisible(this, 0) || IsEntityVisible(this, 4)));
 		m_iHealth = CE_INT(this, netvar.iHealth);
 		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(this);
 		if (m_bIsVisible) {
@@ -100,7 +102,7 @@ void CachedEntity::Update(int idx) {
 			m_lLastSeen++;
 		}
 	}
-	if (m_iClassID == ClassID::CObjectSentrygun || m_iClassID == ClassID::CObjectDispenser || m_iClassID == ClassID::CObjectTeleporter) {
+	if (m_Type == EntityType::ENTITY_BUILDING) {
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_bIsVisible = (IsEntityVisible(this, 0));
@@ -114,6 +116,8 @@ void CachedEntity::Update(int idx) {
 			m_lLastSeen++;
 		}
 	}
+
+	SEGV_END_INFO(strfmt("Updating entity %i", m_IDX))
 }
 
 void CachedEntity::AddESPString(Color color, Color background, const char* fmt, ...) {
@@ -155,10 +159,9 @@ ESPStringCompound CachedEntity::GetESPString(int idx) {
 }
 
 matrix3x4_t* CachedEntity::GetBones() {
-	if (!m_bBonesSetup) {
-		if (!m_Bones) m_Bones = new matrix3x4_t[128]();
-		m_pEntity->SetupBones(m_Bones, 128, 0x100, interfaces::gvars->curtime);
-		m_bBonesSetup = true;
+	if (!m_bBonesSetup || !m_Bones) {
+		m_Bones = new matrix3x4_t[128];
+		m_bBonesSetup = m_pEntity->SetupBones(m_Bones, 128, 0x100, 0); // interfaces::gvars->curtime
 	}
 	return m_Bones;
 }

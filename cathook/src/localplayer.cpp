@@ -11,16 +11,21 @@
 void LocalPlayer::Update() {
 	entity_idx = interfaces::engineClient->GetLocalPlayer();
 	entity = ENTITY(entity_idx);
-	team = NET_INT(entity, netvar.iTeamNum);
-	life_state = NET_BYTE(entity, netvar.iLifeState);
-	v_ViewOffset = NET_VECTOR(entity, netvar.vViewOffset);
-	v_Origin = entity->GetAbsOrigin();
+	if (!entity) logging::Info("Local Player is NULL!");
+	if (CE_BAD(entity)) logging::Info("Local Player is BAD CACHED ENTITY!");
+	team = CE_INT(entity, netvar.iTeamNum);
+	life_state = CE_BYTE(entity, netvar.iLifeState);
+	v_ViewOffset = CE_VECTOR(entity, netvar.vViewOffset);
+	v_Origin = entity->m_vecOrigin;
 	v_Eye = v_Origin + v_ViewOffset;
-	cond_0 = NET_INT(entity, netvar.iCond);
-	clazz = NET_INT(entity, netvar.iClass);
-	health = NET_INT(entity, netvar.iHealth);
+	cond_0 = CE_INT(entity, netvar.iCond);
+	cond_1 = CE_INT(entity, netvar.iCond1);
+	cond_2 = CE_INT(entity, netvar.iCond1);
+	cond_3 = CE_INT(entity, netvar.iCond3);
+	clazz = CE_INT(entity, netvar.iClass);
+	health = CE_INT(entity, netvar.iHealth);
 	this->bUseSilentAngles = false;
-	bZoomed = NET_INT(entity, netvar.iFOV) == 20; //!= NET_INT(entity, netvar.iDefaultFOV);
+	bZoomed = CE_INT(entity, netvar.iFOV) == 20; //!= NET_INT(entity, netvar.iDefaultFOV);
 	if (bZoomed) {
 		if (flZoomBegin == 0.0f) flZoomBegin = interfaces::gvars->curtime;
 	} else {
@@ -28,11 +33,11 @@ void LocalPlayer::Update() {
 	}
 
 
-	int hWeapon = NET_INT(entity, netvar.hActiveWeapon);
+	int hWeapon = CE_INT(entity, netvar.hActiveWeapon);
 	if (hWeapon && (hWeapon & 0xFFF) < HIGHEST_ENTITY) {
 		weapon = ENTITY(hWeapon & 0xFFF);
 		if (weapon)
-			bIsReloading = (NET_INT(weapon, netvar.iReloadMode) == 1);
+			bIsReloading = (CE_INT(weapon, netvar.iReloadMode) == 1);
 	} else {
 		weapon = 0;
 		bIsReloading = false;

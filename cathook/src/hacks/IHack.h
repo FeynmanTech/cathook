@@ -13,6 +13,7 @@ class ConVar;
 class CatVar;
 class ConCommand;
 class CCommand;
+class CachedEntity;
 
 typedef unsigned int uint32;
 

@@ -30,10 +30,10 @@ bool FollowBot::ShouldPopUber(bool force) {
 	if (health_my < 30) return true;
 	//bool other_bots_have_uber = false;
 	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
-		IClientEntity* ent = ENTITY(i);
+		CachedEntity* ent = ENTITY(i);
 		if (ent == g_pLocalPlayer->entity) continue;
 		if (IsFriendlyBot(ent)) {
-			if (NET_BYTE(ent, netvar.iLifeState)) continue;
+			if (CE_BYTE(ent, netvar.iLifeState)) continue;
 			//IClientEntity* medigun;
 			// TODO
 		}
@@ -64,7 +64,7 @@ void CC_ResetList(const CCommand& args) {
 MedicCallListener* g_pListener;
 
 // TODO
-void FollowBot::ProcessEntity(IClientEntity* entity, bool enemy) {
+void FollowBot::ProcessEntity(CachedEntity* entity, bool enemy) {
 	return;
 }
 
@@ -80,13 +80,13 @@ void FollowBot::ProcessEntity(IClientEntity* entity, bool enemy) {
  */
 
 // TODO
-int FollowBot::ShouldNotTarget(IClientEntity* ent, bool notrace) {
-	if (!ent || ent->IsDormant()) return 1;
-	if (ent->GetClientClass()->m_ClassID != 241) return 2;
-	if (NET_BYTE(ent, netvar.iLifeState)) return 3;
-	bool enemy = NET_INT(ent, netvar.iTeamNum) != g_pLocalPlayer->team;
-	if (enemy) return 4;
+int FollowBot::ShouldNotTarget(CachedEntity* ent, bool notrace) {
+	if (CE_BAD(ent)) return 1;
+	if (ent->m_Type != ENTITY_PLAYER) return 2;
+	if (!ent->m_bAlivePlayer) return 3;
+	if (ent->m_bEnemy) return 4;
 
+	// TODO temporary! W+m1 bot should be back!
 	if (!this->IsOwner(ent)) {
 		return 7;
 	}
@@ -103,17 +103,17 @@ int FollowBot::ShouldNotTarget(IClientEntity* ent, bool notrace) {
 }
 
 void FollowBot::Tick(CUserCmd* cmd) {
-	if (!g_pLocalPlayer->entity || g_pLocalPlayer->entity->IsDormant()) return;
+	if (CE_BAD(g_pLocalPlayer->entity)) return;
 	if (g_pLocalPlayer->life_state) return;
 
-	IClientEntity* owner_entity = 0;
+	CachedEntity* owner_entity = 0;
 	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
 		if (IsOwner(ENTITY(i))) {
 			m_hTargetFollowing = i;
 			owner_entity = ENTITY(i);
 		}
 	}
-	if (!owner_entity) return;
+	if (CE_BAD(owner_entity)) return;
 	if (m_iForceHealTicks && m_iForceHealTicks < 20) {
 		m_iForceHealTicks++;
 		cmd->buttons |= IN_ATTACK;
@@ -142,18 +142,15 @@ void FollowBot::Tick(CUserCmd* cmd) {
 		if (!owner_entity) break;
 		//bool owner_zoomed = (NET_INT(owner_entity, eoffsets.iCond) & cond::zoomed);
 		//
-		if (IClientEntity* weapon = ENTITY(NET_INT(owner_entity, netvar.hActiveWeapon) & 0xFFF)) {
-			if (weapon) {
-				if (weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle || weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle) {
-					bool bot_zoomed = (NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed);
-					if (!bot_zoomed) {
-						cmd->buttons |= IN_ATTACK2;
-					}
-				} else {
-					bool bot_zoomed = (NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed);
-					if (bot_zoomed) {
-						cmd->buttons |= IN_ATTACK2;
-					}
+		CachedEntity* owner_weapon = ENTITY(CE_INT(owner_entity, netvar.hActiveWeapon) & 0xFFF);
+		if (CE_GOOD(owner_weapon)) {
+			if (owner_weapon->m_iClassID == ClassID::CTFSniperRifle || owner_weapon->m_iClassID == ClassID::CTFSniperRifle) {
+				if (!g_pLocalPlayer->bZoomed) {
+					cmd->buttons |= IN_ATTACK2;
+				}
+			} else {
+				if (g_pLocalPlayer->bZoomed) {
+					cmd->buttons |= IN_ATTACK2;
 				}
 			}
 		}
@@ -164,10 +161,10 @@ void FollowBot::Tick(CUserCmd* cmd) {
 
 
 	if (v_iBotPackage->GetInt() == botpackage::BOT_MEDIC) {
-		IClientEntity* healtr = this->GetBestHealingTarget();
-		m_hTargetHealing = (healtr ? healtr->entindex() : 0);
+		CachedEntity* healtr = this->GetBestHealingTarget();
+		m_hTargetHealing = (healtr ? healtr->m_IDX : 0);
 		if (healtr) {
-			if (NET_INT(healtr, netvar.iHealth) < 35 && !NET_BYTE(healtr, netvar.iLifeState)) {
+			if (CE_INT(healtr, netvar.iHealth) < 35 && !CE_BYTE(healtr, netvar.iLifeState)) {
 				m_iShouldUbercharge = 1;
 			}
 			if (g_pLocalPlayer->health < 35) {
@@ -179,7 +176,7 @@ void FollowBot::Tick(CUserCmd* cmd) {
 	if (owner_entity && (0 == (g_nTick % 20))) {
 		static bool forward = false;
 		static bool jump = false;
-		if (!jump && NET_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity).IsZero(10.0f) && !(NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed)) {
+		if (!jump && CE_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity).IsZero(10.0f) && !g_pLocalPlayer->bZoomed) {
 			interfaces::engineClient->ExecuteClientCmd("+jump");
 			jump = true;
 		} else if (jump) {
@@ -200,17 +197,17 @@ void FollowBot::Tick(CUserCmd* cmd) {
 }
 
 void FollowBot::ActuallyCreateMove(CUserCmd* cmd) {
-	IClientEntity* tr_follow = ENTITY(this->m_hTargetFollowing);
+	CachedEntity* tr_follow = ENTITY(this->m_hTargetFollowing);
 	QAngle angles = VectorToQAngle(cmd->viewangles);
-	if (tr_follow) {
+	if (CE_GOOD(tr_follow)) {
 		AimAtHitbox(tr_follow, 4, cmd);
 		angles = VectorToQAngle(cmd->viewangles);
 		g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 	}
 
 	if (v_iBotPackage->GetInt() == botpackage::BOT_MEDIC) {
-		IClientEntity* tr_heal = ENTITY(this->m_hTargetHealing);
-		if (tr_heal) {
+		CachedEntity* tr_heal = ENTITY(this->m_hTargetHealing);
+		if (CE_GOOD(tr_heal)) {
 			AimAtHitbox(tr_heal, 4, cmd);
 			g_pLocalPlayer->bUseSilentAngles = true;
 		}
@@ -219,38 +216,34 @@ void FollowBot::ActuallyCreateMove(CUserCmd* cmd) {
 }
 
 // TODO optimize, cache or something
-bool FollowBot::IsOwner(IClientEntity* ent) {
-	if (!ent) return false;
-	if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) return false;
-	player_info_t info;
-	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), &info)) return false;
-	return (info.friendsID == this->m_nOwnerID);
+bool FollowBot::IsOwner(CachedEntity* ent) {
+	if (CE_BAD(ent)) return false;
+	return (ent->m_pPlayerInfo && ent->m_pPlayerInfo->friendsID == this->m_nOwnerID);
 }
 
 void FollowBot::ResetBotList() {
 	this->m_nOtherBots = 0;
 }
 
-bool FollowBot::IsFriendlyBot(IClientEntity* ent) {
-	if (!ent) return false;
-	if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) return false;
-	player_info_t info;
-	if (!interfaces::engineClient->GetPlayerInfo(ent->entindex(), &info)) return false;
+bool FollowBot::IsFriendlyBot(CachedEntity* ent) {
+	if (CE_BAD(ent)) return false;
+	if (!ent->m_pPlayerInfo) return false;
 	for (unsigned i = 0; i < this->m_nOtherBots && i < 32; i++) {
-		if (info.friendsID == this->m_OtherBots[i]) return true;
+		if (ent->m_pPlayerInfo->friendsID == this->m_OtherBots[i]) return true;
 	}
 	return false;
 }
 
-IClientEntity* FollowBot::GetBestHealingTarget() {
-	IClientEntity* best = 0;
+CachedEntity* FollowBot::GetBestHealingTarget() {
+	CachedEntity* best = 0;
 	int best_score = -65536;
 
 	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
-		IClientEntity* cur = ENTITY(i);
-		if (cur && cur->GetClientClass()->m_ClassID == ClassID::CTFPlayer) {
-			if (NET_INT(cur, netvar.iTeamNum) != g_pLocalPlayer->team) continue;
-			if (NET_BYTE(cur, netvar.iLifeState)) continue;
+		CachedEntity* cur = ENTITY(i);
+		if (CE_BAD(cur)) continue;
+		if (cur->m_Type == ENTITY_PLAYER) {
+			if (cur->m_bEnemy) continue;
+			if (!cur->m_bAlivePlayer) continue;
 			if (cur == g_pLocalPlayer->entity) continue;
 			int score = this->GetHealingPriority(cur);
 			if (score > best_score && score != 0) {
@@ -271,22 +264,22 @@ bool FollowBot::CreateMove(void*, float, CUserCmd* cmd) {
 	return false;
 }
 
-int FollowBot::GetHealingPriority(IClientEntity* ent) {
+int FollowBot::GetHealingPriority(CachedEntity* ent) {
 	if (!ent) return 0;
 	int result = 0;
 
-	if (NET_BYTE(ent, netvar.iLifeState)) return 0;
-	if (NET_INT(ent, netvar.iTeamNum) != g_pLocalPlayer->team) return 0;
+	if (ent->m_bEnemy) return 0;
+	if (!ent->m_bAlivePlayer) return 0;
 	if (!IsEntityVisible(ent, 4)) return 0;
 
-	int health = NET_INT(ent, netvar.iHealth);
+	int health = CE_INT(ent, netvar.iHealth);
 	int maxhealth = g_pPlayerResource->GetMaxHealth(ent);
 	int maxbuffedhealth = maxhealth * 1.5;
 	int maxoverheal = maxbuffedhealth - maxhealth;
 	int overheal = maxoverheal - (maxbuffedhealth - health);
 	float overhealp = ((float)overheal / (float)maxoverheal);
 	float healthp = ((float)health / (float)maxhealth);
-	if (ent->GetAbsOrigin().DistToSqr(g_pLocalPlayer->v_Eye) > 1000 * 1000) return 0;
+	if (ent->m_flDistance > 1000) return 0;
 
 	if (this->IsFriendlyBot(ent)) {
 		// Friendly bot medics must be constantly at 100%+ hp

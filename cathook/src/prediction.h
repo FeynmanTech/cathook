@@ -10,11 +10,11 @@
 
 #include "enums.h"
 
-class IClientEntity;
+class CachedEntity;
 class Vector;
 
-Vector SimpleLatencyPrediction(IClientEntity* ent, int hb);
-Vector ProjectilePrediction(IClientEntity* ent, int hb, float speed, float gravitymod);
+Vector SimpleLatencyPrediction(CachedEntity* ent, int hb);
+Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravitymod);
 
 float DistanceToGround(Vector origin);
 

@@ -31,9 +31,9 @@ int AutoHeal::GetBestHealingTarget() {
 
 int AutoHeal::GetHealingPriority(int idx) {
 	if (!CanHeal(idx)) return -1;
-	IClientEntity* ent = ENTITY(idx);
+	CachedEntity* ent = ENTITY(idx);
 	int priority = 0;
-	int health = NET_INT(ent, netvar.iHealth);
+	int health = CE_INT(ent, netvar.iHealth);
 	int maxhealth = g_pPlayerResource->GetMaxHealth(ent);
 	int maxbuffedhealth = maxhealth * 1.5;
 	int maxoverheal = maxbuffedhealth - maxhealth;
@@ -51,13 +51,14 @@ int AutoHeal::GetHealingPriority(int idx) {
 }
 
 bool AutoHeal::CanHeal(int idx) {
-	IClientEntity* ent = ENTITY(idx);
+	CachedEntity* ent = ENTITY(idx);
 	if (!ent) return false;
-	if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) return false;
+	if (ent->m_Type != ENTITY_PLAYER) return false;
 	if (interfaces::engineClient->GetLocalPlayer() == idx) return false;
-	if (NET_BYTE(ent, netvar.iLifeState)) return false;
-	if (g_pLocalPlayer->team != NET_INT(ent, netvar.iTeamNum)) return false;
-	if (g_pLocalPlayer->v_Origin.DistToSqr(ent->GetAbsOrigin()) > 420 * 420) return false;
+	if (!ent->m_bAlivePlayer) return false;
+	if (ent->m_bEnemy) return false;
+	if (ent->m_flDistance > 420) return false;
+	// TODO visible any hitbox
 	if (!IsEntityVisible(ent, 7)) return false;
 	if (IsPlayerInvisible(ent)) return false;
 	return true;
@@ -82,7 +83,7 @@ bool AutoHeal::CreateMove(void*, float, CUserCmd* cmd) {
 		m_iNewTarget = 1;
 	}
 	if (m_iCurrentHealingTarget == -1) return true;
-	IClientEntity* target = ENTITY(m_iCurrentHealingTarget);
+	CachedEntity* target = ENTITY(m_iCurrentHealingTarget);
 	Vector out;
 	GetHitbox(target, 7, out);
 	AimAt(g_pLocalPlayer->v_Eye, out, cmd);

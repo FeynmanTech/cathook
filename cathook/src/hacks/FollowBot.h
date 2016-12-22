@@ -30,16 +30,16 @@ public:
 	DECLARE_HACK_METHODS();
 	FollowBot();
 	~FollowBot();
-	void ProcessEntity(IClientEntity* entity, bool enemy);
+	void ProcessEntity(CachedEntity* entity, bool enemy);
 	void Tick(CUserCmd*);
-	int ShouldNotTarget(IClientEntity* ent, bool notrace);
+	int ShouldNotTarget(CachedEntity* ent, bool notrace);
 
 	bool ShouldPopUber(bool force);
 	void ActuallyCreateMove(CUserCmd*);
-	IClientEntity* GetBestHealingTarget();
-	int GetHealingPriority(IClientEntity* ent);
-	bool IsFriendlyBot(IClientEntity* ent);
-	bool IsOwner(IClientEntity* ent);
+	CachedEntity* GetBestHealingTarget();
+	int GetHealingPriority(CachedEntity* ent);
+	bool IsFriendlyBot(CachedEntity* ent);
+	bool IsOwner(CachedEntity* ent);
 	void ResetBotList();
 	void AddBotID(uint32 id);
 	void SetOwner(uint32 id);

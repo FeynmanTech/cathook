@@ -23,11 +23,11 @@ AntiDisguise::AntiDisguise() {
 void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 	if (!v_bEnabled->GetBool()) return;
 	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
-		IClientEntity* ent = ENTITY(i);
-		if (!ent) continue;
-		if (ent->GetClientClass()->m_ClassID == ClassID::CTFPlayer) {
-			if (NET_INT(ent, netvar.iClass) == tf_class::tf_spy) {
-				NET_INT(ent, netvar.iCond) = NET_INT(ent, netvar.iCond) &~ cond::disguised;
+		CachedEntity* ent = ENTITY(i);
+		if (CE_BAD(ent)) continue;
+		if (ent->m_Type == ENTITY_PLAYER) {
+			if (CE_INT(ent, netvar.iClass) == tf_class::tf_spy) {
+				CE_INT(ent, netvar.iCond) = CE_INT(ent, netvar.iCond) &~ cond::disguised;
 			}
 		}
 	}

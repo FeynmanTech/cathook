@@ -29,8 +29,8 @@ const char* classes[] = {
 };
 
 void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
-	for (int i = 0; i < gEntityCache.m_nMax; i++) {
-		ProcessEntityPT(gEntityCache.GetEntity(i));
+	for (int i = 0; i < HIGHEST_ENTITY; i++) {
+		ProcessEntityPT(ENTITY(i));
 	}
 }
 
@@ -71,11 +71,11 @@ ESP::ESP() {
 #define ESP_HEIGHT 14
 
 void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
-	if (!CheckCE(ent)) return;
-	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent->m_pEntity);//(CE_INT(ent, netvar.iCond) & cond::cloaked);
+	if (CE_BAD(ent)) return;
+	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent);//(CE_INT(ent, netvar.iCond) & cond::cloaked);
 	Vector min, max;
-	ent->m_pEntity->GetRenderBounds(min, max);
-	Vector origin = ent->m_pEntity->GetAbsOrigin();
+	RAW_ENT(ent)->GetRenderBounds(min, max);
+	Vector origin = ent->m_vecOrigin;
 	Vector so;
 	draw::WorldToScreen(origin, so);
 	//if (!a) return;
@@ -117,28 +117,26 @@ void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeig
 void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (!this->v_bBox->GetBool()) return;
-	if (!CheckCE(ent)) return;
+	if (CE_BAD(ent)) return;
 	if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
 		ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
 	Color fg = colors::EntityF(ent);
-	switch (ent->m_iClassID) {
-	case ClassID::CTFPlayer: {
-		bool cloak = IsPlayerInvisible(ent->m_pEntity);//CE_INT(ent, netvar.iCond) & cond::cloaked;
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent->m_pEntity)) {
+	switch (ent->m_Type) {
+	case ENTITY_PLAYER: {
+		bool cloak = IsPlayerInvisible(ent);//CE_INT(ent, netvar.iCond) & cond::cloaked;
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent)) {
 			if (cloak) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
-		if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool() && !GetRelation(ent->m_pEntity)) break;
+		if (!ent->m_bEnemy && !v_bTeammates->GetBool() && !GetRelation(ent)) break;
 		if (!ent->m_bAlivePlayer) break;
 
 		DrawBox(ent, fg, 3.0f, -15.0f, true, CE_INT(ent, netvar.iHealth), ent->m_iMaxHealth);
 	break;
 	}
-	case ClassID::CObjectSentrygun:
-	case ClassID::CObjectDispenser:
-	case ClassID::CObjectTeleporter: {
+	case ENTITY_BUILDING: {
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
@@ -153,13 +151,13 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 
 void ESP::ProcessEntity(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
-	if (!CheckCE(ent)) return;
+	if (CE_BAD(ent)) return;
 
 	Color color = colors::EntityF(ent);
 	Color bgclr = colors::EntityB(ent);
 
 	if (v_bEntityESP->GetBool()) {
-		ent->AddESPString(color, bgclr, "%s [%i]", ent->m_pEntity->GetClientClass()->m_pNetworkName, ent->m_iClassID);
+		ent->AddESPString(color, bgclr, "%s [%i]", RAW_ENT(ent)->GetClientClass()->m_pNetworkName, ent->m_iClassID);
 		if (v_bShowEntityID->GetBool()) {
 			ent->AddESPString(color, bgclr, "%i", ent->m_IDX);
 		}
@@ -245,7 +243,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	} break;
 	case ClassID::CBaseAnimating: {
 		if (!this->v_bItemESP->GetBool()) break;
-		item_type type = GetItemType(ent->m_pEntity);
+		item_type type = GetItemType(ent);
 		if (type == item_type::item_null) break;
 		bool shown = false;
 		if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
@@ -271,12 +269,12 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		int pcond = CE_INT(ent, netvar.iCond);
 		player_info_t info;
 		if (!interfaces::engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
-		powerup_type power = GetPowerupOnPlayer(ent->m_pEntity);
+		powerup_type power = GetPowerupOnPlayer(ent);
 		// If target is enemy, always show powerups, if player is teammate, show powerups
 		// only if bTeammatePowerup or bTeammates is true
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent->m_pEntity)) {
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent)) {
 			//if (pcond & cond::cloaked) return;
-			if (IsPlayerInvisible(ent->m_pEntity)) return;
+			if (IsPlayerInvisible(ent)) return;
 			if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
@@ -284,7 +282,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			ent->AddESPString(color, bgclr, "HAS [%s]", powerups[power]);
 		}
-		if (ent->m_bEnemy || v_bTeammates->GetBool() || GetRelation(ent->m_pEntity)) {
+		if (ent->m_bEnemy || v_bTeammates->GetBool() || GetRelation(ent)) {
 			ent->AddESPString(color, bgclr, "%s", info.name);
 			if (v_bShowFriendID->GetBool()) {
 				ent->AddESPString(color, bgclr, "%lu", info.friendsID);
@@ -297,7 +295,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (pcond & cond::cloaked) {
 				ent->AddESPString(color, bgclr, "CLOAKED");
 			}
-			if (IsPlayerInvulnerable(ent->m_pEntity)) {
+			if (IsPlayerInvulnerable(ent)) {
 				ent->AddESPString(color, bgclr, "INVULNERABLE");
 			}
 			if (CE_INT(ent, netvar.iCond1) & cond_ex::vacc_bullet) {
@@ -306,7 +304,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (CE_INT(ent, netvar.iCond1) & cond_ex::vacc_pbullet) {
 				ent->AddESPString(color, bgclr, "VACCINATOR PASSIVE");
 			}
-			if (IsPlayerCritBoosted(ent->m_pEntity)) {
+			if (IsPlayerCritBoosted(ent)) {
 				ent->AddESPString(color, bgclr, "CRIT BOOSTED");
 			}
 			if (this->v_bShowDistance) {
@@ -339,8 +337,9 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 }
 
 bool ESP::CreateMove(void*, float, CUserCmd*) {
-	for (int i = 0; i < gEntityCache.m_nMax; i++) {
-		ProcessEntity(gEntityCache.GetEntity(i));
+	for (int i = 0; i < HIGHEST_ENTITY; i++) {
+		CachedEntity* ent = ENTITY(i);
+		if (CE_GOOD(ent)) { ProcessEntity(ent); }
 	}
 	return true;
 };

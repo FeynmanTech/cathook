@@ -10,8 +10,6 @@
 
 #include "IHack.h"
 
-class IClientEntity;
-
 class AutoReflect : public IHack {
 public:
 	DECLARE_HACK_METHODS();

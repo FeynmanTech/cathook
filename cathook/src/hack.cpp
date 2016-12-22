@@ -71,6 +71,7 @@ bool hack::invalidated = true;
 void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
 	SEGV_BEGIN;
 	((OverrideView_t*)hooks::hkClientMode->GetMethod(hooks::offOverrideView))(thisptr, setup);
+	if (!g_Settings.bHackEnabled->GetBool()) return;
 	if (g_Settings.flForceFOV && g_Settings.flForceFOV->GetBool()) {
 		setup->fov = g_Settings.flForceFOV->GetFloat();
 	}
@@ -86,6 +87,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 
 	SEGV_BEGIN;
 	SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
+	if (!g_Settings.bHackEnabled->GetBool()) return;
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	if (g_phFollowBot->v_bEnabled->GetBool()) {
 		ipc_client_seg* seg_g = g_phFollowBot->m_pIPC->GetClientSegment(0);
@@ -110,6 +112,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		}
 	}
 
+	if (g_Settings.bNoVisuals->GetBool()) return;
 
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
@@ -135,15 +138,17 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		}
 		for (IHack* i_hack : hack::hacks) {
 			//PROF_BEGIN();
-			i_hack->PaintTraverse(p, vp, fr, ar);
+			SEGV_BEGIN
+				i_hack->PaintTraverse(p, vp, fr, ar);
+			SEGV_END_INFO(strfmt("PaintTraverse: hack %s", i_hack->GetName()))
 			//PROF_END(strfmt("%s PaintTraverse", i_hack->GetName()));
 		}
 		Vector screen;
-		for (int i = 0; i < gEntityCache.m_nMax && i < HIGHEST_ENTITY; i++) {
+		for (int i = 0; i < HIGHEST_ENTITY; i++) {
 			CachedEntity* ce = gEntityCache.GetEntity(i);
-			if (!CheckCE(ce)) continue;
+			if (CE_BAD(ce)) continue;
 			if (ce->m_ESPOrigin.IsZero(1.0f))
-				if (!draw::EntityCenterToScreen(ce->m_pEntity, screen)) continue;
+				if (!draw::EntityCenterToScreen(ce, screen)) continue;
 			for (int j = 0; j < ce->m_nESPStrings; j++) {
 				ESPStringCompound str = ce->GetESPString(j);
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
@@ -189,7 +194,7 @@ bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false,
 	SEGV_BEGIN;
 
 	//logging::Info("Sending NetMsg! %i", msg.GetType());
-	if (g_phAirstuck->v_bStuck->GetBool()) {
+	if (g_phAirstuck->v_bStuck->GetBool() && g_Settings.bHackEnabled->GetBool()) {
 		switch (msg.GetType()) {
 		case net_NOP:
 		case net_SignonState:
@@ -221,6 +226,9 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
 
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+
+	if (!g_Settings.bHackEnabled->GetBool()) return ret;
+
 	if (!interfaces::engineClient->IsInGame()) {
 		hack::invalidated = true;
 		return true;
@@ -240,15 +248,18 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	//logging::Info("canpacket: %i", ch->CanPacket());
 	//if (!cmd) return ret;
 
-
-	float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
-	float curtime_old = interfaces::gvars->curtime;
-	interfaces::gvars->curtime = servertime;
+	bool time_replaced = false;
+	float curtime_old;
+	if (CE_GOOD(g_pLocalPlayer->entity) && false) {
+		float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
+		curtime_old = interfaces::gvars->curtime;
+		interfaces::gvars->curtime = servertime;
+		time_replaced = true;
+	}
 	SAFE_CALL(gEntityCache.Update());
 	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
 	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
-
 	SAFE_CALL(CREATE_MOVE(Bunnyhop));
 	//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
 	SAFE_CALL(CREATE_MOVE(ESP));
@@ -264,8 +275,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SAFE_CALL(CREATE_MOVE(Misc));
 	SAFE_CALL(CREATE_MOVE(Triggerbot));
 	SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
-	interfaces::gvars->curtime = curtime_old;
-
+	if (time_replaced) interfaces::gvars->curtime = curtime_old;
 	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
@@ -277,13 +287,14 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 		Vector ang;
 		VectorAngles(vsilent, ang);
-		float yaw = deg2rad(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
+		float yaw = DEG2RAD(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 		cmd->forwardmove = cos(yaw) * speed;
 		cmd->sidemove = sin(yaw) * speed;
 		ret = false;
 	}
 	if (cmd)
 		last_angles = cmd->viewangles;
+
 	return ret;
 
 	SEGV_END;
@@ -295,24 +306,24 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
 	if (g_pLocalPlayer->weapon) {
-		int defidx = NET_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
+		int defidx = CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
 		if (defidx == 61) {
-			NET_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex) = 1006;
+			CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex) = 1006;
 		}
 	}
 	if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
-		NET_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
+		CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
 	}
 	if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
 		if (g_pLocalPlayer->entity) {
-			NET_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
-			NET_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
+			CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
+			CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 	if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 		static Vector oldPunchAngles = Vector();
-		Vector punchAngles = NET_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
+		Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
 		QAngle viewAngles;
 		interfaces::engineClient->GetViewAngles(viewAngles);
 		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
@@ -323,7 +334,7 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	if (g_Settings.bNoZoom->GetBool()) {
 		if (g_pLocalPlayer->entity) {
 			//g_pLocalPlayer->bWasZoomed = NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
-			NET_INT(g_pLocalPlayer->entity, netvar.iCond) = NET_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
+			CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
 		}
 	}
 	SEGV_END;
@@ -409,10 +420,11 @@ void hack::Initialize() {
 	hack::InitHacks();
 	logging::Info("Init global settings");
 	g_Settings.Init();
+#if ENTITY_CACHE_PROFILER == true
 	if (!g_vEntityCacheProfiling) {
 		g_vEntityCacheProfiling = CREATE_CV(CV_SWITCH, "entity_cache_profiling", "0", "Entity cache profiling");
 	}
-
+#endif
 	g_pGUI = new GUI();
 	g_pGUI->Setup();
 	EndConVars();

@@ -135,12 +135,12 @@ void colors::Init() {
 Color colors::EntityB(CachedEntity* ent) {
 	using namespace colors;
 	Color result = Transparent(black);
-	if (IsPlayer(ent->m_pEntity) || IsBuilding(ent->m_pEntity)) {
+	if (ent->m_Type == ENTITY_PLAYER || ent->m_Type == ENTITY_BUILDING) {
 		if (ent->m_iTeam == TEAM_BLU) result = blu_b;
 		else if (ent->m_iTeam == TEAM_RED) result = red_b;
 
-		if (IsPlayer(ent->m_pEntity)) {
-			if (GetRelation(ent->m_pEntity) == relation::DEVELOPER) result = Transparent(black, 0.6f);
+		if (ent->m_Type == ENTITY_PLAYER) {
+			if (GetRelation(ent) == relation::DEVELOPER) result = Transparent(black, 0.6f);
 		}
 
 		if (!ent->m_bIsVisible) result = Transparent(result, 0.833f);
@@ -152,14 +152,14 @@ Color colors::EntityF(CachedEntity* ent) {
 	using namespace colors;
 	Color result = white;
 	if (ent->m_iClassID == ClassID::CBaseAnimating) {
-		item_type type = GetItemType(ent->m_pEntity);
+		item_type type = GetItemType(ent);
 		if (type != item_null) {
 			if (type >= item_medkit_small && type <= item_medkit_large) {
 				result = green;
 			} else if (type >= item_ammo_small && type <= item_ammo_large) {
 				// White.
 			} else if (type >= item_mp_strength && type <= item_mp_crit) {
-				int skin = ent->m_pEntity->GetSkin();
+				int skin = RAW_ENT(ent)->GetSkin();
 				if (skin == 1) {
 					result = red;
 				} else if (skin == 2) {
@@ -174,7 +174,7 @@ Color colors::EntityF(CachedEntity* ent) {
 		result = green; // TODO currency pack (red)
 	}
 
-	if (IsProjectile(ent->m_pEntity)) {
+	if (ent->m_Type == ENTITY_PROJECTILE) {
 		if (ent->m_iTeam == TEAM_BLU) result = blu;
 		else if (ent->m_iTeam == TEAM_RED) result = red;
 		if (ent->m_bCritProjectile) {
@@ -183,11 +183,11 @@ Color colors::EntityF(CachedEntity* ent) {
 		}
 	}
 
-	if (IsPlayer(ent->m_pEntity) || IsBuilding(ent->m_pEntity)) {
+	if (ent->m_Type == ENTITY_PLAYER || ent->m_Type == ENTITY_BUILDING) {
 		if (ent->m_iTeam == TEAM_BLU) result = blu;
 		else if (ent->m_iTeam == TEAM_RED) result = red;
-		if (IsPlayer(ent->m_pEntity)) {
-			if (IsPlayerInvulnerable(ent->m_pEntity)) {
+		if (ent->m_Type == ENTITY_PLAYER) {
+			if (IsPlayerInvulnerable(ent)) {
 				if (ent->m_iTeam == TEAM_BLU) result = blu_u;
 				else if (ent->m_iTeam == TEAM_RED) result = red_u;
 			}
@@ -195,7 +195,7 @@ Color colors::EntityF(CachedEntity* ent) {
 				if (ent->m_iTeam == TEAM_BLU) result = blu_v;
 				else if (ent->m_iTeam == TEAM_RED) result = red_v;
 			}
-			switch (GetRelation(ent->m_pEntity)) {
+			switch (GetRelation(ent)) {
 			case FRIEND:
 				result = green; break;
 			case RAGE:
@@ -303,7 +303,7 @@ void draw::DrawString(int x, int y, Color color, Color background, bool center, 
 	}
 	draw::GetStringLength((char*)text, l, h);
 	Color clr = background;
-	clr._color[3] = (unsigned char)180;
+	clr[3] = (unsigned char)180;
 	draw::DrawRect(x, y + 1, l + 2, h - 4, clr);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
@@ -320,12 +320,12 @@ void draw::DrawString(int x, int y, Color color, const char* text, ...) {
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 
-bool draw::EntityCenterToScreen(IClientEntity* entity, Vector& out) {
+bool draw::EntityCenterToScreen(CachedEntity* entity, Vector& out) {
 	if (!entity) return false;
 	Vector world;
 	Vector min, max;
-	entity->GetRenderBounds(min, max);
-	world = entity->GetAbsOrigin();
+	RAW_ENT(entity)->GetRenderBounds(min, max);
+	world = entity->m_vecOrigin;
 	world.z += (min.z + max.z) / 2;
 	Vector scr;
 	bool succ = draw::WorldToScreen(world, scr);

@@ -25,8 +25,8 @@ AutoSticky::AutoSticky() {
 }
 
 bool AutoSticky::ShouldDetonate(CachedEntity* bomb) {
-	for (int i = 0; i < gEntityCache.m_nMax; i++) {
-		CachedEntity* ent = gEntityCache.GetEntity(i);
+	for (int i = 0; i < HIGHEST_ENTITY; i++) {
+		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
 		if (ent->m_Type != ENTITY_PLAYER && (ent->m_Type != ENTITY_BUILDING || !this->v_bBuildings->GetBool())) continue;
 		if (ent->m_iTeam == CE_INT(bomb, netvar.iTeamNum)) continue;
@@ -39,8 +39,8 @@ bool AutoSticky::ShouldDetonate(CachedEntity* bomb) {
 bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if (CE_BAD(g_pLocalPlayer->entity)) return true;
-	for (int i = 0; i < gEntityCache.m_nMax; i++) {
-		CachedEntity* ent = gEntityCache.GetEntity(i);
+	for (int i = 0; i < HIGHEST_ENTITY; i++) {
+		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
 		if (ent->m_iClassID != ClassID::CTFGrenadePipebombProjectile) continue;
 		if (CE_INT(ent, netvar.iPipeType) != 1) continue;

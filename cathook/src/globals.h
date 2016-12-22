@@ -27,6 +27,7 @@ public:
 	ConVar* sDisconnectMsg;
 	CatVar* bShowAntiAim;
 	CatVar* bThirdperson;
+	CatVar* bNoVisuals;
 };
 
 extern GlobalSettings g_Settings;

@@ -21,7 +21,7 @@ public:
 	ConVar* v_bDebugInfo;
 	ConCommand* c_Name;
 	ConVar* v_bInfoSpam;
-	ConVar* v_bFakeCrouch;
+	ConVar* v_bFastCrouch;
 	ConCommand* c_DumpItemAttributes;
 	ConCommand* c_SayLine;
 	ConCommand* c_Shutdown;

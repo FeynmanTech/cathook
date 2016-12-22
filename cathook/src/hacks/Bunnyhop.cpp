@@ -26,15 +26,12 @@ bool bDoubleJumpFix = false;
 
 bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
-	int player = interfaces::engineClient->GetLocalPlayer();
-	IClientEntity* entity = ENTITY(player);
-	int cond3 = NET_INT(entity, netvar.iCond3);
-	if (cond3 & cond_ex3::grappling) return true;
-	int flags = NET_INT(entity, netvar.iFlags);
+	if (g_pLocalPlayer->cond_3 & cond_ex3::grappling) return true;
+	int flags = CE_INT(g_pLocalPlayer->entity, netvar.iFlags);
 
 	if (v_bAutoJump->GetBool()) {
-		Vector vel = NET_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity);
-		if (sqrt((vel.x * vel.x + vel.y * vel.y)) > v_iAutoJumpSpeed->GetInt()) {
+		Vector vel = CE_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity);
+		if ((vel.x * vel.x + vel.y * vel.y) > SQR(v_iAutoJumpSpeed->GetInt())) {
 			cmd->buttons |= IN_JUMP;
 		}
 	}

@@ -27,8 +27,8 @@ class Aimbot : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	Aimbot();
-	bool ShouldTarget(IClientEntity* entity);
-	bool Aim(IClientEntity* entity, CUserCmd* cmd);
+	bool ShouldTarget(CachedEntity* entity);
+	bool Aim(CachedEntity* entity, CUserCmd* cmd);
 
 	bool m_bProjectileMode;
 	float m_flProjSpeed;

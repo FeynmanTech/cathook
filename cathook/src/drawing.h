@@ -74,7 +74,7 @@ void DrawString(int x, int y, Color color, Color background, bool center, const 
 void DrawString(int x, int y, Color color, const char* text, ...);
 void DrawRect(int x, int y, int w, int h, Color color);
 bool WorldToScreen(Vector &origin, Vector &screen);
-bool EntityCenterToScreen(IClientEntity* entity, Vector& out);
+bool EntityCenterToScreen(CachedEntity* entity, Vector& out);
 void OutlineRect(int x, int y, int w, int h, Color color);
 void GetStringLength(char* string, int& length, int& height);
 

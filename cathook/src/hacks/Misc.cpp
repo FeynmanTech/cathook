@@ -47,7 +47,7 @@ void CC_AddRage(const CCommand& args) {
 	rage[n_rage++] = atoi(args[1]);
 }
 
-void DumpRecvTable(IClientEntity* ent, RecvTable* table, int depth, const char* ft) {
+void DumpRecvTable(CachedEntity* ent, RecvTable* table, int depth, const char* ft) {
 	//bool forcetable = strlen(ft);
 	if (!ft || !strcmp(ft, table->GetName()))
 		logging::Info("==== TABLE: %s", table->GetName());
@@ -60,19 +60,19 @@ void DumpRecvTable(IClientEntity* ent, RecvTable* table, int depth, const char* 
 		if (ft && strcmp(ft, table->GetName())) continue;
 		switch (prop->GetType()) {
 		case SendPropType::DPT_Float:
-			logging::Info("%s [0x%04x] = %f", prop->GetName(), prop->GetOffset(), NET_FLOAT(ent, prop->GetOffset()));
+			logging::Info("%s [0x%04x] = %f", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, prop->GetOffset()));
 		break;
 		case SendPropType::DPT_Int:
-			logging::Info("%s [0x%04x] = %i", prop->GetName(), prop->GetOffset(), NET_INT(ent, prop->GetOffset()));
+			logging::Info("%s [0x%04x] = %i", prop->GetName(), prop->GetOffset(), CE_INT(ent, prop->GetOffset()));
 		break;
 		case SendPropType::DPT_String:
-			logging::Info("%s [0x%04x] = %s", prop->GetName(), prop->GetOffset(), NET_VAR(ent, prop->GetOffset(), char*));
+			logging::Info("%s [0x%04x] = %s", prop->GetName(), prop->GetOffset(), CE_VAR(ent, prop->GetOffset(), char*));
 		break;
 		case SendPropType::DPT_Vector:
-			logging::Info("%s [0x%04x] = (%f, %f, %f)", prop->GetName(), prop->GetOffset(), NET_FLOAT(ent, prop->GetOffset()), NET_FLOAT(ent, prop->GetOffset() + 4), NET_FLOAT(ent, prop->GetOffset() + 8));
+			logging::Info("%s [0x%04x] = (%f, %f, %f)", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, prop->GetOffset()), CE_FLOAT(ent, prop->GetOffset() + 4), CE_FLOAT(ent, prop->GetOffset() + 8));
 		break;
 		case SendPropType::DPT_VectorXY:
-			logging::Info("%s [0x%04x] = (%f, %f)", prop->GetName(), prop->GetOffset(), NET_FLOAT(ent, prop->GetOffset()), NET_FLOAT(ent, prop->GetOffset() + 4));
+			logging::Info("%s [0x%04x] = (%f, %f)", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, prop->GetOffset()), CE_FLOAT(ent, prop->GetOffset() + 4));
 		break;
 		}
 
@@ -85,10 +85,10 @@ void CC_DumpVars(const CCommand& args) {
 	if (args.ArgC() < 1) return;
 	if (!atoi(args[1])) return;
 	int idx = atoi(args[1]);
-	IClientEntity* ent = ENTITY(idx);
+	CachedEntity* ent = ENTITY(idx);
 	if (!ent) return;
-	ClientClass* clz = ent->GetClientClass();
-	logging::Info("Entity %i: %s", ent->entindex(), clz->GetName());
+	ClientClass* clz = RAW_ENT(ent)->GetClientClass();
+	logging::Info("Entity %i: %s", ent->m_IDX, clz->GetName());
 	const char* ft = (args.ArgC() > 1 ? args[2] : "");
 	DumpRecvTable(ent, clz->m_pRecvTable, 0, ft);
 }
@@ -100,11 +100,9 @@ void CC_ResetLists(const CCommand& args) {
 
 void CC_DumpPlayers(const CCommand& args) {
 	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
-		IClientEntity* ent = ENTITY(i);
-		if (!ent || ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) continue;
-		player_info_t info;
-		if (!interfaces::engineClient->GetPlayerInfo(i, &info)) continue;
-		logging::Info("[%i] FriendID: %lu ; Name: %s", i, info.friendsID, info.name);
+		CachedEntity* ent = ENTITY(i);
+		if (CE_BAD(ent) || !ent->m_pPlayerInfo) continue;
+		logging::Info("[%i] FriendID: %lu ; Name: %s", i, ent->m_pPlayerInfo->friendsID, ent->m_pPlayerInfo->name);
 	}
 }
 
@@ -208,8 +206,8 @@ void CC_DisonnectVAC(const CCommand& args) {
 void CC_DumpAttribs(const CCommand& args) {
 	if (g_pLocalPlayer->weapon) {
 		for (int i = 0; i < 15; i++) {
-			logging::Info("%i %f", NET_INT(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12),
-					NET_FLOAT(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12 + 4));
+			logging::Info("%i %f", CE_INT(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12),
+					CE_FLOAT(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12 + 4));
 		}
 	}
 }
@@ -245,7 +243,7 @@ Misc::Misc() {
 	c_Disconnect = CreateConCommand(CON_PREFIX "disconnect", CC_Disconnect, "Disconnect");
 	c_DisconnectVAC = CreateConCommand(CON_PREFIX "disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
 	v_bInfoSpam = CreateConVar(CON_PREFIX "info_spam", "0", "Info spam");
-	v_bFakeCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fake crouch");
+	v_bFastCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fast crouch");
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
 }
 
@@ -267,8 +265,8 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 		//ch->SendNetMsg(*(INetMessage*)&setname);
 		//setname.WriteToBuffer(0);
 	}*/
-	if (v_bFakeCrouch->GetBool()) {
-		if (interfaces::gvars->tickcount % 2 == 0) {
+	if (v_bFastCrouch->GetBool()) {
+		if (interfaces::gvars->tickcount % 4 == 0) {
 			cmd->buttons &= ~IN_DUCK;
 		}
 	}
@@ -278,7 +276,7 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 		lastsay++;
 	} else lastsay = 0;
 	if (v_bInfoSpam->GetBool() && (lastsay == 0)) {
-		IClientEntity* ent = ENTITY(curindex++);
+		/*IClientEntity* ent = ENTITY(curindex++);
 		if (curindex >= 64) curindex = 0;
 		//logging::Info("Making string for %i", curindex);
 		if (!ent || ent->IsDormant()) goto breakif;
@@ -291,7 +289,7 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 		if (str) {
 			interfaces::engineClient->ServerCmd(strfmt("say %s", str));
 			lastsay = 1;
-		}
+		}*/
 	}
 	breakif:
 	return true;
@@ -306,22 +304,21 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 		interfaces::baseClient->IN_DeactivateMouse();
 	}*/
 
-		if (g_pLocalPlayer->weapon) {
-			IClientEntity* weapon = g_pLocalPlayer->weapon;
-			AddSideString(colors::white, colors::black, "Weapon: %s [%i]", weapon->GetClientClass()->GetName(), weapon->GetClientClass()->m_ClassID);
-			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", NET_FLOAT(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack));
-			AddSideString(colors::white, colors::black, "nTickBase: %f", (float)(NET_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
+		if (CE_GOOD(g_pLocalPlayer->weapon)) {
+			AddSideString(colors::white, colors::black, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon)->GetClientClass()->GetName(), g_pLocalPlayer->weapon->m_iClassID);
+			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack));
+			AddSideString(colors::white, colors::black, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, colors::black, "CanShoot: %i", CanShoot());
-			AddSideString(colors::white, colors::black, "Decaps: %i", NET_INT(g_pLocalPlayer->entity, netvar.iDecapitations));
-			AddSideString(colors::white, colors::black, "Damage: %f", NET_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage));
-			AddSideString(colors::white, colors::black, "DefIndex: %i", NET_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex));
+			AddSideString(colors::white, colors::black, "Decaps: %i", CE_INT(g_pLocalPlayer->entity, netvar.iDecapitations));
+			AddSideString(colors::white, colors::black, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage));
+			AddSideString(colors::white, colors::black, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex));
 			AddSideString(colors::white, colors::black, "GlobalVars: 0x%08x", interfaces::gvars);
 			AddSideString(colors::white, colors::black, "realtime: %f", interfaces::gvars->realtime);
 			AddSideString(colors::white, colors::black, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, colors::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - NET_FLOAT(g_pLocalPlayer->weapon, netvar.flLastFireTime)) > 0.95);
+			AddSideString(colors::white, colors::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon, netvar.flLastFireTime)) > 0.95);
 			AddSideString(colors::white, colors::black, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
 			AddSideString(colors::white, colors::black, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
-			AddSideString(colors::white, colors::black, "ServerTime: %f", NET_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
+			AddSideString(colors::white, colors::black, "ServerTime: %f", CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, colors::black, "CurTime: %f", interfaces::gvars->curtime);
 			AddSideString(colors::white, colors::black, "FrameCount: %i", interfaces::gvars->framecount);
 			float speed, gravity;

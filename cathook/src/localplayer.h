@@ -11,7 +11,7 @@
 #include "fixsdk.h"
 #include <mathlib/vector.h>
 
-class IClientEntity;
+class CachedEntity;
 
 class LocalPlayer {
 public:

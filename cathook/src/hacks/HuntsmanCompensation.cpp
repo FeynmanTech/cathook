@@ -28,7 +28,7 @@ bool HuntsmanCompensation::CreateMove(void*, float, CUserCmd* cmd) {
 	if (g_pLocalPlayer->life_state) return true;
 	static trace_t* view_trace = new trace_t();
 	Ray_t ray;
-	trace::g_pFilterDefault->SetSelf(g_pLocalPlayer->entity);
+	trace::g_pFilterDefault->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	Vector forward;
 	float sp, sy, cp, cy;
 	sy = sinf(DEG2RAD(cmd->viewangles[1])); // yaw

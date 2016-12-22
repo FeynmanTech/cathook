@@ -27,14 +27,12 @@ bool SpyAlert::CreateMove(void*, float, CUserCmd* cmd) {
 void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
 	if (!v_bEnabled->GetBool()) return;
 	for (int i = 0; i < HIGHEST_ENTITY && i < 64; i++) {
-		IClientEntity* ent = ENTITY(i);
-		if (!ent) continue;
-		if (NET_BYTE(ent, netvar.iLifeState)) continue;
-		if (NET_INT(ent, netvar.iClass) != tf_class::tf_spy) continue;
-		if (NET_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) continue;
-		Vector spypos = ent->GetAbsOrigin();
-		Vector mypos = g_pLocalPlayer->v_Origin;
-		float distance = spypos.DistTo(mypos);
+		CachedEntity* ent = ENTITY(i);
+		if (CE_BAD(ent)) continue;
+		if (CE_BYTE(ent, netvar.iLifeState)) continue;
+		if (CE_INT(ent, netvar.iClass) != tf_class::tf_spy) continue;
+		if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) continue;
+		float distance = ent->m_flDistance;
 		if (distance < this->v_flBackstabDistance->GetFloat()) {
 			AddCenterString(colors::yellow, colors::red, "BACKSTAB WARNING! %im", (int)(distance / 64 * 1.22f));
 		} else if (distance < this->v_flWarningDistance->GetFloat()) {

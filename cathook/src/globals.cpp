@@ -11,7 +11,7 @@
 void ThirdpersonCallback(IConVar* var, const char* pOldValue, float flOldValue) {
 	if (g_Settings.bThirdperson && !g_Settings.bThirdperson->GetBool()) {
 		if (g_pLocalPlayer && g_pLocalPlayer->entity)
-			NET_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 0;
+			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 0;
 	}
 }
 
@@ -28,6 +28,7 @@ void GlobalSettings::Init() {
 	this->bShowLogo = CREATE_CV(CV_SWITCH, "logo", "1", "Show logo");
 	this->bShowAntiAim = CREATE_CV(CV_SWITCH, "thirdperson_angles", "1", "Real angles in thirdperson");
 	this->bThirdperson = CREATE_CV(CV_SWITCH, "thirdperson", "0", "Thirdperson");
+	this->bNoVisuals = CREATE_CV(CV_SWITCH, "novisuals", "0", "Disable visuals");
 	this->bThirdperson->m_pConVar->InstallChangeCallback(ThirdpersonCallback);
 }
 

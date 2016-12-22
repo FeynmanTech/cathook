@@ -16,37 +16,6 @@
 #define CREATE_MOVE(x) \
 	g_ph##x->CreateMove(thisptr, inputSample, cmd)
 
-#define DEBUG_SEGV true
-
-#if DEBUG_SEGV == true
-
-#define SEGV_BEGIN \
-	try {
-
-#define SEGV_END \
-	} catch (...) { \
-		logging::Info("SEGV/FPE occured! %s in %s:%d", __func__, __FILE__, __LINE__); \
-	}
-
-#define SEGV_END_INFO(x) \
-	} catch (...) { \
-		logging::Info("SEGV/FPE occured! (%s)", x); \
-	}
-
-#define SAFE_CALL(x) \
-	SEGV_BEGIN \
-	x; \
-	SEGV_END_INFO(#x)
-
-#else
-
-#define SEGV_BEGIN
-#define SEGV_END
-#define SEGV_END_INFO(x)
-#define SAFE_CALL(x) x
-
-#endif
-
 class IHack;
 class CUserCmd;
 class CViewSetup;

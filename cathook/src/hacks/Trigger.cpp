@@ -46,7 +46,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	if (!local) return;
 	if (NET_BYTE(local, entityvars.iLifeState)) return;*/
 	Ray_t ray;
-	filter->SetSelf(g_pLocalPlayer->entity);
+	filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	eye = g_pLocalPlayer->v_Eye;
 	Vector forward;
 	float sp, sy, cp, cy;
@@ -62,10 +62,12 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	forward = forward * 8192.0f + eye;
 	ray.Init(eye, forward);
 	interfaces::trace->TraceRay(ray, 0x4200400B, filter, enemy_trace);
-	IClientEntity* entity = (IClientEntity*)(enemy_trace->m_pEnt);
-	if (!entity) return true;
+	IClientEntity* raw_entity = (IClientEntity*)(enemy_trace->m_pEnt);
+	if (!raw_entity) return true;
+	CachedEntity* entity = ENTITY(raw_entity->entindex());
+
 	bool isPlayer = false;
-	switch (entity->GetClientClass()->m_ClassID) {
+	switch (entity->m_iClassID) {
 	case ClassID::CTFPlayer:
 		isPlayer = true;
 	break;
@@ -79,13 +81,11 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	default:
 	return true;
 	};
-	int team = g_pLocalPlayer->team;
-	int eteam = NET_INT(entity, netvar.iTeamNum);
-	if (team == eteam) return true;
-	Vector enemy_pos = entity->GetAbsOrigin();
-	Vector my_pos = g_pLocalPlayer->entity->GetAbsOrigin();
+	if (!entity->m_bEnemy) return true;
+	Vector enemy_pos = entity->m_vecOrigin;
+	Vector my_pos = g_pLocalPlayer->entity->m_vecOrigin;
 	if (v_iMinRange->GetInt() > 0) {
-		if ((enemy_pos - my_pos).Length() > v_iMinRange->GetInt()) return true;
+		if (entity->m_flDistance > v_iMinRange->GetInt()) return true;
 	}
 	if (!isPlayer) {
 		cmd->buttons |= IN_ATTACK;
@@ -96,7 +96,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	if (IsPlayerInvulnerable(entity)) return true;
 	if (!this->v_bIgnoreCloak->GetBool() &&
 		(IsPlayerInvisible(entity))) return true;
-	int health = NET_INT(entity, netvar.iHealth);
+	int health = CE_INT(entity, netvar.iHealth);
 	bool bodyshot = false;
 	if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 		// If sniper..
@@ -105,15 +105,15 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		}
 		// If we need charge...
 		if (!bodyshot && this->v_bBodyshot->GetBool()) {
-			float bdmg = NET_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage);
-			if (CanHeadshot(g_pLocalPlayer->entity) && (bdmg) >= health) {
+			float bdmg = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage);
+			if (CanHeadshot() && (bdmg) >= health) {
 				bodyshot = true;
 			}
 		}
 
 	}
 	if (!bodyshot && (g_pLocalPlayer->clazz == tf_class::tf_sniper) && this->v_bZoomedOnly->GetBool() &&
-		!((g_pLocalPlayer->bZoomed) && CanHeadshot(g_pLocalPlayer->entity))) {
+		!((g_pLocalPlayer->bZoomed) && CanHeadshot())) {
 		return true;
 	}
 	//IClientEntity* weapon;

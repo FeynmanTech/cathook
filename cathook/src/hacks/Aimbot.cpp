@@ -146,7 +146,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	}
 
 	if (IsAmbassador(g_pLocalPlayer->weapon)) { // TODO AmbassadorCanHeadshot()
-		if ((interfaces::gvars->curtime - NET_FLOAT(g_pLocalPlayer->weapon, netvar.flLastFireTime)) <= 1.0) {
+		if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon, netvar.flLastFireTime)) <= 1.0) {
 			return true;
 		}
 	}
@@ -156,16 +156,14 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (this->v_bTriggerMode->GetBool() ) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
 	}
-	IClientEntity* player = g_pLocalPlayer->entity;
-	if (!player) return true;
-	if (player->IsDormant()) return true;
+
 	m_iHitbox = this->v_eHitbox->GetInt();
 	if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 7;
 	if (g_pLocalPlayer->weapon && this->v_bAutoHitbox->GetBool()) {
-		switch (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID) {
+		switch (g_pLocalPlayer->weapon->m_iClassID) {
 		case ClassID::CTFSniperRifle:
 		case ClassID::CTFSniperRifleDecap:
-			if (!CanHeadshot(g_pLocalPlayer->entity)) {
+			if (!CanHeadshot()) {
 				if (this->v_bZoomedOnly->GetBool()) return true;
 			} else {
 				m_iHitbox = 0;
@@ -189,29 +187,25 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if (this->v_bZoomedOnly->GetBool()) {
 		// TODO IsSniperRifle()
-		if (g_pLocalPlayer->weapon) {
-			if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifle ||
-				g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFSniperRifleDecap) {
-				if (!CanHeadshot(g_pLocalPlayer->entity)) return true;
-			}
+		if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFSniperRifle ||
+			g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFSniperRifleDecap) {
+			if (!CanHeadshot()) return true;
 		}
 	}
-	if (g_pLocalPlayer->weapon) {
-		if (g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == 210) return true;
-	}
+
+	if (g_pLocalPlayer->weapon->m_iClassID == 210) return true;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_flProjGravity));
 	// TODO priority modes (FOV, Smart, Distance, etc)
-	IClientEntity* target_highest = 0;
+	CachedEntity* target_highest = 0;
 	float target_highest_score = -256;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
-		IClientEntity* ent = ENTITY(i);
-		if (ent == 0) continue;
-		if (!(IsPlayer(ent) || IsBuilding(ent))) continue;
+		CachedEntity* ent = ENTITY(i);
+		if (CE_BAD(ent)) continue;
 		if (ShouldTarget(ent)) {
-			if (GetWeaponMode(player) == weaponmode::weapon_melee || this->v_ePriorityMode->GetInt() == 2) {
+			if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee || this->v_ePriorityMode->GetInt() == 2) {
 				Vector result;
-				if (IsBuilding(ent)) {
+				if (ent->m_Type == ENTITY_BUILDING) {
 					result = GetBuildingPosition(ent);
 				} else {
 					GetHitbox(ent, m_iHitbox, result);
@@ -232,7 +226,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 				} break;
 				case 1: {
 					Vector result;
-					if (IsBuilding(ent)) {
+					if (ent->m_Type == ENTITY_BUILDING) {
 						result = GetBuildingPosition(ent);
 					} else {
 						GetHitbox(ent, m_iHitbox, result);
@@ -245,10 +239,10 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 				} break;
 				case 3: {
 					float scr;
-					if (IsBuilding(ent)) {
-						scr = 450.0f - NET_INT(ent, netvar.iBuildingHealth);
+					if (ent->m_Type == ENTITY_BUILDING) {
+						scr = 450.0f - CE_INT(ent, netvar.iBuildingHealth);
 					} else {
-						scr = 450.0f - NET_INT(ent, netvar.iHealth);
+						scr = 450.0f - CE_INT(ent, netvar.iHealth);
 					}
 					if (scr > target_highest_score) {
 						target_highest_score = scr;
@@ -260,14 +254,14 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 	if (target_highest != 0) {
-		this->m_iLastTarget = target_highest->entindex();
+		this->m_iLastTarget = target_highest->m_IDX;
 		Aim(target_highest, cmd);
-		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun)
+		if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFMinigun)
 			m_nMinigunFixTicks = 40;
 	}
-	if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFMinigun &&
+	if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFMinigun &&
 			target_highest == 0 &&
-			ENTITY(m_iLastTarget) &&
+			IDX_GOOD(m_iLastTarget) &&
 			m_nMinigunFixTicks) {
 		Aim(ENTITY(m_iLastTarget), cmd);
 	}
@@ -276,55 +270,35 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 	if (!v_bEnabled->GetBool()) return;
-	if (this->m_iLastTarget == -1) return;
-	IClientEntity* ent = ENTITY(this->m_iLastTarget);
-	if (!ent) return;
-	if (IsPlayer(ent)) {
-		int clazz = NET_INT(ent, netvar.iClass);
+	if (IDX_BAD(m_iLastTarget)) return;
+	CachedEntity* ent = ENTITY(this->m_iLastTarget);
+	if (CE_BAD(ent)) return;
+	if (ent->m_Type == ENTITY_PLAYER) {
+		int clazz = CE_INT(ent, netvar.iClass);
 		if (clazz < 0 || clazz > 9) return;
-		player_info_t info;
-		if (!interfaces::engineClient->GetPlayerInfo(this->m_iLastTarget, &info)) return;
-		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", NET_INT(ent, netvar.iHealth), tfclasses[clazz], info.name);
-	} else if (IsBuilding(ent)) {
-		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", NET_INT(ent, netvar.iBuildingHealth), NET_INT(ent, netvar.iUpgradeLevel), GetBuildingName(ent));
+		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", CE_INT(ent, netvar.iHealth), tfclasses[clazz], ent->m_pPlayerInfo->name);
+	} else if (ent->m_Type == ENTITY_BUILDING) {
+		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", CE_INT(ent, netvar.iBuildingHealth), CE_INT(ent, netvar.iUpgradeLevel), GetBuildingName(ent));
 	}
 }
 
-bool Aimbot::ShouldTarget(IClientEntity* entity) {
-	//logging::Info("Should target?");
-	if (!entity) return false;
-	if (entity->IsDormant()) return false;
-	if (IsPlayer(entity)) {
-		if (g_Settings.bIgnoreTaunting->GetBool() && (NET_INT(entity, netvar.iCond) & cond::taunting)) return false;
-		if (Developer(entity)) return false;
-		if (gEntityCache.GetEntity(entity->entindex())->m_lSeenTicks < this->v_iSeenDelay->GetInt()) return false;
+bool Aimbot::ShouldTarget(CachedEntity* entity) {
+	// Just assuming CE is good
+	if (entity->m_Type == ENTITY_PLAYER) {
+		if (g_Settings.bIgnoreTaunting->GetBool() && (CE_INT(entity, netvar.iCond) & cond::taunting)) return false;
+		if (Developer(entity)) return false; // TODO developer relation
+		if (entity->m_lSeenTicks < (unsigned)this->v_iSeenDelay->GetInt()) return false;
 		if (IsPlayerInvulnerable(entity)) return false;
-		int team = NET_INT(entity, netvar.iTeamNum);
-		int local = interfaces::engineClient->GetLocalPlayer();
-		IClientEntity* player = ENTITY(local);
-		char life_state = NET_BYTE(entity, netvar.iLifeState);
-		if (life_state) return false;
-		if (!player) return false;
+		if (!entity->m_bAlivePlayer) return false;
 		if (v_bRespectCloak->GetBool() && IsPlayerInvisible(entity)) return false;
-		int health = NET_INT(entity, netvar.iHealth);
-		/*if (this->v_bCharge->GetBool() && (NET_INT(player, eoffsets.iClass) == 2)) {
-			int rifleHandle = NET_INT(player, eoffsets.hActiveWeapon);
-			IClientEntity* rifle = ENTITY(rifleHandle & 0xFFF);
-			if (!rifle) return false;
-			float bdmg = NET_FLOAT(rifle, eoffsets.flChargedDamage);
-			if (health > 150 && (health > (150 + bdmg) || bdmg < 15.0f)) return false;
-		}*/
-		int team_my = NET_INT(player, netvar.iTeamNum);
-		if (team == team_my) return false;
-		Vector enemy_pos = entity->GetAbsOrigin();
-		Vector my_pos = player->GetAbsOrigin();
+		if (!entity->m_bEnemy) return false;
 		if (v_iMaxRange->GetInt() > 0) {
-			if ((enemy_pos - my_pos).Length() > v_iMaxRange->GetInt()) return false;
+			if (entity->m_flDistance > v_iMaxRange->GetInt()) return false;
 		}
 		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
-			if ((enemy_pos - my_pos).Length() > 95) return false;
+			if (entity->m_flDistance > 95) return false;
 		}
-		int econd = NET_INT(entity, netvar.iCond1);
+		int econd = CE_INT(entity, netvar.iCond1);
 		if ((econd & cond_ex::vacc_bullet)) return false;
 		if (GetRelation(entity) == relation::FRIEND) return false;
 		Vector resultAim;
@@ -341,16 +315,15 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 		}
 		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return false;
 		return true;
-	} else if (IsBuilding(entity)) {
+	} else if (entity->m_Type == ENTITY_BUILDING) {
 		if (!v_bAimBuildings->GetBool()) return false;
-		int team = NET_INT(entity, netvar.iTeamNum);
+		int team = CE_INT(entity, netvar.iTeamNum);
 		if (team == g_pLocalPlayer->team) return false;
-		Vector enemy_pos = entity->GetAbsOrigin();
 		if (v_iMaxRange->GetInt() > 0) {
-			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > v_iMaxRange->GetInt()) return false;
+			if (entity->m_flDistance > v_iMaxRange->GetInt()) return false;
 		}
 		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
-			if ((enemy_pos - g_pLocalPlayer->v_Origin).Length() > 95) return false;
+			if (entity->m_flDistance > 95) return false;
 		}
 		Vector resultAim;
 		// TODO fix proj buildings
@@ -372,18 +345,19 @@ bool Aimbot::ShouldTarget(IClientEntity* entity) {
 	return false;
 }
 
-bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
+// TODO Vector objects
+bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	//logging::Info("Aiming!");
 	Vector hit;
 	Vector angles;
 	if (!entity) return false;
-	if (IsPlayer(entity)) {
+	if (entity->m_Type == ENTITY_PLAYER) {
 		//logging::Info("A");
 		GetHitbox(entity, m_iHitbox, hit);
 		//logging::Info("B");
 		if (this->v_bPrediction->GetBool()) SimpleLatencyPrediction(entity, m_iHitbox);
 		//logging::Info("C");
-	} else if (IsBuilding(entity)) {
+	} else if (entity->m_Type == ENTITY_BUILDING) {
 		hit = GetBuildingPosition(entity);
 	}
 	if (v_bProjectileAimbot->GetBool()) {
@@ -394,7 +368,6 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		}
 	}
 	//logging::Info("ayyming!");
-	IClientEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
 	Vector tr = (hit - g_pLocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);
 	bool smoothed = false;
@@ -415,17 +388,15 @@ bool Aimbot::Aim(IClientEntity* entity, CUserCmd* cmd) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 			if (g_pLocalPlayer->bZoomed) {
 				if (this->v_iAutoShootCharge->GetBool()) {
-					int rifleHandle = NET_INT(local, netvar.hActiveWeapon);
-					IClientEntity* rifle = ENTITY(rifleHandle & 0xFFF);
-					float bdmg = NET_FLOAT(rifle, netvar.flChargedDamage);
+					float bdmg = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage);
 					if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
 				} else {
-					if (!CanHeadshot(g_pLocalPlayer->entity)) return true;
+					if (!CanHeadshot()) return true;
 				}
 			}
 		}
-		if (g_pLocalPlayer->weapon && g_pLocalPlayer->weapon->GetClientClass()->m_ClassID == ClassID::CTFCompoundBow) {
-			float begincharge = NET_FLOAT(g_pLocalPlayer->weapon, netvar.flChargeBeginTime);
+		if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFCompoundBow) {
+			float begincharge = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargeBeginTime);
 			float charge = 0;
 			if (begincharge != 0) {
 				charge = interfaces::gvars->curtime - begincharge;

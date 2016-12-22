@@ -49,8 +49,8 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	CachedEntity* closest = 0;
 	float closest_dist = 0.0f;
 
-	for (int i = 0; i < gEntityCache.m_nMax; i++) {
-		CachedEntity* ent = gEntityCache.GetEntity(i);
+	for (int i = 0; i < HIGHEST_ENTITY; i++) {
+		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
 		if (!ShouldReflect(ent)) continue;
 		//if (ent->Var<Vector>(eoffsets.vVelocity).IsZero(1.0f)) continue;

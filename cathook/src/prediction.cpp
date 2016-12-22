@@ -10,24 +10,24 @@
 #include "common.h"
 #include "sdk.h"
 
-Vector SimpleLatencyPrediction(IClientEntity* ent, int hb) {
-	//logging::Info("Simple prediction!");
+// TODO there is a Vector() object created each call.
+
+Vector SimpleLatencyPrediction(CachedEntity* ent, int hb) {
 	if (!ent) return Vector();
 	Vector result;
 	GetHitbox(ent, hb, result);
 	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
 			interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
-	result += NET_VECTOR(ent, netvar.vVelocity) * latency;
-	//logging::Info("Returning!");
+	result += CE_VECTOR(ent, netvar.vVelocity) * latency;
 	return result;
 }
 
-Vector ProjectilePrediction(IClientEntity* ent, int hb, float speed, float gravitymod) {
+Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravitymod) {
 	if (!ent) return Vector();
-	Vector result = ent->GetAbsOrigin();
+	Vector result = ent->m_vecOrigin;
 	float dtg = DistanceToGround(result);
 	GetHitbox(ent, hb, result);
-	Vector vel = NET_VECTOR(ent, netvar.vVelocity);
+	Vector vel = CE_VECTOR(ent, netvar.vVelocity);
 	// TODO ProjAim
 	/*float tt = g_pLocalPlayer->v_Eye.DistTo(result) + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
 		interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING) - 0.20;
@@ -42,7 +42,7 @@ Vector ProjectilePrediction(IClientEntity* ent, int hb, float speed, float gravi
 	float ttt = dtt / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
 		interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
 	float oz = result.z;
-	int flags = NET_INT(ent, netvar.iFlags);
+	int flags = CE_INT(ent, netvar.iFlags);
 	bool ground = (flags & (1 << 0));
 	if (!ground) result.z -= ttt * ttt * 400;
 	result += vel * ttt;

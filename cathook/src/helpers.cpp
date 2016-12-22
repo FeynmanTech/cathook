@@ -67,7 +67,7 @@ ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, con
 
 const char* GetModelPath(CachedEntity* entity) {
 	if (!entity) return "NULL";
-	const model_t* model = entity->m_pEntity->GetModel();
+	const model_t* model = RAW_ENT(entity)->GetModel();
 	return interfaces::model->GetModelName(model);
 }
 
@@ -87,7 +87,7 @@ const char* GetBuildingName(CachedEntity* ent) {
 }
 
 /* Takes CBaseAnimating entity as input */
-item_type GetItemType(IClientEntity* entity) {
+item_type GetItemType(CachedEntity* entity) {
 	if (entity == 0) return item_type::item_null;
 	const char* path = GetModelPath(entity); /* SDK function */
 	size_t length = strlen(path);
@@ -171,7 +171,8 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 }
 
 bool GetHitbox(CachedEntity* entity, int hb, Vector& out) {
-	const model_t* model = entity->m_pEntity->GetModel();
+	if (CE_BAD(entity)) return false;
+	const model_t* model = RAW_ENT(entity)->GetModel();
 	if (!model) return false;
 	studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);
 	if (!shdr) return false;
@@ -180,15 +181,19 @@ bool GetHitbox(CachedEntity* entity, int hb, Vector& out) {
 	mstudiobbox_t* box = set->pHitbox(hb);
 	if (!box) return false;
 	if (box->bone < 0 || box->bone >= 128) return 5;
-	float *min = new float[3](),
-		  *max = new float[3]();
-	VectorTransform(box->bbmin, entity->GetBones()[box->bone], *(Vector*)min);
-	VectorTransform(box->bbmax, entity->GetBones()[box->bone], *(Vector*)max);
+	//float *min = new float[3],
+	//	  *max = new float[3];
+	Vector min, max;
+	SEGV_BEGIN
+	if (entity->GetBones() == 0) logging::Info("no bones!");
+	VectorTransform(box->bbmin, entity->GetBones()[box->bone], min);
+	VectorTransform(box->bbmax, entity->GetBones()[box->bone], max);
+	SEGV_END_INFO("VectorTransform()-ing with unsafe Vector casting");
 	out.x = (min[0] + max[0]) / 2;
 	out.x = (min[1] + max[1]) / 2;
 	out.x = (min[2] + max[2]) / 2;
-	delete[] min;
-	delete[] max;
+	//delete[] min;
+	//delete[] max;
 	return true;
 }
 
@@ -263,20 +268,21 @@ bool IsEntityVisible(CachedEntity* entity, int hb) {
 	}
 	trace_t trace_visible;
 	Ray_t ray;
-	IClientEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
-	trace_filter->SetSelf(local);
+	CachedEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
+	trace_filter->SetSelf(RAW_ENT(local));
 	Vector hit;
 	if (hb == -1) {
 		hit = entity->m_vecOrigin;
 	} else {
-		if (!GetHitbox(entity, hb, hit)) {
-			return false;
-		}
+		SAFE_CALL( \
+				if (!GetHitbox(entity, hb, hit)) { \
+					return false; \
+		});
 	}
-	ray.Init(local->GetAbsOrigin() + NET_VECTOR(local, netvar.vViewOffset), hit);
+	ray.Init(local->m_vecOrigin + g_pLocalPlayer->v_ViewOffset, hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
 	if (trace_visible.m_pEnt) {
-		return ((IClientEntity*)trace_visible.m_pEnt) == entity->m_pEntity;
+		return ((IClientEntity*)trace_visible.m_pEnt) == RAW_ENT(entity);
 	}
 	return false;
 }
@@ -313,10 +319,10 @@ bool IsBuildingVisible(CachedEntity* ent) {
 	}
 	trace_t trace_visible;
 	Ray_t ray;
-	trace_filter->SetSelf(g_pLocalPlayer->entity);
+	trace_filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	ray.Init(g_pLocalPlayer->v_Eye, GetBuildingPosition(ent));
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
-	return (IClientEntity*)trace_visible.m_pEnt == ent->m_pEntity;
+	return (IClientEntity*)trace_visible.m_pEnt == RAW_ENT(ent);
 }
 
 void fVectorAngles(Vector &forward, Vector &angles) {
@@ -399,13 +405,13 @@ void Patch(void* address, void* patch, size_t length) {
 
 bool IsProjectileCrit(CachedEntity* ent) {
 	if (ent->m_bGrenadeProjectile)
-		return NET_BYTE(ent, netvar.Grenade_bCritical);
-	return NET_BYTE(ent, netvar.Rocket_bCritical);
+		return CE_BYTE(ent, netvar.Grenade_bCritical);
+	return CE_BYTE(ent, netvar.Rocket_bCritical);
 }
 
 weaponmode GetWeaponMode(CachedEntity* player) {
 	int weapon_handle = CE_INT(player, netvar.hActiveWeapon);
-	CachedEntity* weapon = ENTITY(weapon_handle & 0xFFF);
+	CachedEntity* weapon = (weapon_handle & 0xFFF < HIGHEST_ENTITY ? ENTITY(weapon_handle & 0xFFF) : 0);
 	if (CE_BAD(weapon)) return weaponmode::weapon_invalid;
 	if (IsMeleeWeapon(weapon)) return weaponmode::weapon_melee;
 	switch (weapon->m_iClassID) {
@@ -451,13 +457,13 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 	break;
 	case ClassID::CTFGrenadeLauncher:
 		// TODO offset (GetProjectileSpeed)
-		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(weapon);
+		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(RAW_ENT(weapon));
 		// TODO Wrong grenade launcher gravity
 		rgrav = 0.5f;
 	break;
 	case ClassID::CTFCompoundBow: {
-		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(weapon);
-		rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(weapon);
+		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(RAW_ENT(weapon));
+		rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(RAW_ENT(weapon));
 	} break;
 	case ClassID::CTFBat_Wood:
 		rspeed = 3000.0f;
@@ -511,7 +517,7 @@ bool IsVectorVisible(Vector origin, Vector target) {
 	}
 	trace_t trace_visible;
 	Ray_t ray;
-	vec_filter->SetSelf(g_pLocalPlayer->entity);
+	vec_filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	ray.Init(origin, target);
 	interfaces::trace->TraceRay(ray, 0x4200400B, vec_filter, &trace_visible);
 	float dist2 = origin.DistToSqr(trace_visible.endpos);
@@ -569,10 +575,6 @@ bool IsAmbassador(CachedEntity* entity) {
 	if (entity->m_iClassID != ClassID::CTFRevolver) return false;
 	int defidx = CE_INT(entity, netvar.iItemDefinitionIndex);
 	return (defidx == 61 || defidx == 1006);
-}
-
-bool CheckCE(CachedEntity* entity) {
-	return (entity && entity->m_pEntity && !entity->m_pEntity->IsDormant());
 }
 
 // F1 c&p
@@ -638,12 +640,11 @@ void AimAt(Vector origin, Vector target, CUserCmd* cmd) {
 	cmd->viewangles = angles;
 }
 
-/*void AimAtHitbox(IClientEntity* ent, int hitbox, CUserCmd* cmd) {
-	Vector r = ent->GetAbsOrigin();
+void AimAtHitbox(CachedEntity* ent, int hitbox, CUserCmd* cmd) {
+	Vector r = ent->m_vecOrigin;
 	GetHitbox(ent, hitbox, r);
 	AimAt(g_pLocalPlayer->v_Eye, r, cmd);
-	//logging::Info("Aiming at %f %f %f", r.x, r.y, r.z);
-}*/
+}
 
 bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
 	if (!trace::g_pFilterPenetration) {
@@ -651,19 +652,18 @@ bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
 	}
 	trace_t trace_visible;
 	Ray_t ray;
-	IClientEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
-	trace::g_pFilterPenetration->SetSelf(local);
+	trace::g_pFilterPenetration->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	trace::g_pFilterPenetration->Reset();
 	Vector hit;
 	int ret = GetHitbox(entity, hb, hit);
 	if (ret) {
 		return false;
 	}
-	ray.Init(local->GetAbsOrigin() + NET_VECTOR(local, netvar.vViewOffset), hit);
+	ray.Init(g_pLocalPlayer->v_Origin + g_pLocalPlayer->v_ViewOffset, hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterPenetration, &trace_visible);
 	bool s = false;
 	if (trace_visible.m_pEnt) {
-		s = ((IClientEntity*)trace_visible.m_pEnt) == entity;
+		s = ((IClientEntity*)trace_visible.m_pEnt) == RAW_ENT(entity);
 	}
 	if (!s) return false;
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterDefault, &trace_visible);
@@ -671,7 +671,7 @@ bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
 		IClientEntity* ent = (IClientEntity*)trace_visible.m_pEnt;
 		if (ent) {
 			if (ent->GetClientClass()->m_ClassID == ClassID::CTFPlayer) {
-				if (ent == entity) return false;
+				if (ent == RAW_ENT(entity)) return false;
 				if (trace_visible.hitbox >= 0) {
 					return true;
 				}
