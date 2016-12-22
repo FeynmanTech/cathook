@@ -55,7 +55,7 @@ void GUI_List::AddElement(IGUIListElement* element) {
 		element->m_pPrev = current;
 		element->m_nIndex = m_nElementCount++;
 		element->m_pParentList = this;
-		m_pLast = current;
+		m_pLast = element;
 	}
 }
 

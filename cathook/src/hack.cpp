@@ -382,9 +382,9 @@ void hack::Initialize() {
 	interfaces::CreateInterfaces();
 	logging::Info("Interfaces created!");
 	logging::Info("APPID: %i", interfaces::engineClient->GetAppID());
-	//logging::Info("Dumping NetVars...");
-	//CDumper dumper;
-	//dumper.SaveDump();
+	logging::Info("Dumping NetVars...");
+	CDumper dumper;
+	dumper.SaveDump();
 	logging::Info("Initializing surface...");
 	draw::Initialize();
 	logging::Info("Colorizing...");

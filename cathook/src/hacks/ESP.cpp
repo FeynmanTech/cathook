@@ -64,7 +64,7 @@ ESP::ESP() {
 	this->v_iShowArrows = CREATE_CV(proj, "esp_proj_arrows", "1", "Arrows");
 	this->v_iShowStickies = CREATE_CV(proj, "esp_proj_stickies", "1", "Stickies");
 	this->v_iShowPipes = CREATE_CV(proj, "esp_proj_pipes", "1", "Pipes");
-	this->v_bOnlyEnemyProjectiles = CREATE_CV(CV_SWITCH, "esp_proj_enemy", "Only enemy projectiles", "0");
+	this->v_bOnlyEnemyProjectiles = CREATE_CV(CV_SWITCH, "esp_proj_enemy", "0", "Only enemy projectiles	");
 	this->v_bProjectileESP = CREATE_CV(CV_SWITCH, "esp_proj", "1", "Projectile ESP");
 }
 
