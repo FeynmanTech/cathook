@@ -18,6 +18,7 @@ CachedEntity::CachedEntity() {
 	m_pEntity = nullptr;
 	m_Strings = new ESPStringCompound[MAX_STRINGS]();
 	m_nESPStrings = 0;
+	m_Bones = 0;
 }
 
 CachedEntity::~CachedEntity() {
@@ -44,6 +45,10 @@ void CachedEntity::Update(int idx) {
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
 
 	m_bGrenadeProjectile = false;
+	if (m_Bones) {
+		delete [] m_Bones;
+		m_Bones = 0;
+	}
 	m_bBonesSetup = false;
 
 	switch (m_iClassID) {
@@ -78,6 +83,19 @@ void CachedEntity::Update(int idx) {
 		m_flDistance = (g_pLocalPlayer->v_Origin.DistTo(m_vecOrigin));
 	}
 	m_bAlivePlayer = false;
+
+	// TODO temporary!
+	/*m_bCritProjectile = false;
+	m_bIsVisible = false;
+	m_iTeam = 0;
+	m_bEnemy = false;
+	m_bAlivePlayer = false;
+	m_pPlayerInfo = 0;
+	m_iHealth = 0;
+	m_iMaxHealth = 0;
+	m_lLastSeen = 0;
+	m_lSeenTicks = 0;*/
+
 	if (m_Type == EntityType::ENTITY_PROJECTILE) {
 		m_bCritProjectile = IsProjectileCrit(this);
 		m_bIsVisible = IsEntityVisible(this, -1);
@@ -117,7 +135,7 @@ void CachedEntity::Update(int idx) {
 		}
 	}
 
-	SEGV_END_INFO(strfmt("Updating entity %i", m_IDX))
+	SEGV_END_INFO("Updating entity")
 }
 
 void CachedEntity::AddESPString(Color color, Color background, const char* fmt, ...) {

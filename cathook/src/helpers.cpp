@@ -185,13 +185,12 @@ bool GetHitbox(CachedEntity* entity, int hb, Vector& out) {
 	//	  *max = new float[3];
 	Vector min, max;
 	SEGV_BEGIN
-	if (entity->GetBones() == 0) logging::Info("no bones!");
 	VectorTransform(box->bbmin, entity->GetBones()[box->bone], min);
 	VectorTransform(box->bbmax, entity->GetBones()[box->bone], max);
 	SEGV_END_INFO("VectorTransform()-ing with unsafe Vector casting");
 	out.x = (min[0] + max[0]) / 2;
-	out.x = (min[1] + max[1]) / 2;
-	out.x = (min[2] + max[2]) / 2;
+	out.y = (min[1] + max[1]) / 2;
+	out.z = (min[2] + max[2]) / 2;
 	//delete[] min;
 	//delete[] max;
 	return true;
@@ -282,7 +281,7 @@ bool IsEntityVisible(CachedEntity* entity, int hb) {
 	ray.Init(local->m_vecOrigin + g_pLocalPlayer->v_ViewOffset, hit);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
 	if (trace_visible.m_pEnt) {
-		return ((IClientEntity*)trace_visible.m_pEnt) == RAW_ENT(entity);
+		return (((IClientEntity*)trace_visible.m_pEnt)->entindex()) == entity->m_IDX;
 	}
 	return false;
 }
@@ -411,7 +410,11 @@ bool IsProjectileCrit(CachedEntity* ent) {
 
 weaponmode GetWeaponMode(CachedEntity* player) {
 	int weapon_handle = CE_INT(player, netvar.hActiveWeapon);
-	CachedEntity* weapon = (weapon_handle & 0xFFF < HIGHEST_ENTITY ? ENTITY(weapon_handle & 0xFFF) : 0);
+	if (IDX_BAD((weapon_handle & 0xFFF))) {
+		logging::Info("IDX_BAD: %i", weapon_handle & 0xFFF);
+		return weaponmode::weapon_invalid;
+	}
+	CachedEntity* weapon = (ENTITY(weapon_handle & 0xFFF));
 	if (CE_BAD(weapon)) return weaponmode::weapon_invalid;
 	if (IsMeleeWeapon(weapon)) return weaponmode::weapon_melee;
 	switch (weapon->m_iClassID) {

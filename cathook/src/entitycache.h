@@ -14,7 +14,7 @@
 
 struct matrix3x4_t;
 
-#define ENTITY_CACHE_PROFILER false
+#define ENTITY_CACHE_PROFILER true
 
 class IClientEntity;
 class Color;
@@ -75,13 +75,14 @@ public:
 	// Entity fields start here.
 
 	EntityType m_Type;
-	Vector m_vecOrigin;
 
 	int m_iClassID;
 	float m_flDistance;
 
 	bool m_bCritProjectile;
 	bool m_bGrenadeProjectile;
+
+	Vector m_vecOrigin;
 
 	int  m_iTeam;
 	bool m_bAlivePlayer;

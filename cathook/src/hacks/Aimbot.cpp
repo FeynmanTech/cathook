@@ -121,7 +121,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		// Miniguns should shoot and aim continiously. TODO smg
 		if (g_pLocalPlayer->weapon->m_iClassID != ClassID::CTFMinigun) {
 			// Melees are weird, they should aim continiously like miniguns too.
-			if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
+			if (GetWeaponMode(g_pLocalPlayer->entity) != weaponmode::weapon_melee) {
 				// Finally, CanShoot() check.
 				if (!CanShoot()) return true;
 			}
@@ -159,7 +159,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	m_iHitbox = this->v_eHitbox->GetInt();
 	if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 7;
-	if (g_pLocalPlayer->weapon && this->v_bAutoHitbox->GetBool()) {
+	if (CE_GOOD(g_pLocalPlayer->weapon) && this->v_bAutoHitbox->GetBool()) {
 		switch (g_pLocalPlayer->weapon->m_iClassID) {
 		case ClassID::CTFSniperRifle:
 		case ClassID::CTFSniperRifleDecap:
@@ -193,7 +193,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (g_pLocalPlayer->weapon->m_iClassID == 210) return true;
+	if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFGrapplingHook) return true;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_flProjGravity));
 	// TODO priority modes (FOV, Smart, Distance, etc)
@@ -306,10 +306,10 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, ProjectilePrediction(entity, m_iHitbox, m_flProjSpeed, m_flProjGravity))) return false;
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
-				if (GetHitbox(entity, m_iHitbox, resultAim)) return false;
+				if (!GetHitbox(entity, m_iHitbox, resultAim)) return false;
 				if (!IsEntityVisiblePenetration(entity, v_eHitbox->GetInt())) return false;
 			} else {
-				if (GetHitbox(entity, m_iHitbox, resultAim)) return false;
+				if (!GetHitbox(entity, m_iHitbox, resultAim)) return false;
 				if (!IsEntityVisible(entity, m_iHitbox)) return false;
 			}
 		}
@@ -350,7 +350,7 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	//logging::Info("Aiming!");
 	Vector hit;
 	Vector angles;
-	if (!entity) return false;
+	if (CE_BAD(entity)) return false;
 	if (entity->m_Type == ENTITY_PLAYER) {
 		//logging::Info("A");
 		GetHitbox(entity, m_iHitbox, hit);

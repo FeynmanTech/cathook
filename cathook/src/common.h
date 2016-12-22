@@ -30,7 +30,7 @@
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"
 
-#define DEBUG_SEGV false
+#define DEBUG_SEGV true
 
 #if DEBUG_SEGV == true
 

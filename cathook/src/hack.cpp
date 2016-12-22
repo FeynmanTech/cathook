@@ -18,6 +18,7 @@
 #include <memory>
 #include "segvcatch/segvcatch.h"
 #include <csignal>
+#include <sys/sysinfo.h>
 
 // All Hacks
 #include "hacks/IHack.h"
@@ -140,7 +141,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 			//PROF_BEGIN();
 			SEGV_BEGIN
 				i_hack->PaintTraverse(p, vp, fr, ar);
-			SEGV_END_INFO(strfmt("PaintTraverse: hack %s", i_hack->GetName()))
+			SEGV_END_INFO("Hack PaintTraverse")
 			//PROF_END(strfmt("%s PaintTraverse", i_hack->GetName()));
 		}
 		Vector screen;
