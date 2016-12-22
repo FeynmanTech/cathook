@@ -8,6 +8,8 @@
 #ifndef GUI_H_
 #define GUI_H_
 
+#define GUI_ENABLED true
+
 #include "../sdk.h"
 
 #define LISTS_MAX 64

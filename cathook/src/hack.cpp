@@ -156,8 +156,10 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 				}
 			}
 		}
+#if GUI_ENABLED == true
 		g_pGUI->UpdateKeys();
 		g_pGUI->Draw();
+#endif
 		DrawStrings();
 	}
 	SEGV_END;

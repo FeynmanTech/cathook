@@ -169,7 +169,7 @@ void GUIListElement_SubList::KeyEvent(ButtonCode_t key) {
 	case ButtonCode_t::KEY_ENTER:
 	case ButtonCode_t::KEY_SPACE:
 	case ButtonCode_t::KEY_RIGHT:
-		m_pList->Move(m_pParentList->x + LIST_WIDTH - 1, m_pParentList->y + VERTICAL_SPACING * m_nIndex);
+		m_pList->Move(m_pParentList->x + LIST_WIDTH + 3, m_pParentList->y + VERTICAL_SPACING * m_nIndex);
 		g_pGUI->PushList(m_pList->m_pszListID);
 	}
 }

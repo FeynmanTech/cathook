@@ -94,9 +94,6 @@ void StartPrediction(CUserCmd* cmd);
 void EndPrediction();
 float RandFloatRange(float min, float max);
 
-// Stolen Code
-
-// F1 c&p
 player_info_s* PlayerInfo(IClientEntity* ent);
 bool Developer(IClientEntity* ent);
 Vector CalcAngle(Vector src, Vector dst);
