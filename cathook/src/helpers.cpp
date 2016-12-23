@@ -742,7 +742,7 @@ void EndPrediction() {
 }*/
 
 char* strfmt(const char* fmt, ...) {
-	char buf[1024];
+	char* buf = new char[1024];
 	va_list list;
 	va_start(list, fmt);
 	vsprintf(buf, fmt, list);

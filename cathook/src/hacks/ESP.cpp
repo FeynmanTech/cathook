@@ -75,7 +75,12 @@ void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeig
 	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent);//(CE_INT(ent, netvar.iCond) & cond::cloaked);
 	Vector min, max;
 	RAW_ENT(ent)->GetRenderBounds(min, max);
-	Vector origin = ent->m_vecOrigin;
+	Vector origin;
+	if (PERFORMANCE_HIGH) {
+		origin = ent->m_vecOrigin;
+	} else {
+		origin = RAW_ENT(ent)->GetAbsOrigin();
+	}
 	Vector so;
 	draw::WorldToScreen(origin, so);
 	//if (!a) return;

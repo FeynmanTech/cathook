@@ -102,7 +102,11 @@ void CachedEntity::Update(int idx) {
 	m_lLastSeen = 0;
 	m_lSeenTicks = 0;*/
 
-	SAFE_CALL(m_bIsVisible = IsVisible());
+	if (PERFORMANCE_HIGH) {
+		m_bIsVisible = IsEntityVectorVisible(this, m_vecOrigin);
+	} else {
+		SAFE_CALL(m_bIsVisible = IsVisible());
+	}
 
 	if (CE_BAD(g_pLocalPlayer->entity)) return;
 
@@ -117,6 +121,11 @@ void CachedEntity::Update(int idx) {
 		if (m_pPlayerInfo) {
 			delete m_pPlayerInfo;
 			m_pPlayerInfo = 0;
+		}
+		if (PERFORMANCE_HIGH) {
+			if (IsEntityVisible(this, 0) || IsEntityVisible(this, 14)) {
+				m_bIsVisible = true;
+			}
 		}
 		m_pPlayerInfo = new player_info_s;
 		interfaces::engineClient->GetPlayerInfo(m_IDX, m_pPlayerInfo);

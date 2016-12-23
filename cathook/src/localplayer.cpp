@@ -34,7 +34,7 @@ void LocalPlayer::Update() {
 
 
 	int hWeapon = CE_INT(entity, netvar.hActiveWeapon);
-	if (hWeapon && (hWeapon & 0xFFF) < HIGHEST_ENTITY) {
+	if (hWeapon && (IDX_GOOD((hWeapon & 0xFFF)))) {
 		weapon = ENTITY(hWeapon & 0xFFF);
 		if (weapon)
 			bIsReloading = (CE_INT(weapon, netvar.iReloadMode) == 1);

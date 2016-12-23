@@ -57,7 +57,7 @@ void DrawStrings() {
 }
 
 ESPStringCompound::~ESPStringCompound() {
-	if (m_String) delete [] m_String;
+	//if (m_String) delete [] m_String;
 }
 
 void AddCenterString(Color fg, Color bg, const char* fmt, ...) {

@@ -14,7 +14,7 @@
 
 struct matrix3x4_t;
 
-#define ENTITY_CACHE_PROFILER true
+#define ENTITY_CACHE_PROFILER false
 
 class IClientEntity;
 class Color;
@@ -40,7 +40,7 @@ struct mstudiobbox_t;
 #define IDX_GOOD(idx) (idx >= 0 && idx < HIGHEST_ENTITY)
 #define IDX_BAD(idx) !IDX_GOOD(idx)
 
-#define PROXY_ENTITY true
+#define PROXY_ENTITY false
 
 #if PROXY_ENTITY == true
 #define RAW_ENT(ce) ce->InternalEntity()

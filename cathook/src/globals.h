@@ -12,9 +12,12 @@ class ConVar;
 
 class CatVar;
 
+#define PERFORMANCE_HIGH g_Settings.bMaxPerformance->GetBool()
+
 class GlobalSettings {
 public:
 	void Init();
+	CatVar* bMaxPerformance;
 	CatVar* flForceFOV;
 	CatVar* bHackEnabled;
 	CatVar* bIgnoreTaunting;
