@@ -111,8 +111,6 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		}
 	}
 
-	if (g_Settings.bNoVisuals->GetBool()) return;
-
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
 	}
@@ -129,6 +127,8 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		g_Settings.bInvalid = true;
 	}
 	if (g_Settings.bInvalid) return;
+	if (g_Settings.bNoVisuals->GetBool()) return;
+
 	if (draw::panel_top == vp) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {

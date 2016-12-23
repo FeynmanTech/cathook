@@ -16,7 +16,6 @@ class CUserCmd;
 class CCommand;
 struct player_info_s;
 class Vector;
-class sstring;
 
 #define PI 3.14159265358979323846f
 #define RADPI 57.295779513082f
@@ -70,7 +69,7 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity);
 bool IsVectorVisible(Vector a, Vector b);
 relation GetRelation(CachedEntity* ent); // TODO new relations
 bool IsSentryBuster(CachedEntity* ent);
-sstring strfmt(const char* fmt, ...);
+char* strfmt(const char* fmt, ...);
 // TODO move that to weaponid.h
 bool IsAmbassador(CachedEntity* ent);
 
