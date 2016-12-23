@@ -22,7 +22,6 @@
 #include "trace.h"
 #include "cvwrapper.h"
 #include "netvars.h"
-#include "sstring.h"
 #include "prediction.h"
 #include "sdk.h"
 

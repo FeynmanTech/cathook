@@ -8,14 +8,13 @@
 #include "sharedobj.h"
 #include "logging.h"
 #include "helpers.h"
-#include "sstring.h"
 
 #include <unistd.h>
 #include <link.h>
 #include <dlfcn.h>
 
 const char* path_from_proc_maps(const char* name) {
-	FILE* proc_maps = fopen((const char*)strfmt("/proc/%i/maps", getpid()), "r");
+	FILE* proc_maps = fopen(strfmt("/proc/%i/maps", getpid()), "r");
 	if (!proc_maps) return (const char*)0;
 	char* buffer = new char[512];
 	while (fgets(buffer, 512, proc_maps)) {

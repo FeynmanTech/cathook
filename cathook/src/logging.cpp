@@ -14,14 +14,13 @@
 
 #include "interfaces.h"
 #include "sdk.h"
-#include "sstring.h"
 
 FILE* logging::handle = 0;
 
 void logging::Initialize() {
 	passwd* pwd = getpwuid(getuid());
 	char* user = pwd->pw_name;
-	logging::handle = fopen((const char*)strfmt("/tmp/cathook-%s.log", user), "w");
+	logging::handle = fopen(strfmt("/tmp/cathook-%s.log", user), "w");
 }
 
 void logging::Info(const char* fmt, ...) {
