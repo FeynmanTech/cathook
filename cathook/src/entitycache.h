@@ -20,6 +20,9 @@ class IClientEntity;
 class Color;
 struct ESPStringCompound;
 struct player_info_s;
+struct model_t;
+struct mstudiohitboxset_t;
+struct mstudiobbox_t;
 
 #define MAX_STRINGS 16
 
@@ -63,6 +66,33 @@ struct player_info_s;
 #define HIGHEST_ENTITY gEntityCache.m_nMax
 #define ENTITY(idx) gEntityCache.GetEntity(idx)
 
+struct CachedHitbox {
+	Vector min;
+	Vector max;
+	Vector center;
+	mstudiobbox_t* bbox;
+};
+
+#define CACHE_MAX_HITBOXES 64
+
+class EntityHitboxCache {
+public:
+	EntityHitboxCache(CachedEntity* parent);
+	~EntityHitboxCache();
+
+	CachedHitbox* GetHitbox(int id);
+	void Update();
+	void InvalidateCache();
+
+	int m_nNumHitboxes;
+	const model_t* m_pLastModel;
+	mstudiohitboxset_t* m_pHitboxSet;
+	bool m_bSuccess;
+	CachedEntity* m_pParentEntity;
+	bool* m_CacheValidationFlags;
+	CachedHitbox* m_CacheInternal;
+};
+
 class CachedEntity {
 public:
 	CachedEntity();
@@ -99,39 +129,12 @@ public:
 	bool m_bBonesSetup;
 	matrix3x4_t* GetBones();
 
-
-	// CBaseEntity
-	/*int m_iTeamNum;
-	bool m_bEnemy;
-
-	// CBasePlayer
-	bool m_bIsAlivePlayer;
-	int m_fFlags;
-	int m_lifeState;
-	int m_iHealth;
-	Vector m_vecViewOffset;
-
-	// CBaseCombatCharacter
-	int m_hActiveWeapon;
-	IClientEntity* m_activeWeapon;
-
-	// CTFPlayer
-	bool m_bIsCritBoosted;
-	bool m_bIsInvulnerable;
-
-	int m_iCond;
-	int m_iCondEx;
-	int m_iCondEx2;
-	int m_iCondEx3;
-	float m_flChargeMeter;
-	float m_flEnergyDrinkMeter;
-	int m_nNumHealers;*/
-
 	// Players, Buildings, Stickies
 
 
 	// Entity fields end here.
 
+	EntityHitboxCache* m_pHitboxCache;
 	int m_IDX;
 	IClientEntity* InternalEntity();
 	IClientEntity* m_pEntity;

@@ -19,10 +19,14 @@ CachedEntity::CachedEntity() {
 	m_Strings = new ESPStringCompound[MAX_STRINGS]();
 	m_nESPStrings = 0;
 	m_Bones = 0;
+	m_Bones = new matrix3x4_t[MAXSTUDIOBONES];
+	m_pHitboxCache = new EntityHitboxCache(this);
 }
 
 CachedEntity::~CachedEntity() {
-	delete m_Strings;
+	delete [] m_Strings;
+	delete [] m_Bones;
+	delete m_pHitboxCache;
 }
 
 IClientEntity* CachedEntity::InternalEntity() {
@@ -45,11 +49,8 @@ void CachedEntity::Update(int idx) {
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
 
 	m_bGrenadeProjectile = false;
-	if (m_Bones) {
-		delete [] m_Bones;
-		m_Bones = 0;
-	}
 	m_bBonesSetup = false;
+	SAFE_CALL(m_pHitboxCache->Update());
 
 	switch (m_iClassID) {
 	case ClassID::CTFPlayer:
@@ -177,9 +178,8 @@ ESPStringCompound CachedEntity::GetESPString(int idx) {
 }
 
 matrix3x4_t* CachedEntity::GetBones() {
-	if (!m_bBonesSetup || !m_Bones) {
-		m_Bones = new matrix3x4_t[128];
-		m_bBonesSetup = m_pEntity->SetupBones(m_Bones, 128, 0x100, 0); // interfaces::gvars->curtime
+	if (!m_bBonesSetup) {
+		m_bBonesSetup = m_pEntity->SetupBones(m_Bones, MAXSTUDIOBONES, 0x100, 0); // interfaces::gvars->curtime
 	}
 	return m_Bones;
 }
@@ -191,7 +191,7 @@ EntityCache::EntityCache() {
 
 EntityCache::~EntityCache() {
 	logging::Info("Destroying EntityCache!");
-	delete m_pArray;
+	delete [] m_pArray;
 }
 
 void EntityCache::Update() {
