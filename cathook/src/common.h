@@ -30,6 +30,8 @@
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"
 
+#define DEG2RAD(x) (float)(x) * (PI / 180.0f)
+
 #define DEBUG_SEGV true
 
 #if DEBUG_SEGV == true

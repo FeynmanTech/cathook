@@ -241,10 +241,6 @@ void FixMovement(CUserCmd& cmd, Vector& viewangles) {
 	cmd->sidemove = sin(yaw) * speed;*/
 }
 
-float deg2rad(float deg) {
-	return deg * (PI / 180);
-}
-
 bool IsPlayerInvisible(CachedEntity* player) {
 	int cond = CE_INT(player, netvar.iCond);
 	int mask = cloaked;
