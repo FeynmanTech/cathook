@@ -346,6 +346,7 @@ void CC_BotCommand(const CCommand& args) {
 		logging::Info("Executing command `%s` on bot %i.", buf, bot_id);
 	}
 	g_phFollowBot->m_pIPC->SetCommand(bot_id, (char*)buf);
+	delete [] buf;
 }
 
 void CC_IPCList(const CCommand& args) {

@@ -32,6 +32,7 @@ const char* path_from_proc_maps(const char* name) {
 			return buffer + path_begin;
 		}
 	}
+	delete [] buffer;
 	return (const char*)0;
 }
 

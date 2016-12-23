@@ -28,6 +28,7 @@ public:
 	CatVar* bShowAntiAim;
 	CatVar* bThirdperson;
 	CatVar* bNoVisuals;
+	bool bInvalid;
 };
 
 extern GlobalSettings g_Settings;

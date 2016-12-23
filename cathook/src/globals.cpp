@@ -30,6 +30,7 @@ void GlobalSettings::Init() {
 	this->bThirdperson = CREATE_CV(CV_SWITCH, "thirdperson", "0", "Thirdperson");
 	this->bNoVisuals = CREATE_CV(CV_SWITCH, "novisuals", "0", "Disable visuals");
 	this->bThirdperson->m_pConVar->InstallChangeCallback(ThirdpersonCallback);
+	bInvalid = true;
 }
 
 GlobalSettings g_Settings;

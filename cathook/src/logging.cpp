@@ -25,7 +25,7 @@ void logging::Initialize() {
 
 void logging::Info(const char* fmt, ...) {
 	if (logging::handle == 0) return;
-	char buffer[1024];
+	char* buffer = new char[1024];
 	va_list list;
 	va_start(list, fmt);
 	vsprintf(buffer, fmt, list);
@@ -38,7 +38,8 @@ void logging::Info(const char* fmt, ...) {
 	if (interfaces::cvar) {
 		interfaces::cvar->ConsolePrintf("%s", result);
 	}
-	delete result;
+	delete [] buffer;
+	delete [] result;
 }
 
 void logging::Shutdown() {

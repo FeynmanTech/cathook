@@ -9,6 +9,7 @@
 #define HAIMBOT_H_
 
 #include "IHack.h"
+#include "../enums.h"
 
 class ConVar;
 class IClientEntity;
@@ -29,6 +30,7 @@ public:
 	Aimbot();
 	bool ShouldTarget(CachedEntity* entity);
 	bool Aim(CachedEntity* entity, CUserCmd* cmd);
+	int BestHitbox(CachedEntity* target, int preferred = hitbox_t::spine_0);
 
 	bool m_bProjectileMode;
 	float m_flProjSpeed;
@@ -37,9 +39,11 @@ public:
 	//Vector m_vPredictedProjTarget;
 
 	int m_iLastTarget;
-	int m_iHitbox;
+	int m_iPreferredHitbox;
+	int m_iFinalHitbox;
 	bool m_bAimKeySwitch;
 	int m_nMinigunFixTicks;
+	bool m_bHeadOnly;
 
 	CatVar* v_eAimKey;
 	CatVar* v_eAimKeyMode;

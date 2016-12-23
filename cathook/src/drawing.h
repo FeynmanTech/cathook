@@ -17,6 +17,7 @@ class IClientEntity;
 
 struct ESPStringCompound {
 	ESPStringCompound();
+	~ESPStringCompound();
 	char* m_String;
 	Color m_Color;
 	Color m_Background;

@@ -157,31 +157,29 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
 	}
 
-	m_iHitbox = this->v_eHitbox->GetInt();
-	if (this->v_bAutoHitbox->GetBool()) m_iHitbox = 7;
-	if (CE_GOOD(g_pLocalPlayer->weapon) && this->v_bAutoHitbox->GetBool()) {
+	m_bHeadOnly = false;
+
+	m_iPreferredHitbox = this->v_eHitbox->GetInt();
+	if (this->v_bAutoHitbox->GetBool()) {
 		switch (g_pLocalPlayer->weapon->m_iClassID) {
 		case ClassID::CTFSniperRifle:
 		case ClassID::CTFSniperRifleDecap:
-			if (!CanHeadshot()) {
-				if (this->v_bZoomedOnly->GetBool()) return true;
-			} else {
-				m_iHitbox = 0;
-			}
+			m_bHeadOnly = CanHeadshot();
 		break;
 		case ClassID::CTFCompoundBow:
-			m_iHitbox = 0;
+			m_bHeadOnly = true;
 		break;
 		case ClassID::CTFRevolver:
-			if (IsAmbassador(g_pLocalPlayer->weapon)) {
-				m_iHitbox = 0;
-			}
+			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon);
 		break;
 		case ClassID::CTFRocketLauncher:
 		case ClassID::CTFRocketLauncher_AirStrike:
 		case ClassID::CTFRocketLauncher_DirectHit:
 		case ClassID::CTFRocketLauncher_Mortar:
-			m_iHitbox = 14;
+			m_iPreferredHitbox = hitbox_t::foot_L;
+		break;
+		default:
+			m_iPreferredHitbox = hitbox_t::pelvis;
 		}
 	}
 
@@ -208,7 +206,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 				if (ent->m_Type == ENTITY_BUILDING) {
 					result = GetBuildingPosition(ent);
 				} else {
-					GetHitbox(ent, m_iHitbox, result);
+					GetHitbox(ent, BestHitbox(ent, m_iPreferredHitbox), result);
 				}
 				float scr = 4096.0f - result.DistTo(g_pLocalPlayer->v_Eye);
 				if (scr > target_highest_score) {
@@ -229,7 +227,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 					if (ent->m_Type == ENTITY_BUILDING) {
 						result = GetBuildingPosition(ent);
 					} else {
-						GetHitbox(ent, m_iHitbox, result);
+						GetHitbox(ent, BestHitbox(ent, m_iPreferredHitbox), result);
 					}
 					float scr = 360.0f - GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, result);
 					if (scr > target_highest_score) {
@@ -282,6 +280,16 @@ void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 	}
 }
 
+int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
+	if (!v_bAutoHitbox->GetBool()) return preferred;
+	if (m_bHeadOnly) return 0;
+	if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
+	for (int i = 0; i < target->m_pHitboxCache->m_nNumHitboxes; i++) {
+		if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
+	}
+	return -1;
+}
+
 bool Aimbot::ShouldTarget(CachedEntity* entity) {
 	// Just assuming CE is good
 	if (entity->m_Type == ENTITY_PLAYER) {
@@ -302,15 +310,17 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 		if ((econd & cond_ex::vacc_bullet)) return false;
 		if (GetRelation(entity) == relation::FRIEND) return false;
 		Vector resultAim;
+		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
+		if (m_bHeadOnly && hitbox) return false;
 		if (m_bProjectileMode) {
-			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, ProjectilePrediction(entity, m_iHitbox, m_flProjSpeed, m_flProjGravity))) return false;
+			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity))) return false;
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
-				if (!GetHitbox(entity, m_iHitbox, resultAim)) return false;
+				if (!GetHitbox(entity, hitbox, resultAim)) return false;
 				if (!IsEntityVisiblePenetration(entity, v_eHitbox->GetInt())) return false;
 			} else {
-				if (!GetHitbox(entity, m_iHitbox, resultAim)) return false;
-				if (!IsEntityVisible(entity, m_iHitbox)) return false;
+				if (!GetHitbox(entity, hitbox, resultAim)) return false;
+				if (!IsEntityVisible(entity, hitbox)) return false;
 			}
 		}
 		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return false;
@@ -351,11 +361,12 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	Vector hit;
 	Vector angles;
 	if (CE_BAD(entity)) return false;
+	int hitbox = BestHitbox(entity, m_iPreferredHitbox);
 	if (entity->m_Type == ENTITY_PLAYER) {
 		//logging::Info("A");
-		GetHitbox(entity, m_iHitbox, hit);
+		GetHitbox(entity, hitbox, hit);
 		//logging::Info("B");
-		if (this->v_bPrediction->GetBool()) SimpleLatencyPrediction(entity, m_iHitbox);
+		if (this->v_bPrediction->GetBool()) SimpleLatencyPrediction(entity, hitbox);
 		//logging::Info("C");
 	} else if (entity->m_Type == ENTITY_BUILDING) {
 		hit = GetBuildingPosition(entity);
@@ -364,7 +375,7 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 		if (m_bProjectileMode) {
 			if (v_fOverrideProjSpeed->GetBool())
 				m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
-			hit = ProjectilePrediction(entity, m_iHitbox, m_flProjSpeed, m_flProjGravity);
+			hit = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
 		}
 	}
 	//logging::Info("ayyming!");

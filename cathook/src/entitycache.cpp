@@ -21,6 +21,7 @@ CachedEntity::CachedEntity() {
 	m_Bones = 0;
 	m_Bones = new matrix3x4_t[MAXSTUDIOBONES];
 	m_pHitboxCache = new EntityHitboxCache(this);
+	m_pPlayerInfo = 0;
 }
 
 CachedEntity::~CachedEntity() {
@@ -50,6 +51,8 @@ void CachedEntity::Update(int idx) {
 
 	m_bGrenadeProjectile = false;
 	m_bBonesSetup = false;
+
+	m_bVisCheckComplete = false;
 	if (m_pHitboxCache) {
 		SAFE_CALL(m_pHitboxCache->Update());
 	}
@@ -99,20 +102,26 @@ void CachedEntity::Update(int idx) {
 	m_lLastSeen = 0;
 	m_lSeenTicks = 0;*/
 
+	SAFE_CALL(m_bIsVisible = IsVisible());
+
+	if (CE_BAD(g_pLocalPlayer->entity)) return;
+
 	if (m_Type == EntityType::ENTITY_PROJECTILE) {
 		m_bCritProjectile = IsProjectileCrit(this);
-		m_bIsVisible = IsEntityVisible(this, -1);
 		m_iTeam = CE_INT(this, netvar.iTeamNum);
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 	}
 
 	if (m_Type == EntityType::ENTITY_PLAYER) {
 		m_bAlivePlayer = !(NET_BYTE(m_pEntity, netvar.iLifeState));
+		if (m_pPlayerInfo) {
+			delete m_pPlayerInfo;
+			m_pPlayerInfo = 0;
+		}
 		m_pPlayerInfo = new player_info_s;
 		interfaces::engineClient->GetPlayerInfo(m_IDX, m_pPlayerInfo);
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
-		SAFE_CALL(m_bIsVisible = (IsEntityVisible(this, 0) || IsEntityVisible(this, 4)));
 		m_iHealth = CE_INT(this, netvar.iHealth);
 		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(this);
 		if (m_bIsVisible) {
@@ -126,7 +135,6 @@ void CachedEntity::Update(int idx) {
 	if (m_Type == EntityType::ENTITY_BUILDING) {
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
-		m_bIsVisible = (IsEntityVisible(this, 0));
 		m_iHealth = CE_INT(this, netvar.iBuildingHealth);
 		m_iMaxHealth = CE_INT(this, netvar.iBuildingMaxHealth);
 		if (m_bIsVisible) {
@@ -139,6 +147,34 @@ void CachedEntity::Update(int idx) {
 	}
 
 	SEGV_END_INFO("Updating entity")
+}
+
+bool CachedEntity::IsVisible() {
+	if (m_bVisCheckComplete) return m_bAnyHitboxVisible;
+
+	bool vischeck0 = false;
+	SAFE_CALL(vischeck0 = IsEntityVectorVisible(this, m_vecOrigin));
+
+	if (vischeck0) {
+		m_bAnyHitboxVisible = true;
+		m_bVisCheckComplete = true;
+		return true;
+	}
+
+	for (int i = 0; i < m_pHitboxCache->m_nNumHitboxes; i++) {
+		bool vischeck = false;
+		SAFE_CALL(vischeck = m_pHitboxCache->VisibilityCheck(i));
+		if (vischeck) {
+			m_bAnyHitboxVisible = true;
+			m_bVisCheckComplete = true;
+			return true;
+		}
+	}
+
+	m_bAnyHitboxVisible = false;
+	m_bVisCheckComplete = true;
+
+	return false;
 }
 
 void CachedEntity::AddESPString(Color color, Color background, const char* fmt, ...) {

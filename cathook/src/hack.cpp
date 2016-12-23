@@ -67,8 +67,6 @@ typedef bool(DispatchUserMessage_t)(void*, int, bf_read&);
 
 Vector last_angles(0.0f, 0.0f, 0.0f);
 
-bool hack::invalidated = true;
-
 void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
 	SEGV_BEGIN;
 	((OverrideView_t*)hooks::hkClientMode->GetMethod(hooks::offOverrideView))(thisptr, setup);
@@ -128,9 +126,9 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		}
 	}
 	if (!interfaces::engineClient->IsInGame()) {
-		hack::invalidated = true;
+		g_Settings.bInvalid = true;
 	}
-	if (hack::invalidated) return;
+	if (g_Settings.bInvalid) return;
 	if (draw::panel_top == vp) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {
@@ -231,7 +229,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	if (!g_Settings.bHackEnabled->GetBool()) return ret;
 
 	if (!interfaces::engineClient->IsInGame()) {
-		hack::invalidated = true;
+		g_Settings.bInvalid = true;
 		return true;
 	}
 
@@ -251,7 +249,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 	bool time_replaced = false;
 	float curtime_old;
-	if (CE_GOOD(g_pLocalPlayer->entity) && false) {
+	if (CE_GOOD(g_pLocalPlayer->entity)) {
 		float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
 		curtime_old = interfaces::gvars->curtime;
 		interfaces::gvars->curtime = servertime;
@@ -282,7 +280,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 			ret = false;
 		}
 	}*/
-	hack::invalidated = false;
+	g_Settings.bInvalid = false;
 	if (g_pLocalPlayer->bUseSilentAngles) {
 		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);

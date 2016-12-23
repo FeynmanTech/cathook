@@ -172,27 +172,9 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 
 bool GetHitbox(CachedEntity* entity, int hb, Vector& out) {
 	if (CE_BAD(entity)) return false;
-	const model_t* model = RAW_ENT(entity)->GetModel();
-	if (!model) return false;
-	studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);
-	if (!shdr) return false;
-	mstudiohitboxset_t* set = shdr->pHitboxSet(CE_INT(entity, netvar.iHitboxSet));
-	if (!set) return false;
-	mstudiobbox_t* box = set->pHitbox(hb);
-	if (!box) return false;
-	if (box->bone < 0 || box->bone >= 128) return 5;
-	//float *min = new float[3],
-	//	  *max = new float[3];
-	Vector min, max;
-	SEGV_BEGIN
-	VectorTransform(box->bbmin, entity->GetBones()[box->bone], min);
-	VectorTransform(box->bbmax, entity->GetBones()[box->bone], max);
-	SEGV_END_INFO("VectorTransform()-ing with unsafe Vector casting");
-	out.x = (min[0] + max[0]) / 2;
-	out.y = (min[1] + max[1]) / 2;
-	out.z = (min[2] + max[2]) / 2;
-	//delete[] min;
-	//delete[] max;
+	CachedHitbox* box = entity->m_pHitboxCache->GetHitbox(hb);
+	if (!box) out = entity->m_vecOrigin;
+	else out = box->center;
 	return true;
 }
 
@@ -255,31 +237,28 @@ float RandFloatRange(float min, float max)
     return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));
 }
 
-trace::FilterDefault* trace_filter;
 bool IsEntityVisible(CachedEntity* entity, int hb) {
 	if (entity == g_pLocalPlayer->entity) return true;
-	if (!trace_filter) {
-		trace_filter = new trace::FilterDefault();
-	}
-	trace_t trace_visible;
-	Ray_t ray;
-	CachedEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
-	trace_filter->SetSelf(RAW_ENT(local));
 	Vector hit;
 	if (hb == -1) {
-		hit = entity->m_vecOrigin;
+		return IsEntityVectorVisible(entity, entity->m_vecOrigin);
 	} else {
-		SAFE_CALL( \
-				if (!GetHitbox(entity, hb, hit)) { \
-					return false; \
-		});
+		return entity->m_pHitboxCache->VisibilityCheck(hb);
 	}
-	ray.Init(local->m_vecOrigin + g_pLocalPlayer->v_ViewOffset, hit);
-	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
-	if (trace_visible.m_pEnt) {
-		return (((IClientEntity*)trace_visible.m_pEnt)->entindex()) == entity->m_IDX;
-	}
-	return false;
+
+}
+
+bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos) {
+	if (entity == g_pLocalPlayer->entity) return true;
+	if (CE_BAD(g_pLocalPlayer->entity)) return false;
+ 	trace_t trace_object;
+	Ray_t ray;
+	trace::g_pFilterDefault->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
+	ray.Init(g_pLocalPlayer->v_Eye, endpos);
+	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterDefault, &trace_object);
+	if (trace_object.m_pEnt) {
+		return (((IClientEntity*)trace_object.m_pEnt)->entindex()) == entity->m_IDX;
+	} else return false;
 }
 
 Vector GetBuildingPosition(CachedEntity* ent) {
@@ -309,15 +288,7 @@ Vector GetBuildingPosition(CachedEntity* ent) {
 }
 
 bool IsBuildingVisible(CachedEntity* ent) {
-	if (!trace_filter) {
-		trace_filter = new trace::FilterDefault();
-	}
-	trace_t trace_visible;
-	Ray_t ray;
-	trace_filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
-	ray.Init(g_pLocalPlayer->v_Eye, GetBuildingPosition(ent));
-	interfaces::trace->TraceRay(ray, 0x4200400B, trace_filter, &trace_visible);
-	return (IClientEntity*)trace_visible.m_pEnt == RAW_ENT(ent);
+	return IsEntityVectorVisible(ent, GetBuildingPosition(ent));
 }
 
 void fVectorAngles(Vector &forward, Vector &angles) {
@@ -771,7 +742,7 @@ void EndPrediction() {
 }*/
 
 char* strfmt(const char* fmt, ...) {
-	char* buf = new char[1024];
+	char buf[1024];
 	va_list list;
 	va_start(list, fmt);
 	vsprintf(buf, fmt, list);

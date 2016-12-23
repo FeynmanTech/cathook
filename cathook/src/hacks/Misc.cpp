@@ -139,6 +139,7 @@ void CC_SetName(const CCommand& args) {
 	setname.SetReliable(false);
 	//logging::Info("Sending!");
 	ch->SendNetMsg(setname, false);
+	delete [] name;
 }
 
 void CC_Lockee(const CCommand& args) {
@@ -225,6 +226,7 @@ void CC_SetValue(const CCommand& args) {
 	}
 	var->SetValue(value);
 	logging::Info("Set '%s' to '%s'", args.Arg(1), value);
+	delete [] value;
 }
 
 Misc::Misc() {
