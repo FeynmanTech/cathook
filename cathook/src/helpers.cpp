@@ -741,8 +741,8 @@ void EndPrediction() {
 	interfaces::gvars->frametime = oldFrametime;
 }*/
 
-char* strfmt(const char* fmt, ...) {
-	char* result = new char[1024];
+sstring strfmt(const char* fmt, ...) {
+	sstring result(1024);
 	va_list list;
 	va_start(list, fmt);
 	vsprintf(result, fmt, list);
