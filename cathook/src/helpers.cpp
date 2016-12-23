@@ -16,7 +16,7 @@ FILE* hConVarsFile = 0;
 void BeginConVars() {
 	passwd* pwd = getpwuid(getuid());
 	char* user = pwd->pw_name;
-	hConVarsFile = fopen(strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/tf/cfg/cat_defaults.cfg", user), "w");
+	hConVarsFile = fopen((const char*)strfmt("/home/%s/.local/share/Steam/steamapps/common/Team Fortress 2/tf/cfg/cat_defaults.cfg", user), "w");
 	SetCVarInterface(interfaces::cvar);
 }
 
@@ -741,13 +741,13 @@ void EndPrediction() {
 	interfaces::gvars->frametime = oldFrametime;
 }*/
 
-char* strfmt(const char* fmt, ...) {
-	char buf[1024];
+sstring strfmt(const char* fmt, ...) {
+	sstring result(1024);
 	va_list list;
 	va_start(list, fmt);
-	vsprintf(buf, fmt, list);
+	vsprintf(result, fmt, list);
 	va_end(list);
-	return buf;
+	return result;
 }
 
 const char* powerups[] = {
