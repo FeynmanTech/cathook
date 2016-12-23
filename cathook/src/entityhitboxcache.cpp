@@ -11,6 +11,8 @@ EntityHitboxCache::EntityHitboxCache(CachedEntity* parent) {
 	m_CacheInternal = new CachedHitbox[CACHE_MAX_HITBOXES];
 	m_CacheValidationFlags = new bool[CACHE_MAX_HITBOXES];
 	InvalidateCache();
+	m_pParentEntity = parent;
+	m_bModelSet = false;
 }
 
 EntityHitboxCache::~EntityHitboxCache() {
@@ -19,16 +21,18 @@ EntityHitboxCache::~EntityHitboxCache() {
 }
 
 void EntityHitboxCache::InvalidateCache() {
-	for (int i = 0; i < CACHE_MAX_HITBOXES; i++)
+	for (int i = 0; i < CACHE_MAX_HITBOXES; i++) {
 		m_CacheValidationFlags[i] = false;
+	}
 }
 
 void EntityHitboxCache::Update() {
-	InvalidateCache();
+	SAFE_CALL(InvalidateCache());
 	if (CE_BAD(m_pParentEntity)) return;
-	const model_t* model = RAW_ENT(m_pParentEntity)->GetModel();
+	model_t* model;
+	model = (model_t*)RAW_ENT(m_pParentEntity)->GetModel();
 	if (!model) return;
-	if (model != m_pLastModel) {
+	if (!m_bModelSet || model != m_pLastModel) {
 		studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);
 		if (!shdr) return;
 		mstudiohitboxset_t* set = shdr->pHitboxSet(CE_INT(m_pParentEntity, netvar.iHitboxSet));
@@ -38,11 +42,13 @@ void EntityHitboxCache::Update() {
 		m_nNumHitboxes = set->numhitboxes;
 		if (m_nNumHitboxes > CACHE_MAX_HITBOXES) m_nNumHitboxes = CACHE_MAX_HITBOXES;
 		m_bSuccess = true;
+		m_bModelSet = true;
 	}
 }
 
 CachedHitbox* EntityHitboxCache::GetHitbox(int id) {
 	if (id < 0 || id >= m_nNumHitboxes) return 0;
+	if (!m_bSuccess) return 0;
 	if (!m_CacheValidationFlags[id]) {
 		mstudiobbox_t* box = m_pHitboxSet->pHitbox(id);
 		if (!box) return 0;

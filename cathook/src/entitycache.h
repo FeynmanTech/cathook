@@ -85,7 +85,8 @@ public:
 	void InvalidateCache();
 
 	int m_nNumHitboxes;
-	const model_t* m_pLastModel;
+	model_t* m_pLastModel;
+	bool m_bModelSet;
 	mstudiohitboxset_t* m_pHitboxSet;
 	bool m_bSuccess;
 	CachedEntity* m_pParentEntity;

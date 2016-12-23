@@ -50,7 +50,9 @@ void CachedEntity::Update(int idx) {
 
 	m_bGrenadeProjectile = false;
 	m_bBonesSetup = false;
-	SAFE_CALL(m_pHitboxCache->Update());
+	if (m_pHitboxCache) {
+		SAFE_CALL(m_pHitboxCache->Update());
+	}
 
 	switch (m_iClassID) {
 	case ClassID::CTFPlayer:
