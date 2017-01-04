@@ -158,6 +158,7 @@ public:
 	~EntityCache();
 
 	void Update();
+	void Invalidate();
 	CachedEntity* GetEntity(int idx);
 
 	CachedEntity* m_pArray;
@@ -167,6 +168,7 @@ public:
 	int m_nUpdates;
 	int m_nStringsAdded;
 	int m_nStringsQueued;
+	int m_nHitboxQueued;
 	unsigned long m_lLastLog;
 
 	int m_nMax;

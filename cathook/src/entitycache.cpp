@@ -37,6 +37,11 @@ IClientEntity* CachedEntity::InternalEntity() {
 	return m_pEntity;
 }
 
+void EntityCache::Invalidate() {
+	delete [] m_pArray;
+	m_pArray = new CachedEntity[4096]();
+}
+
 void CachedEntity::Update(int idx) {
 	SEGV_BEGIN
 
@@ -243,7 +248,7 @@ EntityCache::~EntityCache() {
 
 void EntityCache::Update() {
 	m_nMax = interfaces::entityList->GetHighestEntityIndex();
-	for (int i = 0; i < m_nMax && i < 1024; i++) {
+	for (int i = 0; i < m_nMax && i < 4096; i++) {
 		//logging::Info("Updating %i", i);
 		m_pArray[i].Update(i);
 		//logging::Info("Back!");
@@ -253,17 +258,19 @@ void EntityCache::Update() {
 	if (time(0) != m_lLastLog) {
 		m_lLastLog = time(0);
 		if (g_vEntityCacheProfiling && g_vEntityCacheProfiling->GetBool()) {
-			logging::Info("[EntityCache] TOTAL: UPS=%i QPS=%i SQPS=%i SAPS=%i REAPS=%i", m_nUpdates, m_nQueues, m_nStringsQueued, m_nStringsAdded, m_nRawEntityAccesses);
-			if (m_nUpdates != 0) logging::Info("[EntityCache] AVG: QPU=%i SQPU=%i SAPU=%i REAPU=%i",
+			logging::Info("[EntityCache] TOTAL: UPS=%i QPS=%i SQPS=%i SAPS=%i REAPS=%i HBPS=%i", m_nUpdates, m_nQueues, m_nStringsQueued, m_nStringsAdded, m_nRawEntityAccesses, m_nHitboxQueued);
+			if (m_nUpdates != 0) logging::Info("[EntityCache] AVG: QPU=%i SQPU=%i SAPU=%i REAPU=%i HBPU=%i",
 					m_nQueues / m_nUpdates,
 					m_nStringsQueued / m_nUpdates,
 					m_nStringsAdded / m_nUpdates,
-					m_nRawEntityAccesses / m_nUpdates);
+					m_nRawEntityAccesses / m_nUpdates,
+					m_nHitboxQueued / m_nUpdates);
 			m_nUpdates = 0;
 			m_nQueues = 0;
 			m_nStringsQueued = 0;
 			m_nStringsAdded = 0;
 			m_nRawEntityAccesses = 0;
+			m_nHitboxQueued = 0;
 		}
 	}
 #endif

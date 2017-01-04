@@ -59,12 +59,13 @@ bool EntityHitboxCache::VisibilityCheck(int id) {
 	// TODO corners
 	CachedHitbox* hitbox = GetHitbox(id);
 	if (!hitbox) return 0;
-	m_VisCheck[id] = (IsEntityVectorVisible(m_pParentEntity, hitbox->center));
+	SAFE_CALL(m_VisCheck[id] = (IsEntityVectorVisible(m_pParentEntity, hitbox->center)));
 	m_VisCheckValidationFlags[id] = true;
 	return m_VisCheck[id];
 }
 
 CachedHitbox* EntityHitboxCache::GetHitbox(int id) {
+	gEntityCache.m_nHitboxQueued++;
 	if (id < 0 || id >= m_nNumHitboxes) return 0;
 	if (!m_bSuccess) return 0;
 	if (!m_CacheValidationFlags[id]) {

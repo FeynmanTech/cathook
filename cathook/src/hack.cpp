@@ -129,6 +129,7 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		g_Settings.bInvalid = true;
 	}
 	if (g_Settings.bInvalid) return;
+	if (CE_BAD(g_pLocalPlayer->entity)) return;
 	if (draw::panel_top == vp) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {
@@ -212,7 +213,7 @@ typedef void(Shutdown_t)(void*, const char*);
 void Hk_Shutdown(void* thisptr, const char* reason) {
 	SEGV_BEGIN;
 	const char* new_reason;
-	if (g_Settings.sDisconnectMsg->m_StringLength > 1) {
+	if (g_Settings.sDisconnectMsg->m_StringLength > 3) {
 		new_reason = g_Settings.sDisconnectMsg->GetString();
 	} else {
 		new_reason = reason;
@@ -255,41 +256,48 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		interfaces::gvars->curtime = servertime;
 		time_replaced = true;
 	}
+	if (g_Settings.bInvalid) {
+		gEntityCache.Invalidate();
+	}
 	SAFE_CALL(gEntityCache.Update());
 	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
-	g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
-	SAFE_CALL(CREATE_MOVE(Bunnyhop));
-	//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
-	SAFE_CALL(CREATE_MOVE(ESP));
-	SAFE_CALL(CREATE_MOVE(Aimbot));
-	SAFE_CALL(CREATE_MOVE(Airstuck));
-	SAFE_CALL(CREATE_MOVE(AntiAim));
-	SAFE_CALL(CREATE_MOVE(AntiDisguise));
-	SAFE_CALL(CREATE_MOVE(AutoHeal));
-	SAFE_CALL(CREATE_MOVE(AutoSticky));
-	SAFE_CALL(CREATE_MOVE(AutoReflect));
-	SAFE_CALL(CREATE_MOVE(AutoStrafe));
-	SAFE_CALL(CREATE_MOVE(FollowBot));
-	SAFE_CALL(CREATE_MOVE(Misc));
-	SAFE_CALL(CREATE_MOVE(Triggerbot));
-	SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
-	if (time_replaced) interfaces::gvars->curtime = curtime_old;
+	if (CE_GOOD(g_pLocalPlayer->entity)) {
+			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
+		SAFE_CALL(CREATE_MOVE(Bunnyhop));
+		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
+		SAFE_CALL(CREATE_MOVE(ESP));
+		SAFE_CALL(CREATE_MOVE(Aimbot));
+		SAFE_CALL(CREATE_MOVE(Airstuck));
+		SAFE_CALL(CREATE_MOVE(AntiAim));
+		SAFE_CALL(CREATE_MOVE(AntiDisguise));
+		SAFE_CALL(CREATE_MOVE(AutoHeal));
+		SAFE_CALL(CREATE_MOVE(AutoSticky));
+		SAFE_CALL(CREATE_MOVE(AutoReflect));
+		SAFE_CALL(CREATE_MOVE(AutoStrafe));
+		SAFE_CALL(CREATE_MOVE(FollowBot));
+		SAFE_CALL(CREATE_MOVE(Misc));
+		SAFE_CALL(CREATE_MOVE(Triggerbot));
+		SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
+		if (time_replaced) interfaces::gvars->curtime = curtime_old;
+	}
 	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
 			ret = false;
 		}
 	}*/
 	g_Settings.bInvalid = false;
-	if (g_pLocalPlayer->bUseSilentAngles) {
-		Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
-		float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
-		Vector ang;
-		VectorAngles(vsilent, ang);
-		float yaw = DEG2RAD(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
-		cmd->forwardmove = cos(yaw) * speed;
-		cmd->sidemove = sin(yaw) * speed;
-		ret = false;
+	if (CE_GOOD(g_pLocalPlayer->entity)) {
+		if (g_pLocalPlayer->bUseSilentAngles) {
+			Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+			float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
+			Vector ang;
+			VectorAngles(vsilent, ang);
+			float yaw = DEG2RAD(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
+			cmd->forwardmove = cos(yaw) * speed;
+			cmd->sidemove = sin(yaw) * speed;
+			ret = false;
+		}
 	}
 	if (cmd)
 		last_angles = cmd->viewangles;

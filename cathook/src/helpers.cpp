@@ -238,6 +238,7 @@ float RandFloatRange(float min, float max)
 }
 
 bool IsEntityVisible(CachedEntity* entity, int hb) {
+	if (g_Settings.bInvalid) return false;
 	if (entity == g_pLocalPlayer->entity) return true;
 	Vector hit;
 	if (hb == -1) {
@@ -249,8 +250,10 @@ bool IsEntityVisible(CachedEntity* entity, int hb) {
 }
 
 bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos) {
+	if (g_Settings.bInvalid) return false;
 	if (entity == g_pLocalPlayer->entity) return true;
 	if (CE_BAD(g_pLocalPlayer->entity)) return false;
+	if (CE_BAD(entity)) return false;
  	trace_t trace_object;
 	Ray_t ray;
 	trace::g_pFilterDefault->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
@@ -378,7 +381,7 @@ bool IsProjectileCrit(CachedEntity* ent) {
 weaponmode GetWeaponMode(CachedEntity* player) {
 	int weapon_handle = CE_INT(player, netvar.hActiveWeapon);
 	if (IDX_BAD((weapon_handle & 0xFFF))) {
-		logging::Info("IDX_BAD: %i", weapon_handle & 0xFFF);
+		//logging::Info("IDX_BAD: %i", weapon_handle & 0xFFF);
 		return weaponmode::weapon_invalid;
 	}
 	CachedEntity* weapon = (ENTITY(weapon_handle & 0xFFF));

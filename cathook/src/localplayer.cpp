@@ -12,7 +12,10 @@ void LocalPlayer::Update() {
 	entity_idx = interfaces::engineClient->GetLocalPlayer();
 	entity = ENTITY(entity_idx);
 	if (!entity) logging::Info("Local Player is NULL!");
-	if (CE_BAD(entity)) logging::Info("Local Player is BAD CACHED ENTITY!");
+	if (CE_BAD(entity)) {
+		logging::Info("Local Player is BAD CACHED ENTITY!");
+		return;
+	}
 	team = CE_INT(entity, netvar.iTeamNum);
 	life_state = CE_BYTE(entity, netvar.iLifeState);
 	v_ViewOffset = CE_VECTOR(entity, netvar.vViewOffset);
