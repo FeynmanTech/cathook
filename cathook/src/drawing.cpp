@@ -147,7 +147,7 @@ Color colors::EntityB(CachedEntity* ent) {
 			if (GetRelation(ent) == relation::DEVELOPER) result = Transparent(black, 0.6f);
 		}
 
-		if (!ent->m_bIsVisible) result = Transparent(result, 0.833f);
+		if (!ent->IsVisible()) result = Transparent(result, 0.833f);
 	}
 	return result;
 }
@@ -208,7 +208,7 @@ Color colors::EntityF(CachedEntity* ent) {
 				result = RainbowCurrent(); break;
 			}
 		}
-		if (!ent->m_bIsVisible) result = Transparent(result);
+		if (!ent->IsVisible()) result = Transparent(result);
 	}
 
 	return result;

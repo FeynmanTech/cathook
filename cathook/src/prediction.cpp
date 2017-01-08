@@ -46,7 +46,7 @@ Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravit
 	bool ground = (flags & (1 << 0));
 	if (!ground) result.z -= ttt * ttt * 400;
 	result += vel * ttt;
-	if (oz - result.z > dtg) { result.z = oz - dtg; }
+	if (!ground) if (oz - result.z > dtg) { result.z = oz - dtg; }
 	result.z += (400 * ttt * ttt * gravitymod);
 	// S = at^2/2 ; t = sqrt(2S/a)
 	return result;

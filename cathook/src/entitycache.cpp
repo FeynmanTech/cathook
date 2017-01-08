@@ -31,9 +31,6 @@ CachedEntity::~CachedEntity() {
 }
 
 IClientEntity* CachedEntity::InternalEntity() {
-#if ENTITY_CACHE_PROFILER == true
-	gEntityCache.m_nRawEntityAccesses++;
-#endif
 	return m_pEntity;
 }
 
@@ -44,6 +41,10 @@ void EntityCache::Invalidate() {
 
 void CachedEntity::Update(int idx) {
 	SEGV_BEGIN
+
+#if ENTITY_CACHE_PROFILER == true
+	long p_begin = gECP.CurrentTime();
+#endif
 
 	m_ESPOrigin.Zero();
 	m_nESPStrings = 0;
@@ -59,7 +60,9 @@ void CachedEntity::Update(int idx) {
 
 	m_bVisCheckComplete = false;
 	if (m_pHitboxCache) {
+		long p_begin = gECP.CurrentTime();
 		SAFE_CALL(m_pHitboxCache->Update());
+		gECP.StoreData(ECPNodes::ECPN_HITBOX_UPDATE, p_begin);
 	}
 
 	switch (m_iClassID) {
@@ -107,12 +110,6 @@ void CachedEntity::Update(int idx) {
 	m_lLastSeen = 0;
 	m_lSeenTicks = 0;*/
 
-	if (PERFORMANCE_HIGH) {
-		m_bIsVisible = IsEntityVectorVisible(this, m_vecOrigin);
-	} else {
-		SAFE_CALL(m_bIsVisible = IsVisible());
-	}
-
 	if (CE_BAD(g_pLocalPlayer->entity)) return;
 
 	if (m_Type == EntityType::ENTITY_PROJECTILE) {
@@ -127,18 +124,13 @@ void CachedEntity::Update(int idx) {
 			delete m_pPlayerInfo;
 			m_pPlayerInfo = 0;
 		}
-		if (PERFORMANCE_HIGH) {
-			if (IsEntityVisible(this, 0) || IsEntityVisible(this, 14)) {
-				m_bIsVisible = true;
-			}
-		}
 		m_pPlayerInfo = new player_info_s;
 		interfaces::engineClient->GetPlayerInfo(m_IDX, m_pPlayerInfo);
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_iHealth = CE_INT(this, netvar.iHealth);
 		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(this);
-		if (m_bIsVisible) {
+		if (IsVisible()) {
 			m_lLastSeen = 0;
 			m_lSeenTicks++;
 		} else {
@@ -151,7 +143,7 @@ void CachedEntity::Update(int idx) {
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_iHealth = CE_INT(this, netvar.iBuildingHealth);
 		m_iMaxHealth = CE_INT(this, netvar.iBuildingMaxHealth);
-		if (m_bIsVisible) {
+		if (IsVisible()) {
 			m_lLastSeen = 0;
 			m_lSeenTicks++;
 		} else {
@@ -160,10 +152,15 @@ void CachedEntity::Update(int idx) {
 		}
 	}
 
+#if ENTITY_CACHE_PROFILER == true
+	gECP.StoreData(ECPN_UPDATE, p_begin);
+#endif
+
 	SEGV_END_INFO("Updating entity")
 }
 
 bool CachedEntity::IsVisible() {
+	long p_begin = gECP.CurrentTime();
 	if (m_bVisCheckComplete) return m_bAnyHitboxVisible;
 
 	bool vischeck0 = false;
@@ -172,6 +169,7 @@ bool CachedEntity::IsVisible() {
 	if (vischeck0) {
 		m_bAnyHitboxVisible = true;
 		m_bVisCheckComplete = true;
+		gECP.StoreData(ECPN_VISCHECK, p_begin);
 		return true;
 	}
 
@@ -181,10 +179,11 @@ bool CachedEntity::IsVisible() {
 		if (vischeck) {
 			m_bAnyHitboxVisible = true;
 			m_bVisCheckComplete = true;
+			gECP.StoreData(ECPN_VISCHECK, p_begin);
 			return true;
 		}
 	}
-
+	gECP.StoreData(ECPN_VISCHECK, p_begin);
 	m_bAnyHitboxVisible = false;
 	m_bVisCheckComplete = true;
 
@@ -192,9 +191,6 @@ bool CachedEntity::IsVisible() {
 }
 
 void CachedEntity::AddESPString(Color color, Color background, const char* fmt, ...) {
-#if ENTITY_CACHE_PROFILER == true
-	gEntityCache.m_nStringsAdded++;
-#endif
 	if (m_Strings[m_nESPStrings].m_String) {
 		delete m_Strings[m_nESPStrings].m_String;
 	}
@@ -219,9 +215,6 @@ void CachedEntity::AddESPString(Color color, Color background, const char* fmt, 
 }
 
 ESPStringCompound CachedEntity::GetESPString(int idx) {
-#if ENTITY_CACHE_PROFILER == true
-	gEntityCache.m_nStringsQueued++;
-#endif
 	if (idx >= 0 && idx < m_nESPStrings) {
 		return m_Strings[idx];
 	} else {
@@ -238,7 +231,6 @@ matrix3x4_t* CachedEntity::GetBones() {
 
 EntityCache::EntityCache() {
 	m_pArray = new CachedEntity[4096]();
-	m_lLastLog = 0;
 }
 
 EntityCache::~EntityCache() {
@@ -247,6 +239,9 @@ EntityCache::~EntityCache() {
 }
 
 void EntityCache::Update() {
+#if ENTITY_CACHE_PROFILER == true
+	long p_begin = gECP.CurrentTime();
+#endif
 	m_nMax = interfaces::entityList->GetHighestEntityIndex();
 	for (int i = 0; i < m_nMax && i < 4096; i++) {
 		//logging::Info("Updating %i", i);
@@ -254,26 +249,56 @@ void EntityCache::Update() {
 		//logging::Info("Back!");
 	}
 #if ENTITY_CACHE_PROFILER == true
-	m_nUpdates++;
-	if (time(0) != m_lLastLog) {
-		m_lLastLog = time(0);
-		if (g_vEntityCacheProfiling && g_vEntityCacheProfiling->GetBool()) {
-			logging::Info("[EntityCache] TOTAL: UPS=%i QPS=%i SQPS=%i SAPS=%i REAPS=%i HBPS=%i", m_nUpdates, m_nQueues, m_nStringsQueued, m_nStringsAdded, m_nRawEntityAccesses, m_nHitboxQueued);
-			if (m_nUpdates != 0) logging::Info("[EntityCache] AVG: QPU=%i SQPU=%i SAPU=%i REAPU=%i HBPU=%i",
-					m_nQueues / m_nUpdates,
-					m_nStringsQueued / m_nUpdates,
-					m_nStringsAdded / m_nUpdates,
-					m_nRawEntityAccesses / m_nUpdates,
-					m_nHitboxQueued / m_nUpdates);
-			m_nUpdates = 0;
-			m_nQueues = 0;
-			m_nStringsQueued = 0;
-			m_nStringsAdded = 0;
-			m_nRawEntityAccesses = 0;
-			m_nHitboxQueued = 0;
-		}
-	}
+	if (g_vEntityCacheProfiling->GetBool()) gECP.DoLog();
 #endif
+}
+
+EntityCacheProfiling::EntityCacheProfiling() {
+	m_DataAvg = new long[ECPNodes::ECPN_TOTAL];
+	m_DataMax = new long[ECPNodes::ECPN_TOTAL];
+	Reset();
+	m_DataAvgAmount = 0;
+	m_nLastLog = 0;
+}
+
+EntityCacheProfiling::~EntityCacheProfiling() {
+	delete [] m_DataAvg;
+	delete [] m_DataMax;
+}
+
+long EntityCacheProfiling::CurrentTime() {
+	timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return ts.tv_nsec;
+}
+
+void EntityCacheProfiling::Reset() {
+	for (int i = 0; i < ECPNodes::ECPN_TOTAL; i++) {
+		m_DataAvg[i] = 0;
+		m_DataMax[i] = 0;
+	}
+	m_nLastReset = CurrentTime();
+	m_DataAvgAmount = 0;
+}
+
+void EntityCacheProfiling::StoreData(int id, long begin) {
+	m_DataAvg[id] = (m_DataAvg[id] + (CurrentTime() - begin)) / 2;
+	if ((CurrentTime() - begin) > m_DataMax[id]) {
+		m_DataMax[id] = (CurrentTime() - begin);
+	}
+}
+
+void EntityCacheProfiling::DoLog() {
+	//if (CurrentTime() - m_nLastReset > 5000000000l) Reset();
+	if (time(0) - m_nLastLog > 2) {
+		logging::Info("[ECP] AVG: U:%lu (%.1f%%) | H:%lu (%.1f%%) | V:%lu (%.1f%%)",
+			m_DataAvg[ECPNodes::ECPN_UPDATE], 100.0f * (float)((float)m_DataAvg[ECPNodes::ECPN_UPDATE] / (float)m_DataAvg[ECPNodes::ECPN_UPDATE]),
+			m_DataAvg[ECPNodes::ECPN_HITBOX_UPDATE], 100.0f * (float)((float)m_DataAvg[ECPNodes::ECPN_HITBOX_UPDATE] / (float)m_DataAvg[ECPNodes::ECPN_UPDATE]),
+			m_DataAvg[ECPNodes::ECPN_VISCHECK], 100.0f * (float)((float)m_DataAvg[ECPNodes::ECPN_VISCHECK] / (float)m_DataAvg[ECPNodes::ECPN_UPDATE])
+		);
+		logging::Info("[ECP] MAX: U:%lu | H:%lu | V:%lu", m_DataMax[ECPNodes::ECPN_UPDATE], m_DataMax[ECPNodes::ECPN_HITBOX_UPDATE], m_DataMax[ECPNodes::ECPN_UPDATE]);
+		m_nLastLog = time(0);
+	}
 }
 
 CachedEntity* EntityCache::GetEntity(int idx) {
@@ -281,10 +306,8 @@ CachedEntity* EntityCache::GetEntity(int idx) {
 		logging::Info("Requested invalid entity: %i max %i", idx, m_nMax);
 	}
 	//logging::Info("Request entity: %i, 0x%08x", idx, m_pArray[idx].m_pEntity);
-#if ENTITY_CACHE_PROFILER == true
-	m_nQueues++;
-#endif
 	return &(m_pArray[idx]);
 }
 
+EntityCacheProfiling gECP;
 EntityCache gEntityCache;

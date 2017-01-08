@@ -52,7 +52,8 @@ void hooks::VMTHook::Init(void* inst, unsigned int offset) {
 }
 
 void hooks::VMTHook::Kill() {
-	*vmt = oldvmt;
+	if (vmt)
+		*vmt = oldvmt;
 	vmt = 0;
 	free(array);
 	array = 0;

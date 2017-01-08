@@ -11,7 +11,7 @@
 #include "sdk.h"
 
 int g_ProfilerDepth = 0;
-time_t g_ProfilerSections[MAX_PROFILER_SECTIONS];
+long g_ProfilerSections[MAX_PROFILER_SECTIONS];
 
 void PROFILER_BeginSection() {
 	if (!ENABLE_PROFILER) return;
@@ -20,7 +20,9 @@ void PROFILER_BeginSection() {
 		return;
 	}
 	g_ProfilerDepth++;
-	g_ProfilerSections[g_ProfilerDepth] = time(0);
+	timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	g_ProfilerSections[g_ProfilerDepth] = ts.tv_nsec;
 }
 
 void PROFILER_EndSection(char* name) {
@@ -29,7 +31,10 @@ void PROFILER_EndSection(char* name) {
 		logging::Info("Profiler underflow!");
 		return;
 	}
-	if (g_ProfilerDepth <= PROFILER_OUTPUT_DEPTH && g_Settings.bProfiler->GetBool())
-		logging::Info("[PROF] %s took %ims!", name, (time(0) - g_ProfilerSections[g_ProfilerDepth]));
+	if (g_ProfilerDepth <= PROFILER_OUTPUT_DEPTH && g_Settings.bProfiler->GetBool()) {
+		timespec ts;
+		clock_gettime(CLOCK_REALTIME, &ts);
+		logging::Info("[PROF] %s took %ldus!", name, (ts.tv_nsec - g_ProfilerSections[g_ProfilerDepth]));
+	}
 	g_ProfilerDepth--;
 }

@@ -50,6 +50,7 @@
 #include "cvwrapper.h"
 
 #include "sdk.h"
+#include "vfunc.h"
 #include "copypasted/CSignature.h"
 #include "copypasted/Netvar.h"
 #include "CDumper.h"
@@ -212,20 +213,24 @@ bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false,
 typedef void(Shutdown_t)(void*, const char*);
 void Hk_Shutdown(void* thisptr, const char* reason) {
 	SEGV_BEGIN;
-	const char* new_reason;
-	if (g_Settings.sDisconnectMsg->m_StringLength > 3) {
-		new_reason = g_Settings.sDisconnectMsg->GetString();
+	if (g_Settings.bHackEnabled->GetBool()) {
+		const char* new_reason = reason;
+		if (g_Settings.sDisconnectMsg->m_StringLength > 3) {
+			new_reason = g_Settings.sDisconnectMsg->GetString();
+		}
+		((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, new_reason);
 	} else {
-		new_reason = reason;
+		((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, reason);
 	}
-	((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, new_reason);
 	SEGV_END;
 }
 
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
 
+
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+
 
 	if (!g_Settings.bHackEnabled->GetBool()) return ret;
 
@@ -233,6 +238,8 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		g_Settings.bInvalid = true;
 		return true;
 	}
+
+	PROF_BEGIN();
 
 	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
 	if (ch && !hooks::IsHooked((void*)((uintptr_t)ch))) {
@@ -259,11 +266,14 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	if (g_Settings.bInvalid) {
 		gEntityCache.Invalidate();
 	}
+	PROF_BEGIN();
 	SAFE_CALL(gEntityCache.Update());
+	PROF_END("Entity Cache updating");
 	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
+		PROF_BEGIN();
 		SAFE_CALL(CREATE_MOVE(Bunnyhop));
 		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
 		SAFE_CALL(CREATE_MOVE(ESP));
@@ -279,6 +289,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		SAFE_CALL(CREATE_MOVE(Misc));
 		SAFE_CALL(CREATE_MOVE(Triggerbot));
 		SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
+		PROF_END("Hacks processing");
 		if (time_replaced) interfaces::gvars->curtime = curtime_old;
 	}
 	/*for (IHack* i_hack : hack::hacks) {
@@ -302,6 +313,8 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	if (cmd)
 		last_angles = cmd->viewangles;
 
+	PROF_END("CreateMove");
+
 	return ret;
 
 	SEGV_END;
@@ -312,36 +325,40 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	SEGV_BEGIN;
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
-	if (g_pLocalPlayer->weapon) {
-		int defidx = CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
-		if (defidx == 61) {
-			CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex) = 1006;
+	if (g_Settings.bHackEnabled->GetBool()) {
+		if (CE_GOOD(g_pLocalPlayer->weapon)) {
+			int defidx = CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
+			if (defidx == 61) {
+				CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex) = 1006;
+			}
 		}
-	}
-	if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
-		CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
-	}
-	if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
-		if (g_pLocalPlayer->entity) {
-			CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
-			CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
+		if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
+			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
+		}
+		if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
+			if (g_pLocalPlayer->entity) {
+				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
+				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
+			}
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
-	if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
-		static Vector oldPunchAngles = Vector();
-		Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
-		QAngle viewAngles;
-		interfaces::engineClient->GetViewAngles(viewAngles);
-		viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
-		oldPunchAngles = punchAngles;
-		interfaces::engineClient->SetViewAngles(viewAngles);
-	}
+	if (g_Settings.bHackEnabled->GetBool()) {
+		if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
+			static Vector oldPunchAngles = Vector();
+			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
+			QAngle viewAngles;
+			interfaces::engineClient->GetViewAngles(viewAngles);
+			viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
+			oldPunchAngles = punchAngles;
+			interfaces::engineClient->SetViewAngles(viewAngles);
+		}
 
-	if (g_Settings.bNoZoom->GetBool()) {
-		if (g_pLocalPlayer->entity) {
-			//g_pLocalPlayer->bWasZoomed = NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
-			CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
+		if (g_Settings.bNoZoom->GetBool()) {
+			if (g_pLocalPlayer->entity) {
+				//g_pLocalPlayer->bWasZoomed = NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
+				CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
+			}
 		}
 	}
 	SEGV_END;
@@ -387,12 +404,6 @@ void hack::CC_Cat(const CCommand& args) {
 	interfaces::cvar->ConsoleColorPrintf(colors::blu, "d4rkc4t\n");
 	interfaces::cvar->ConsoleColorPrintf(colors::white, "Build: " __DATE__ " " __TIME__"\n");
 	interfaces::cvar->ConsoleColorPrintf(colors::red, "[DEVELOPER BUILD]\n");
-}
-
-typedef bool(HandleInputEvent_t)(IMatSystemSurface* thisptr, const InputEvent_t& event);
-bool hk_HandleInputEvent(IMatSystemSurface* thisptr, const InputEvent_t& event) {
-	//logging::Info("Handling event %u [%u]", event.m_nType, event.m_nData);
-	return ((HandleInputEvent_t*)hooks::hkMatSurface->GetMethod(hooks::offHandleInputEvent))(thisptr, event);
 }
 
 void hack::Initialize() {
@@ -487,6 +498,7 @@ void hack::Shutdown() {
 	if (hooks::hkClientMode) hooks::hkClientMode->Kill();
 	if (hooks::hkClient) hooks::hkClient->Kill();
 	if (hooks::hkMatSurface) hooks::hkMatSurface->Kill();
+	if (hooks::hkNetChannel) hooks::hkNetChannel->Kill();
 	for (IHack* i_hack : hack::hacks) {
 		delete i_hack;
 	}

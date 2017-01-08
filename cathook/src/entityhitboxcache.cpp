@@ -65,7 +65,6 @@ bool EntityHitboxCache::VisibilityCheck(int id) {
 }
 
 CachedHitbox* EntityHitboxCache::GetHitbox(int id) {
-	gEntityCache.m_nHitboxQueued++;
 	if (id < 0 || id >= m_nNumHitboxes) return 0;
 	if (!m_bSuccess) return 0;
 	if (!m_CacheValidationFlags[id]) {

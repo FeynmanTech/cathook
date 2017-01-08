@@ -129,7 +129,6 @@ public:
 	int m_iMaxHealth;
 	int m_iHealth;
 
-	bool m_bIsVisible;
 	unsigned long m_lSeenTicks;
 	unsigned long m_lLastSeen;
 
@@ -162,17 +161,32 @@ public:
 	CachedEntity* GetEntity(int idx);
 
 	CachedEntity* m_pArray;
-	// Profiling variables.
-	int m_nRawEntityAccesses;
-	int m_nQueues;
-	int m_nUpdates;
-	int m_nStringsAdded;
-	int m_nStringsQueued;
-	int m_nHitboxQueued;
-	unsigned long m_lLastLog;
-
 	int m_nMax;
 };
+
+enum ECPNodes {
+	ECPN_UPDATE,
+	ECPN_HITBOX_UPDATE,
+	ECPN_VISCHECK,
+	ECPN_TOTAL
+};
+
+class EntityCacheProfiling {
+public:
+	EntityCacheProfiling();
+	~EntityCacheProfiling();
+	void Reset();
+	long CurrentTime();
+	void StoreData(int id, long time);
+	void DoLog();
+	long  m_nLastReset;
+	long  m_nLastLog;
+	long* m_DataAvg;
+	long  m_DataAvgAmount;
+	long* m_DataMax;
+};
+
+extern EntityCacheProfiling gECP;
 
 extern EntityCache gEntityCache;
 

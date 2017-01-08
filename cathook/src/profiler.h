@@ -13,7 +13,7 @@
 // TODO this whole profiler thing could be done a lot better..
 
 #define ENABLE_PROFILER false
-#define PROFILER_OUTPUT_DEPTH 1
+#define PROFILER_OUTPUT_DEPTH 7
 #define MAX_PROFILER_SECTIONS 16
 
 #if ENABLE_PROFILER == true

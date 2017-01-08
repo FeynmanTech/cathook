@@ -258,9 +258,9 @@ bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos) {
 	Ray_t ray;
 	trace::g_pFilterDefault->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	ray.Init(g_pLocalPlayer->v_Eye, endpos);
-	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterDefault, &trace_object);
+	interfaces::trace->TraceRay(ray, MASK_SHOT_HULL, trace::g_pFilterDefault, &trace_object);
 	if (trace_object.m_pEnt) {
-		return (((IClientEntity*)trace_object.m_pEnt)->entindex()) == entity->m_IDX;
+		return (((IClientEntity*)trace_object.m_pEnt)) == RAW_ENT(entity);
 	} else return false;
 }
 
@@ -417,7 +417,7 @@ weaponmode GetWeaponMode(CachedEntity* player) {
 
 // TODO FIX this function
 bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
-	if (!CE_BAD(weapon)) return false;
+	if (CE_BAD(weapon)) return false;
 	float rspeed = 0.0f;
 	float rgrav = 0.0f;
 	typedef float(GetProjectileData)(IClientEntity*);
@@ -435,8 +435,10 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 		rgrav = 0.5f;
 	break;
 	case ClassID::CTFCompoundBow: {
-		rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(RAW_ENT(weapon));
-		rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(RAW_ENT(weapon));
+		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
+		rgrav = vfunc<GetProjectileData*>(RAW_ENT(weapon), 528)(RAW_ENT(weapon));
+		//rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(RAW_ENT(weapon));
+		//rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(RAW_ENT(weapon));
 	} break;
 	case ClassID::CTFBat_Wood:
 		rspeed = 3000.0f;
@@ -492,7 +494,7 @@ bool IsVectorVisible(Vector origin, Vector target) {
 	Ray_t ray;
 	vec_filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	ray.Init(origin, target);
-	interfaces::trace->TraceRay(ray, 0x4200400B, vec_filter, &trace_visible);
+	interfaces::trace->TraceRay(ray, MASK_SHOT_HULL, vec_filter, &trace_visible);
 	float dist2 = origin.DistToSqr(trace_visible.endpos);
 	float dist1 = origin.DistToSqr(target);
 	//logging::Info("Target: %.1f, %.1f, %.1f; ENDPOS: %.1f, %.1f, %.1f", target.x, target.y, target.z, trace_visible.endpos.x, trace_visible.endpos.y, trace_visible.endpos.z);
@@ -633,7 +635,7 @@ bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
 		return false;
 	}
 	ray.Init(g_pLocalPlayer->v_Origin + g_pLocalPlayer->v_ViewOffset, hit);
-	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterPenetration, &trace_visible);
+	interfaces::trace->TraceRay(ray, MASK_SHOT_HULL, trace::g_pFilterPenetration, &trace_visible);
 	bool s = false;
 	if (trace_visible.m_pEnt) {
 		s = ((IClientEntity*)trace_visible.m_pEnt) == RAW_ENT(entity);
