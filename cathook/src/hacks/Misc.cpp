@@ -86,7 +86,7 @@ void CC_DumpVars(const CCommand& args) {
 	if (!atoi(args[1])) return;
 	int idx = atoi(args[1]);
 	CachedEntity* ent = ENTITY(idx);
-	if (!ent) return;
+	if (CE_BAD(ent)) return;
 	ClientClass* clz = RAW_ENT(ent)->GetClientClass();
 	logging::Info("Entity %i: %s", ent->m_IDX, clz->GetName());
 	const char* ft = (args.ArgC() > 1 ? args[2] : "");
@@ -205,10 +205,10 @@ void CC_DisonnectVAC(const CCommand& args) {
 }
 
 void CC_DumpAttribs(const CCommand& args) {
-	if (g_pLocalPlayer->weapon) {
+	if (CE_GOOD(g_pLocalPlayer->weapon())) {
 		for (int i = 0; i < 15; i++) {
-			logging::Info("%i %f", CE_INT(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12),
-					CE_FLOAT(g_pLocalPlayer->weapon, netvar.AttributeList + i * 12 + 4));
+			logging::Info("%i %f", CE_INT(g_pLocalPlayer->weapon(), netvar.AttributeList + i * 12),
+					CE_FLOAT(g_pLocalPlayer->weapon(), netvar.AttributeList + i * 12 + 4));
 		}
 	}
 }
@@ -306,25 +306,25 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 		interfaces::baseClient->IN_DeactivateMouse();
 	}*/
 
-		if (CE_GOOD(g_pLocalPlayer->weapon)) {
-			AddSideString(colors::white, colors::black, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon)->GetClientClass()->GetName(), g_pLocalPlayer->weapon->m_iClassID);
-			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack));
+		if (CE_GOOD(g_pLocalPlayer->weapon())) {
+			AddSideString(colors::white, colors::black, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
+			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
 			AddSideString(colors::white, colors::black, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, colors::black, "CanShoot: %i", CanShoot());
 			AddSideString(colors::white, colors::black, "Decaps: %i", CE_INT(g_pLocalPlayer->entity, netvar.iDecapitations));
-			AddSideString(colors::white, colors::black, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage));
-			AddSideString(colors::white, colors::black, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex));
+			AddSideString(colors::white, colors::black, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage));
+			AddSideString(colors::white, colors::black, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
 			AddSideString(colors::white, colors::black, "GlobalVars: 0x%08x", interfaces::gvars);
 			AddSideString(colors::white, colors::black, "realtime: %f", interfaces::gvars->realtime);
 			AddSideString(colors::white, colors::black, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, colors::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon, netvar.flLastFireTime)) > 0.95);
+			AddSideString(colors::white, colors::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
 			AddSideString(colors::white, colors::black, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
 			AddSideString(colors::white, colors::black, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
 			AddSideString(colors::white, colors::black, "ServerTime: %f", CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, colors::black, "CurTime: %f", interfaces::gvars->curtime);
 			AddSideString(colors::white, colors::black, "FrameCount: %i", interfaces::gvars->framecount);
 			float speed, gravity;
-			GetProjectileData(g_pLocalPlayer->weapon, speed, gravity);
+			GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
 			AddSideString(colors::white, colors::black, "Speed: %f", speed);
 			AddSideString(colors::white, colors::black, "Gravity: %f", gravity);
 			AddSideString(colors::white, colors::black, "IsZoomed: %i", g_pLocalPlayer->bZoomed);

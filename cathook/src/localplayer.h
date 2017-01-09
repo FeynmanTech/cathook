@@ -29,14 +29,12 @@ public:
 	bool bZoomed;
 	float flZoomBegin;
 
-	bool bIsReloading;
-
 	Vector v_ViewOffset;
 	Vector v_Origin;
 	Vector v_Eye;
 	int entity_idx;
 	CachedEntity* entity;
-	CachedEntity* weapon;
+	CachedEntity* weapon();
 	Vector v_OrigViewangles;
 	Vector v_SilentAngles;
 	bool bUseSilentAngles;

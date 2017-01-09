@@ -39,12 +39,13 @@ bool AutoSticky::ShouldDetonate(CachedEntity* bomb) {
 bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if (CE_BAD(g_pLocalPlayer->entity)) return true;
+	if (g_pLocalPlayer->clazz != tf_demoman) return true;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
 		if (ent->m_iClassID != ClassID::CTFGrenadePipebombProjectile) continue;
 		if (CE_INT(ent, netvar.iPipeType) != 1) continue;
-		if ((CE_INT(ent, netvar.hThrower)) & 0xFFF != g_pLocalPlayer->entity->m_IDX) continue;
+		if ((CE_INT(ent, netvar.hThrower) & 0xFFF) != g_pLocalPlayer->entity->m_IDX) continue;
 		if (ShouldDetonate(ent)) {
 			cmd->buttons |= IN_ATTACK2;
 		}

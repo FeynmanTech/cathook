@@ -23,7 +23,27 @@
 #include "cvwrapper.h"
 #include "netvars.h"
 #include "vfunc.h"
+#include "hooks.h"
 #include "prediction.h"
+#include "ipc/ipcctl.h"
+
+#include "hacks/Aimbot.h"
+#include "hacks/AntiAim.h"
+#include "hacks/AutoHeal.h"
+#include "hacks/AutoReflect.h"
+#include "hacks/Bunnyhop.h"
+#include "hacks/ESP.h"
+#include "hacks/Airstuck.h"
+#include "hacks/AntiDisguise.h"
+#include "hacks/AutoSticky.h"
+#include "hacks/AutoStrafe.h"
+#include "hacks/FollowBot.h"
+#include "hacks/HuntsmanCompensation.h"
+#include "hacks/Misc.h"
+#include "hacks/SpyAlert.h"
+#include "hacks/Trigger.h"
+#include "hacks/IHack.h"
+
 #include "sdk.h"
 
 #define SQR(x) x * x
@@ -63,5 +83,11 @@
 #define SAFE_CALL(x) x
 
 #endif
+
+#define ADD_HACK(x) \
+	hack::AddHack(g_ph##x = new x());
+
+#define CREATE_MOVE(x) \
+	g_ph##x->CreateMove(thisptr, inputSample, cmd)
 
 #endif /* COMMON_H_ */

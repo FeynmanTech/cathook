@@ -11,7 +11,6 @@
 void LocalPlayer::Update() {
 	entity_idx = interfaces::engineClient->GetLocalPlayer();
 	entity = ENTITY(entity_idx);
-	if (!entity) logging::Info("Local Player is NULL!");
 	if (CE_BAD(entity)) {
 		logging::Info("Local Player is BAD CACHED ENTITY!");
 		return;
@@ -34,17 +33,14 @@ void LocalPlayer::Update() {
 	} else {
 		flZoomBegin = 0.0f;
 	}
+}
 
-
-	int hWeapon = CE_INT(entity, netvar.hActiveWeapon);
-	if (hWeapon && (IDX_GOOD((hWeapon & 0xFFF)))) {
-		weapon = ENTITY(hWeapon & 0xFFF);
-		if (weapon)
-			bIsReloading = (CE_INT(weapon, netvar.iReloadMode) == 1);
-	} else {
-		weapon = 0;
-		bIsReloading = false;
-	}
+CachedEntity* LocalPlayer::weapon() {
+	if (CE_BAD(entity)) return 0;
+	int handle = CE_INT(entity, netvar.hActiveWeapon);
+	int eid = handle & 0xFFF;
+	if (IDX_BAD(eid)) return 0;
+	return ENTITY(eid);
 }
 
 LocalPlayer* g_pLocalPlayer = 0;

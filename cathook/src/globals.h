@@ -8,6 +8,7 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
+class Vector;
 class ConVar;
 
 class CatVar;
@@ -31,6 +32,7 @@ public:
 	CatVar* bShowAntiAim;
 	CatVar* bThirdperson;
 	CatVar* bNoVisuals;
+	Vector last_angles;
 	bool bInvalid;
 };
 

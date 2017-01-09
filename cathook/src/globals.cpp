@@ -18,7 +18,7 @@ void ThirdpersonCallback(IConVar* var, const char* pOldValue, float flOldValue) 
 void GlobalSettings::Init() {
 	this->sDisconnectMsg = CreateConVar(CON_PREFIX "disconnect_msg", "", "Set custom disconnect message");
 
-	this->bMaxPerformance = CREATE_CV(CV_SWITCH, "optimize_performance", "0", "Improve performance (hurts precision)");
+	this->bMaxPerformance = CREATE_CV(CV_SWITCH, "optimize_performance", "0", "deprecated");
 	this->bHackEnabled = CREATE_CV(CV_SWITCH, "enabled", "1", "CatHook enabled");
 	this->bIgnoreTaunting = CREATE_CV(CV_SWITCH, "ignore_taunting", "1", "Ignore taunting players");
 	this->flForceFOV = CREATE_CV(CV_FLOAT, "fov", "0", "FOV");

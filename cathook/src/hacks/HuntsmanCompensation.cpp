@@ -23,7 +23,7 @@ HuntsmanCompensation::HuntsmanCompensation() {
 bool HuntsmanCompensation::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
 	float speed, grav;
-	if (!GetProjectileData(g_pLocalPlayer->weapon, speed, grav)) return true;
+	if (!GetProjectileData(g_pLocalPlayer->weapon(), speed, grav)) return true;
 	if (speed == 0.0f) return true;
 	if (g_pLocalPlayer->life_state) return true;
 	static trace_t* view_trace = new trace_t();
@@ -43,7 +43,7 @@ bool HuntsmanCompensation::CreateMove(void*, float, CUserCmd* cmd) {
 	forward = forward * 8192.0f + g_pLocalPlayer->v_Eye;
 	ray.Init(g_pLocalPlayer->v_Eye, forward);
 	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterDefault, view_trace);
-	GetProjectileData(g_pLocalPlayer->weapon, speed, grav);
+	GetProjectileData(g_pLocalPlayer->weapon(), speed, grav);
 	float ttf = view_trace->startpos.DistTo(view_trace->endpos) / speed;
 	Vector resv = view_trace->endpos;
 	resv.z += ttf * ttf * (grav * 400);

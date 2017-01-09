@@ -379,6 +379,7 @@ bool IsProjectileCrit(CachedEntity* ent) {
 }
 
 weaponmode GetWeaponMode(CachedEntity* player) {
+	if (CE_BAD(player)) return weapon_invalid;
 	int weapon_handle = CE_INT(player, netvar.hActiveWeapon);
 	if (IDX_BAD((weapon_handle & 0xFFF))) {
 		//logging::Info("IDX_BAD: %i", weapon_handle & 0xFFF);
@@ -595,7 +596,7 @@ bool CanHeadshot() {
 
 bool CanShoot() {
 	float tickbase = (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick;
-	float nextattack = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flNextPrimaryAttack);
+	float nextattack = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack);
 	return nextattack <= tickbase;
 }
 

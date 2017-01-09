@@ -105,7 +105,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		}
 		// If we need charge...
 		if (!bodyshot && this->v_bBodyshot->GetBool()) {
-			float bdmg = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage);
+			float bdmg = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage);
 			if (CanHeadshot() && (bdmg) >= health) {
 				bodyshot = true;
 			}

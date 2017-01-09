@@ -86,7 +86,7 @@ Aimbot::Aimbot() {
 
 bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
-	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon)) return true;
+	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return true;
 	if (g_pLocalPlayer->life_state) return true;
 	//this->m_iLastTarget = -1;
 	if (this->v_eAimKey->GetBool() && this->v_eAimKeyMode->GetBool()) {
@@ -119,7 +119,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	// TODO m_bFeignDeathReady no aim
 	if (this->v_bActiveOnlyWhenCanShoot->GetBool()) {
 		// Miniguns should shoot and aim continiously. TODO smg
-		if (g_pLocalPlayer->weapon->m_iClassID != ClassID::CTFMinigun) {
+		if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFMinigun) {
 			// Melees are weird, they should aim continiously like miniguns too.
 			if (GetWeaponMode(g_pLocalPlayer->entity) != weaponmode::weapon_melee) {
 				// Finally, CanShoot() check.
@@ -132,7 +132,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		return true;
 	}
 
-	if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFMinigun) {
+	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun) {
 		if (!(g_pLocalPlayer->cond_0 & cond::slowed)) {
 			return true;
 		}
@@ -145,8 +145,8 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (IsAmbassador(g_pLocalPlayer->weapon)) { // TODO AmbassadorCanHeadshot()
-		if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon, netvar.flLastFireTime)) <= 1.0) {
+	if (IsAmbassador(g_pLocalPlayer->weapon())) { // TODO AmbassadorCanHeadshot()
+		if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
 			return true;
 		}
 	}
@@ -161,7 +161,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	m_iPreferredHitbox = this->v_eHitbox->GetInt();
 	if (this->v_bAutoHitbox->GetBool()) {
-		switch (g_pLocalPlayer->weapon->m_iClassID) {
+		switch (g_pLocalPlayer->weapon()->m_iClassID) {
 		case ClassID::CTFSniperRifle:
 		case ClassID::CTFSniperRifleDecap:
 			m_bHeadOnly = CanHeadshot();
@@ -170,7 +170,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 			m_bHeadOnly = true;
 		break;
 		case ClassID::CTFRevolver:
-			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon);
+			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon());
 		break;
 		case ClassID::CTFRocketLauncher:
 		case ClassID::CTFRocketLauncher_AirStrike:
@@ -185,15 +185,15 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if (this->v_bZoomedOnly->GetBool()) {
 		// TODO IsSniperRifle()
-		if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFSniperRifle ||
-			g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFSniperRifleDecap) {
+		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifle ||
+			g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifleDecap) {
 			if (!CanHeadshot()) return true;
 		}
 	}
 
-	if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFGrapplingHook) return true;
+	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFGrapplingHook) return true;
 
-	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon, m_flProjSpeed, m_flProjGravity));
+	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
 	// TODO priority modes (FOV, Smart, Distance, etc)
 	CachedEntity* target_highest = 0;
 	float target_highest_score = -256;
@@ -254,10 +254,10 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (target_highest != 0) {
 		this->m_iLastTarget = target_highest->m_IDX;
 		Aim(target_highest, cmd);
-		if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFMinigun)
+		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun)
 			m_nMinigunFixTicks = 40;
 	}
-	if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFMinigun &&
+	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun &&
 			target_highest == 0 &&
 			IDX_GOOD(m_iLastTarget) &&
 			m_nMinigunFixTicks) {
@@ -399,15 +399,15 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 			if (g_pLocalPlayer->bZoomed) {
 				if (this->v_iAutoShootCharge->GetBool()) {
-					float bdmg = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargedDamage);
+					float bdmg = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage);
 					if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
 				} else {
 					if (!CanHeadshot()) return true;
 				}
 			}
 		}
-		if (g_pLocalPlayer->weapon->m_iClassID == ClassID::CTFCompoundBow) {
-			float begincharge = CE_FLOAT(g_pLocalPlayer->weapon, netvar.flChargeBeginTime);
+		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFCompoundBow) {
+			float begincharge = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargeBeginTime);
 			float charge = 0;
 			if (begincharge != 0) {
 				charge = interfaces::gvars->curtime - begincharge;

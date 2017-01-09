@@ -22,7 +22,7 @@ AutoStrafe::AutoStrafe() {
 
 bool AutoStrafe::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
-	if (g_pLocalPlayer->entity && !g_pLocalPlayer->life_state) {
+	if (CE_GOOD(g_pLocalPlayer->entity) && !g_pLocalPlayer->life_state) {
 		// TODO FL_ONGROUND
 		if (CE_INT(g_pLocalPlayer->entity, netvar.iFlags) & (1 << 0)) return true;
 		if (abs(cmd->mousedx) > 1) {

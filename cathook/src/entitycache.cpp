@@ -60,9 +60,13 @@ void CachedEntity::Update(int idx) {
 
 	m_bVisCheckComplete = false;
 	if (m_pHitboxCache) {
+#if ENTITY_CACHE_PROFILER == true
 		long p_begin = gECP.CurrentTime();
+#endif
 		SAFE_CALL(m_pHitboxCache->Update());
+#if ENTITY_CACHE_PROFILER == true
 		gECP.StoreData(ECPNodes::ECPN_HITBOX_UPDATE, p_begin);
+#endif
 	}
 
 	switch (m_iClassID) {

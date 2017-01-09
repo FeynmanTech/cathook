@@ -42,8 +42,8 @@ AutoReflect::AutoReflect() {
 // TODO
 bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
-	if (CE_BAD(g_pLocalPlayer->weapon) || CE_BAD(g_pLocalPlayer->entity)) return true;
-	if (g_pLocalPlayer->weapon->m_iClassID != ClassID::CTFFlameThrower) return true;
+	if (CE_BAD(g_pLocalPlayer->weapon()) || CE_BAD(g_pLocalPlayer->entity)) return true;
+	if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFFlameThrower) return true;
 	if (v_bDisableWhenAttacking->GetBool() && (cmd->buttons & IN_ATTACK)) return false;
 
 	CachedEntity* closest = 0;

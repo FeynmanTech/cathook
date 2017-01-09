@@ -112,7 +112,9 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		}
 	}
 
-	if (g_Settings.bNoVisuals->GetBool()) return;
+	if (g_Settings.bNoVisuals->GetBool()) {
+		return;
+	}
 
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
@@ -129,8 +131,12 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 	if (!interfaces::engineClient->IsInGame()) {
 		g_Settings.bInvalid = true;
 	}
-	if (g_Settings.bInvalid) return;
-	if (CE_BAD(g_pLocalPlayer->entity)) return;
+	if (g_Settings.bInvalid) {
+		return;
+	}
+	if (CE_BAD(g_pLocalPlayer->entity)) {
+		return;
+	}
 	if (draw::panel_top == vp) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {
@@ -228,11 +234,15 @@ void Hk_Shutdown(void* thisptr, const char* reason) {
 bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
 
-
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 
+	if (!cmd) {
+		return ret;
+	}
 
-	if (!g_Settings.bHackEnabled->GetBool()) return ret;
+	if (!g_Settings.bHackEnabled->GetBool()) {
+		return ret;
+	}
 
 	if (!interfaces::engineClient->IsInGame()) {
 		g_Settings.bInvalid = true;
@@ -271,24 +281,27 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 	PROF_END("Entity Cache updating");
 	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
+	g_Settings.bInvalid = false;
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 		PROF_BEGIN();
-		SAFE_CALL(CREATE_MOVE(Bunnyhop));
 		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
 		SAFE_CALL(CREATE_MOVE(ESP));
-		SAFE_CALL(CREATE_MOVE(Aimbot));
-		SAFE_CALL(CREATE_MOVE(Airstuck));
-		SAFE_CALL(CREATE_MOVE(AntiAim));
+		if (!g_pLocalPlayer->life_state) {
+			SAFE_CALL(CREATE_MOVE(Bunnyhop));
+			SAFE_CALL(CREATE_MOVE(Aimbot));
+			SAFE_CALL(CREATE_MOVE(Airstuck));
+			SAFE_CALL(CREATE_MOVE(AntiAim));
+			SAFE_CALL(CREATE_MOVE(AutoSticky));
+			SAFE_CALL(CREATE_MOVE(AutoReflect));
+			SAFE_CALL(CREATE_MOVE(AutoStrafe));
+			SAFE_CALL(CREATE_MOVE(Triggerbot));
+			SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
+		}
 		SAFE_CALL(CREATE_MOVE(AntiDisguise));
 		SAFE_CALL(CREATE_MOVE(AutoHeal));
-		SAFE_CALL(CREATE_MOVE(AutoSticky));
-		SAFE_CALL(CREATE_MOVE(AutoReflect));
-		SAFE_CALL(CREATE_MOVE(AutoStrafe));
 		SAFE_CALL(CREATE_MOVE(FollowBot));
 		SAFE_CALL(CREATE_MOVE(Misc));
-		SAFE_CALL(CREATE_MOVE(Triggerbot));
-		SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
 		PROF_END("Hacks processing");
 		if (time_replaced) interfaces::gvars->curtime = curtime_old;
 	}
@@ -314,7 +327,6 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 		last_angles = cmd->viewangles;
 
 	PROF_END("CreateMove");
-
 	return ret;
 
 	SEGV_END;
@@ -325,25 +337,27 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	SEGV_BEGIN;
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
-	if (g_Settings.bHackEnabled->GetBool()) {
-		if (CE_GOOD(g_pLocalPlayer->weapon)) {
-			int defidx = CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex);
+	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
+	//logging::Info("fsi begin");// TODO dbg
+	/*if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
+		if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
+			int defidx = CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex);
 			if (defidx == 61) {
-				CE_INT(g_pLocalPlayer->weapon, netvar.iItemDefinitionIndex) = 1006;
+				CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex) = 1006;
 			}
 		}
-		if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
+		if (g_Settings.bThirdperson->GetBool() && CE_GOOD(g_pLocalPlayer->entity)) {
 			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
 		}
 		if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
-			if (g_pLocalPlayer->entity) {
+			if (CE_GOOD(g_pLocalPlayer->entity)) {
 				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
 				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
 			}
 		}
-	}
+	}*/
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
-	if (g_Settings.bHackEnabled->GetBool()) {
+	/*if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
 		if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 			static Vector oldPunchAngles = Vector();
 			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
@@ -355,12 +369,13 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 		}
 
 		if (g_Settings.bNoZoom->GetBool()) {
-			if (g_pLocalPlayer->entity) {
+			if (CE_GOOD(g_pLocalPlayer->entity)) {
 				//g_pLocalPlayer->bWasZoomed = NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
 				CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
 			}
 		}
-	}
+	}*/
+	//logging::Info("fsi end");// TODO dbg
 	SEGV_END;
 }
 
