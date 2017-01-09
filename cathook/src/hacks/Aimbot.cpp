@@ -284,7 +284,7 @@ int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 	if (!v_bAutoHitbox->GetBool()) return preferred;
 	if (m_bHeadOnly) return 0;
 	if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
-	for (int i = 0; i < target->m_pHitboxCache->m_nNumHitboxes; i++) {
+	for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->m_nNumHitboxes; i++) {
 		if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
 	}
 	return -1;
@@ -313,7 +313,8 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
 		if (m_bHeadOnly && hitbox) return false;
 		if (m_bProjectileMode) {
-			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity))) return false;
+			resultAim = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
+			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, resultAim)) return false;
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
 				if (!GetHitbox(entity, hitbox, resultAim)) return false;
@@ -338,11 +339,13 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 		Vector resultAim;
 		// TODO fix proj buildings
 		if (m_bProjectileMode) {
-			return false;
+			if (!IsBuildingVisible(entity)) return false;
+			resultAim = GetBuildingPosition(entity);
 			//resultAim = entity->GetAbsOrigin();
 			//if (!PredictProjectileAim(g_pLocalPlayer->v_Eye, entity, (hitbox_t)m_iHitbox, m_flProjSpeed, m_bProjArc, m_flProjGravity, resultAim)) return false;
 		} else {
 			//logging::Info("IsVisible?");
+			resultAim = GetBuildingPosition(entity);
 			if (!IsBuildingVisible(entity)) return false;
 		}
 		//logging::Info("IsFOV?");

@@ -339,13 +339,13 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	// Ambassador to festive ambassador changer. simple.
 	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
 	//logging::Info("fsi begin");// TODO dbg
-	/*if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
-		if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
+	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
+		/*if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
 			int defidx = CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex);
 			if (defidx == 61) {
 				CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex) = 1006;
 			}
-		}
+		}*/
 		if (g_Settings.bThirdperson->GetBool() && CE_GOOD(g_pLocalPlayer->entity)) {
 			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
 		}
@@ -355,7 +355,7 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
 			}
 		}
-	}*/
+	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
 	/*if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
 		if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
