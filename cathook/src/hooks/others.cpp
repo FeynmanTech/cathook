@@ -9,7 +9,7 @@
 #include "../common.h"
 #include "../netmessage.h"
 
-bool CanPacket_hook(void* thisptr) {
+bool CanPacketilerok(void* thisptr) {
 	SEGV_BEGIN;
 	return g_Settings.bSendPackets->GetBool() && ((CanPacket_t*)hooks::hkNetChannel->GetMethod(hooks::offCanPacket))(thisptr);
 	SEGV_END;

@@ -74,6 +74,7 @@ public:
 	CatVar* v_fSmoothAutoshootTreshold;
 	CatVar* v_fSmoothRandomness;
 	CatVar* v_ePriorityMode;
+	CatVar* v_bProjectilePredictionWalls;
 };
 
 DECLARE_HACK_SINGLETON(Aimbot);

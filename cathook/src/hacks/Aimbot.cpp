@@ -81,6 +81,7 @@ Aimbot::Aimbot() {
 	v_fSmoothAutoshootTreshold = CREATE_CV(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
 	this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
 	this->v_iSeenDelay = CREATE_CV(CV_INT, "aimbot_delay", "0", "Aimbot delay");
+	this->v_bProjectilePredictionWalls = CREATE_CV(CV_SWITCH, "aimbot_proj_nowallpred", "0", "Don't predict if enemy is hidden")
 	fix_silent = false;
 }
 
@@ -267,7 +268,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
-	if (!v_bEnabled->GetBool()) return;
+	/*if (!v_bEnabled->GetBool()) return;
 	if (IDX_BAD(m_iLastTarget)) return;
 	CachedEntity* ent = ENTITY(this->m_iLastTarget);
 	if (CE_BAD(ent)) return;
@@ -277,12 +278,21 @@ void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", CE_INT(ent, netvar.iHealth), tfclasses[clazz], ent->m_pPlayerInfo->name);
 	} else if (ent->m_Type == ENTITY_BUILDING) {
 		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", CE_INT(ent, netvar.iBuildingHealth), CE_INT(ent, netvar.iUpgradeLevel), GetBuildingName(ent));
-	}
+	}*/
 }
 
 int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 	if (!v_bAutoHitbox->GetBool()) return preferred;
 	if (m_bHeadOnly) return 0;
+	int flags = CE_INT(target, netvar.iFlags);
+	bool ground = (flags & (1 << 0));
+	if (!ground) {
+		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_projectile) {
+			if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFCompoundBow) {
+				preferred = hitbox_t::spine_1;
+			}
+		}
+	}
 	if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
 	for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->m_nNumHitboxes; i++) {
 		if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
@@ -313,6 +323,10 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
 		if (m_bHeadOnly && hitbox) return false;
 		if (m_bProjectileMode) {
+			if (v_bProjectilePredictionWalls->GetBool()) {
+				if (!GetHitbox(entity, hitbox, resultAim)) return false;
+				if (!IsEntityVisible(entity, hitbox)) return false;
+			}
 			resultAim = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
 			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, resultAim)) return false;
 		} else {
