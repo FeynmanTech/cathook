@@ -36,7 +36,7 @@ void EntityHitboxCache::Update() {
 	SAFE_CALL(InvalidateCache());
 	if (CE_BAD(m_pParentEntity)) return;
 	model_t* model;
-	model = (model_t*)RAW_ENT(m_pParentEntity)->GetModel();
+	SAFE_CALL(model = (model_t*)RAW_ENT(m_pParentEntity)->GetModel());
 	if (!model) return;
 	if (!m_bModelSet || model != m_pLastModel) {
 		studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);

@@ -36,6 +36,7 @@ public:
 	float m_flProjSpeed;
 	float m_flProjGravity;
 	bool m_bProjArc;
+	bool m_bSilentHuntsman;
 	//Vector m_vPredictedProjTarget;
 
 	int m_iLastTarget;
@@ -75,6 +76,7 @@ public:
 	CatVar* v_fSmoothRandomness;
 	CatVar* v_ePriorityMode;
 	CatVar* v_bProjectilePredictionWalls;
+	CatVar* v_bProjectileFOVCheckPrediction;
 };
 
 DECLARE_HACK_SINGLETON(Aimbot);

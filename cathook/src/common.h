@@ -53,7 +53,8 @@
 
 #define DEG2RAD(x) (float)(x) * (PI / 180.0f)
 
-#define DEBUG_SEGV false
+#define NO_DEVIGNORE true
+#define DEBUG_SEGV true
 
 #if DEBUG_SEGV == true
 

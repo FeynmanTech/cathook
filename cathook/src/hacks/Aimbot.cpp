@@ -81,7 +81,8 @@ Aimbot::Aimbot() {
 	v_fSmoothAutoshootTreshold = CREATE_CV(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
 	this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
 	this->v_iSeenDelay = CREATE_CV(CV_INT, "aimbot_delay", "0", "Aimbot delay");
-	this->v_bProjectilePredictionWalls = CREATE_CV(CV_SWITCH, "aimbot_proj_nowallpred", "0", "Don't predict if enemy is hidden")
+	this->v_bProjectilePredictionWalls = CREATE_CV(CV_SWITCH, "aimbot_proj_nowallpred", "0", "Don't predict if enemy is hidden");
+	this->v_bProjectileFOVCheckPrediction = CREATE_CV(CV_SWITCH, "aimbot_proj_fovpred", "0", "Legit projectile FOV");
 	fix_silent = false;
 }
 
@@ -252,9 +253,26 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 			}
 		}
 	}
-	if (target_highest != 0) {
+	if (CE_GOOD(target_highest)) {
 		this->m_iLastTarget = target_highest->m_IDX;
-		Aim(target_highest, cmd);
+		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFCompoundBow) {
+			float begincharge = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargeBeginTime);
+			float charge = 0;
+			if (begincharge != 0) {
+				charge = interfaces::gvars->curtime - begincharge;
+				if (charge > 1.0f) charge = 1.0f;
+				m_bSilentHuntsman = true;
+			}
+			if (charge >= v_fAutoShootHuntsmanCharge->GetFloat()) {
+				cmd->buttons &= ~IN_ATTACK;
+			}
+			if (!(cmd->buttons & IN_ATTACK) && m_bSilentHuntsman) {
+				Aim(target_highest, cmd);
+				m_bSilentHuntsman = false;
+			}
+		} else {
+			Aim(target_highest, cmd);
+		}
 		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun)
 			m_nMinigunFixTicks = 40;
 	}
@@ -289,7 +307,7 @@ int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 	if (!ground) {
 		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_projectile) {
 			if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFCompoundBow) {
-				preferred = hitbox_t::spine_1;
+				preferred = hitbox_t::spine_3;
 			}
 		}
 	}
@@ -304,7 +322,9 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 	// Just assuming CE is good
 	if (entity->m_Type == ENTITY_PLAYER) {
 		if (g_Settings.bIgnoreTaunting->GetBool() && (CE_INT(entity, netvar.iCond) & cond::taunting)) return false;
+#if NO_DEVIGNORE != true
 		if (Developer(entity)) return false; // TODO developer relation
+#endif
 		if (entity->m_lSeenTicks < (unsigned)this->v_iSeenDelay->GetInt()) return false;
 		if (IsPlayerInvulnerable(entity)) return false;
 		if (!entity->m_bAlivePlayer) return false;
@@ -323,11 +343,15 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
 		if (m_bHeadOnly && hitbox) return false;
 		if (m_bProjectileMode) {
-			if (v_bProjectilePredictionWalls->GetBool()) {
+			if (v_bProjectileFOVCheckPrediction->GetBool()) {
+				if (v_bProjectilePredictionWalls->GetBool()) {
+					if (!GetHitbox(entity, hitbox, resultAim)) return false;
+					if (!IsEntityVisible(entity, hitbox)) return false;
+				}
+				resultAim = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
+			} else {
 				if (!GetHitbox(entity, hitbox, resultAim)) return false;
-				if (!IsEntityVisible(entity, hitbox)) return false;
 			}
-			resultAim = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
 			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, resultAim)) return false;
 		} else {
 			if (v_bMachinaPenetration->GetBool()) {
@@ -423,17 +447,7 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 				}
 			}
 		}
-		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFCompoundBow) {
-			float begincharge = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargeBeginTime);
-			float charge = 0;
-			if (begincharge != 0) {
-				charge = interfaces::gvars->curtime - begincharge;
-				if (charge > 1.0f) charge = 1.0f;
-			}
-			if (charge >= v_fAutoShootHuntsmanCharge->GetFloat()) {
-				cmd->buttons &= ~IN_ATTACK;
-			}
-		} else {
+		if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFCompoundBow) {
 			cmd->buttons |= IN_ATTACK;
 		}
 	}
