@@ -66,6 +66,7 @@ void GUI::UpdateKeys() {
 }
 
 bool GUI::KeyEvent(ButtonCode_t key) {
+//	logging::Info("pressed %i", key);
 	if (m_bPressedState[key]) {
 		if (key == KEY_INSERT)
 			m_bActive = !m_bActive;
