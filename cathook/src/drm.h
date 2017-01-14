@@ -10,9 +10,11 @@
 
 #include "autogen/autogen.h"
 
+#include <ctime>
+
 #define __QUIT_SEGV (*((int*)0) = 0)
 
-#if __DRM_STEAMID == 76561198307538553
+#if __DRM_STEAMID == 76561198307538553 //TODO!!
 #define _DEVELOPER true
 #else
 #define _DEVELOPER false
@@ -41,7 +43,7 @@
 #if __DRM_EXPIRES == 0
 #define __DRM_EXPIRE false
 #else
-#define __DRM_EXPIRE true
+#define __DRM_EXPIRE ((time(0) - __DRM_EXPIRES) > 0)
 #endif
 #if __DRM_BUILDNUMBER == 0
 #define __DRM_ENGINE false

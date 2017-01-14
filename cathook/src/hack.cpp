@@ -92,7 +92,13 @@ void hack::CC_Cat(const CCommand& args) {
 	interfaces::cvar->ConsoleColorPrintf(colors::white, " by ");
 	interfaces::cvar->ConsoleColorPrintf(colors::blu, "d4rkc4t\n");
 	interfaces::cvar->ConsoleColorPrintf(colors::white, "Build: " __DATE__ " " __TIME__"\n");
+#if _DEVELOPER
 	interfaces::cvar->ConsoleColorPrintf(colors::red, "[DEVELOPER BUILD]\n");
+#endif
+	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build for user " __DRM_STEAMID_S " (Early Access)\n");
+#ifdef __DRM_NOTES
+	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build notes: " __DRM_NOTES "\n");
+#endif
 }
 
 void hack::Initialize() {
