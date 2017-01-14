@@ -31,12 +31,6 @@ namespace hack {
 
 extern bool shutdown;
 
-void Hk_OverrideView(void*, CViewSetup*);
-void Hk_PaintTraverse(void*, unsigned int, bool, bool);
-bool Hk_CreateMove(void*, float, CUserCmd*);
-void Hk_FrameStageNotify(void*, int stage);
-bool Hk_DispatchUserMessage(void*, int, bf_read&);
-
 void Initialize();
 void Think();
 void Shutdown();

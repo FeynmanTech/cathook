@@ -5,9 +5,10 @@
  *      Author: nullifiedcat
  */
 
-#include "hooks.h"
 #include "../common.h"
 #include "../netmessage.h"
+#include "../gui/gui.h"
+#include "hookedmethods.h"
 
 bool CanPacket_hook(void* thisptr) {
 	SEGV_BEGIN;
@@ -61,27 +62,30 @@ void Shutdown_hook(void* thisptr, const char* reason) {
 
 void FrameStageNotify_hook(void* thisptr, int stage) {
 	SEGV_BEGIN;
+	DRM_ENFORCE;
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
-	if (g_Settings.bHackEnabled->GetBool()) {
-		if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
+	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
+	//logging::Info("fsi begin");// TODO dbg
+	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
+		/*if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
 			int defidx = CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex);
 			if (defidx == 61) {
 				CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex) = 1006;
 			}
-		}
-		if (g_Settings.bThirdperson->GetBool() && g_pLocalPlayer->entity) {
+		}*/
+		if (g_Settings.bThirdperson->GetBool() && !g_pLocalPlayer->life_state && CE_GOOD(g_pLocalPlayer->entity)) {
 			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
 		}
 		if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
 			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
-				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
+				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = g_Settings.last_angles.x;
+				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = g_Settings.last_angles.y;
 			}
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
-	if (g_Settings.bHackEnabled->GetBool()) {
+	/*if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
 		if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 			static Vector oldPunchAngles = Vector();
 			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
@@ -98,7 +102,8 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 				CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
 			}
 		}
-	}
+	}*/
+	//logging::Info("fsi end");// TODO dbg
 	SEGV_END;
 }
 

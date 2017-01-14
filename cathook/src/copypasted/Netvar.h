@@ -110,7 +110,7 @@ public:
 	{
 		const auto &node = nodes[name];
 		if (node == 0) {
-			logging::Info("Confused: %s", name);
+			logging::Info("Invalid NetVar node: %s", name);
 			return 0;
 		}
 		return get_offset_recursive(node->nodes, node->offset, args...);

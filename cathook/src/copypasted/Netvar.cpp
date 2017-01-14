@@ -23,7 +23,6 @@ void netvar_tree::init()
 		auto *recv_table = client_class->m_pRecvTable;
 		populate_nodes(recv_table, &class_info->nodes);
 		nodes.emplace(recv_table->GetName(), class_info);
-		//logging::Info("put %s", recv_table->GetName());
 		client_class = client_class->m_pNext;
 	}
 }

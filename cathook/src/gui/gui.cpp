@@ -25,12 +25,10 @@ void GUI::AddList(GUI_List* list) {
 }
 
 void GUI::PushList(const char* id) {
-	logging::Info("Pushing list %s", id);
 	if (m_nStackSize == LISTS_MAX - 1) return;
 	for (int i = 0; i < m_nListCount; i++) {
 		GUI_List* list = m_Lists[i];
 		if (strcmp(list->m_pszListID, id) == 0) {
-			logging::Info("Found!");
 			m_ListStack[m_nStackSize] = list;
 			m_nStackSize++;
 			return;

@@ -50,6 +50,8 @@
 #include "gui/controls.h"
 #include "cvwrapper.h"
 
+#include "hooks/hookedmethods.h"
+
 #include "sdk.h"
 #include "vfunc.h"
 #include "copypasted/CSignature.h"
@@ -60,345 +62,6 @@
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
  */
-
-typedef void(PaintTraverse_t)(void*, unsigned int, bool, bool);
-typedef bool(CreateMove_t)(void*, float, CUserCmd*);
-typedef void(OverrideView_t)(void*, CViewSetup*);
-typedef void(FrameStageNotify_t)(void*, int);
-typedef bool(DispatchUserMessage_t)(void*, int, bf_read&);
-
-Vector last_angles(0.0f, 0.0f, 0.0f);
-
-void hack::Hk_OverrideView(void* thisptr, CViewSetup* setup) {
-	SEGV_BEGIN;
-	((OverrideView_t*)hooks::hkClientMode->GetMethod(hooks::offOverrideView))(thisptr, setup);
-	if (!g_Settings.bHackEnabled->GetBool()) return;
-	if (g_Settings.flForceFOV && g_Settings.flForceFOV->GetBool()) {
-		setup->fov = g_Settings.flForceFOV->GetFloat();
-	}
-	SEGV_END;
-}
-
-void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
-	if (!segvcatch::handler_fpe || !segvcatch::handler_segv) {
-		segvcatch::init_segv();
-		segvcatch::init_fpe();
-		logging::Info("segvcatch init!");
-	}
-
-	SEGV_BEGIN;
-	SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
-	if (!g_Settings.bHackEnabled->GetBool()) return;
-	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
-	if (g_phFollowBot->v_bEnabled->GetBool()) {
-		ipc_client_seg* seg_g = g_phFollowBot->m_pIPC->GetClientSegment(0);
-		ipc_client_seg* seg_l = g_phFollowBot->m_pIPC->GetClientSegment(g_phFollowBot->m_pIPC->client_id);
-
-		if (seg_g == 0) {
-			logging::Info("!!! seg_g == 0 !!!");
-		}
-		if (seg_l == 0) {
-			logging::Info("!!! seg_l == 0 !!!");
-		}
-
-		if (seg_g && seg_g->command_number > g_phFollowBot->last_command_global) {
-			logging::Info("Executing `%s`", seg_g->command_buffer);
-			if (g_phFollowBot->last_command_global) interfaces::engineClient->ExecuteClientCmd(seg_g->command_buffer);
-			g_phFollowBot->last_command_global = seg_g->command_number;
-		}
-		if (seg_l && seg_l->command_number > g_phFollowBot->last_command_local) {
-			logging::Info("Executing `%s`", seg_l->command_buffer);
-			if (g_phFollowBot->last_command_local) interfaces::engineClient->ExecuteClientCmd(seg_l->command_buffer);
-			g_phFollowBot->last_command_local = seg_l->command_number;
-		}
-	}
-
-	if (g_Settings.bNoVisuals->GetBool()) {
-		return;
-	}
-
-	if (!draw::width || !draw::height) {
-		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
-	}
-	if (!draw::panel_top) {
-		const char* name = interfaces::panel->GetName(vp);
-		if (strlen(name) > 4) {
-			if (name[0] == 'M' && name[3] == 'S') {
-				draw::panel_top = vp;
-				logging::Info("Got top panel: %i", vp);
-			}
-		}
-	}
-	if (!interfaces::engineClient->IsInGame()) {
-		g_Settings.bInvalid = true;
-	}
-	if (g_Settings.bInvalid) {
-		return;
-	}
-	if (CE_BAD(g_pLocalPlayer->entity)) {
-		return;
-	}
-	if (draw::panel_top == vp) {
-		ResetStrings();
-		if (g_Settings.bShowLogo->GetBool()) {
-			AddSideString(colors::green, colors::black, "cathook by d4rkc4t");
-#if _DEVELOPER
-			AddSideString(colors::red, colors::black, "DEVELOPER BUILD");
-#else
-			AddSideString(colors::orange, colors::black, "Early Access: " __DRM_NAME);
-#endif
-			AddSideString(colors::green, colors::black, "version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
-		}
-
-		//SAFE_CALL(PAINT_TRAVERSE(AutoStrafe));
-		//SAFE_CALL(PAINT_TRAVERSE(AntiAim));
-		SAFE_CALL(PAINT_TRAVERSE(AntiDisguise));
-		//SAFE_CALL(PAINT_TRAVERSE(AutoReflect));
-		//SAFE_CALL(PAINT_TRAVERSE(FollowBot));
-		SAFE_CALL(PAINT_TRAVERSE(Misc));
-		//SAFE_CALL(PAINT_TRAVERSE(Aimbot));
-		//SAFE_CALL(PAINT_TRAVERSE(Bunnyhop));
-		SAFE_CALL(PAINT_TRAVERSE(ESP));
-		//SAFE_CALL(PAINT_TRAVERSE(Triggerbot));
-		//SAFE_CALL(PAINT_TRAVERSE(AutoSticky));
-		//SAFE_CALL(PAINT_TRAVERSE(Airstuck));
-		//SAFE_CALL(PAINT_TRAVERSE(AutoHeal));
-		//SAFE_CALL(PAINT_TRAVERSE(HuntsmanCompensation));
-		SAFE_CALL(PAINT_TRAVERSE(SpyAlert));
-		Vector screen;
-		for (int i = 0; i < HIGHEST_ENTITY; i++) {
-			CachedEntity* ce = gEntityCache.GetEntity(i);
-			if (CE_BAD(ce)) continue;
-			if (ce->m_ESPOrigin.IsZero(1.0f))
-				if (!draw::EntityCenterToScreen(ce, screen)) continue;
-			for (int j = 0; j < ce->m_nESPStrings; j++) {
-				ESPStringCompound str = ce->GetESPString(j);
-				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
-				if (!ce->m_ESPOrigin.IsZero(1.0)) {
-					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, str.m_Background, false, str.m_String);
-					ce->m_ESPOrigin.y += 11;
-				} else {
-					draw::DrawString(screen.x, screen.y, str.m_Color, str.m_Background, true, str.m_String);
-					screen.y += 11;
-				}
-			}
-		}
-#if GUI_ENABLED == true
-		g_pGUI->UpdateKeys();
-		g_pGUI->Draw();
-#endif
-		DrawStrings();
-	}
-	SEGV_END;
-}
-
-typedef bool(CanPacket_t)(void* thisptr);
-bool Hk_CanPacket(void* thisptr) {
-	SEGV_BEGIN;
-	return g_Settings.bSendPackets->GetBool() && ((CanPacket_t*)hooks::hkNetChannel->GetMethod(hooks::offCanPacket))(thisptr);
-	SEGV_END;
-	return false;
-}
-
-typedef int(IN_KeyEvent_t)(void* thisptr, int eventcode, ButtonCode_t keynum, const char* pszCurrentBinding);
-int Hk_IN_KeyEvent(void* thisptr, int eventcode, ButtonCode_t keynum, const char* pszCurrentBinding) {
-	SEGV_BEGIN;
-	if (eventcode == 1) {
-		if (g_pGUI->KeyEvent(keynum)) return 1;
-	}
-	return ((IN_KeyEvent_t*)hooks::hkClient->GetMethod(hooks::offKeyEvent))(thisptr, eventcode, keynum, pszCurrentBinding);
-	SEGV_END;
-	return 0;
-}
-
-typedef bool(SendNetMsg_t)(void* thisptr, INetMessage& msg, bool forcereliable, bool voice);
-bool Hk_SendNetMsg(void* thisptr, INetMessage& msg, bool bForceReliable = false, bool bVoice = false) {
-	SEGV_BEGIN;
-
-	//logging::Info("Sending NetMsg! %i", msg.GetType());
-	if (g_phAirstuck->v_bStuck->GetBool() && g_Settings.bHackEnabled->GetBool()) {
-		switch (msg.GetType()) {
-		case net_NOP:
-		case net_SignonState:
-		case net_StringCmd:
-			break;
-		default:
-			return false;
-		}
-	}
-	return ((SendNetMsg_t*)hooks::hkNetChannel->GetMethod(hooks::offSendNetMsg))(thisptr, msg, bForceReliable, bVoice);
-	SEGV_END;
-	return false;
-}
-
-typedef void(Shutdown_t)(void*, const char*);
-void Hk_Shutdown(void* thisptr, const char* reason) {
-	SEGV_BEGIN;
-	if (g_Settings.bHackEnabled->GetBool()) {
-		const char* new_reason = reason;
-		if (g_Settings.sDisconnectMsg->m_StringLength > 3) {
-			new_reason = g_Settings.sDisconnectMsg->GetString();
-		}
-		((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, new_reason);
-	} else {
-		((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, reason);
-	}
-	SEGV_END;
-}
-
-bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
-	SEGV_BEGIN;
-
-	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
-
-	if (!cmd) {
-		return ret;
-	}
-
-	if (!g_Settings.bHackEnabled->GetBool()) {
-		return ret;
-	}
-
-	if (!interfaces::engineClient->IsInGame()) {
-		g_Settings.bInvalid = true;
-		return true;
-	}
-
-	PROF_BEGIN();
-
-	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
-	if (ch && !hooks::IsHooked((void*)((uintptr_t)ch))) {
-		logging::Info("Hooking INetChannel!");
-		hooks::hkNetChannel = new hooks::VMTHook();
-		hooks::hkNetChannel->Init(ch, 0);
-		hooks::hkNetChannel->HookMethod((void*)Hk_CanPacket, hooks::offCanPacket);
-		hooks::hkNetChannel->HookMethod((void*)Hk_SendNetMsg, hooks::offSendNetMsg);
-		hooks::hkNetChannel->HookMethod((void*)Hk_Shutdown, hooks::offShutdown);
-		hooks::hkNetChannel->Apply();
-		logging::Info("NetChannel Hooked!");
-	}
-	//logging::Info("canpacket: %i", ch->CanPacket());
-	//if (!cmd) return ret;
-
-	bool time_replaced = false;
-	float curtime_old;
-	if (CE_GOOD(g_pLocalPlayer->entity)) {
-		float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
-		curtime_old = interfaces::gvars->curtime;
-		interfaces::gvars->curtime = servertime;
-		time_replaced = true;
-	}
-	if (g_Settings.bInvalid) {
-		gEntityCache.Invalidate();
-	}
-	PROF_BEGIN();
-	SAFE_CALL(gEntityCache.Update());
-	PROF_END("Entity Cache updating");
-	SAFE_CALL(g_pPlayerResource->Update());
-	SAFE_CALL(g_pLocalPlayer->Update());
-	g_Settings.bInvalid = false;
-	if (CE_GOOD(g_pLocalPlayer->entity)) {
-			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
-		PROF_BEGIN();
-		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
-		SAFE_CALL(CREATE_MOVE(ESP));
-		if (!g_pLocalPlayer->life_state) {
-			SAFE_CALL(CREATE_MOVE(Bunnyhop));
-			SAFE_CALL(CREATE_MOVE(Aimbot));
-			SAFE_CALL(CREATE_MOVE(Airstuck));
-			SAFE_CALL(CREATE_MOVE(AntiAim));
-			SAFE_CALL(CREATE_MOVE(AutoSticky));
-			SAFE_CALL(CREATE_MOVE(AutoReflect));
-			SAFE_CALL(CREATE_MOVE(AutoStrafe));
-			SAFE_CALL(CREATE_MOVE(Triggerbot));
-			SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
-		}
-		SAFE_CALL(CREATE_MOVE(AntiDisguise));
-		SAFE_CALL(CREATE_MOVE(AutoHeal));
-		SAFE_CALL(CREATE_MOVE(FollowBot));
-		SAFE_CALL(CREATE_MOVE(Misc));
-		PROF_END("Hacks processing");
-		if (time_replaced) interfaces::gvars->curtime = curtime_old;
-	}
-	/*for (IHack* i_hack : hack::hacks) {
-		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {
-			ret = false;
-		}
-	}*/
-	g_Settings.bInvalid = false;
-	if (CE_GOOD(g_pLocalPlayer->entity)) {
-		if (g_pLocalPlayer->bUseSilentAngles) {
-			Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
-			float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
-			Vector ang;
-			VectorAngles(vsilent, ang);
-			float yaw = DEG2RAD(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
-			cmd->forwardmove = cos(yaw) * speed;
-			cmd->sidemove = sin(yaw) * speed;
-			ret = false;
-		}
-	}
-	if (cmd)
-		last_angles = cmd->viewangles;
-
-	PROF_END("CreateMove");
-	return ret;
-
-	SEGV_END;
-	return true;
-}
-
-void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
-	SEGV_BEGIN;
-	DRM_ENFORCE;
-	//logging::Info("FrameStageNotify %i", stage);
-	// Ambassador to festive ambassador changer. simple.
-	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
-	//logging::Info("fsi begin");// TODO dbg
-	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
-		/*if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
-			int defidx = CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex);
-			if (defidx == 61) {
-				CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex) = 1006;
-			}
-		}*/
-		if (g_Settings.bThirdperson->GetBool() && !g_pLocalPlayer->life_state && CE_GOOD(g_pLocalPlayer->entity)) {
-			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
-		}
-		if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
-			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = last_angles.x;
-				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = last_angles.y;
-			}
-		}
-	}
-	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
-	/*if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
-		if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
-			static Vector oldPunchAngles = Vector();
-			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
-			QAngle viewAngles;
-			interfaces::engineClient->GetViewAngles(viewAngles);
-			viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
-			oldPunchAngles = punchAngles;
-			interfaces::engineClient->SetViewAngles(viewAngles);
-		}
-
-		if (g_Settings.bNoZoom->GetBool()) {
-			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				//g_pLocalPlayer->bWasZoomed = NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
-				CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
-			}
-		}
-	}*/
-	//logging::Info("fsi end");// TODO dbg
-	SEGV_END;
-}
-
-bool hack::Hk_DispatchUserMessage(void* thisptr, int type, bf_read& buf) {
-	//logging::Info("message %i", type);
-	return ((DispatchUserMessage_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify + 1))(thisptr, type, buf);
-}
 
 bool hack::shutdown = false;
 
@@ -484,7 +147,8 @@ void hack::Initialize() {
 	logging::Info("Hooking methods...");
 	hooks::hkPanel = new hooks::VMTHook();
 	hooks::hkPanel->Init(interfaces::panel, 0);
-	hooks::hkPanel->HookMethod((void*)&hack::Hk_PaintTraverse, hooks::offPaintTraverse);
+	//hooks::hkPanel->HookMethod((void*)&hack::Hk_PaintTraverse, hooks::offPaintTraverse);
+	hooks::hkPanel->HookMethod((void*)PaintTraverse_hook, hooks::offPaintTraverse);
 	hooks::hkPanel->Apply();
 	hooks::hkClientMode = new hooks::VMTHook();
 	uintptr_t* clientMode = 0;
@@ -492,14 +156,15 @@ void hack::Initialize() {
 		sleep(1);
 	}
 	hooks::hkClientMode->Init((void*)clientMode, 0);
-	hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
-	hooks::hkClientMode->HookMethod((void*)&hack::Hk_OverrideView, hooks::offOverrideView);
+	//hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
+	hooks::hkClientMode->HookMethod((void*)CreateMove_hook, hooks::offCreateMove);
+	hooks::hkClientMode->HookMethod((void*)OverrideView_hook, hooks::offOverrideView);
 	hooks::hkClientMode->Apply();
 	hooks::hkClient = new hooks::VMTHook();
 	hooks::hkClient->Init((void*)interfaces::baseClient, 0);
-	hooks::hkClient->HookMethod((void*)&hack::Hk_FrameStageNotify, hooks::offFrameStageNotify);
-	hooks::hkClient->HookMethod((void*)&hack::Hk_DispatchUserMessage, hooks::offFrameStageNotify + 1);
-	hooks::hkClient->HookMethod((void*)&Hk_IN_KeyEvent, hooks::offKeyEvent);
+	hooks::hkClient->HookMethod((void*)FrameStageNotify_hook, hooks::offFrameStageNotify);
+	hooks::hkClient->HookMethod((void*)DispatchUserMessage_hook, hooks::offFrameStageNotify + 1);
+	hooks::hkClient->HookMethod((void*)IN_KeyEvent_hook, hooks::offKeyEvent);
 	hooks::hkClient->Apply();
 	/*hooks::hkMatSurface = new hooks::VMTHook();
 	hooks::hkMatSurface->Init((void*)interfaces::matsurface, 0);

@@ -5,8 +5,8 @@
  *      Author: nullifiedcat
  */
 
-#ifndef HOOKS_H_
-#define HOOKS_H_
+#ifndef HOOKEDMETHODS_H_
+#define HOOKEDMETHODS_H_
 
 typedef bool(CreateMove_t)(void*, float, CUserCmd*);
 typedef void(PaintTraverse_t)(void*, unsigned int, bool, bool);
@@ -22,4 +22,4 @@ typedef void(FrameStageNotify_t)(void*, int);
 #include "PaintTraverse.h"
 #include "others.h"
 
-#endif /* HOOKS_H_ */
+#endif /* HOOKEDMETHODS_H_ */

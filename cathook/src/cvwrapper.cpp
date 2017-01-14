@@ -15,7 +15,6 @@ CatEnum::CatEnum(const char** values, int size, int min) {
 	m_iMin = min;
 	m_iMax = min + size - 1;
 	m_iLength = size;
-	logging::Info("Created enum with size %i", size);
 }
 
 const char* CatEnum::Name(int value) {

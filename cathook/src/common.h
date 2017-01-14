@@ -63,8 +63,10 @@
 
 #define NO_DEVIGNORE true
 #define DEBUG_SEGV true
+#define NO_IPC true
 
 #if DEBUG_SEGV == true
+
 
 #define SEGV_BEGIN \
 	try {

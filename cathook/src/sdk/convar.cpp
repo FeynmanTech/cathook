@@ -47,9 +47,7 @@ static int s_nDLLIdentifier = -1;	// A unique identifier indicating which DLL th
 static bool s_bRegistered = false;
 
 void SetCVarInterface(ICvar* iface) {
-	logging::Info("Setting interface.. current: 0x%08x", g_pCVar);
 	g_pCVar = iface;
-	logging::Info("new: 0x%08x", g_pCVar);
 }
 
 class CDefaultAccessor : public IConCommandBaseAccessor

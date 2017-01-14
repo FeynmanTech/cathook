@@ -62,7 +62,6 @@ Elf32_Shdr *getSectionHeader(void *module, const char *sectionName)
 
 uintptr_t CSignature::dwFindPattern(uintptr_t dwAddress, uintptr_t dwLength, const char* szPattern)
 {
-	logging::Info("Seaching for pattern from 0x%08x, len 0x%08x", dwAddress, dwLength);
 	const char* pat = szPattern;
 	uintptr_t firstMatch = NULL;
 	for (uintptr_t pCur = dwAddress; pCur < dwLength; pCur++)
