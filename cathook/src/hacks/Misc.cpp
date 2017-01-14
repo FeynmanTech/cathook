@@ -99,10 +99,10 @@ void CC_ResetLists(const CCommand& args) {
 }
 
 void CC_DumpPlayers(const CCommand& args) {
-	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
-		CachedEntity* ent = ENTITY(i);
-		if (CE_BAD(ent) || !ent->m_pPlayerInfo) continue;
-		logging::Info("[%i] FriendID: %lu ; Name: %s", i, ent->m_pPlayerInfo->friendsID, ent->m_pPlayerInfo->name);
+	for (int i = 0; i < 33 && i < HIGHEST_ENTITY; i++) {
+		player_info_s* pi = new player_info_s;
+		interfaces::engineClient->GetPlayerInfo(i, pi);
+		logging::Info("[%i] FriendID: %lu ; Name: %s", i, pi->friendsID, pi->name);
 	}
 }
 

@@ -14,7 +14,7 @@
 #include <sys/shm.h>
 #include <signal.h>
 
-#include <ISteamFriends002.h>
+#include <Open Steamworks/ISteamFriends002.h>
 
 #include "../logging.h"
 #include "../interfaces.h"

@@ -44,6 +44,8 @@
 #include "hacks/Trigger.h"
 #include "hacks/IHack.h"
 
+#include "drm.h"
+
 #include "sdk.h"
 
 #define SQR(x) x * x
@@ -54,7 +56,7 @@
 #define DEG2RAD(x) (float)(x) * (PI / 180.0f)
 
 #define NO_DEVIGNORE true
-#define DEBUG_SEGV true
+#define DEBUG_SEGV false
 
 #if DEBUG_SEGV == true
 

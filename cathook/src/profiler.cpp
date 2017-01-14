@@ -10,6 +10,8 @@
 #include "common.h"
 #include "sdk.h"
 
+#if ENABLE_PROFILER
+
 int g_ProfilerDepth = 0;
 long g_ProfilerSections[MAX_PROFILER_SECTIONS];
 
@@ -38,3 +40,5 @@ void PROFILER_EndSection(char* name) {
 	}
 	g_ProfilerDepth--;
 }
+
+#endif

@@ -40,6 +40,7 @@ bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if (CE_BAD(g_pLocalPlayer->entity)) return true;
 	if (CE_BAD(g_pLocalPlayer->weapon())) return true;
+	if (g_pLocalPlayer->life_state) return true;
 	if (g_pLocalPlayer->clazz != tf_demoman) return true;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);

@@ -10,7 +10,8 @@
 #include "logging.h"
 #include "copypasted/CSignature.h"
 
-#include <ISteamClient017.h>
+#include <Open Steamworks/ISteamClient017.h>
+#include <Open Steamworks/ISteamUser004.h>
 
 //class ISteamFriends002;
 
@@ -32,6 +33,7 @@ IPrediction* interfaces::prediction = 0;
 IGameMovement* interfaces::gamemovement = 0;
 IInput* interfaces::iinput = 0;
 IMatSystemSurface* interfaces::matsurface = 0;
+ISteamUser* interfaces::user = 0;
 
 void interfaces::CreateInterfaces() {
 	interfaces::centerPrint = reinterpret_cast<ICenterPrint*>(sharedobj::client->fptr("VCENTERPRINT002", nullptr));
@@ -58,5 +60,5 @@ void interfaces::CreateInterfaces() {
 	interfaces::gamemovement = reinterpret_cast<IGameMovement*>(sharedobj::client->CreateInterface("GameMovement001"));
 	interfaces::iinput = **(reinterpret_cast<IInput***>((uintptr_t)1 + gSignatures.GetClientSignature("A1 ? ? ? ? C6 05 ? ? ? ? 01 8B 10 89 04 24 FF 92 B4 00 00 00 A1 ? ? ? ? 8B 10")));
 	interfaces::matsurface = **reinterpret_cast<IMatSystemSurface***>((uintptr_t)19 + gSignatures.GetClientSignature("FF 92 94 02 00 00 8B 8D C4 FE FF FF 89 85 B0 FE FF FF A1 ? ? ? ? 8B 10 89 4C 24 0C"));
-
+	interfaces::user = interfaces::steamClient->GetISteamUser(su, sp, "SteamUser018");
 }

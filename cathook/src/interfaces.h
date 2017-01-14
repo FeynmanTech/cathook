@@ -31,6 +31,7 @@ class IPrediction;
 class IGameMovement;
 class IInput;
 class IMatSystemSurface;
+class ISteamUser;
 
 namespace interfaces {
 
@@ -52,6 +53,7 @@ extern IPrediction* prediction;
 extern IGameMovement* gamemovement;
 extern IInput* iinput;
 extern IMatSystemSurface* matsurface;
+extern ISteamUser* user;
 
 void CreateInterfaces();
 

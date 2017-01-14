@@ -226,8 +226,8 @@ void GUI::Setup() {
 
 	ADD_VAR(main, g_Settings.flForceFOV);
 	ADD_VAR(main, g_Settings.bIgnoreTaunting);
-	ADD_VAR(main, g_Settings.bNoZoom);
-	ADD_VAR(main, g_Settings.bNoFlinch);
+//	ADD_VAR(main, g_Settings.bNoZoom);
+//	ADD_VAR(main, g_Settings.bNoFlinch);
 	ADD_VAR(main, g_Settings.bShowLogo);
 	ADD_VAR(main, g_Settings.bShowAntiAim);
 	ADD_VAR(main, g_Settings.bThirdperson);

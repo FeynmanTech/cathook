@@ -29,6 +29,7 @@ const char* classes[] = {
 };
 
 void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
+	if (CE_BAD(g_pLocalPlayer->entity)) return;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		ProcessEntityPT(ENTITY(i));
 	}
@@ -75,12 +76,7 @@ void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeig
 	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent);//(CE_INT(ent, netvar.iCond) & cond::cloaked);
 	Vector min, max;
 	RAW_ENT(ent)->GetRenderBounds(min, max);
-	Vector origin;
-	if (PERFORMANCE_HIGH) {
-		origin = ent->m_vecOrigin;
-	} else {
-		origin = RAW_ENT(ent)->GetAbsOrigin();
-	}
+	Vector origin = ent->m_vecOrigin;
 	Vector so;
 	draw::WorldToScreen(origin, so);
 	//if (!a) return;
@@ -342,6 +338,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 }
 
 bool ESP::CreateMove(void*, float, CUserCmd*) {
+	if (CE_BAD(g_pLocalPlayer->entity)) return true;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_GOOD(ent)) { ProcessEntity(ent); }

@@ -20,6 +20,7 @@
 #include <csignal>
 #include <sys/sysinfo.h>
 
+#include <steam/isteamuser.h>
 // All Hacks
 #include "hacks/IHack.h"
 
@@ -141,7 +142,11 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {
 			AddSideString(colors::green, colors::black, "cathook by d4rkc4t");
+#if _DEVELOPER
 			AddSideString(colors::red, colors::black, "DEVELOPER BUILD");
+#else
+			AddSideString(colors::orange, colors::black, "Early Access: " __DRM_NAME);
+#endif
 		}
 		for (IHack* i_hack : hack::hacks) {
 			//PROF_BEGIN();
@@ -335,6 +340,7 @@ bool hack::Hk_CreateMove(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 	SEGV_BEGIN;
+	DRM_ENFORCE;
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
 	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
@@ -346,7 +352,7 @@ void hack::Hk_FrameStageNotify(void* thisptr, int stage) {
 				CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex) = 1006;
 			}
 		}*/
-		if (g_Settings.bThirdperson->GetBool() && CE_GOOD(g_pLocalPlayer->entity)) {
+		if (g_Settings.bThirdperson->GetBool() && !g_pLocalPlayer->life_state && CE_GOOD(g_pLocalPlayer->entity)) {
 			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
 		}
 		if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
@@ -429,8 +435,9 @@ void hack::Initialize() {
 	sharedobj::LoadAllSharedObjects();
 	logging::Info("Creating interfaces...");
 	interfaces::CreateInterfaces();
+	logging::Info("User: %llu", interfaces::user->GetSteamID().ConvertToUint64());
+	DRM_ENFORCE;
 	logging::Info("Interfaces created!");
-	logging::Info("APPID: %i", interfaces::engineClient->GetAppID());
 	logging::Info("Dumping NetVars...");
 	CDumper dumper;
 	dumper.SaveDump();

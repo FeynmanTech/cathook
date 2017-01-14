@@ -33,8 +33,7 @@ Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravit
 	GetHitbox(ent, hb, result);
 	Vector vel = CE_VECTOR(ent, netvar.vVelocity);
 	// TODO ProjAim
-	float ott = g_pLocalPlayer->v_Eye.DistTo(result) / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
-			interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
+	float ott = g_pLocalPlayer->v_Eye.DistTo(result) / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING);
 	float tt = ott - 0.5f;
 	if (tt <= 0.0f) tt = 0.01f;
 	float besttime = tt;
@@ -48,8 +47,7 @@ Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravit
 			curpos.z -= tt * tt * 400;
 			if (curpos.z < result.z - dtg) curpos.z = result.z - dtg;
 		}
-		float rockettime = g_pLocalPlayer->v_Eye.DistTo(curpos) / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
-				interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
+		float rockettime = g_pLocalPlayer->v_Eye.DistTo(curpos) / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING);
 		//logging::Info("RocketTime: %.2f TT: %.2f Step: %i BestTime: %.2f", rockettime, tt, steps, besttime);
 		if (fabs(rockettime - tt) < mindelta) {
 			//if (mindelta != 65536.0) logging::Info("got better delta: %.2f at step %i (time: %.2f)", fabs(rockettime - tt), steps, tt);

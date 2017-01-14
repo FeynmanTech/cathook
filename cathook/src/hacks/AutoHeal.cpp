@@ -73,8 +73,8 @@ AutoHeal::AutoHeal() {
 bool AutoHeal::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
 	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return true;
-	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_medigun) return true;
 	if (g_pLocalPlayer->life_state) return true;
+	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_medigun) return true;
 	int old_target = m_iCurrentHealingTarget;
 	m_iCurrentHealingTarget = GetBestHealingTarget();
 	if (m_iNewTarget > 0 && m_iNewTarget < 10) m_iNewTarget++;

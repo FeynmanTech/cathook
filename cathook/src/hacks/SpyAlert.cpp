@@ -25,6 +25,8 @@ bool SpyAlert::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
+	if (CE_BAD(g_pLocalPlayer->entity))
+	if (g_pLocalPlayer->life_state) return;
 	if (!v_bEnabled->GetBool()) return;
 	for (int i = 0; i < HIGHEST_ENTITY && i < 64; i++) {
 		CachedEntity* ent = ENTITY(i);

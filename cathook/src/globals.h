@@ -13,18 +13,17 @@ class ConVar;
 
 class CatVar;
 
-#define PERFORMANCE_HIGH g_Settings.bMaxPerformance->GetBool()
-
 class GlobalSettings {
 public:
 	void Init();
-	CatVar* bMaxPerformance;
+// TODO
+//	CatVar* bMaxPerformance;
 	CatVar* flForceFOV;
 	CatVar* bHackEnabled;
 	CatVar* bIgnoreTaunting;
-	CatVar* bProfiler;
-	CatVar* bNoZoom;
-	CatVar* bNoFlinch;
+//	CatVar* bProfiler;
+//	CatVar* bNoZoom;
+//	CatVar* bNoFlinch;
 	CatVar* bSendPackets;
 	CatVar* bShowLogo;
 	CatVar* flDrawingOpacity;
