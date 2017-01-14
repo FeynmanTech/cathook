@@ -9,6 +9,7 @@
 #include "../common.h"
 #include "../hack.h"
 #include "hookedmethods.h"
+#include "../gui/gui.h"
 #include "../segvcatch/segvcatch.h"
 
 void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
