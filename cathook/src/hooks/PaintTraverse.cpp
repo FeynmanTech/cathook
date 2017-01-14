@@ -80,7 +80,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 #if _DEVELOPER
 			AddSideString(colors::red, colors::black, "DEVELOPER BUILD");
 #else
-			AddSideString(colors::orange, colors::black, "Early Access: " __DRM_NAME);
+			AddSideString(colors::green, colors::black, "Early Access: " __DRM_NAME);
 #endif
 			AddSideString(colors::green, colors::black, "version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
 		}

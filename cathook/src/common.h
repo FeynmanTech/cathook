@@ -62,11 +62,11 @@
 #endif
 
 #define NO_DEVIGNORE false
-#define DEBUG_SEGV true
+#define DEBUG_SEGV false
 #define NO_IPC true
+#define STR(c) #c
 
 #if DEBUG_SEGV == true
-
 
 #define SEGV_BEGIN \
 	try {
