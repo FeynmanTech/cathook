@@ -10,7 +10,6 @@
 
 class CUserCmd;
 
-typedef bool(CreateMove_t)(void*, float, CUserCmd*);
 bool CreateMove_hook(void*, float, CUserCmd*);
 
 #endif /* CREATEMOVE_H_ */

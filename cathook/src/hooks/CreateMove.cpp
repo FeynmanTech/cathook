@@ -7,11 +7,8 @@
 
 #include "CreateMove.h"
 
-#include "../fixsdk.h"
-#include "../common.h"
-#include "./others.h"
 #include "hooks.h"
-#include "../profiler.h"
+#include "../common.h"
 
 bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;

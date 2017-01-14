@@ -50,13 +50,19 @@
 
 #define SQR(x) x * x
 
+#define CATHOOK_VERSION_MAJOR "0"
+#define CATHOOK_VERSION_MINOR "1"
+#define CATHOOK_VERSION_PATCH "0"
+
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"
 
+#ifndef DEG2RAD
 #define DEG2RAD(x) (float)(x) * (PI / 180.0f)
+#endif
 
 #define NO_DEVIGNORE true
-#define DEBUG_SEGV false
+#define DEBUG_SEGV true
 
 #if DEBUG_SEGV == true
 
@@ -87,10 +93,10 @@
 
 #endif
 
-#define ADD_HACK(x) \
+/*#define ADD_HACK(x) \
 	hack::AddHack(g_ph##x = new x());
 
 #define CREATE_MOVE(x) \
-	g_ph##x->CreateMove(thisptr, inputSample, cmd)
+	g_ph##x->CreateMove(thisptr, inputSample, cmd)*/
 
 #endif /* COMMON_H_ */

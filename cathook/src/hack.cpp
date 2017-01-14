@@ -147,14 +147,24 @@ void hack::Hk_PaintTraverse(void* p, unsigned int vp, bool fr, bool ar) {
 #else
 			AddSideString(colors::orange, colors::black, "Early Access: " __DRM_NAME);
 #endif
+			AddSideString(colors::green, colors::black, "version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
 		}
-		for (IHack* i_hack : hack::hacks) {
-			//PROF_BEGIN();
-			SEGV_BEGIN
-				i_hack->PaintTraverse(p, vp, fr, ar);
-			SEGV_END_INFO("Hack PaintTraverse")
-			//PROF_END(strfmt("%s PaintTraverse", i_hack->GetName()));
-		}
+
+		//SAFE_CALL(PAINT_TRAVERSE(AutoStrafe));
+		//SAFE_CALL(PAINT_TRAVERSE(AntiAim));
+		SAFE_CALL(PAINT_TRAVERSE(AntiDisguise));
+		//SAFE_CALL(PAINT_TRAVERSE(AutoReflect));
+		//SAFE_CALL(PAINT_TRAVERSE(FollowBot));
+		SAFE_CALL(PAINT_TRAVERSE(Misc));
+		//SAFE_CALL(PAINT_TRAVERSE(Aimbot));
+		//SAFE_CALL(PAINT_TRAVERSE(Bunnyhop));
+		SAFE_CALL(PAINT_TRAVERSE(ESP));
+		//SAFE_CALL(PAINT_TRAVERSE(Triggerbot));
+		//SAFE_CALL(PAINT_TRAVERSE(AutoSticky));
+		//SAFE_CALL(PAINT_TRAVERSE(Airstuck));
+		//SAFE_CALL(PAINT_TRAVERSE(AutoHeal));
+		//SAFE_CALL(PAINT_TRAVERSE(HuntsmanCompensation));
+		SAFE_CALL(PAINT_TRAVERSE(SpyAlert));
 		Vector screen;
 		for (int i = 0; i < HIGHEST_ENTITY; i++) {
 			CachedEntity* ce = gEntityCache.GetEntity(i);
@@ -390,12 +400,7 @@ bool hack::Hk_DispatchUserMessage(void* thisptr, int type, bf_read& buf) {
 	return ((DispatchUserMessage_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify + 1))(thisptr, type, buf);
 }
 
-std::vector<IHack*> hack::hacks;
 bool hack::shutdown = false;
-
-void hack::AddHack(IHack* hack) {
-	hack::hacks.push_back(hack);
-}
 
 ICvar* g_pCVar = 0;
 
@@ -521,7 +526,19 @@ void hack::Shutdown() {
 	if (hooks::hkClient) hooks::hkClient->Kill();
 	if (hooks::hkMatSurface) hooks::hkMatSurface->Kill();
 	if (hooks::hkNetChannel) hooks::hkNetChannel->Kill();
-	for (IHack* i_hack : hack::hacks) {
-		delete i_hack;
-	}
+	DELETE_HACK(AutoStrafe);
+	DELETE_HACK(AntiAim);
+	DELETE_HACK(AntiDisguise);
+	DELETE_HACK(AutoReflect);
+	DELETE_HACK(FollowBot);
+	DELETE_HACK(Misc);
+	DELETE_HACK(Aimbot);
+	DELETE_HACK(Bunnyhop);
+	DELETE_HACK(ESP);
+	DELETE_HACK(Triggerbot);
+	DELETE_HACK(AutoSticky);
+	DELETE_HACK(Airstuck);
+	DELETE_HACK(AutoHeal);
+	DELETE_HACK(HuntsmanCompensation);
+	DELETE_HACK(SpyAlert);
 }

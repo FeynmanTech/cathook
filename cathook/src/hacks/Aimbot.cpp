@@ -180,6 +180,9 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		case ClassID::CTFRocketLauncher_Mortar:
 			m_iPreferredHitbox = hitbox_t::foot_L;
 		break;
+		case ClassID::CTFFlareGun:
+			m_iPreferredHitbox = hitbox_t::spine_3;
+		break;
 		default:
 			m_iPreferredHitbox = hitbox_t::pelvis;
 		}

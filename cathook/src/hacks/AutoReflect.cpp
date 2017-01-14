@@ -17,6 +17,7 @@ const char* AutoReflect::GetName() {
 }
 
 bool AutoReflect::ShouldReflect(CachedEntity* ent) {
+	if (CE_BAD(ent)) return false;
 	if (ent->m_Type != ENTITY_PROJECTILE) return false;
 	if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
 	// If projectile is already deflected, don't deflect it again.
