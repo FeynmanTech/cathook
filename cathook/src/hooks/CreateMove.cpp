@@ -47,10 +47,9 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	//if (!cmd) return ret;
 
 	bool time_replaced = false;
-	float curtime_old;
+	float curtime_old = interfaces::gvars->curtime;;
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 		float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
-		curtime_old = interfaces::gvars->curtime;
 		interfaces::gvars->curtime = servertime;
 		time_replaced = true;
 	}
@@ -81,7 +80,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		}
 		SAFE_CALL(CREATE_MOVE(AntiDisguise));
 		SAFE_CALL(CREATE_MOVE(AutoHeal));
-		SAFE_CALL(CREATE_MOVE(FollowBot));
+		//SAFE_CALL(CREATE_MOVE(FollowBot));
 		SAFE_CALL(CREATE_MOVE(Misc));
 //		PROF_END("Hacks processing");
 		if (time_replaced) interfaces::gvars->curtime = curtime_old;

@@ -13,8 +13,8 @@ class ISurface;
 class IPanel;
 }
 
-class ISteamClient017;
-class ISteamFriends002;
+class ISteamClient;
+class ISteamFriends;
 class IVEngineClient013;
 class IClientEntityList;
 class ICenterPrint;
@@ -35,8 +35,8 @@ class ISteamUser;
 
 namespace interfaces {
 
-extern ISteamClient017* steamClient;
-extern ISteamFriends002* steamFriends;
+extern ISteamClient* steamClient;
+extern ISteamFriends* steamFriends;
 extern IVEngineClient013* engineClient;
 extern vgui::ISurface* surface;
 extern vgui::IPanel* panel;

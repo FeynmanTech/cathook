@@ -10,13 +10,12 @@
 #include "logging.h"
 #include "copypasted/CSignature.h"
 
-#include <Open Steamworks/ISteamClient017.h>
-#include <Open Steamworks/ISteamUser004.h>
+#include <steam/isteamclient.h>
 
 //class ISteamFriends002;
 
-ISteamClient017* interfaces::steamClient = 0;
-ISteamFriends002* interfaces::steamFriends = 0;
+ISteamClient* interfaces::steamClient = 0;
+ISteamFriends* interfaces::steamFriends = 0;
 IVEngineClient013* interfaces::engineClient = 0;
 vgui::ISurface* interfaces::surface = 0;
 vgui::IPanel* interfaces::panel = 0;
@@ -41,7 +40,7 @@ void interfaces::CreateInterfaces() {
 	interfaces::engineClient = reinterpret_cast<IVEngineClient013*>(sharedobj::engine->CreateInterface("VEngineClient013"));
 	interfaces::entityList = reinterpret_cast<IClientEntityList*>(sharedobj::client->CreateInterface("VClientEntityList003"));
 	interfaces::panel = reinterpret_cast<vgui::IPanel*>(sharedobj::vgui2->CreateInterface("VGUI_Panel009"));
-	interfaces::steamClient = reinterpret_cast<ISteamClient017*>(sharedobj::steamclient->CreateInterface("SteamClient017"));
+	interfaces::steamClient = reinterpret_cast<ISteamClient*>(sharedobj::steamclient->CreateInterface("SteamClient017"));
 	interfaces::surface = reinterpret_cast<vgui::ISurface*>(sharedobj::vguimatsurface->CreateInterface("VGUI_Surface030"));
 	interfaces::eventManager = reinterpret_cast<IGameEventManager2*>(sharedobj::engine->CreateInterface("GAMEEVENTSMANAGER002"));
 	interfaces::baseClient = reinterpret_cast<IBaseClientDLL*>(sharedobj::client->CreateInterface("VClient017"));
@@ -51,7 +50,7 @@ void interfaces::CreateInterfaces() {
 	//interfaces::client = reinterpret_cast<IClient*>(sharedobj::client->CreateInterface("VClient017"));
 	HSteamPipe sp = interfaces::steamClient->CreateSteamPipe();
 	HSteamUser su = interfaces::steamClient->ConnectToGlobalUser(sp);
-	interfaces::steamFriends = reinterpret_cast<ISteamFriends002*>(interfaces::steamClient->GetISteamFriends(su, sp, "SteamFriends002"));
+	interfaces::steamFriends = interfaces::steamClient->GetISteamFriends(su, sp, "SteamFriends002");
 	//uintptr_t hudupdate = (uintptr_t)hooks::GetVMT(interfaces::baseClient, 0)[11];
 	//interfaces::gvars = *reinterpret_cast<CGlobalVarsBase**>(gSignatures.GetClientSignature("55 89 E5 53 83 EC ? A1 ? ? ? ? 0F B6 5D 0C F3 0F 10 40 10") + 8);
 	interfaces::gvars = **(reinterpret_cast<CGlobalVarsBase***>((uintptr_t)11 + gSignatures.GetClientSignature("55 89 E5 83 EC ? 8B 45 08 8B 15 ? ? ? ? F3 0F 10")));

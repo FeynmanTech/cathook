@@ -12,6 +12,7 @@ struct link_map;
 typedef void *(*fn_CreateInterface_t)(const char*, int*);
 
 const char* path_from_proc_maps(const char* path);
+const char* tf_path_from_maps();
 
 namespace sharedobj {
 

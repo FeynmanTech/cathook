@@ -72,7 +72,7 @@ void hack::InitHacks() {
 	ADD_HACK(AntiAim);
 	ADD_HACK(AntiDisguise);
 	ADD_HACK(AutoReflect);
-	ADD_HACK(FollowBot);
+	//ADD_HACK(FollowBot);
 	ADD_HACK(Misc);
 	ADD_HACK(Aimbot);
 	ADD_HACK(Bunnyhop);
@@ -101,6 +101,8 @@ void hack::Initialize() {
 	logging::Info("Build: " __DATE__ " " __TIME__);
 	logging::Info("Loading shared objects...");
 	sharedobj::LoadAllSharedObjects();
+	g_pszTFPath = tf_path_from_maps();
+	logging::Info("TF folder: %s", g_pszTFPath);
 	logging::Info("Creating interfaces...");
 	interfaces::CreateInterfaces();
 	logging::Info("User: %llu", interfaces::user->GetSteamID().ConvertToUint64());

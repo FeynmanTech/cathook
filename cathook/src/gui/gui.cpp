@@ -141,13 +141,13 @@ void GUI::Setup() {
 	ADD_VAR(aimbot, g_phAimbot->v_bTriggerMode);
 	ADD_VAR(aimbot, g_phAimbot->v_bProjectileAimbot);
 	ADD_VAR(aimbot, g_phAimbot->v_fOverrideProjSpeed);
-	CREATE_LIST(aimbot_smooth, "Smooth")
+	/*CREATE_LIST(aimbot_smooth, "Smooth")
 	ADD_SUBLIST(aimbot, aimbot_smooth);
 	ADD_VAR(aimbot_smooth, g_phAimbot->v_bSmooth);
 	// TODO inverse step multipilers
 	ADD_VAR(aimbot_smooth, g_phAimbot->v_fSmoothAutoshootTreshold);
 	ADD_VAR(aimbot_smooth, g_phAimbot->v_fSmoothRandomness);
-	ADD_VAR(aimbot_smooth, g_phAimbot->v_fSmoothValue);
+	ADD_VAR(aimbot_smooth, g_phAimbot->v_fSmoothValue);*/
 	ADD_VAR(aimbot, g_phAimbot->v_iSeenDelay);
 
 	ADD_VAR(antiaim, g_phAntiAim->v_bEnabled);

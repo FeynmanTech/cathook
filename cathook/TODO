@@ -18,7 +18,7 @@ Noisemaker Spam
 Deflected by enemy player
 AirStuck FIX
 Aim Stickies
-Proj Aim Buildings
+FLAG ESP
 no aim sapper
 Triggerbot ignores vaccinator ubers
 No AutoShoot (trigger) on consumables and PDAs
@@ -26,7 +26,6 @@ Improve Projectile Aimbot. A lot.
 Integrate SEGVCATCH
 Proper AutoHitbox
 Smoothe the smooth aim
-Extract TF2 path from /proc/maps
 Display on the left
 Flare aim on fire
 Triggerbot ambassador correction

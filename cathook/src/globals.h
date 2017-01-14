@@ -35,6 +35,8 @@ public:
 	bool bInvalid;
 };
 
+extern const char* g_pszTFPath;
+
 extern GlobalSettings g_Settings;
 
 #endif /* GLOBALS_H_ */

@@ -34,4 +34,6 @@ void GlobalSettings::Init() {
 	bInvalid = true;
 }
 
+const char* g_pszTFPath = 0;
+
 GlobalSettings g_Settings;

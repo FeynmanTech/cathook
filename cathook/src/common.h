@@ -61,7 +61,7 @@
 #define DEG2RAD(x) (float)(x) * (PI / 180.0f)
 #endif
 
-#define NO_DEVIGNORE true
+#define NO_DEVIGNORE false
 #define DEBUG_SEGV true
 #define NO_IPC true
 

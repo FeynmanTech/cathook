@@ -10,11 +10,11 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include <steam/isteamfriends.h>
 #include <sys/ipc.h>
+#include <errno.h>
 #include <sys/shm.h>
 #include <signal.h>
-
-#include <Open Steamworks/ISteamFriends002.h>
 
 #include "../logging.h"
 #include "../interfaces.h"

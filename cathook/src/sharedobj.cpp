@@ -36,6 +36,32 @@ const char* path_from_proc_maps(const char* name) {
 	return (const char*)0;
 }
 
+const char* tf_path_from_maps() {
+	FILE* proc_maps = fopen(strfmt("/proc/%i/maps", getpid()), "r");
+	if (!proc_maps) return (const char*)0;
+	char* buffer = new char[512];
+	char* path = new char[256];
+	while (fgets(buffer, 512, proc_maps)) {
+		size_t length = strlen(buffer);
+		size_t path_begin = 0;
+		size_t filename_begin = 0;
+		for (size_t i = 0; i < length; i++) {
+			if (*(char*)((size_t)buffer + i) == '/' && !path_begin) path_begin = i;
+			if (*(char*)((size_t)buffer + i) == '/') filename_begin = i + 1;
+		}
+		if (!path_begin || !filename_begin) continue;
+		char* filename = buffer + filename_begin;
+		filename[strlen(filename) - 1] = '\0';
+		if (!strcmp("client.so", filename)) {
+			strcpy(path, buffer + path_begin);
+			path[filename_begin - path_begin - 4] = '\0';
+			return path;
+		}
+	}
+	delete [] buffer;
+	return (const char*)0;
+}
+
 namespace logging {
 void Info(const char* fmt, ...);
 }

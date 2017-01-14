@@ -17,7 +17,7 @@ const char* HuntsmanCompensation::GetName() {
 }
 
 HuntsmanCompensation::HuntsmanCompensation() {
-	this->v_bEnabled = CreateConVar(CON_PREFIX "hc_enabled", "0", "Enable huntsman compensation");
+	this->v_bEnabled = CreateConVar(CON_PREFIX "hc_enabled", "0", "Projectile gravity compensation");
 }
 
 bool HuntsmanCompensation::CreateMove(void*, float, CUserCmd* cmd) {
