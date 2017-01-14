@@ -18,7 +18,21 @@ SOURCES += $(wildcard $(SRC_DIR)/segvcatch/*.cpp)
 SOURCES += $(wildcard $(SRC_DIR)/targeting/*.cpp)
 OBJECTS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(patsubst %.cpp,%.o,$(SOURCES)))
 
-.PHONY: clean
+.PHONY: clean directories
+
+all: directories cathook
+
+directories:
+	mkdir bin
+	mkdir obj
+	mkdir obj/copypasted
+	mkdir obj/hacks
+	mkdir obj/hooks
+	mkdir obj/sdk
+	mkdir obj/gui
+	mkdir obj/ipc
+	mkdir obj/segvcatch
+	mkdir obj/targeting
 
 echo: $(OBJECTS)
 	echo $(OBJECTS)
