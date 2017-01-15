@@ -85,8 +85,8 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 		}
 	}
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
-	/*if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
-		if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
+	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
+		/*if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 			static Vector oldPunchAngles = Vector();
 			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
 			QAngle viewAngles;
@@ -94,15 +94,14 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 			viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
 			oldPunchAngles = punchAngles;
 			interfaces::engineClient->SetViewAngles(viewAngles);
-		}
+		}*/
 
 		if (g_Settings.bNoZoom->GetBool()) {
 			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				//g_pLocalPlayer->bWasZoomed = NET_INT(g_pLocalPlayer->entity, netvar.iCond) & cond::zoomed;
 				CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
 			}
 		}
-	}*/
+	}
 	//logging::Info("fsi end");// TODO dbg
 	SEGV_END;
 }
@@ -111,8 +110,17 @@ void OverrideView_hook(void* thisptr, CViewSetup* setup) {
 	SEGV_BEGIN;
 	((OverrideView_t*)hooks::hkClientMode->GetMethod(hooks::offOverrideView))(thisptr, setup);
 	if (!g_Settings.bHackEnabled->GetBool()) return;
-	if (g_Settings.flForceFOV && g_Settings.flForceFOV->GetBool()) {
+	if (g_Settings.flForceFOV && g_Settings.flForceFOVZoomed && g_Settings.bZoomedFOV) {
+		bool zoomed = g_pLocalPlayer->bZoomed;
+		if (g_Settings.bZoomedFOV->GetBool() && zoomed) {
+			if (g_Settings.flForceFOVZoomed->GetBool()) {
+				setup->fov = g_Settings.flForceFOVZoomed->GetFloat();
+			}
+		} else {
+			if (g_Settings.flForceFOV->GetBool()) {
 		setup->fov = g_Settings.flForceFOV->GetFloat();
+			}
+		}
 	}
 	SEGV_END;
 }
