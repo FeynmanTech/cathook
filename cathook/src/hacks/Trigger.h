@@ -26,6 +26,7 @@ public:
 	CatVar* v_iMinRange;
 	CatVar* v_bBuildings;
 	CatVar* v_bIgnoreVaccinator;
+	CatVar* v_bAmbassadorCharge;
 };
 
 DECLARE_HACK_SINGLETON(Triggerbot);
