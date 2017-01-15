@@ -95,7 +95,7 @@ void hack::CC_Cat(const CCommand& args) {
 #if _DEVELOPER
 	interfaces::cvar->ConsoleColorPrintf(colors::red, "[DEVELOPER BUILD]\n");
 #endif
-	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build for user " __DRM_STEAMID_S " (Early Access)\n");
+	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build for user " __DRM_NAME " (" __DRM_STEAMID_S ") (Early Access)\n");
 #ifdef __DRM_NOTES
 	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build notes: " __DRM_NOTES "\n");
 #endif
