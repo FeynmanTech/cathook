@@ -14,6 +14,7 @@
 
 #define LISTS_MAX 64
 
+class CatVar;
 class GUI_List;
 
 class GUI {
@@ -36,7 +37,7 @@ public:
 	GUI_List** m_ListStack;
 	int m_nListCount;
 	int m_nStackSize;
-	bool m_bActive;
+	CatVar* v_bGUIVisible;
 };
 
 extern GUI* g_pGUI;

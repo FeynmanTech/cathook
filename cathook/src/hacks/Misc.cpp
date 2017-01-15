@@ -47,32 +47,32 @@ void CC_AddRage(const CCommand& args) {
 	rage[n_rage++] = atoi(args[1]);
 }
 
-void DumpRecvTable(CachedEntity* ent, RecvTable* table, int depth, const char* ft) {
-	//bool forcetable = strlen(ft);
-	if (!ft || !strcmp(ft, table->GetName()))
+void DumpRecvTable(CachedEntity* ent, RecvTable* table, int depth, const char* ft, unsigned acc_offset) {
+	bool forcetable = ft && strlen(ft);
+	if (!forcetable || !strcmp(ft, table->GetName()))
 		logging::Info("==== TABLE: %s", table->GetName());
 	for (int i = 0; i < table->GetNumProps(); i++) {
 		RecvProp* prop = table->GetProp(i);
 		if (!prop) continue;
 		if (prop->GetDataTable()) {
-			DumpRecvTable(ent, prop->GetDataTable(), depth + 1, ft);
+			DumpRecvTable(ent, prop->GetDataTable(), depth + 1, ft, acc_offset + prop->GetOffset());
 		}
-		if (ft && strcmp(ft, table->GetName())) continue;
+		if (forcetable && strcmp(ft, table->GetName())) continue;
 		switch (prop->GetType()) {
 		case SendPropType::DPT_Float:
-			logging::Info("%s [0x%04x] = %f", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, prop->GetOffset()));
+			logging::Info("%s [0x%04x] = %f", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, acc_offset + prop->GetOffset()));
 		break;
 		case SendPropType::DPT_Int:
-			logging::Info("%s [0x%04x] = %i", prop->GetName(), prop->GetOffset(), CE_INT(ent, prop->GetOffset()));
+			logging::Info("%s [0x%04x] = %i | %u | %hd | %hu", prop->GetName(), prop->GetOffset(), CE_INT(ent, acc_offset + prop->GetOffset()), CE_VAR(ent, acc_offset +  prop->GetOffset(), unsigned int), CE_VAR(ent, acc_offset + prop->GetOffset(), short), CE_VAR(ent, acc_offset + prop->GetOffset(), unsigned short));
 		break;
 		case SendPropType::DPT_String:
 			logging::Info("%s [0x%04x] = %s", prop->GetName(), prop->GetOffset(), CE_VAR(ent, prop->GetOffset(), char*));
 		break;
 		case SendPropType::DPT_Vector:
-			logging::Info("%s [0x%04x] = (%f, %f, %f)", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, prop->GetOffset()), CE_FLOAT(ent, prop->GetOffset() + 4), CE_FLOAT(ent, prop->GetOffset() + 8));
+			logging::Info("%s [0x%04x] = (%f, %f, %f)", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, acc_offset + prop->GetOffset()), CE_FLOAT(ent, acc_offset + prop->GetOffset() + 4), CE_FLOAT(ent, acc_offset + prop->GetOffset() + 8));
 		break;
 		case SendPropType::DPT_VectorXY:
-			logging::Info("%s [0x%04x] = (%f, %f)", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, prop->GetOffset()), CE_FLOAT(ent, prop->GetOffset() + 4));
+			logging::Info("%s [0x%04x] = (%f, %f)", prop->GetName(), prop->GetOffset(), CE_FLOAT(ent, acc_offset + prop->GetOffset()), CE_FLOAT(ent,acc_offset +  prop->GetOffset() + 4));
 		break;
 		}
 
@@ -89,8 +89,8 @@ void CC_DumpVars(const CCommand& args) {
 	if (CE_BAD(ent)) return;
 	ClientClass* clz = RAW_ENT(ent)->GetClientClass();
 	logging::Info("Entity %i: %s", ent->m_IDX, clz->GetName());
-	const char* ft = (args.ArgC() > 1 ? args[2] : "");
-	DumpRecvTable(ent, clz->m_pRecvTable, 0, ft);
+	const char* ft = (args.ArgC() > 1 ? args[2] : 0);
+	DumpRecvTable(ent, clz->m_pRecvTable, 0, ft, 0);
 }
 
 void CC_ResetLists(const CCommand& args) {

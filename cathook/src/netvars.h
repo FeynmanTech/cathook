@@ -106,6 +106,7 @@ public:
 
 	offset_t iDefaultFOV;
 	offset_t iFOV;
+	offset_t _condition_bits;
 };
 
 extern NetVars netvar;

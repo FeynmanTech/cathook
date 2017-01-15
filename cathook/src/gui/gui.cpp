@@ -12,7 +12,6 @@
 #include "../hacks/hacklist.h"
 
 GUI::GUI() {
-	m_bActive = false;
 	m_nListCount = 0;
 	m_nStackSize = 0;
 	m_ListStack = new GUI_List*[LISTS_MAX]();
@@ -42,7 +41,7 @@ void GUI::PopList() {
 }
 
 void GUI::Draw() {
-	if (!m_bActive) return;
+	if (!v_bGUIVisible || !v_bGUIVisible->GetBool()) return;
 	for (int i = 0; i < m_nStackSize; i++) {
 		GUI_List* list = m_ListStack[i];
 		if (list)
@@ -69,8 +68,8 @@ bool GUI::KeyEvent(ButtonCode_t key) {
 //	logging::Info("pressed %i", key);
 	if (m_bPressedState[key]) {
 		if (key == KEY_INSERT)
-			m_bActive = !m_bActive;
-		if (!m_bActive) return false;
+			v_bGUIVisible->m_pConVar->SetValue(!v_bGUIVisible->GetBool());
+		if (!v_bGUIVisible || !v_bGUIVisible->GetBool()) return false;
 		if (key == KEY_BACKSPACE) {
 			PopList();
 			return false;
@@ -96,6 +95,8 @@ bool GUI::KeyEvent(ButtonCode_t key) {
 
 
 void GUI::Setup() {
+	v_bGUIVisible = CREATE_CV(CV_SWITCH, "gui_visible", "0", "Shows/hides the GUI");
+
 	CREATE_LIST(main, "MAIN");
 	CREATE_LIST(aimbot, "Aimbot");
 	CREATE_LIST(antiaim, "Anti-Aim");
