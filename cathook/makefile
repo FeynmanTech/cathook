@@ -1,6 +1,6 @@
 CC=g++
-CFLAGS=-std=c++1y -DTF2 -O3 -Wall -c -shared -Wall -Wno-unknown-pragmas -fmessage-length=0 -m32 -fvisibility=hidden -fPIC
-CFLAGS+=-D"__DRM_STEAMID=$(DRM_STEAMID)" -D"__DRM_NAME=$(DRM_NAME)" -D"__DRM_EXPIRES=$(DRM_EXPIRES)" -D"__DRM_STEAMID_S=\"$(DRM_STEAMID)\""
+CFLAGS=-std=c++1y -DTF2 -O3 -W -c -shared -Wall -Wno-unknown-pragmas -fmessage-length=0 -m32 -fvisibility=hidden -fPIC
+CFLAGS+=-D__DRM_STEAMID='$(DRM_STEAMID)' -D__DRM_NAME='"$(DRM_NAME)"' -D__DRM_EXPIRES='$(DRM_EXPIRES)' -D__DRM_STEAMID_S='"$(DRM_STEAMID)"'
 CINCLUDES=-I../../ssdk/public -I../../ssdk/mathlib -I../../ssdk/common -I../../ssdk/public/tier1 -I../../ssdk/public/tier0
 LDFLAGS=-m32 -fno-gnu-unique -D_GLIBCXX_USE_CXX11_ABI=0 -shared
 LDLIBS=-Bstatic -lvstdlib -lstdc++ -lc -ltier0
