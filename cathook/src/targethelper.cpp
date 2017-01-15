@@ -37,10 +37,8 @@ int GetScoreForEntity(CachedEntity* entity) {
 	int clazz = CE_INT(entity, netvar.iClass);
 	int health = CE_INT(entity, netvar.iHealth);
 	float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin).Length();
-	bool zoomed = (CE_INT(entity, netvar.iCond) & cond::zoomed);
-	int condx = (CE_INT(entity, netvar.iCond1));
-	int condx2 = (CE_INT(entity, netvar.iCond2));
-	bool pbullet = (condx & cond_ex::vacc_pbullet);
+	bool zoomed = HasCondition(entity, TFCond_Zoomed);
+	bool pbullet = HasCondition(entity, TFCond_SmallBulletResist);
 	bool special = false;
 	bool kritz = IsPlayerCritBoosted(entity);
 	int total = 0;
@@ -62,7 +60,7 @@ int GetScoreForEntity(CachedEntity* entity) {
 		special = true;
 	break;
 	case tf_soldier:
-		if (condx2 & cond_ex2::rocket_jumping) total += 30;
+		if (HasCondition(entity, TFCond_BlastJumping)) total += 30;
 	break;
 	}
 	if (!special) {

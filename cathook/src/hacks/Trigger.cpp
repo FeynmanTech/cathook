@@ -102,7 +102,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		cmd->buttons |= IN_ATTACK;
 		return true;
 	}
-	if ((CE_INT(entity, netvar.iCond2) & cond_ex::vacc_bullet) && v_bIgnoreVaccinator->GetBool()) return true;
+	if (HasCondition(entity, TFCond_UberBulletResist) && v_bIgnoreVaccinator->GetBool()) return true;
 	relation rel = GetRelation(entity);
 	if (rel == relation::FRIEND || rel == relation::DEVELOPER) return true;
 	if (IsPlayerInvulnerable(entity)) return true;

@@ -18,7 +18,7 @@ struct condition_data_s {
 };
 
 enum condition {
-	TFCond_Slowed,
+	TFCond_Slowed = 0,
 	TFCond_Zoomed,
 	TFCond_Disguising,
 	TFCond_Disguised,
@@ -27,12 +27,12 @@ enum condition {
 	TFCond_TeleportedGlow,
 	TFCond_Taunting,
 	TFCond_UberchargeFading,
-	TFCond_Unknown1,
-	TFCond_CloakFlicker,
+	TFCond_Unknown1, //9
+	TFCond_CloakFlicker = 9,
 	TFCond_Teleporting,
 	TFCond_Kritzkrieged,
-	TFCond_Unknown2,
-	TFCond_TmpDamageBonus,
+	TFCond_Unknown2, //12
+	TFCond_TmpDamageBonus = 12,
 	TFCond_DeadRingered,
 	TFCond_Bonked,
 	TFCond_Dazed,
@@ -52,7 +52,7 @@ enum condition {
 	TFCond_RegenBuffed,
 	TFCond_MarkedForDeath,
 	TFCond_NoHealingDamageBuff,
-	TFCond_SpeedBuffAlly,
+	TFCond_SpeedBuffAlly, // 32
 	TFCond_HalloweenCritCandy,
 	TFCond_CritCanteen,
 	TFCond_CritDemoCharge,
@@ -84,7 +84,7 @@ enum condition {
 	TFCond_SmallBulletResist,
 	TFCond_SmallBlastResist,
 	TFCond_SmallFireResist,
-	TFCond_Stealthed,
+	TFCond_Stealthed, // 64
 	TFCond_MedigunDebuff,
 	TFCond_StealthedUserBuffFade,
 	TFCond_BulletImmune,
@@ -98,7 +98,9 @@ enum condition {
 	TFCond_HalloweenTiny,
 	TFCond_HalloweenInHell,
 	TFCond_HalloweenGhostMode,
-	TFCond_DodgeChance,
+	TFCond_MiniCritOnKill,
+	TFCond_DodgeChance, //79
+	TFCond_ObscuredSmoke = 79,
 	TFCond_Parachute,
 	TFCond_BlastJumping,
 	TFCond_HalloweenKart,
@@ -106,7 +108,8 @@ enum condition {
 	TFCond_BalloonHead,
 	TFCond_MeleeOnly,
 	TFCond_SwimmingCurse,
-	TFCond_HalloweenKartNoTurn,
+	TFCond_HalloweenKartNoTurn, //87
+	TFCond_FreezeInput = 87,
 	TFCond_HalloweenKartCage,
 	TFCond_HasRune,
 	TFCond_RuneStrength,
@@ -115,11 +118,8 @@ enum condition {
 	TFCond_RuneResist,
 	TFCond_RuneVampire,
 	TFCond_RuneWarlock,
-	TFCond_RunePrecision,
+	TFCond_RunePrecision, // 96
 	TFCond_RuneAgility,
-	TFCond_MiniCritOnKill,
-	TFCond_ObscuredSmoke,
-	TFCond_FreezeInput,
 	TFCond_GrapplingHook,
 	TFCond_GrapplingHookSafeFall,
 	TFCond_GrapplingHookLatched,
@@ -136,13 +136,19 @@ enum condition {
 	TFCond_SupernovaRune,
 	TFCond_Plague,
 	TFCond_KingAura,
-	TFCond_SpawnOutline,
+	TFCond_SpawnOutline, //114
 	TFCond_KnockedIntoAir,
 	TFCond_CompetitiveWinner,
-	TFCond_CompetitiveLoser
+	TFCond_CompetitiveLoser,
+	TFCond_NoTaunting
 };
 
-bool BitCheck(condition_data_s data, unsigned cond);
+bool CondBitCheck(condition_data_s data, unsigned cond);
+void CondBitSet(condition_data_s data, condition cond, bool state);
+void OldCondSet(CachedEntity* ent, condition cond, bool state);
+condition_data_s FromOldNetvars(CachedEntity* ent);
 bool HasCondition(CachedEntity* ent, condition cond);
+void AddCondition(CachedEntity* ent, condition cond);
+void RemoveCondition(CachedEntity* ent, condition cond);
 
 #endif /* CONDITIONS_H_ */

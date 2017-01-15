@@ -18,9 +18,76 @@ bool BitCheck(condition_data_s data, condition cond) {
 	if (cond > 32 * 1) {
 		return data.cond_1 & (1 << (cond % 32));
 	}
-	return data.cond_1 & (1 << (cond));
+	return data.cond_0 & (1 << (cond));
+}
+
+void CondBitSet(condition_data_s data, condition cond, bool state) {
+	if (state) {
+		if (cond > 32 * 3) {
+			data.cond_3 |= (1 << (cond % 32));
+		} else	if (cond > 32 * 2) {
+			data.cond_2 |= (1 << (cond % 32));
+		} else if (cond > 32 * 1) {
+			data.cond_1 |= (1 << (cond % 32));
+		} else {
+			data.cond_0 |= (1 << (cond));
+		}
+	} else {
+		if (cond > 32 * 3) {
+			data.cond_3 &= ~(1 << (cond % 32));
+		} else	if (cond > 32 * 2) {
+			data.cond_2 &= ~(1 << (cond % 32));
+		} else if (cond > 32 * 1) {
+			data.cond_1 &= ~(1 << (cond % 32));
+		} else {
+			data.cond_0 &= ~(1 << (cond));
+		}
+	}
+}
+
+void OldCondSet(CachedEntity* ent, condition cond, bool state) {
+	if (state) {
+		if (cond > 32 * 3) {
+			CE_INT(ent, netvar.iCond3) |= (1 << (cond % 32));
+		} else	if (cond > 32 * 2) {
+			CE_INT(ent, netvar.iCond2) |= (1 << (cond % 32));
+		} else if (cond > 32 * 1) {
+			CE_INT(ent, netvar.iCond1) |= (1 << (cond % 32));
+		} else {
+			CE_INT(ent, netvar.iCond) |= (1 << (cond));
+		}
+	} else {
+		if (cond > 32 * 3) {
+			CE_INT(ent, netvar.iCond3) &= ~(1 << (cond % 32));
+		} else	if (cond > 32 * 2) {
+			CE_INT(ent, netvar.iCond2) &= ~(1 << (cond % 32));
+		} else if (cond > 32 * 1) {
+			CE_INT(ent, netvar.iCond1) &= ~(1 << (cond % 32));
+		} else {
+			CE_INT(ent, netvar.iCond) &= ~(1 << (cond));
+		}
+	}
+}
+
+condition_data_s FromOldNetvars(CachedEntity* ent) {
+	condition_data_s result;
+	result.cond_0 = CE_INT(ent, netvar.iCond);
+	result.cond_1 = CE_INT(ent, netvar.iCond1);
+	result.cond_2 = CE_INT(ent, netvar.iCond2);
+	result.cond_3 = CE_INT(ent, netvar.iCond3);
+	return result;
 }
 
 bool HasCondition(CachedEntity* ent, condition cond) {
-	return BitCheck(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond);
+	return BitCheck(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond) || BitCheck(FromOldNetvars(ent), cond);
+}
+
+void AddCondition(CachedEntity* ent, condition cond) {
+	CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, true);
+	OldCondSet(ent, cond, true);
+}
+
+void RemoveCondition(CachedEntity* ent, condition cond) {
+	CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, false);
+	OldCondSet(ent, cond, false);
 }

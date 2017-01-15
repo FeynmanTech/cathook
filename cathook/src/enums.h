@@ -15,7 +15,7 @@ enum EntityType {
 	ENTITY_PROJECTILE
 };
 
-enum cond {
+/*enum cond {
 	slowed = (1 << 0),
 	zoomed = (1 << 1),
 	disguised = (1 << 3),
@@ -93,7 +93,7 @@ enum cond_ex3 {
 	powerup_plague = (1 << 14),
 	powerup_supernova = (1 << 15),
 	airblasted = (1 << 19)
-};
+};*/
 
 enum powerup_type {
 	not_powerup = -1,

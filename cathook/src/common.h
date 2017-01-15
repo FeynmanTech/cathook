@@ -25,6 +25,7 @@
 #include "vfunc.h"
 #include "hooks.h"
 #include "prediction.h"
+#include "conditions.h"
 #include "ipc/ipcctl.h"
 
 #include "hacks/Aimbot.h"

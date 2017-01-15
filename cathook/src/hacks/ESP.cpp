@@ -76,7 +76,7 @@ ESP::ESP() {
 
 void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (CE_BAD(ent)) return;
-	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent);//(CE_INT(ent, netvar.iCond) & cond::cloaked);
+	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent);
 	Vector min, max;
 	RAW_ENT(ent)->GetRenderBounds(min, max);
 	Vector origin = RAW_ENT(ent)->GetAbsOrigin();
@@ -127,7 +127,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	Color fg = colors::EntityF(ent);
 	switch (ent->m_Type) {
 	case ENTITY_PLAYER: {
-		bool cloak = IsPlayerInvisible(ent);//CE_INT(ent, netvar.iCond) & cond::cloaked;
+		bool cloak = IsPlayerInvisible(ent);
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent)) {
 			if (cloak) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
@@ -270,14 +270,12 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
 			ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
 		int pclass = CE_INT(ent, netvar.iClass);
-		int pcond = CE_INT(ent, netvar.iCond);
 		player_info_t info;
 		if (!interfaces::engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
 		powerup_type power = GetPowerupOnPlayer(ent);
 		// If target is enemy, always show powerups, if player is teammate, show powerups
 		// only if bTeammatePowerup or bTeammates is true
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent)) {
-			//if (pcond & cond::cloaked) return;
 			if (IsPlayerInvisible(ent)) return;
 			if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {
 				return;
@@ -300,16 +298,16 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 				ent->AddESPString(color, bgclr, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
 			}
 			if (v_bShowConditions->GetBool()) {
-				if (pcond & cond::cloaked) {
-					ent->AddESPString(color, bgclr, "CLOAKED");
+				if (IsPlayerInvisible(ent)) {
+					ent->AddESPString(color, bgclr, "INVISIBLE");
 				}
 				if (IsPlayerInvulnerable(ent)) {
 					ent->AddESPString(color, bgclr, "INVULNERABLE");
 				}
-				if (CE_INT(ent, netvar.iCond1) & cond_ex::vacc_bullet) {
+				if (HasCondition(ent, TFCond_UberBulletResist)) {
 					ent->AddESPString(color, bgclr, "VACCINATOR ACTIVE");
 				}
-				if (CE_INT(ent, netvar.iCond1) & cond_ex::vacc_pbullet) {
+				if (HasCondition(ent, TFCond_SmallBulletResist)) {
 					ent->AddESPString(color, bgclr, "VACCINATOR PASSIVE");
 				}
 				if (IsPlayerCritBoosted(ent)) {

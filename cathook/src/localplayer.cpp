@@ -20,10 +20,6 @@ void LocalPlayer::Update() {
 	v_ViewOffset = CE_VECTOR(entity, netvar.vViewOffset);
 	v_Origin = entity->m_vecOrigin;
 	v_Eye = v_Origin + v_ViewOffset;
-	cond_0 = CE_INT(entity, netvar.iCond);
-	cond_1 = CE_INT(entity, netvar.iCond1);
-	cond_2 = CE_INT(entity, netvar.iCond1);
-	cond_3 = CE_INT(entity, netvar.iCond3);
 	clazz = CE_INT(entity, netvar.iClass);
 	health = CE_INT(entity, netvar.iHealth);
 	this->bUseSilentAngles = false;

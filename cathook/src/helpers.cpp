@@ -33,28 +33,17 @@ void EndConVars() {
 
 
 bool IsPlayerInvulnerable(CachedEntity* player) {
-	int cond1 = CE_INT(player, netvar.iCond);
-	int cond2 = CE_INT(player, netvar.iCond1);
-	int uber_mask_1 = (cond::uber | cond::bonk);
-	int uber_mask_2 = (cond_ex::hidden_uber | cond_ex::canteen_uber | cond_ex::misc_uber | cond_ex::phlog_uber);
-	if ((cond1 & uber_mask_1) || (cond2 & uber_mask_2)) {
-		//logging::Info("COND1: %i MASK1: %i", cond1, uber_mask_1);
-		//logging::Info("COND2: %i MASK2: %i", cond2, uber_mask_2);
-		return true;
-	}
-	return false;
+	return (HasCondition(player, TFCond_Ubercharged) || HasCondition(player, TFCond_UberchargedCanteen)
+	 || HasCondition(player, TFCond_UberchargedHidden) || HasCondition(player, TFCond_UberchargedOnTakeDamage)
+	 || HasCondition(player, TFCond_Bonked) || HasCondition(player, TFCond_DefenseBuffMmmph));
 }
 
 bool IsPlayerCritBoosted(CachedEntity* player) {
-	int cond1 = CE_INT(player, netvar.iCond);
-	int cond2 = CE_INT(player, netvar.iCond1);
-	int cond4 = CE_INT(player, netvar.iCond3);
-	int crit_mask_1 = (cond::kritzkrieg);
-	int crit_mask_2 = (cond_ex::halloween_crit | cond_ex::canteen_crit | cond_ex::first_blood_crit | cond_ex::winning_crit |
-			cond_ex::intelligence_crit | cond_ex::on_kill_crit | cond_ex::phlog_crit | cond_ex::misc_crit);
-	int crit_mask_4 = (cond_ex3::powerup_crit);
-	if ((cond1 & crit_mask_1) || (cond2 & crit_mask_2) || (cond4 & crit_mask_4)) return true;
-	return false;
+	return (HasCondition(player, TFCond_Kritzkrieged) || HasCondition(player, TFCond_CritRuneTemp)
+		 || HasCondition(player, TFCond_CritCanteen) || HasCondition(player, TFCond_CritMmmph)
+		 || HasCondition(player, TFCond_CritOnKill) || HasCondition(player, TFCond_CritOnDamage)
+		 || HasCondition(player, TFCond_CritOnFirstBlood) || HasCondition(player, TFCond_CritOnWin)
+		 || HasCondition(player, TFCond_CritRuneTemp) || HasCondition(player, TFCond_HalloweenCritCandy));
 }
 
 ConVar* CreateConVar(const char* name, const char* value, const char* help) {
@@ -149,23 +138,19 @@ item_type GetItemType(CachedEntity* entity) {
 }
 
 powerup_type GetPowerupOnPlayer(CachedEntity* player) {
-	if (!player) return powerup_type::not_powerup;
-	int cond2 = CE_INT(player, netvar.iCond2);
-	int cond3 = CE_INT(player, netvar.iCond3);
-	//if (!(cond2 & cond_ex2::powerup_generic)) return powerup_type::not_powerup;
-	if (cond2 & cond_ex2::powerup_strength) return powerup_type::strength;
-	if (cond2 & cond_ex2::powerup_haste) return powerup_type::haste;
-	if (cond2 & cond_ex2::powerup_regen) return powerup_type::regeneration;
-	if (cond2 & cond_ex2::powerup_resistance) return powerup_type::resistance;
-	if (cond2 & cond_ex2::powerup_vampire) return powerup_type::vampire;
-	if (cond2 & cond_ex2::powerup_reflect) return powerup_type::reflect;
-	if (cond3 & cond_ex3::powerup_precision) return powerup_type::precision;
-	if (cond3 & cond_ex3::powerup_agility) return powerup_type::agility;
-	if (cond3 & cond_ex3::powerup_knockout) return powerup_type::knockout;
-	if (cond3 & cond_ex3::powerup_king) return powerup_type::king;
-	if (cond3 & cond_ex3::powerup_plague) return powerup_type::plague;
-	if (cond3 & cond_ex3::powerup_supernova) return powerup_type::supernova;
-
+	if (!CE_BAD(player)) return powerup_type::not_powerup;
+	if (HasCondition(player, TFCond_RuneStrength)) return powerup_type::strength;
+	if (HasCondition(player, TFCond_RuneHaste)) return powerup_type::haste;
+	if (HasCondition(player, TFCond_RuneRegen)) return powerup_type::regeneration;
+	if (HasCondition(player, TFCond_RuneResist)) return powerup_type::resistance;
+	if (HasCondition(player, TFCond_RuneVampire)) return powerup_type::vampire;
+	if (HasCondition(player, TFCond_RuneWarlock)) return powerup_type::reflect;
+	if (HasCondition(player, TFCond_RunePrecision)) return powerup_type::precision;
+	if (HasCondition(player, TFCond_RuneAgility)) return powerup_type::agility;
+	if (HasCondition(player, TFCond_RuneKnockout)) return powerup_type::knockout;
+	if (HasCondition(player, TFCond_KingRune)) return powerup_type::king;
+	if (HasCondition(player, TFCond_PlagueRune)) return powerup_type::plague;
+	if (HasCondition(player, TFCond_SupernovaRune)) return powerup_type::supernova;
 	return powerup_type::not_powerup;
 }
 
@@ -230,12 +215,10 @@ void FixMovement(CUserCmd& cmd, Vector& viewangles) {
 }
 
 bool IsPlayerInvisible(CachedEntity* player) {
-	int cond = CE_INT(player, netvar.iCond);
-	int mask = cloaked;
-	int cond_1 = CE_INT(player, netvar.iCond1);
-	int mask_1 = cond_ex2::cloak_spell | cond_ex2::cloak_spell_fading;
-	int mask_v = on_fire | jarate | milk;
-	return !((cond & mask_v) || !((cond & mask) || (cond_1 & mask_1)));
+	return (HasCondition(player, TFCond_Cloaked) && !(
+		 HasCondition(player, TFCond_OnFire) || HasCondition(player, TFCond_Jarated)
+		 || HasCondition(player, TFCond_CloakFlicker) || HasCondition(player, TFCond_Milked)
+		 || HasCondition(player, TFCond_Bleeding)));
 }
 
 float RandFloatRange(float min, float max)
