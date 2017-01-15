@@ -8,9 +8,12 @@
 #ifndef DRM_H_
 #define DRM_H_
 
-#include "autogen/autogen.h"
+//#include "autogen/autogen.h"
 
 #include <ctime>
+
+#define __DRM_ENABLED true
+#define __DRM_NOTES "Unstable build, for testing only!"
 
 #define __QUIT_SEGV (*((int*)0) = 0)
 
@@ -19,6 +22,20 @@
 #else
 #define _DEVELOPER false
 #endif
+
+#ifndef __DRM_STEAMID
+#define __DRM_STEAMID 76561198307538553
+#define __DRM_STEAMID_S "76561198307538553"
+#endif
+#ifndef __DRM_EXPIRES
+#define __DRM_EXPIRES 0
+#endif
+#ifndef __DRM_BUILDNUMBER
+#define __DRM_BUILDNUMBER 0
+#define __DRM_BUILDNUMBER_MAX 0
+#endif
+#define __DRM_NAME "d4rkc4t"
+
 
 #if __DRM_ENABLED != false
 #define DRM_CHECK_STEAM __DRM_STEAM
