@@ -21,11 +21,6 @@ public:
 	int flags;
 	char life_state;
 	int clazz;
-	int cond_0;
-	int cond_1;
-	int cond_2;
-	int cond_3;
-
 	bool bZoomed;
 	float flZoomBegin;
 
@@ -40,6 +35,9 @@ public:
 	bool bUseSilentAngles;
 	bool bAttackLastTick;
 };
+
+#define LOCAL_E g_pLocalPlayer->entity
+#define LOCAL_W g_pLocalPlayer->weapon()
 
 extern LocalPlayer* g_pLocalPlayer;
 

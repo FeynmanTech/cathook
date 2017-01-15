@@ -98,7 +98,7 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 
 		if (g_Settings.bNoZoom->GetBool()) {
 			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				CE_INT(g_pLocalPlayer->entity, netvar.iCond) = CE_INT(g_pLocalPlayer->entity, netvar.iCond) &~ cond::zoomed;
+				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
 			}
 		}
 	}

@@ -229,6 +229,18 @@ void CC_SetValue(const CCommand& args) {
 	delete [] value;
 }
 
+void CC_DumpConds(const CCommand& args) {
+	if (args.ArgC() < 1) return;
+	if (!atoi(args[1])) return;
+	int idx = atoi(args[1]);
+	CachedEntity* ent = ENTITY(idx);
+	if (CE_BAD(ent)) return;
+	condition_data_s d1 = CE_VAR(ent, netvar._condition_bits, condition_data_s);
+	condition_data_s d2 = FromOldNetvars(ent);
+	logging::Info("0x%08x 0x%08x 0x%08x 0x%08x", d1.cond_0, d1.cond_1, d1.cond_2, d1.cond_3);
+	logging::Info("0x%08x 0x%08x 0x%08x 0x%08x", d2.cond_0, d2.cond_1, d2.cond_2, d2.cond_3);
+}
+
 Misc::Misc() {
 	v_bDebugInfo = CreateConVar(CON_PREFIX "misc_debug", "0", "Debug info");
 	c_Name = CreateConCommand(CON_PREFIX "name", CC_SetName, "Sets custom name");
@@ -239,6 +251,7 @@ Misc::Misc() {
 	c_AddRage = CreateConCommand(CON_PREFIX "addrage", CC_AddRage, "Adds player to rage list");
 	c_DumpVars = CreateConCommand(CON_PREFIX "dumpent", CC_DumpVars, "Dumps entity data");
 	c_DumpPlayers = CreateConCommand(CON_PREFIX "dumpplayers", CC_DumpPlayers, "Dumps player data");
+	c_DumpConds = CreateConCommand(CON_PREFIX "dumpconds", CC_DumpConds, "Dumps conditions");
 	c_Teamname = CreateConCommand(CON_PREFIX "teamname", CC_Teamname, "Team name");
 	c_Lockee = CreateConCommand(CON_PREFIX "lockee", CC_Lockee, "Lock/Unlock commands");
 	c_Reset = CreateConCommand(CON_PREFIX "reset_lists", CC_ResetLists, "Remove all friends and rage");

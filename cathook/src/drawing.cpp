@@ -195,7 +195,7 @@ Color colors::EntityF(CachedEntity* ent) {
 				if (ent->m_iTeam == TEAM_BLU) result = blu_u;
 				else if (ent->m_iTeam == TEAM_RED) result = red_u;
 			}
-			if (CE_INT(ent, netvar.iCond1) & cond_ex::vacc_bullet) {
+			if (HasCondition(ent, TFCond_UberBulletResist)) {
 				if (ent->m_iTeam == TEAM_BLU) result = blu_v;
 				else if (ent->m_iTeam == TEAM_RED) result = red_v;
 			}

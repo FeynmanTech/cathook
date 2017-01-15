@@ -32,6 +32,7 @@ public:
 	ConCommand* c_Teamname;
 	ConCommand* c_Lockee;
 	ConCommand* c_Info;
+	ConCommand* c_DumpConds;
 	ConCommand* c_Reset;
 	ConCommand* c_Disconnect;
 	ConCommand* c_DisconnectVAC;

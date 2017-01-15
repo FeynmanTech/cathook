@@ -26,7 +26,7 @@ bool bDoubleJumpFix = false;
 
 bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
-	if (g_pLocalPlayer->cond_3 & cond_ex3::grappling) return true;
+	if (HasCondition(g_pLocalPlayer->entity, TFCond_GrapplingHook)) return true;
 	int flags = CE_INT(g_pLocalPlayer->entity, netvar.iFlags);
 
 	if (v_bAutoJump->GetBool()) {

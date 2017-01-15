@@ -27,7 +27,7 @@ void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 		if (CE_BAD(ent)) continue;
 		if (ent->m_Type == ENTITY_PLAYER) {
 			if (CE_INT(ent, netvar.iClass) == tf_class::tf_spy) {
-				CE_INT(ent, netvar.iCond) = CE_INT(ent, netvar.iCond) &~ cond::disguised;
+				RemoveCondition(ent, TFCond_Disguised);
 			}
 		}
 	}

@@ -106,7 +106,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (g_pLocalPlayer->cond_0 & cond::taunting) return true;
+	if (HasCondition(g_pLocalPlayer->entity, TFCond_Taunting)) return true;
 
 	switch (GetWeaponMode(g_pLocalPlayer->entity)) {
 	case weapon_medigun:
@@ -117,7 +117,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		return true;
 	};
 
-	if (g_pLocalPlayer->cond_0 & cond::cloaked) return true; // TODO other kinds of cloak
+	if (HasCondition(g_pLocalPlayer->entity, TFCond_Cloaked)) return true; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
 	if (this->v_bActiveOnlyWhenCanShoot->GetBool()) {
 		// Miniguns should shoot and aim continiously. TODO smg
@@ -135,7 +135,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	}
 
 	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun) {
-		if (!(g_pLocalPlayer->cond_0 & cond::slowed)) {
+		if (!HasCondition(g_pLocalPlayer->entity, TFCond_Slowed)) {
 			return true;
 		}
 		if (!(cmd->buttons & IN_ATTACK2)) {
@@ -324,7 +324,7 @@ int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 bool Aimbot::ShouldTarget(CachedEntity* entity) {
 	// Just assuming CE is good
 	if (entity->m_Type == ENTITY_PLAYER) {
-		if (g_Settings.bIgnoreTaunting->GetBool() && (CE_INT(entity, netvar.iCond) & cond::taunting)) return false;
+		if (g_Settings.bIgnoreTaunting->GetBool() && HasCondition(entity, TFCond_Taunting)) return false;
 #if NO_DEVIGNORE != true
 		if (Developer(entity)) return false; // TODO developer relation
 #endif
@@ -339,8 +339,7 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
 			if (entity->m_flDistance > 95) return false;
 		}
-		int econd = CE_INT(entity, netvar.iCond1);
-		if ((econd & cond_ex::vacc_bullet)) return false;
+		if (HasCondition(entity, TFCond_UberBulletResist)) return false;
 		if (GetRelation(entity) == relation::FRIEND) return false;
 		Vector resultAim;
 		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
