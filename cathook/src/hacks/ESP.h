@@ -39,6 +39,9 @@ public:
 	CatVar* v_bShowDistance;
 	CatVar* v_bShowFriendID;
 	CatVar* v_bShowFriends;
+	CatVar* v_bShowName;
+	CatVar* v_bShowClass;
+	CatVar* v_bShowConditions;
 	CatVar* v_bVisCheck;
 	CatVar* v_bLegit;
 	CatVar* v_bShowHealthNumbers;
