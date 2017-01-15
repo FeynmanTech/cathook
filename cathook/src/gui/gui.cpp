@@ -190,6 +190,9 @@ void GUI::Setup() {
 	ADD_SUBLIST(esp, esp_proj);
 
 	ADD_VAR(esp, g_phESP->v_bBox);
+	ADD_VAR(esp, g_phESP->v_bShowName);
+	ADD_VAR(esp, g_phESP->v_bShowClass);
+	ADD_VAR(esp, g_phESP->v_bShowConditions);
 	ADD_VAR(esp, g_phESP->v_bEntityESP);
 	ADD_VAR(esp, g_phESP->v_bLegit);
 	ADD_VAR(esp, g_phESP->v_iLegitSeenTicks);
