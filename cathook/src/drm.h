@@ -24,8 +24,8 @@
 #endif
 
 #ifndef __DRM_STEAMID
-#define __DRM_STEAMID 76561198307538553
-#define __DRM_STEAMID_S "76561198307538553"
+#define __DRM_STEAMID 0
+#define __DRM_STEAMID_S "UNDEFINED"
 #endif
 #ifndef __DRM_EXPIRES
 #define __DRM_EXPIRES 0
@@ -34,7 +34,7 @@
 #define __DRM_BUILDNUMBER 0
 #define __DRM_BUILDNUMBER_MAX 0
 #endif
-#define __DRM_NAME "d4rkc4t"
+#define __DRM_NAME "UNDEFINED"
 
 
 #if __DRM_ENABLED != false
