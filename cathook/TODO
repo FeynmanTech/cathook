@@ -4,12 +4,9 @@ Time DRM
 Build DRM
 SteamID DRM
 
-TF2 path detection
-remove debug logs
 FIX crash
 FIX conds
 Player List
-Zoom cat_fov
 DS esp slow
 
 MAX -> MIN priority
@@ -18,7 +15,6 @@ Radar
 AutoTrashtalk
 Noisemaker Spam
 Deflected by enemy player
-AirStuck FIX
 Aim Stickies
 FLAG ESP
 no aim sapper

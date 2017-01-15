@@ -37,6 +37,8 @@ Triggerbot::Triggerbot() {
 	this->v_iHitbox = CREATE_CV(new CatEnum(psza__HitboxT, ARRAYSIZE(psza__HitboxT), -1), "trigger_hitbox", "-1", "Hitbox");
 	this->v_iMinRange = CREATE_CV(CV_INT, "trigger_range", "0", "Max range");
 	this->v_bBuildings = CREATE_CV(CV_SWITCH, "trigger_buildings", "1", "Trigger @ Buildings");
+	this->v_bIgnoreVaccinator = CREATE_CV(CV_SWITCH, "trigger_respect_vaccinator", "1", "Don't shoot at vaccinated enemies");
+	this->v_bAmbassadorCharge = CREATE_CV(CV_SWITCH, "trigger_ambassador", "1", "Smart Ambassador");
 }
 
 bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
@@ -45,6 +47,14 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	/*IClientEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
 	if (!local) return;
 	if (NET_BYTE(local, entityvars.iLifeState)) return;*/
+	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_hitscan) return true;
+	if (v_bAmbassadorCharge->GetBool()) {
+		if (IsAmbassador(g_pLocalPlayer->weapon())) {
+			if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
+				return true;
+			}
+		}
+	}
 	Ray_t ray;
 	filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	eye = g_pLocalPlayer->v_Eye;
@@ -61,27 +71,28 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	forward.z = -sp;
 	forward = forward * 8192.0f + eye;
 	ray.Init(eye, forward);
-	interfaces::trace->TraceRay(ray, 0x4200400B, filter, enemy_trace);
+	if (v_iHitbox->GetInt() == -1) {
+		interfaces::trace->TraceRay(ray, MASK_SHOT_HULL, filter, enemy_trace);
+	} else {
+		interfaces::trace->TraceRay(ray, 0x4200400B, filter, enemy_trace);
+	}
+
 	IClientEntity* raw_entity = (IClientEntity*)(enemy_trace->m_pEnt);
 	if (!raw_entity) return true;
 	CachedEntity* entity = ENTITY(raw_entity->entindex());
+	if (!entity->m_bEnemy) return true;
 
 	bool isPlayer = false;
-	switch (entity->m_iClassID) {
-	case ClassID::CTFPlayer:
-		isPlayer = true;
-	break;
-	case ClassID::CObjectTeleporter:
-	case ClassID::CObjectSentrygun:
-	case ClassID::CObjectDispenser:
-		if (!this->v_bBuildings->GetBool()) {
-			return true;
-		}
-	break;
+	switch (entity->m_Type) {
+	case EntityType::ENTITY_PLAYER:
+		isPlayer = true; break;
+	case EntityType::ENTITY_BUILDING:
+		if (!this->v_bBuildings->GetBool()) return true;
+		break;
 	default:
-	return true;
+		return true;
 	};
-	if (!entity->m_bEnemy) return true;
+
 	Vector enemy_pos = entity->m_vecOrigin;
 	Vector my_pos = g_pLocalPlayer->entity->m_vecOrigin;
 	if (v_iMinRange->GetInt() > 0) {
@@ -91,6 +102,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 		cmd->buttons |= IN_ATTACK;
 		return true;
 	}
+	if ((CE_INT(entity, netvar.iCond2) & cond_ex::vacc_bullet) && v_bIgnoreVaccinator->GetBool()) return true;
 	relation rel = GetRelation(entity);
 	if (rel == relation::FRIEND || rel == relation::DEVELOPER) return true;
 	if (IsPlayerInvulnerable(entity)) return true;
