@@ -21,9 +21,9 @@ bool AutoReflect::ShouldReflect(CachedEntity* ent) {
 	if (ent->m_Type != ENTITY_PROJECTILE) return false;
 	if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
 	// If projectile is already deflected, don't deflect it again.
-	if (CE_INT(ent, ent->m_bGrenadeProjectile ?
+	if (CE_INT(ent, (ent->m_bGrenadeProjectile ?
 			/* NetVar for grenades */ netvar.Grenade_iDeflected :
-			/* For rockets */ netvar.Rocket_iDeflected)) return false;
+			/* For rockets */ netvar.Rocket_iDeflected))) return false;
 	if (ent->m_iClassID == ClassID::CTFGrenadePipebombProjectile) {
 		if (CE_INT(ent, netvar.iPipeType) == 1) {
 			if (!v_bReflectStickies->GetBool()) return false;
@@ -50,7 +50,6 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 
 	CachedEntity* closest = 0;
 	float closest_dist = 0.0f;
-
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
@@ -62,7 +61,7 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 			closest_dist = dist;
 		}
 	}
-
+	if (CE_BAD(closest)) return true;
 	if (closest_dist == 0 || closest_dist > SQR(v_iReflectDistance->GetInt())) return true;
 
 	Vector tr = (closest->m_vecOrigin - g_pLocalPlayer->v_Eye);
