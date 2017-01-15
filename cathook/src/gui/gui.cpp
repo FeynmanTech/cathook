@@ -218,6 +218,8 @@ void GUI::Setup() {
 	ADD_VAR(trigger, g_phTriggerbot->v_bFinishingHit);
 	ADD_VAR(trigger, g_phTriggerbot->v_bIgnoreCloak);
 	ADD_VAR(trigger, g_phTriggerbot->v_bZoomedOnly);
+	ADD_VAR(trigger, g_phTriggerbot->v_bIgnoreVaccinator);
+	ADD_VAR(trigger, g_phTriggerbot->v_bAmbassadorCharge);
 
 	ADD_VAR(spy, g_phSpyAlert->v_bEnabled);
 	ADD_VAR(spy, g_phSpyAlert->v_flBackstabDistance);
