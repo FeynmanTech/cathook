@@ -34,8 +34,9 @@
 #define __DRM_BUILDNUMBER 0
 #define __DRM_BUILDNUMBER_MAX 0
 #endif
+#ifndef __DRM_NAME
 #define __DRM_NAME "UNDEFINED"
-
+#endif
 
 #if __DRM_ENABLED != false
 #define DRM_CHECK_STEAM __DRM_STEAM
