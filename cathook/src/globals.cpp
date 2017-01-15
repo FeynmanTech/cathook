@@ -23,7 +23,9 @@ void GlobalSettings::Init() {
 	this->bIgnoreTaunting = CREATE_CV(CV_SWITCH, "ignore_taunting", "1", "Ignore taunting players");
 	this->flForceFOV = CREATE_CV(CV_FLOAT, "fov", "0", "FOV");
 //	this->bProfiler = CREATE_CV(CV_SWITCH, "profiler", "0", "Profiler");
-//	this->bNoZoom = CREATE_CV(CV_SWITCH, "nozoom", "0", "No Zoom");
+	this->bNoZoom = CREATE_CV(CV_SWITCH, "nozoom", "0", "No Zoom");
+	this->flForceFOVZoomed = CREATE_CV(CV_FLOAT, "fov_zoomed", "0", "FOV when zoomed");
+	this->bZoomedFOV = CREATE_CV(CV_SWITCH, "zoom_keep_fov", "1", "When zoomed, use " CON_PREFIX "fov_zoomed");
 //	this->bNoFlinch = CREATE_CV(CV_SWITCH, "noflinch", "0", "No Flinch (broken)");
 	this->bSendPackets = CREATE_CV(CV_SWITCH, "sendpackets", "1", "Send packets");
 	this->bShowLogo = CREATE_CV(CV_SWITCH, "logo", "1", "Show logo");

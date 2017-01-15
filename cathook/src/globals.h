@@ -19,10 +19,12 @@ public:
 // TODO
 //	CatVar* bMaxPerformance;
 	CatVar* flForceFOV;
+	CatVar* flForceFOVZoomed;
+	CatVar* bZoomedFOV;
 	CatVar* bHackEnabled;
 	CatVar* bIgnoreTaunting;
 //	CatVar* bProfiler;
-//	CatVar* bNoZoom;
+	CatVar* bNoZoom;
 //	CatVar* bNoFlinch;
 	CatVar* bSendPackets;
 	CatVar* bShowLogo;

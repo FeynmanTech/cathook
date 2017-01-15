@@ -12,7 +12,9 @@
 
 #include <ctime>
 
+#ifndef __DRM_ENABLED
 #define __DRM_ENABLED true
+#endif
 #define __DRM_NOTES "Unstable build, for testing only!"
 
 #define __QUIT_SEGV (*((int*)0) = 0)
