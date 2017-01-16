@@ -142,3 +142,6 @@ Triggerbot::~Triggerbot() {
 }
 
 void Triggerbot::PaintTraverse(void*, unsigned int, bool, bool) {};
+
+void Triggerbot::LevelInit(const char*) {}
+void Triggerbot::LevelShutdown() {}

@@ -24,6 +24,11 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
 	if (!g_Settings.bHackEnabled->GetBool()) return;
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
+	static bool autoexec_done = false;
+	if (!autoexec_done) {
+		interfaces::engineClient->ExecuteClientCmd("exec cat_autoexec");
+	}
+	autoexec_done = true;
 #if NO_IPC != true
 	if (g_phFollowBot->v_bEnabled->GetBool()) {
 		ipc_client_seg* seg_g = g_phFollowBot->m_pIPC->GetClientSegment(0);

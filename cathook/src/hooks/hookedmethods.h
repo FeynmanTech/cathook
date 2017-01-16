@@ -17,6 +17,8 @@ typedef void(Shutdown_t)(void*, const char*);
 typedef void(OverrideView_t)(void*, CViewSetup*);
 typedef bool(DispatchUserMessage_t)(void*, int, bf_read&);
 typedef void(FrameStageNotify_t)(void*, int);
+typedef void(LevelInit_t)(void*, const char*);
+typedef void(LevelShutdown_t)(void*);
 
 #include "CreateMove.h"
 #include "PaintTraverse.h"

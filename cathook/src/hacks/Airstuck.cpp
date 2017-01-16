@@ -39,3 +39,6 @@ bool Airstuck::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void Airstuck::PaintTraverse(void*, unsigned int, bool, bool) {};
+
+void Airstuck::LevelInit(const char*) {}
+void Airstuck::LevelShutdown() {}

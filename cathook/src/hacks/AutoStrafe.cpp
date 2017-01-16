@@ -33,3 +33,6 @@ bool AutoStrafe::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void AutoStrafe::PaintTraverse(void*, unsigned int, bool, bool) {}
+
+void AutoStrafe::LevelInit(const char*) {}
+void AutoStrafe::LevelShutdown() {}

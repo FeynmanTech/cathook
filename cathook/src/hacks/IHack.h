@@ -20,7 +20,9 @@ typedef unsigned int uint32;
 #define DECLARE_HACK_METHODS() \
 	const char* GetName(); \
 	bool CreateMove(void*, float, CUserCmd*); \
-	void PaintTraverse(void*, unsigned int, bool, bool);
+	void PaintTraverse(void*, unsigned int, bool, bool); \
+	void LevelInit(const char*); \
+	void LevelShutdown();
 
 #define DECLARE_HACK_SINGLETON(x) \
 extern x* g_ph##x;
@@ -34,6 +36,8 @@ public:
 	virtual const char* GetName() = 0;
 	inline virtual void PaintTraverse(void*, unsigned int, bool, bool) {};
 	inline virtual bool CreateMove(void*, float, CUserCmd*) { return true; };
+	inline virtual void LevelInit(const char*) {};
+	inline virtual void LevelShutdown() {};
 	// Create() and Destroy() are deprecated: use ctors and destructors instead.
 	//inline virtual void Create() {};
 	//inline virtual void Destroy() {};

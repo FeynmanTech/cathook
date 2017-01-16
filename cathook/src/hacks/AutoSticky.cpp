@@ -58,3 +58,6 @@ bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 void AutoSticky::PaintTraverse(void*, unsigned int, bool, bool) {
 
 }
+
+void AutoSticky::LevelInit(const char*) {}
+void AutoSticky::LevelShutdown() {}

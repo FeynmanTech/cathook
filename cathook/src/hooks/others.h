@@ -19,5 +19,7 @@ void Shutdown_hook(void*, const char*);
 void OverrideView_hook(void*, CViewSetup*);
 bool DispatchUserMessage_hook(void*, int, bf_read&);
 void FrameStageNotify_hook(void*, int);
+void LevelInit_hook(void*, const char*);
+void LevelShutdown_hook(void*);
 
 #endif /* OTHERS_H_ */

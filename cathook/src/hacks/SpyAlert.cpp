@@ -42,3 +42,6 @@ void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
 		}
 	}
 }
+
+void SpyAlert::LevelInit(const char*) {}
+void SpyAlert::LevelShutdown() {}

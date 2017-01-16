@@ -8,6 +8,7 @@
 #include "../common.h"
 #include "../netmessage.h"
 #include "../gui/gui.h"
+#include "../hack.h"
 #include "hookedmethods.h"
 
 bool CanPacket_hook(void* thisptr) {
@@ -128,3 +129,45 @@ void OverrideView_hook(void* thisptr, CViewSetup* setup) {
 bool DispatchUserMessage_hook(void* thisptr, int type, bf_read& buf) {
 	return ((DispatchUserMessage_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify + 1))(thisptr, type, buf);
 }
+
+void LevelInit_hook(void* thisptr, const char* newmap) {
+	((LevelInit_t*) hooks::hkClientMode->GetMethod(hooks::offLevelInit))(thisptr, newmap);
+	logging::Info("LevelInit %s", newmap);
+	LEVEL_INIT(Aimbot, newmap);
+	LEVEL_INIT(Airstuck, newmap);
+	LEVEL_INIT(AntiAim, newmap);
+	LEVEL_INIT(AntiDisguise, newmap);
+	LEVEL_INIT(AutoHeal, newmap);
+	LEVEL_INIT(AutoReflect, newmap);
+	LEVEL_INIT(AutoSticky, newmap);
+	LEVEL_INIT(AutoStrafe, newmap);
+	LEVEL_INIT(Bunnyhop, newmap);
+	LEVEL_INIT(ESP, newmap);
+//	LEVEL_SHUTDOWN(FollowBot);
+	LEVEL_INIT(Misc, newmap);
+	LEVEL_INIT(SpyAlert, newmap);
+	LEVEL_INIT(Triggerbot, newmap);
+}
+
+void LevelShutdown_hook(void* thisptr) {
+	((LevelShutdown_t*) hooks::hkClientMode->GetMethod(hooks::offLevelShutdown))(thisptr);
+	g_Settings.bInvalid = true;
+	logging::Info("LevelShutdown");
+	LEVEL_SHUTDOWN(Aimbot);
+	LEVEL_SHUTDOWN(Airstuck);
+	LEVEL_SHUTDOWN(AntiAim);
+	LEVEL_SHUTDOWN(AntiDisguise);
+	LEVEL_SHUTDOWN(AutoHeal);
+	LEVEL_SHUTDOWN(AutoReflect);
+	LEVEL_SHUTDOWN(AutoSticky);
+	LEVEL_SHUTDOWN(AutoStrafe);
+	LEVEL_SHUTDOWN(Bunnyhop);
+	LEVEL_SHUTDOWN(ESP);
+//	LEVEL_SHUTDOWN(FollowBot);
+	LEVEL_SHUTDOWN(Misc);
+	LEVEL_SHUTDOWN(SpyAlert);
+	LEVEL_SHUTDOWN(Triggerbot);
+
+
+}
+

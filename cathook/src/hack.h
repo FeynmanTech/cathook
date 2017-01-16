@@ -17,6 +17,12 @@
 #define PAINT_TRAVERSE(x) \
 	g_ph##x->PaintTraverse(p, vp, fr, ar)
 
+#define LEVEL_INIT(x, a) \
+	g_ph##x->LevelInit(a)
+
+#define LEVEL_INIT(x) \
+	g_ph##x->LevelShutdown()
+
 #define DELETE_HACK(x) \
 	delete g_ph##x
 

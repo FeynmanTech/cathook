@@ -349,3 +349,6 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			//AddCenterString(draw::font_handle, interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X), interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y), draw::white, L"S\u0FD5");
 		}
 }
+
+void Misc::LevelInit(const char*) {}
+void Misc::LevelShutdown() {}
