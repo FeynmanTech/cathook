@@ -20,10 +20,6 @@
 
 DEFINE_HACK_SINGLETON(Aimbot);
 
-Vector viewangles_old;
-bool fix_silent;
-
-int target_lock;
 
 enum TargetSystem_t {
 	SMART = 0,
@@ -83,7 +79,6 @@ Aimbot::Aimbot() {
 	this->v_iSeenDelay = CREATE_CV(CV_INT, "aimbot_delay", "0", "Aimbot delay");
 	this->v_bProjectilePredictionWalls = CREATE_CV(CV_SWITCH, "aimbot_proj_nowallpred", "0", "Don't predict if enemy is hidden");
 	this->v_bProjectileFOVCheckPrediction = CREATE_CV(CV_SWITCH, "aimbot_proj_fovpred", "0", "Legit projectile FOV");
-	fix_silent = false;
 }
 
 bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
@@ -456,5 +451,9 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	return true;
 }
 
-void Aimbot::LevelInit(const char*) {}
+void Aimbot::LevelInit(const char*) {
+	m_iLastTarget = -1;
+	m_bProjectileMode = false;
+}
+
 void Aimbot::LevelShutdown() {}

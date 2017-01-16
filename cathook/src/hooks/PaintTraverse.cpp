@@ -88,7 +88,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 #else
 			AddSideString(colors::green, colors::black, "Early Access: " __DRM_NAME);
 #endif
-			AddSideString(colors::green, colors::black, "version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
+			AddSideString(colors::green, colors::black, "Version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
 		}
 
 		//SAFE_CALL(PAINT_TRAVERSE(AutoStrafe));

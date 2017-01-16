@@ -52,11 +52,18 @@
 #define SQR(x) x * x
 
 #define CATHOOK_VERSION_MAJOR "0"
-#define CATHOOK_VERSION_MINOR "2"
+#define CATHOOK_VERSION_MINOR "3"
 #define CATHOOK_VERSION_PATCH "0"
 
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"
+
+#define SUPER_VERBOSE_DEBUG false
+#if SUPER_VERBOSE_DEBUG == true
+#define SVDBG(...) logging::Info(__VA_ARGS__)
+#else
+#define SVDBG(...)
+#endif
 
 #ifndef DEG2RAD
 #define DEG2RAD(x) (float)(x) * (PI / 180.0f)
