@@ -77,3 +77,5 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 
 void AutoReflect::PaintTraverse(void*, unsigned int, bool, bool) {}
 
+void AutoReflect::LevelInit(const char*) {}
+void AutoReflect::LevelShutdown() {}

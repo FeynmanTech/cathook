@@ -47,6 +47,8 @@ extern unsigned int offCanPacket;
 extern unsigned int offSendNetMsg;
 extern unsigned int offShutdown;
 extern unsigned int offKeyEvent;
+extern unsigned int offLevelInit;
+extern unsigned int offLevelShutdown;
 
 }
 

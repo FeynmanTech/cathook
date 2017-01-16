@@ -167,6 +167,8 @@ void hack::Initialize() {
 	//hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
 	hooks::hkClientMode->HookMethod((void*)CreateMove_hook, hooks::offCreateMove);
 	hooks::hkClientMode->HookMethod((void*)OverrideView_hook, hooks::offOverrideView);
+	hooks::hkClientMode->HookMethod((void*)LevelInit_hook, hooks::offLevelInit);
+	hooks::hkClientMode->HookMethod((void*)LevelShutdown_hook, hooks::offLevelShutdown);
 	hooks::hkClientMode->Apply();
 	hooks::hkClient = new hooks::VMTHook();
 	hooks::hkClient->Init((void*)interfaces::baseClient, 0);

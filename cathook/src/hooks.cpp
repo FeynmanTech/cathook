@@ -20,6 +20,8 @@ unsigned int hooks::offSendNetMsg = 41;
 unsigned int hooks::offShutdown = 37;
 unsigned int hooks::offKeyEvent = 20;
 unsigned int hooks::offHandleInputEvent = 78;
+unsigned int hooks::offLevelInit = 23;
+unsigned int hooks::offLevelShutdown = 24;
 
 // This thing had been copypasted from somewhere, maybe from F1Public.
 

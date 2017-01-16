@@ -53,3 +53,6 @@ bool HuntsmanCompensation::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void HuntsmanCompensation::PaintTraverse(void*, unsigned int, bool, bool) {}
+
+void HuntsmanCompensation::LevelInit(const char*) {}
+void HuntsmanCompensation::LevelShutdown() {}

@@ -55,3 +55,6 @@ bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 }
 
 void Bunnyhop::PaintTraverse(void*, unsigned int, bool, bool) {}
+
+void Bunnyhop::LevelInit(const char*) {}
+void Bunnyhop::LevelShutdown() {}

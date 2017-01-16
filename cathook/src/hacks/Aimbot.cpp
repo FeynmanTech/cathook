@@ -455,3 +455,6 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	}
 	return true;
 }
+
+void Aimbot::LevelInit(const char*) {}
+void Aimbot::LevelShutdown() {}

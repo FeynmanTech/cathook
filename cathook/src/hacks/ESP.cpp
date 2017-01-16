@@ -351,3 +351,6 @@ bool ESP::CreateMove(void*, float, CUserCmd*) {
 	}
 	return true;
 };
+
+void ESP::LevelInit(const char*) {}
+void ESP::LevelShutdown() {}

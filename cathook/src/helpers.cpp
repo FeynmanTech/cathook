@@ -28,7 +28,6 @@ void BeginConVars() {
 void EndConVars() {
 	if (hConVarsFile) fclose(hConVarsFile);
 	ConVar_Register();
-	interfaces::engineClient->ExecuteClientCmd("exec cat_autoexec");
 }
 
 

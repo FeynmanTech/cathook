@@ -398,3 +398,6 @@ FollowBot::~FollowBot() {
 }
 
 void FollowBot::PaintTraverse(void*, unsigned int, bool, bool) {}
+
+void FollowBot::LevelInit(const char*) {}
+void FollowBot::LevelShutdown() {}

@@ -34,3 +34,6 @@ void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 bool AntiDisguise::CreateMove(void*, float, CUserCmd*) {return true;}
+
+void AntiDisguise::LevelInit(const char*) {}
+void AntiDisguise::LevelShutdown() {}

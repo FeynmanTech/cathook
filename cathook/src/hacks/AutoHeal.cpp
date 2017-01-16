@@ -97,3 +97,6 @@ void AutoHeal::PaintTraverse(void*, unsigned int, bool, bool) {
 	//if (m_iCurrentHealingTarget >= 0)
 		//gEntityCache.GetEntity(m_iCurrentHealingTarget)->AddESPString(colors::white, colors::black, "Healing priority: %i", GetHealingPriority(m_iCurrentHealingTarget));
 }
+
+void AutoHeal::LevelInit(const char*) {}
+void AutoHeal::LevelShutdown() {}

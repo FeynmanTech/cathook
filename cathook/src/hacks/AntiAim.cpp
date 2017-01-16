@@ -77,3 +77,6 @@ bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 }
 
 void AntiAim::PaintTraverse(void*, unsigned int, bool, bool) {}
+
+void AntiAim::LevelInit(const char*) {}
+void AntiAim::LevelShutdown() {}
