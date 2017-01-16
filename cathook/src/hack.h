@@ -20,7 +20,7 @@
 #define LEVEL_INIT(x, a) \
 	g_ph##x->LevelInit(a)
 
-#define LEVEL_INIT(x) \
+#define LEVEL_SHUTDOWN(x) \
 	g_ph##x->LevelShutdown()
 
 #define DELETE_HACK(x) \

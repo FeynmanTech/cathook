@@ -68,25 +68,33 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 	// Ambassador to festive ambassador changer. simple.
 	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
 	//logging::Info("fsi begin");// TODO dbg
-	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
+	SVDBG("FSN %i", __LINE__);
+	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
 		/*if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
 			int defidx = CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex);
 			if (defidx == 61) {
 				CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex) = 1006;
 			}
 		}*/
+		SVDBG("FSN %i", __LINE__);
 		if (g_Settings.bThirdperson->GetBool() && !g_pLocalPlayer->life_state && CE_GOOD(g_pLocalPlayer->entity)) {
+			SVDBG("FSN %i", __LINE__);
 			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
 		}
+		SVDBG("FSN %i", __LINE__);
 		if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) {
+			SVDBG("FSN %i", __LINE__);
 			if (CE_GOOD(g_pLocalPlayer->entity)) {
 				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = g_Settings.last_angles.x;
 				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = g_Settings.last_angles.y;
 			}
+			SVDBG("FSN %i", __LINE__);
 		}
 	}
+	SVDBG("FSN %i", __LINE__);
 	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
-	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
+	SVDBG("FSN %i", __LINE__);
+	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
 		/*if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 			static Vector oldPunchAngles = Vector();
 			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
@@ -96,13 +104,18 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 			oldPunchAngles = punchAngles;
 			interfaces::engineClient->SetViewAngles(viewAngles);
 		}*/
-
+		SVDBG("FSN %i", __LINE__);
 		if (g_Settings.bNoZoom->GetBool()) {
+			SVDBG("FSN %i GOOD?", __LINE__);
+			SVDBG("GOOD %i", CE_GOOD(LOCAL_E));
 			if (CE_GOOD(g_pLocalPlayer->entity)) {
+				SVDBG("FSN %i", __LINE__);
 				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
 			}
 		}
+		SVDBG("FSN %i", __LINE__);
 	}
+	SVDBG("FSN %i", __LINE__);
 	//logging::Info("fsi end");// TODO dbg
 	SEGV_END;
 }
