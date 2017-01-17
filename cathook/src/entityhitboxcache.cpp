@@ -35,7 +35,7 @@ void EntityHitboxCache::InvalidateCache() {
 void EntityHitboxCache::Update() {
 	SAFE_CALL(InvalidateCache());
 	if (CE_BAD(m_pParentEntity)) return;
-	model_t* model;
+	model_t* model = 0;
 	SAFE_CALL(model = (model_t*)RAW_ENT(m_pParentEntity)->GetModel());
 	if (!model) return;
 	if (!m_bModelSet || model != m_pLastModel) {
@@ -46,7 +46,9 @@ void EntityHitboxCache::Update() {
 		m_pLastModel = model;
 		m_pHitboxSet = set;
 		m_nNumHitboxes = 0;
-		SAFE_CALL(m_nNumHitboxes = set->numhitboxes);
+		if (set) {
+			SAFE_CALL(m_nNumHitboxes = set->numhitboxes);
+		}
 		if (m_nNumHitboxes > CACHE_MAX_HITBOXES) m_nNumHitboxes = CACHE_MAX_HITBOXES;
 		m_bSuccess = true;
 		m_bModelSet = true;
