@@ -42,10 +42,11 @@ void EntityHitboxCache::Update() {
 		studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);
 		if (!shdr) return;
 		mstudiohitboxset_t* set = shdr->pHitboxSet(CE_INT(m_pParentEntity, netvar.iHitboxSet));
-		if (!set) return;
+		if (!dynamic_cast<mstudiohitboxset_t*>(set)) return;
 		m_pLastModel = model;
 		m_pHitboxSet = set;
-		m_nNumHitboxes = set->numhitboxes;
+		m_nNumHitboxes = 0;
+		SAFE_CALL(m_nNumHitboxes = set->numhitboxes);
 		if (m_nNumHitboxes > CACHE_MAX_HITBOXES) m_nNumHitboxes = CACHE_MAX_HITBOXES;
 		m_bSuccess = true;
 		m_bModelSet = true;

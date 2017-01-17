@@ -39,6 +39,7 @@
 #include <iclient.h>
 #include <iserver.h>
 #include <view_shared.h>
+#include <basehandle.h>
 #include <VGuiMatSurface/IMatSystemSurface.h>
 #include <steam/isteamuser.h>
 

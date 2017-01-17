@@ -44,6 +44,8 @@
 #include "hacks/SpyAlert.h"
 #include "hacks/Trigger.h"
 #include "hacks/IHack.h"
+#include "hacks/Glow.h"
+#include "glowobjects.h"
 
 #include "drm.h"
 

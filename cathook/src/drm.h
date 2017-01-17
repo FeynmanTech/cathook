@@ -19,7 +19,7 @@
 
 #define __QUIT_SEGV (*((int*)0) = 0)
 
-#if __DRM_STEAMID == 76561198307538553 //TODO!!
+#if __DRM_STEAMID == 76561198307538553 || __DRM_ENABLED == false //TODO!!
 #define _DEVELOPER true
 #else
 #define _DEVELOPER false

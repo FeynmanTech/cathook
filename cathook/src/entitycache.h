@@ -34,6 +34,7 @@ struct mstudiobbox_t;
 #define CE_BYTE(entity, offset) CE_VAR(entity, offset, unsigned char)
 #define CE_VECTOR(entity, offset) CE_VAR(entity, offset, Vector)
 
+#define CE_GOOD_NO_DORMANT_CHECK(entity) (!g_Settings.bInvalid && dynamic_cast<CachedEntity*>(entity) && dynamic_cast<IClientEntity*>(entity->m_pEntity))
 #define CE_GOOD(entity) (!g_Settings.bInvalid && dynamic_cast<CachedEntity*>(entity) && dynamic_cast<IClientEntity*>(entity->m_pEntity) && !entity->m_pEntity->IsDormant())
 #define CE_BAD(entity) (!CE_GOOD(entity))
 

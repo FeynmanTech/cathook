@@ -80,6 +80,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		}
 		SAFE_CALL(CREATE_MOVE(AntiDisguise));
 		SAFE_CALL(CREATE_MOVE(AutoHeal));
+		SAFE_CALL(CREATE_MOVE(Glow));
 		//SAFE_CALL(CREATE_MOVE(FollowBot));
 		SAFE_CALL(CREATE_MOVE(Misc));
 //		PROF_END("Hacks processing");
