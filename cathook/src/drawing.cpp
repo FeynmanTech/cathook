@@ -208,7 +208,8 @@ Color colors::EntityF(CachedEntity* ent) {
 				result = RainbowCurrent(); break;
 			}
 		}
-		if (!ent->IsVisible()) result = Transparent(result);
+		if (g_phESP->v_bVisCheck->GetBool())
+			if (!ent->IsVisible()) result = Transparent(result);
 	}
 
 	return result;
