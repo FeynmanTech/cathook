@@ -23,5 +23,6 @@
 #include "Misc.h"
 #include "SpyAlert.h"
 #include "Trigger.h"
+#include "Glow.h"
 
 #endif /* HACKS_HACKLIST_H_ */

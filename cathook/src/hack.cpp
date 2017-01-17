@@ -83,6 +83,7 @@ void hack::InitHacks() {
 	ADD_HACK(AutoHeal);
 	ADD_HACK(HuntsmanCompensation);
 	ADD_HACK(SpyAlert);
+	ADD_HACK(Glow);
 }
 
 ConCommand* hack::c_Cat = 0;
@@ -182,6 +183,9 @@ void hack::Initialize() {
 	hooks::hkMatSurface->Apply();
 	logging::Info("MatSurface Hooked? %f", interfaces::matsurface->DrawGetAlphaMultiplier());*/
 	logging::Info("Hooked!");
+	logging::Info("Finding GlowObjectManager...");
+	g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
+	logging::Info("GlowObjectManager: 0x%08x", g_GlowObjectManager);
 	InitStrings();
 	logging::Info("Init done!");
 }
@@ -216,4 +220,5 @@ void hack::Shutdown() {
 	DELETE_HACK(AutoHeal);
 	DELETE_HACK(HuntsmanCompensation);
 	DELETE_HACK(SpyAlert);
+	DELETE_HACK(Glow);
 }

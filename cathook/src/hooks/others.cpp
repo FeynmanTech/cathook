@@ -69,7 +69,30 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
 	//logging::Info("fsi begin");// TODO dbg
 	SVDBG("FSN %i", __LINE__);
+	// TODO hack FSN hook
 	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
+		/*SEGV_BEGIN
+			for (int i = 0; i < g_GlowObjectManager->m_GlowObjectDefinitions.Size(); i++) {
+			GlowObjectDefinition_t& obj = g_GlowObjectManager->m_GlowObjectDefinitions.Element(i);
+			if (obj.m_nNextFreeSlot != ENTRY_IN_USE) continue;
+			CachedEntity* ent;
+			SAFE_CALL(ent = ENTITY(interfaces::entityList->GetClientEntityFromHandle(obj.m_hEntity)->entindex()));
+			//logging::Info("Glowing Entity %i <%s> LIFE_STATE %i DORMANT %i", ent->m_IDX, ent->m_pEntity->GetClientClass()->GetName(), CE_BYTE(ent, netvar.iLifeState), ent->m_pEntity->IsDormant());
+			if (CE_BAD(ent)) continue;
+			//logging::Info("adding glow to %i", ent->m_IDX);
+			//obj.m_vGlowColor = Vector(0.0f, 1.0f, 0.0f);
+			switch (ent->m_Type) {
+			case ENTITY_PLAYER:
+			case ENTITY_BUILDING:
+				if (!ent->m_bEnemy) continue;
+				Color c = colors::Health(ent->m_iHealth, ent->m_iMaxHealth);
+				//logging::Info("Adding color");
+				SAFE_CALL(obj.m_vGlowColor = Vector((float)c.r() / 255.0f, (float)c.g() / 255.0f, (float)c.b() / 255.0f));
+				//logging::Info("Color added");
+			}
+		}
+		SEGV_END_INFO("Glow");*/
+
 		/*if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
 			int defidx = CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex);
 			if (defidx == 61) {
@@ -90,9 +113,17 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 			}
 			SVDBG("FSN %i", __LINE__);
 		}
+		if (g_Settings.bNoZoom->GetBool()) {
+			SVDBG("FSN %i GOOD?", __LINE__);
+			SVDBG("GOOD %i", CE_GOOD(LOCAL_E));
+			if (CE_GOOD(g_pLocalPlayer->entity)) {
+				SVDBG("FSN %i", __LINE__);
+				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
+			}
+		}
 	}
 	SVDBG("FSN %i", __LINE__);
-	((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage);
+	SAFE_CALL(((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage));
 	SVDBG("FSN %i", __LINE__);
 	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
 		/*if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
@@ -160,6 +191,7 @@ void LevelInit_hook(void* thisptr, const char* newmap) {
 	LEVEL_INIT(Misc, newmap);
 	LEVEL_INIT(SpyAlert, newmap);
 	LEVEL_INIT(Triggerbot, newmap);
+	LEVEL_INIT(Glow, newmap);
 }
 
 void LevelShutdown_hook(void* thisptr) {
@@ -180,7 +212,7 @@ void LevelShutdown_hook(void* thisptr) {
 	LEVEL_SHUTDOWN(Misc);
 	LEVEL_SHUTDOWN(SpyAlert);
 	LEVEL_SHUTDOWN(Triggerbot);
-
+	LEVEL_SHUTDOWN(Glow);
 
 }
 

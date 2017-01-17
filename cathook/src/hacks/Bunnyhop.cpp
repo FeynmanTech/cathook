@@ -23,6 +23,8 @@ Bunnyhop::Bunnyhop() {
 }
 
 bool bDoubleJumpFix = false;
+int iTicksFlying = 0;
+int iTicksLastJump = 0;
 
 bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return true;
@@ -39,7 +41,18 @@ bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	bool ground = (flags & (1 << 0));
 	bool jump = (cmd->buttons & IN_JUMP);
 
-	if (jump && !ground) {
+	if (ground) {
+		iTicksFlying = 0;
+	} else {
+		iTicksFlying++;
+	}
+
+	if (!ground && jump) {
+		if (iTicksLastJump++ >= 20) cmd->buttons = cmd->buttons &~ IN_JUMP;
+	}
+	if (!jump) iTicksLastJump = 0;
+
+	/*if (jump && !ground) {
 		if (!bDoubleJumpFix) {
 			cmd->buttons = cmd->buttons &~ IN_JUMP;
 		}
@@ -50,7 +63,7 @@ bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	}
 	if (ground) {
 		bDoubleJumpFix = false;
-	}
+	}*/
 	return true;
 }
 

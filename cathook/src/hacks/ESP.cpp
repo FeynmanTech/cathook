@@ -252,6 +252,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		bool shown = false;
 		if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
 			ent->AddESPString(color, bgclr,"%s HEALTH", packs[type - item_medkit_small]);
+			//CE_INT(ent, netvar.bGlowEnabled) = 1;
 			shown = true;
 		} else if (type >= item_ammo_small && type <= item_ammo_large && this->v_bShowAmmoPacks->GetBool()) {
 			ent->AddESPString(color, bgclr,"%s AMMO", packs[type - item_ammo_small]);

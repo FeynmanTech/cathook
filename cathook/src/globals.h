@@ -10,7 +10,6 @@
 
 class Vector;
 class ConVar;
-
 class CatVar;
 
 class GlobalSettings {
