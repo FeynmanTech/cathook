@@ -25,6 +25,7 @@ struct mstudiohitboxset_t;
 struct mstudiobbox_t;
 
 #define MAX_STRINGS 16
+#define MAX_ENTITIES 2048
 
 #define CE_VAR(entity, offset, type) \
 	NET_VAR(entity->m_pEntity, offset, type)
@@ -38,7 +39,7 @@ struct mstudiobbox_t;
 #define CE_GOOD(entity) (!g_Settings.bInvalid && dynamic_cast<CachedEntity*>(entity) && dynamic_cast<IClientEntity*>(entity->m_pEntity) && !entity->m_pEntity->IsDormant())
 #define CE_BAD(entity) (!CE_GOOD(entity))
 
-#define IDX_GOOD(idx) (idx >= 0 && idx < HIGHEST_ENTITY)
+#define IDX_GOOD(idx) (idx >= 0 && idx < HIGHEST_ENTITY && idx < MAX_ENTITIES)
 #define IDX_BAD(idx) !IDX_GOOD(idx)
 
 #define PROXY_ENTITY false
@@ -85,6 +86,8 @@ public:
 	void Update();
 	void InvalidateCache();
 	bool VisibilityCheck(int id);
+	void Init();
+	int GetNumHitboxes();
 
 	bool* m_VisCheckValidationFlags;
 	bool* m_VisCheck;
@@ -93,6 +96,7 @@ public:
 	model_t* m_pLastModel;
 	bool m_bModelSet;
 	mstudiohitboxset_t* m_pHitboxSet;
+	bool m_bInit;
 	bool m_bSuccess;
 	CachedEntity* m_pParentEntity;
 	bool* m_CacheValidationFlags;

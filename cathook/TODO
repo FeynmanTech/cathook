@@ -15,18 +15,15 @@ Radar
 AutoTrashtalk
 Noisemaker Spam
 Deflected by enemy player
-Aim Stickies
+ Aim Stickies
 FLAG ESP
 no aim sapper
-Triggerbot ignores vaccinator ubers
-No AutoShoot (trigger) on consumables and PDAs
 Improve Projectile Aimbot. A lot.
 Integrate SEGVCATCH
 Proper AutoHitbox
 Smoothe the smooth aim
 Display on the left
 Flare aim on fire
-Triggerbot ambassador correction
 Aim Sticky
 Ignore hoovy
 Proj Pred visuals
@@ -63,7 +60,6 @@ halloween medkits
 Heavy Autoshoot continious
 NoZoom render hook
 Red money detect
-Tank ESP
 carrying esp
 Tracers/Spy Cam
 Bodyshot if not zoomed

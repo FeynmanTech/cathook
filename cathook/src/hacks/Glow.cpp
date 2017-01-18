@@ -24,11 +24,8 @@ bool Glow::CreateMove(void*, float, CUserCmd*) {
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (!CE_GOOD_NO_DORMANT_CHECK(ent)) continue;
-		//logging::Info("Processing Glow %i P %i", ent->m_IDX, ent->m_Type == ENTITY_PLAYER ? (v_bEnabled->GetBool() && ent != LOCAL_E && !ent->m_pEntity->IsDormant() && !CE_BYTE(ent, netvar.iLifeState)) : 2);
 		if (ent->m_Type == ENTITY_PLAYER)
 			CE_BYTE(ent, netvar.bGlowEnabled) = (v_bEnabled->GetBool() && (ent != LOCAL_E) && !ent->m_pEntity->IsDormant() && !CE_BYTE(ent, netvar.iLifeState));
-		//if (ent->m_Type == ENTITY_BUILDING)
-		//	CE_BYTE(ent, netvar.bGlowEnabled) = (v_bEnabled->GetBool() && !ent->m_pEntity->IsDormant());
 	}
 	return true;
 }

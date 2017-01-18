@@ -69,12 +69,12 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		SAFE_CALL(CREATE_MOVE(ESP));
 		if (!g_pLocalPlayer->life_state) {
 			SAFE_CALL(CREATE_MOVE(Bunnyhop));
+			SAFE_CALL(CREATE_MOVE(AutoStrafe));
 			SAFE_CALL(CREATE_MOVE(Aimbot));
 			SAFE_CALL(CREATE_MOVE(Airstuck));
 			SAFE_CALL(CREATE_MOVE(AntiAim));
 			SAFE_CALL(CREATE_MOVE(AutoSticky));
 			SAFE_CALL(CREATE_MOVE(AutoReflect));
-			SAFE_CALL(CREATE_MOVE(AutoStrafe));
 			SAFE_CALL(CREATE_MOVE(Triggerbot));
 			SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
 		}
