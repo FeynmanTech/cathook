@@ -18,6 +18,12 @@ EntityHitboxCache::EntityHitboxCache(CachedEntity* parent) {
 	m_nNumHitboxes = 0;
 }
 
+int EntityHitboxCache::GetNumHitboxes() {
+	if (!m_bInit) Init();
+	if (!m_bSuccess) return 0;
+	return m_nNumHitboxes;
+}
+
 EntityHitboxCache::~EntityHitboxCache() {
 	delete [] m_CacheInternal;
 	delete [] m_CacheValidationFlags;
@@ -35,6 +41,12 @@ void EntityHitboxCache::InvalidateCache() {
 void EntityHitboxCache::Update() {
 	SAFE_CALL(InvalidateCache());
 	if (CE_BAD(m_pParentEntity)) return;
+	m_bInit = false;
+	m_bSuccess = false;
+}
+
+void EntityHitboxCache::Init() {
+	m_bInit = true;
 	model_t* model = 0;
 	SAFE_CALL(model = (model_t*)RAW_ENT(m_pParentEntity)->GetModel());
 	if (!model) return;
@@ -50,13 +62,14 @@ void EntityHitboxCache::Update() {
 			SAFE_CALL(m_nNumHitboxes = set->numhitboxes);
 		}
 		if (m_nNumHitboxes > CACHE_MAX_HITBOXES) m_nNumHitboxes = CACHE_MAX_HITBOXES;
-		m_bSuccess = true;
 		m_bModelSet = true;
 	}
+	m_bSuccess = true;
 }
 
 bool EntityHitboxCache::VisibilityCheck(int id) {
 	if (id < 0 || id >= m_nNumHitboxes) return 0;
+	if (!m_bInit) Init();
 	if (!m_bSuccess) return 0;
 	if (m_VisCheckValidationFlags[id]) return m_VisCheck[id];
 	// TODO corners
@@ -69,6 +82,7 @@ bool EntityHitboxCache::VisibilityCheck(int id) {
 
 CachedHitbox* EntityHitboxCache::GetHitbox(int id) {
 	if (id < 0 || id >= m_nNumHitboxes) return 0;
+	if (!m_bInit) Init();
 	if (!m_bSuccess) return 0;
 	if (!m_CacheValidationFlags[id]) {
 		mstudiobbox_t* box = m_pHitboxSet->pHitbox(id);

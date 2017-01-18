@@ -36,7 +36,7 @@ IClientEntity* CachedEntity::InternalEntity() {
 
 void EntityCache::Invalidate() {
 	delete [] m_pArray;
-	m_pArray = new CachedEntity[4096]();
+	m_pArray = new CachedEntity[MAX_ENTITIES]();
 }
 
 void CachedEntity::Update(int idx) {
@@ -234,7 +234,7 @@ matrix3x4_t* CachedEntity::GetBones() {
 }
 
 EntityCache::EntityCache() {
-	m_pArray = new CachedEntity[4096]();
+	m_pArray = new CachedEntity[MAX_ENTITIES]();
 }
 
 EntityCache::~EntityCache() {
@@ -247,7 +247,7 @@ void EntityCache::Update() {
 	long p_begin = gECP.CurrentTime();
 #endif
 	m_nMax = interfaces::entityList->GetHighestEntityIndex();
-	for (int i = 0; i < m_nMax && i < 4096; i++) {
+	for (int i = 0; i < m_nMax && i < MAX_ENTITIES; i++) {
 		//logging::Info("Updating %i", i);
 		m_pArray[i].Update(i);
 		//logging::Info("Back!");

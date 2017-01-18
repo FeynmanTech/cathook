@@ -310,7 +310,7 @@ int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 		}
 	}
 	if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
-	for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->m_nNumHitboxes; i++) {
+	for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
 		if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
 	}
 	return -1;
