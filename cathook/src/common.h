@@ -38,7 +38,7 @@
 #define SQR(x) x * x
 
 #define CATHOOK_VERSION_MAJOR "0"
-#define CATHOOK_VERSION_MINOR "4"
+#define CATHOOK_VERSION_MINOR "5"
 #define CATHOOK_VERSION_PATCH "0"
 
 #define CON_NAME "cat"
