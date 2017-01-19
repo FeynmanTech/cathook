@@ -83,6 +83,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		SAFE_CALL(CREATE_MOVE(Glow));
 		//SAFE_CALL(CREATE_MOVE(FollowBot));
 		SAFE_CALL(CREATE_MOVE(Misc));
+		SAFE_CALL(CREATE_MOVE(KillSay));
 //		PROF_END("Hacks processing");
 		if (time_replaced) interfaces::gvars->curtime = curtime_old;
 	}

@@ -22,23 +22,7 @@
 
 #include <steam/isteamuser.h>
 // All Hacks
-#include "hacks/IHack.h"
-
-#include "hacks/Aimbot.h"
-#include "hacks/Airstuck.h"
-#include "hacks/AntiAim.h"
-#include "hacks/AntiDisguise.h"
-#include "hacks/AutoHeal.h"
-#include "hacks/AutoReflect.h"
-#include "hacks/AutoSticky.h"
-#include "hacks/AutoStrafe.h"
-#include "hacks/Bunnyhop.h"
-#include "hacks/ESP.h"
-#include "hacks/FollowBot.h"
-#include "hacks/HuntsmanCompensation.h"
-#include "hacks/Misc.h"
-#include "hacks/SpyAlert.h"
-#include "hacks/Trigger.h"
+#include "hacks/hacklist.h"
 
 #include "common.h"
 #include "sharedobj.h"
@@ -84,6 +68,7 @@ void hack::InitHacks() {
 	ADD_HACK(HuntsmanCompensation);
 	ADD_HACK(SpyAlert);
 	ADD_HACK(Glow);
+	ADD_HACK(KillSay);
 }
 
 ConCommand* hack::c_Cat = 0;
@@ -104,6 +89,7 @@ void hack::CC_Cat(const CCommand& args) {
 
 void hack::Initialize() {
 	logging::Initialize();
+	srand(time(0));
 	prctl(PR_SET_DUMPABLE,0,42,42,42);
 	logging::Info("Build: " __DATE__ " " __TIME__);
 	logging::Info("Loading shared objects...");
@@ -221,4 +207,5 @@ void hack::Shutdown() {
 	DELETE_HACK(HuntsmanCompensation);
 	DELETE_HACK(SpyAlert);
 	DELETE_HACK(Glow);
+	DELETE_HACK(KillSay);
 }

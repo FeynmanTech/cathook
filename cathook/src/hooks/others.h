@@ -11,6 +11,7 @@
 class INetMessage;
 class CViewSetup;
 class bf_read;
+class SDL_Window;
 
 bool CanPacket_hook(void*);
 int IN_KeyEvent_hook(void*, int, int, const char*);
@@ -21,5 +22,9 @@ bool DispatchUserMessage_hook(void*, int, bf_read&);
 void FrameStageNotify_hook(void*, int);
 void LevelInit_hook(void*, const char*);
 void LevelShutdown_hook(void*);
+void SwapWindow_hook(SDL_Window* window);
+
+//extern unsigned int* swapwindow_ptr;
+//extern unsigned int  swapwindow_orig;
 
 #endif /* OTHERS_H_ */

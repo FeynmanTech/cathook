@@ -24,5 +24,6 @@
 #include "SpyAlert.h"
 #include "Trigger.h"
 #include "Glow.h"
+#include "KillSay.h"
 
 #endif /* HACKS_HACKLIST_H_ */

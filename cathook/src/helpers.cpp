@@ -30,6 +30,27 @@ void EndConVars() {
 	ConVar_Register();
 }
 
+// StackOverflow copypasta xddd
+void ReplaceString(char* target, char* what, char* with_what) {
+	char buffer[1024] = { 0 };
+	char *insert_point = &buffer[0];
+	const char *tmp = target;
+	size_t needle_len = strlen(what);
+	size_t repl_len = strlen(with_what);
+	while (1) {
+		const char *p = strstr(tmp, what);
+		if (p == NULL) {
+			strcpy(insert_point, tmp);
+			break;
+		}
+		memcpy(insert_point, tmp, p - tmp);
+		insert_point += p - tmp;
+		memcpy(insert_point, with_what, repl_len);
+		insert_point += repl_len;
+		tmp = p + needle_len;
+	}
+	strcpy(target, buffer);
+}
 
 bool IsPlayerInvulnerable(CachedEntity* player) {
 	return (HasCondition(player, TFCond_Ubercharged) || HasCondition(player, TFCond_UberchargedCanteen)
