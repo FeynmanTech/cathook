@@ -124,6 +124,11 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 				}
 			}
 		}
+		if (g_Settings.bNoZoom->GetBool()) {
+			if (CE_GOOD(g_pLocalPlayer->entity)) {
+				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
+			}
+		}
 #if GUI_ENABLED == true
 		g_pGUI->UpdateKeys();
 		g_pGUI->Draw();

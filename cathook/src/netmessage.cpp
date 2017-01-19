@@ -145,3 +145,20 @@ const char *NET_SetConVar::ToString(void) const
 	return "(NULL)";
 }
 
+bool NET_StringCmd::WriteToBuffer( bf_write &buffer )
+{
+	buffer.WriteUBitLong( GetType(), 6 );
+	return buffer.WriteString( m_szCommand ? m_szCommand : " NET_StringCmd NULL" );
+}
+
+bool NET_StringCmd::ReadFromBuffer( bf_read &buffer )
+{
+	m_szCommand = m_szCommandBuffer;
+	return buffer.ReadString(m_szCommandBuffer, sizeof(m_szCommandBuffer) );
+}
+
+const char *NET_StringCmd::ToString(void) const
+{
+	return "STRINGCMD";
+}
+

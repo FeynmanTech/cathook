@@ -41,6 +41,7 @@
 								<option id="gnu.cpp.compiler.option.other.pic.920050344" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1848710724" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/nullifiedcat/source-sdk-2013-master/mp/src/public"/>
+									<listOptionValue builtIn="false" value="/home/nullifiedcat/cathook/imgui"/>
 									<listOptionValue builtIn="false" value="/home/nullifiedcat/source-sdk-2013-master/mp/src/mathlib"/>
 									<listOptionValue builtIn="false" value="/home/nullifiedcat/source-sdk-2013-master/mp/src/common"/>
 									<listOptionValue builtIn="false" value="/home/nullifiedcat/source-sdk-2013-master/mp/src/public/tier1"/>
@@ -51,7 +52,7 @@
 									<listOptionValue builtIn="false" value="TF2"/>
 									<listOptionValue builtIn="false" value="__DRM_ENABLED=false"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.debugging.other.1695695237" superClass="gnu.cpp.compiler.option.debugging.other" useByScannerDiscovery="false" value="-ggdb" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.debugging.other.1695695237" name="Other debugging flags" superClass="gnu.cpp.compiler.option.debugging.other" useByScannerDiscovery="false" value="-ggdb" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.236333340" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1506529605" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">

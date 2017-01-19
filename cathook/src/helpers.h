@@ -70,6 +70,7 @@ bool IsVectorVisible(Vector a, Vector b);
 relation GetRelation(CachedEntity* ent); // TODO new relations
 bool IsSentryBuster(CachedEntity* ent);
 char* strfmt(const char* fmt, ...);
+void ReplaceString(char* target, char* what, char* with_what);
 // TODO move that to weaponid.h
 bool IsAmbassador(CachedEntity* ent);
 
