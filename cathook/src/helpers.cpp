@@ -27,8 +27,8 @@ void BeginConVars() {
 
 void EndConVars() {
 	if (hConVarsFile) {
-		fprintf(hConVarsFile, "exec cat_autoexec");
-		fprintf(hConVarsFile, "cat_killsay_reload");
+		fprintf(hConVarsFile, "\nexec cat_autoexec\n");
+		fprintf(hConVarsFile, "cat_killsay_reload\n");
 		fclose(hConVarsFile);
 	}
 	ConVar_Register();

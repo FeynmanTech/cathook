@@ -27,6 +27,11 @@ const char* tf_classes_killsay[] = {
 	"engineer"
 };
 
+const char* tf_teams_killsay[] = {
+	"RED",
+	"BLU"
+};
+
 void KillSayEventListener::FireGameEvent(IGameEvent* event) {
 	if (!g_phKillSay->v_bEnabled->GetBool()) return;
 	SEGV_BEGIN;
@@ -40,6 +45,7 @@ void KillSayEventListener::FireGameEvent(IGameEvent* event) {
 
 const char* KillSay::ComposeKillSay(IGameEvent* event) {
 	if (m_nKillSays == 0) return 0;
+	if (!event) return 0;
 	int vid = event->GetInt("userid");
 	int kid = event->GetInt("attacker");
 	if (interfaces::engineClient->GetPlayerForUserID(kid) != interfaces::engineClient->GetLocalPlayer()) return 0;
@@ -53,6 +59,10 @@ const char* KillSay::ComposeKillSay(IGameEvent* event) {
 	player_info_s infok;
 	interfaces::engineClient->GetPlayerInfo(interfaces::engineClient->GetPlayerForUserID(kid), &infok);
 	ReplaceString(msg, "%killer%", (char*)infok.name);
+	ReplaceString(msg, "%team%", (char*)tf_teams_killsay[ent->m_iTeam - 2]);
+	ReplaceString(msg, "%myteam%", (char*)tf_teams_killsay[LOCAL_E->m_iTeam - 2]);
+	ReplaceString(msg, "%myclass%", (char*)tf_classes_killsay[g_pPlayerResource->GetClass(LOCAL_E)]);
+	ReplaceString(msg, "\\n", "\n");
 	return msg;
 }
 
