@@ -14,6 +14,19 @@ DEFINE_HACK_SINGLETON(KillSay);
 
 const char* KillSay::GetName() { return "KILLSAY"; }
 
+const char* tf_classes_killsay[] = {
+	"class",
+	"scout",
+	"sniper",
+	"soldier",
+	"demoman",
+	"medic",
+	"heavy",
+	"pyro",
+	"spy",
+	"engineer"
+};
+
 void KillSayEventListener::FireGameEvent(IGameEvent* event) {
 	if (!g_phKillSay->v_bEnabled->GetBool()) return;
 	SEGV_BEGIN;
@@ -34,6 +47,9 @@ const char* KillSay::ComposeKillSay(IGameEvent* event) {
 	player_info_s info;
 	interfaces::engineClient->GetPlayerInfo(interfaces::engineClient->GetPlayerForUserID(vid), &info);
 	ReplaceString(msg, "%name%", info.name);
+	CachedEntity* ent = ENTITY(interfaces::engineClient->GetPlayerForUserID(vid));
+	int clz = g_pPlayerResource->GetClass(ent);
+	ReplaceString(msg, "%class%", (char*)tf_classes_killsay[clz]);
 	return msg;
 }
 
@@ -77,7 +93,7 @@ void KillSay::LoadFile() {
 void KillSay::PushStack(const char* text) {
 	if (m_nStackTop == KILLSAY_STACK_SIZE - 1) return;
 	strncpy(m_Stack[++m_nStackTop].data, text, 255);
-	logging::Info("Pushed, new stacktop: %i", m_nStackTop);
+	//logging::Info("Pushed, new stacktop: %i", m_nStackTop);
 }
 
 char256* KillSay::PopStack() {

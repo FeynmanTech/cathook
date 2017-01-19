@@ -62,6 +62,7 @@ void NetVars::Init() {
 	this->Rocket_bCritical = gNetvars.get_offset("DT_TFProjectile_Rocket", "m_bCritical");
 	this->Grenade_bCritical = gNetvars.get_offset("DT_TFWeaponBaseGrenadeProj", "m_bCritical");
 	this->_condition_bits = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_ConditionList", "_condition_bits");
+	this->iPlayerClass = gNetvars.get_offset("DT_TFPlayerResource", "m_iPlayerClass");
 }
 
 void InitNetVars() {
