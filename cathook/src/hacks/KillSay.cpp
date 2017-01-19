@@ -50,6 +50,9 @@ const char* KillSay::ComposeKillSay(IGameEvent* event) {
 	CachedEntity* ent = ENTITY(interfaces::engineClient->GetPlayerForUserID(vid));
 	int clz = g_pPlayerResource->GetClass(ent);
 	ReplaceString(msg, "%class%", (char*)tf_classes_killsay[clz]);
+	player_info_s infok;
+	interfaces::engineClient->GetPlayerInfo(interfaces::engineClient->GetPlayerForUserID(kid), &infok);
+	ReplaceString(msg, "%killer%", (char*)infok.name);
 	return msg;
 }
 
