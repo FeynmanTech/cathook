@@ -107,6 +107,7 @@ public:
 	offset_t iDefaultFOV;
 	offset_t iFOV;
 	offset_t _condition_bits;
+	offset_t iPlayerClass;
 };
 
 extern NetVars netvar;

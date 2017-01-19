@@ -27,8 +27,9 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	static bool autoexec_done = false;
 	if (!autoexec_done) {
 		interfaces::engineClient->ExecuteClientCmd("exec cat_autoexec");
+		interfaces::engineClient->ExecuteClientCmd("cat_killsay_reload");
+		autoexec_done = true;
 	}
-	autoexec_done = true;
 #if NO_IPC != true
 	if (g_phFollowBot->v_bEnabled->GetBool()) {
 		ipc_client_seg* seg_g = g_phFollowBot->m_pIPC->GetClientSegment(0);
