@@ -185,12 +185,12 @@ void hack::Shutdown() {
 	hack::shutdown = true;
 	logging::Info("Shutting down...");
 	logging::Shutdown();
-	ConVar_Unregister();
 	if (hooks::hkPanel) hooks::hkPanel->Kill();
 	if (hooks::hkClientMode) hooks::hkClientMode->Kill();
 	if (hooks::hkClient) hooks::hkClient->Kill();
 	if (hooks::hkMatSurface) hooks::hkMatSurface->Kill();
 	if (hooks::hkNetChannel) hooks::hkNetChannel->Kill();
+	ConVar_Unregister();
 	DELETE_HACK(AutoStrafe);
 	DELETE_HACK(AntiAim);
 	DELETE_HACK(AntiDisguise);

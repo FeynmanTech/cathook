@@ -113,14 +113,14 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 			}
 			SVDBG("FSN %i", __LINE__);
 		}
-		if (g_Settings.bNoZoom->GetBool()) {
+		/*if (g_Settings.bNoZoom->GetBool()) {
 			SVDBG("FSN %i GOOD?", __LINE__);
 			SVDBG("GOOD %i", CE_GOOD(LOCAL_E));
 			if (CE_GOOD(g_pLocalPlayer->entity)) {
 				SVDBG("FSN %i", __LINE__);
 				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
 			}
-		}
+		}*/
 	}
 	SVDBG("FSN %i", __LINE__);
 	SAFE_CALL(((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage));
@@ -136,14 +136,14 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 			interfaces::engineClient->SetViewAngles(viewAngles);
 		}*/
 		SVDBG("FSN %i", __LINE__);
-		if (g_Settings.bNoZoom->GetBool()) {
+		/*if (g_Settings.bNoZoom->GetBool()) {
 			SVDBG("FSN %i GOOD?", __LINE__);
 			SVDBG("GOOD %i", CE_GOOD(LOCAL_E));
 			if (CE_GOOD(g_pLocalPlayer->entity)) {
 				SVDBG("FSN %i", __LINE__);
 				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
 			}
-		}
+		}*/
 		SVDBG("FSN %i", __LINE__);
 	}
 	SVDBG("FSN %i", __LINE__);

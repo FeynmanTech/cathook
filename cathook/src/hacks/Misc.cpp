@@ -343,6 +343,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(colors::white, colors::black, "Speed: %f", speed);
 			AddSideString(colors::white, colors::black, "Gravity: %f", gravity);
 			AddSideString(colors::white, colors::black, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
+			AddSideString(colors::white, colors::black, "CanHeadshot: %i", CanHeadshot());
 			AddSideString(colors::white, colors::black, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
 			//AddSideString(draw::white, draw::black, "???: %f", NET_FLOAT(g_pLocalPlayer->entity, netvar.test));
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);

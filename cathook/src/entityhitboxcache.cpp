@@ -36,13 +36,13 @@ void EntityHitboxCache::InvalidateCache() {
 		m_CacheValidationFlags[i] = false;
 		m_VisCheckValidationFlags[i] = false;
 	}
+	m_bInit = false;
+	m_bSuccess = false;
 }
 
 void EntityHitboxCache::Update() {
 	SAFE_CALL(InvalidateCache());
 	if (CE_BAD(m_pParentEntity)) return;
-	m_bInit = false;
-	m_bSuccess = false;
 }
 
 void EntityHitboxCache::Init() {
@@ -68,8 +68,8 @@ void EntityHitboxCache::Init() {
 }
 
 bool EntityHitboxCache::VisibilityCheck(int id) {
-	if (id < 0 || id >= m_nNumHitboxes) return 0;
 	if (!m_bInit) Init();
+	if (id < 0 || id >= m_nNumHitboxes) return 0;
 	if (!m_bSuccess) return 0;
 	if (m_VisCheckValidationFlags[id]) return m_VisCheck[id];
 	// TODO corners

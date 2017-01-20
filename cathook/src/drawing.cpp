@@ -175,7 +175,10 @@ Color colors::EntityF(CachedEntity* ent) {
 		}
 	}
 	if (ent->m_iClassID == ClassID::CCurrencyPack) {
-		result = green; // TODO currency pack (red)
+		if (CE_BYTE(ent, netvar.bDistributed))
+			result = red;
+		else
+			result = green;
 	}
 
 	if (ent->m_Type == ENTITY_PROJECTILE) {

@@ -77,6 +77,10 @@ KillSay::KillSay() {
 	interfaces::eventManager->AddListener(&m_Listener, "player_death", false);
 }
 
+KillSay::~KillSay() {
+	interfaces::eventManager->RemoveListener(&m_Listener);
+}
+
 void CC_KillSay_ReloadFile(const CCommand& args) {
 	SAFE_CALL(g_phKillSay->LoadFile());
 }
