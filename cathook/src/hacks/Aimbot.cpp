@@ -81,25 +81,67 @@ Aimbot::Aimbot() {
 	this->v_bProjectileFOVCheckPrediction = CREATE_CV(CV_SWITCH, "aimbot_proj_fovpred", "0", "Legit projectile FOV");
 }
 
-bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return true;
-	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return true;
-	if (g_pLocalPlayer->life_state) return true;
-	//this->m_iLastTarget = -1;
+bool Aimbot::ShouldAim(CUserCmd* cmd) {
 	if (this->v_eAimKey->GetBool() && this->v_eAimKeyMode->GetBool()) {
 		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_eAimKey->GetInt());
 		switch (this->v_eAimKeyMode->GetInt()) {
 		case AimKeyMode_t::PRESS_TO_ENABLE:
 			if (key_down) break;
-			else return true;
+			else return false;
 		case AimKeyMode_t::PRESS_TO_DISABLE:
-			if (key_down) return true;
+			if (key_down) return false;
 			else break;
 		case AimKeyMode_t::PRESS_TO_TOGGLE:
 			m_bAimKeySwitch = !m_bAimKeySwitch;
-			if (!m_bAimKeySwitch) return true;
+			if (!m_bAimKeySwitch) return false;
 		}
 	}
+	if (this->v_bActiveOnlyWhenCanShoot->GetBool()) {
+		// Miniguns should shoot and aim continiously. TODO smg
+		if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFMinigun) {
+			// Melees are weird, they should aim continiously like miniguns too.
+			if (GetWeaponMode(g_pLocalPlayer->entity) != weaponmode::weapon_melee) {
+				// Finally, CanShoot() check.
+				if (!CanShoot()) return false;
+			}
+		}
+	}
+	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
+		return false;
+	}
+	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun) {
+		if (!HasCondition(g_pLocalPlayer->entity, TFCond_Slowed)) {
+			return false;
+		}
+		if (!(cmd->buttons & IN_ATTACK2)) {
+			return false;
+		}
+		if (m_nMinigunFixTicks > 0) {
+			m_nMinigunFixTicks--;
+			cmd->buttons |= IN_ATTACK;
+		}
+	}
+
+	if (IsAmbassador(g_pLocalPlayer->weapon())) { // TODO AmbassadorCanHeadshot()
+		if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
+			return false;
+		}
+	}
+	if (this->v_bZoomedOnly->GetBool()) {
+		// TODO IsSniperRifle()
+		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifle ||
+			g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifleDecap) {
+			if (!CanHeadshot()) return false;
+		}
+	}
+	return true;
+}
+
+bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
+	if (!this->v_bEnabled->GetBool()) return true;
+	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return true;
+	if (g_pLocalPlayer->life_state) return true;
+	//this->m_iLastTarget = -1;
 
 	if (HasCondition(g_pLocalPlayer->entity, TFCond_Taunting)) return true;
 
@@ -114,39 +156,6 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if (HasCondition(g_pLocalPlayer->entity, TFCond_Cloaked)) return true; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
-	if (this->v_bActiveOnlyWhenCanShoot->GetBool()) {
-		// Miniguns should shoot and aim continiously. TODO smg
-		if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFMinigun) {
-			// Melees are weird, they should aim continiously like miniguns too.
-			if (GetWeaponMode(g_pLocalPlayer->entity) != weaponmode::weapon_melee) {
-				// Finally, CanShoot() check.
-				if (!CanShoot()) return true;
-			}
-		}
-	}
-
-	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
-		return true;
-	}
-
-	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun) {
-		if (!HasCondition(g_pLocalPlayer->entity, TFCond_Slowed)) {
-			return true;
-		}
-		if (!(cmd->buttons & IN_ATTACK2)) {
-			return true;
-		}
-		if (m_nMinigunFixTicks > 0) {
-			m_nMinigunFixTicks--;
-			cmd->buttons |= IN_ATTACK;
-		}
-	}
-
-	if (IsAmbassador(g_pLocalPlayer->weapon())) { // TODO AmbassadorCanHeadshot()
-		if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
-			return true;
-		}
-	}
 
 	if(cmd->buttons & IN_USE) return true;
 
@@ -183,13 +192,6 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (this->v_bZoomedOnly->GetBool()) {
-		// TODO IsSniperRifle()
-		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifle ||
-			g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifleDecap) {
-			if (!CanHeadshot()) return true;
-		}
-	}
 	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFGrapplingHook) return true;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
@@ -251,32 +253,35 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 	if (CE_GOOD(target_highest)) {
-		this->m_iLastTarget = target_highest->m_IDX;
-		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFCompoundBow) {
-			float begincharge = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargeBeginTime);
-			float charge = 0;
-			if (begincharge != 0) {
-				charge = interfaces::gvars->curtime - begincharge;
-				if (charge > 1.0f) charge = 1.0f;
-				m_bSilentHuntsman = true;
-			}
-			if (charge >= v_fAutoShootHuntsmanCharge->GetFloat()) {
-				cmd->buttons &= ~IN_ATTACK;
-			}
-			if (!(cmd->buttons & IN_ATTACK) && m_bSilentHuntsman) {
+		target_highest->m_ESPColorFG = colors::pink;
+		if (ShouldAim(cmd)) {
+			this->m_iLastTarget = target_highest->m_IDX;
+			if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFCompoundBow) {
+				float begincharge = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargeBeginTime);
+				float charge = 0;
+				if (begincharge != 0) {
+					charge = interfaces::gvars->curtime - begincharge;
+					if (charge > 1.0f) charge = 1.0f;
+					m_bSilentHuntsman = true;
+				}
+				if (charge >= v_fAutoShootHuntsmanCharge->GetFloat()) {
+					cmd->buttons &= ~IN_ATTACK;
+				}
+				if (!(cmd->buttons & IN_ATTACK) && m_bSilentHuntsman) {
+					Aim(target_highest, cmd);
+					m_bSilentHuntsman = false;
+				}
+			} else {
 				Aim(target_highest, cmd);
-				m_bSilentHuntsman = false;
 			}
-		} else {
-			Aim(target_highest, cmd);
+			if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun)
+				m_nMinigunFixTicks = 40;
 		}
-		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun)
-			m_nMinigunFixTicks = 40;
 	}
 	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFMinigun &&
 			target_highest == 0 &&
 			IDX_GOOD(m_iLastTarget) &&
-			m_nMinigunFixTicks) {
+			m_nMinigunFixTicks && ShouldAim(cmd)) {
 		Aim(ENTITY(m_iLastTarget), cmd);
 	}
 	return !this->v_bSilent->GetBool();

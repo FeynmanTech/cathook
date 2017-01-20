@@ -19,6 +19,7 @@ struct ESPStringCompound {
 	ESPStringCompound();
 	~ESPStringCompound();
 	char* m_String;
+	bool m_bColored;
 	Color m_Color;
 	Color m_Background;
 };

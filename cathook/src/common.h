@@ -39,7 +39,7 @@
 
 #define CATHOOK_VERSION_MAJOR "0"
 #define CATHOOK_VERSION_MINOR "5"
-#define CATHOOK_VERSION_PATCH "0"
+#define CATHOOK_VERSION_PATCH "1"
 
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"

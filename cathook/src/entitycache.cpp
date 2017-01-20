@@ -194,7 +194,7 @@ bool CachedEntity::IsVisible() {
 	return false;
 }
 
-void CachedEntity::AddESPString(Color color, Color background, const char* fmt, ...) {
+void CachedEntity::AddESPString(const char* fmt, ...) {
 	if (m_Strings[m_nESPStrings].m_String) {
 		delete m_Strings[m_nESPStrings].m_String;
 	}
@@ -211,8 +211,6 @@ void CachedEntity::AddESPString(Color color, Color background, const char* fmt, 
 		logging::Info("Invalid string count !!!");
 		return;
 	}
-	m_Strings[m_nESPStrings].m_Color = color;
-	m_Strings[m_nESPStrings].m_Background = background;
 	m_Strings[m_nESPStrings].m_String = buffer;
 	//logging::Info("String: %s", m_Strings[m_nESPStrings].m_String);
 	m_nESPStrings++;

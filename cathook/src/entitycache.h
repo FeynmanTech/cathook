@@ -109,7 +109,7 @@ public:
 	~CachedEntity();
 
 	void Update(int idx);
-	void AddESPString(Color color, Color background, const char* string, ...);
+	void AddESPString(const char* string, ...);
 	ESPStringCompound GetESPString(int idx);
 
 	// Entity fields start here.
@@ -152,6 +152,8 @@ public:
 	IClientEntity* InternalEntity();
 	IClientEntity* m_pEntity;
 	ESPStringCompound* m_Strings;
+	Color m_ESPColorFG;
+	Color m_ESPColorBG;
 	int m_nESPStrings;
 	Vector m_ESPOrigin;
 };
