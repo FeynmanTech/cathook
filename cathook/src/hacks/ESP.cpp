@@ -235,7 +235,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	}
 	case ClassID::CCurrencyPack: {
 		if (!v_bShowMoney->GetBool()) break;
-		if (false && CE_INT(ent, netvar.bDistributed)) {
+		if (CE_BYTE(ent, netvar.bDistributed)) {
 			if (this->v_bShowRedMoney->GetBool()) {
 				ent->AddESPString(color, bgclr, "$$$");
 				ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));

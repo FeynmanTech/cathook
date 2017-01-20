@@ -27,6 +27,7 @@ class KillSay : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	KillSay();
+	~KillSay();
 	void PushStack(const char* text);
 	char256* PopStack();
 	const char* ComposeKillSay(IGameEvent* evt);

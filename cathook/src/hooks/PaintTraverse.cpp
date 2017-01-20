@@ -21,7 +21,10 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	}
 #endif
 	SEGV_BEGIN;
-	SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
+	static unsigned long panel_scope = 0;
+	bool call_default = true;
+	if (g_Settings.bHackEnabled->GetBool() && panel_scope && g_Settings.bNoZoom->GetBool() && vp == panel_scope) call_default = false;
+	if (call_default) SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
 	if (!g_Settings.bHackEnabled->GetBool()) return;
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	static bool autoexec_done = false;
@@ -69,6 +72,11 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 				draw::panel_top = vp;
 				logging::Info("Got top panel: %i", vp);
 			}
+		}
+	}
+	if (!panel_scope) {
+		if (!strcmp(interfaces::panel->GetName(vp), "HudScope")) {
+			panel_scope = vp;
 		}
 	}
 	if (!interfaces::engineClient->IsInGame()) {

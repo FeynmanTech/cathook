@@ -190,7 +190,6 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 			if (!CanHeadshot()) return true;
 		}
 	}
-
 	if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFGrapplingHook) return true;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
