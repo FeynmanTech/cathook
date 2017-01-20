@@ -40,6 +40,7 @@ void AddSideString(Color fg, Color bg, const char* fmt, ...) {
 	g_pStringsSide[g_nStringsSide].m_Color = fg;
 	g_pStringsSide[g_nStringsSide].m_Background = bg;
 	g_pStringsSide[g_nStringsSide].m_String = buffer;
+	g_pStringsSide[g_nStringsSide].m_bColored = true;
 	g_nStringsSide++;
 }
 
@@ -76,6 +77,7 @@ void AddCenterString(Color fg, Color bg, const char* fmt, ...) {
 	g_pStringsCenter[g_nStringsCenter].m_Color = fg;
 	g_pStringsCenter[g_nStringsCenter].m_Background = bg;
 	g_pStringsCenter[g_nStringsCenter].m_String = buffer;
+	g_pStringsCenter[g_nStringsCenter].m_bColored = true;
 	g_nStringsCenter++;
 }
 
@@ -278,6 +280,8 @@ void draw::DrawRect(int x, int y, int w, int h, Color color) {
 ESPStringCompound::ESPStringCompound() {
 	m_Color = colors::white;
 	m_String = nullptr;
+	m_bColored = false;
+	m_Background = colors::black;
 }
 
 void draw::Initialize() {

@@ -30,6 +30,7 @@ public:
 	Aimbot();
 	bool ShouldTarget(CachedEntity* entity);
 	bool Aim(CachedEntity* entity, CUserCmd* cmd);
+	bool ShouldAim(CUserCmd* cmd);
 	int BestHitbox(CachedEntity* target, int preferred = hitbox_t::spine_0);
 
 	bool m_bProjectileMode;

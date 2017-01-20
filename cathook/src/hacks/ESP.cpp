@@ -124,7 +124,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (CE_BAD(ent)) return;
 	if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
 		ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
-	Color fg = colors::EntityF(ent);
+	Color fg = ent->m_ESPColorFG;
 	switch (ent->m_Type) {
 	case ENTITY_PLAYER: {
 		bool cloak = IsPlayerInvisible(ent);
@@ -157,13 +157,13 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (CE_BAD(ent)) return;
 
-	Color color = colors::EntityF(ent);
-	Color bgclr = colors::EntityB(ent);
+	ent->m_ESPColorFG = colors::EntityF(ent);
+	ent->m_ESPColorBG = colors::EntityB(ent);
 
 	if (v_bEntityESP->GetBool()) {
-		ent->AddESPString(color, bgclr, "%s [%i]", RAW_ENT(ent)->GetClientClass()->m_pNetworkName, ent->m_iClassID);
+		ent->AddESPString("%s [%i]", RAW_ENT(ent)->GetClientClass()->m_pNetworkName, ent->m_iClassID);
 		if (v_bShowEntityID->GetBool()) {
-			ent->AddESPString(color, bgclr, "%i", ent->m_IDX);
+			ent->AddESPString("%i", ent->m_IDX);
 		}
 	}
 
@@ -175,9 +175,9 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!ent->m_bEnemy) {
 			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
 		}
-		ent->AddESPString(color, bgclr, "[ ==> ]");
+		ent->AddESPString("[ ==> ]");
 		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 	} break;
 	case ClassID::CTFGrenadePipebombProjectile: {
@@ -189,15 +189,15 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		case 0:
 			if (!v_iShowPipes->GetBool()) break;
 			if (v_iShowPipes->GetInt() == 2 && !ent->m_bCritProjectile) break;
-			ent->AddESPString(color, bgclr, "[ (PP) ]");
+			ent->AddESPString("[ (PP) ]");
 			break;
 		case 1:
 			if (!v_iShowStickies->GetBool()) break;
 			if (v_iShowStickies->GetInt() == 2 && !ent->m_bCritProjectile) break;
-			ent->AddESPString(color, bgclr, "[ {*} ]");
+			ent->AddESPString("[ {*} ]");
 		}
 		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 	} break;
 	case ClassID::CTFProjectile_Arrow: {
@@ -206,30 +206,30 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!ent->m_bEnemy) {
 			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
 		}
-		ent->AddESPString(color, bgclr, "[ >>---> ]");
+		ent->AddESPString("[ >>---> ]");
 		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 	} break;
 	case ClassID::CTFTankBoss: {
 		if (!this->v_bShowTank->GetBool()) break;
-		ent->AddESPString(color, bgclr, "Tank");
+		ent->AddESPString("Tank");
 	} break;
 	case ClassID::CTFDroppedWeapon: {
 		if (!this->v_bItemESP->GetBool()) break;
 		if (!this->v_bShowDroppedWeapons->GetBool()) break;
-		ent->AddESPString(color, bgclr, "WEAPON");
+		ent->AddESPString("WEAPON");
 		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}
 	case ClassID::CTFAmmoPack: {
 		if (!this->v_bItemESP->GetBool()) break;
 		if (!this->v_bShowAmmoPacks->GetBool()) break;
-		ent->AddESPString(color, bgclr, "++ AMMO");
+		ent->AddESPString("++ AMMO");
 		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}
@@ -237,12 +237,12 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (!v_bShowMoney->GetBool()) break;
 		if (CE_BYTE(ent, netvar.bDistributed)) {
 			if (this->v_bShowRedMoney->GetBool()) {
-				ent->AddESPString(color, bgclr, "$$$");
-				ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+				ent->AddESPString("$$$");
+				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 			}
 		} else {
-			ent->AddESPString(color, bgclr, "$$$");
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("$$$");
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 	} break;
 	case ClassID::CBaseAnimating: {
@@ -251,18 +251,18 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (type == item_type::item_null) break;
 		bool shown = false;
 		if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
-			ent->AddESPString(color, bgclr,"%s HEALTH", packs[type - item_medkit_small]);
+			ent->AddESPString("%s HEALTH", packs[type - item_medkit_small]);
 			//CE_INT(ent, netvar.bGlowEnabled) = 1;
 			shown = true;
 		} else if (type >= item_ammo_small && type <= item_ammo_large && this->v_bShowAmmoPacks->GetBool()) {
-			ent->AddESPString(color, bgclr,"%s AMMO", packs[type - item_ammo_small]);
+			ent->AddESPString("%s AMMO", packs[type - item_ammo_small]);
 			shown = true;
 		} else if (type >= item_mp_strength && type <= item_mp_crit && this->v_bShowPowerups->GetBool()) {
-			ent->AddESPString(color, bgclr, "%s PICKUP", powerups[type - item_mp_strength]);
+			ent->AddESPString("%s PICKUP", powerups[type - item_mp_strength]);
 			shown = true;
 		}
 		if (this->v_bShowDistance->GetBool() && shown) {
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}
@@ -283,40 +283,40 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			}
 		}
 		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
-			ent->AddESPString(color, bgclr, "HAS [%s]", powerups[power]);
+			ent->AddESPString("HAS [%s]", powerups[power]);
 		}
 		if (ent->m_bEnemy || v_bTeammates->GetBool() || GetRelation(ent)) {
 			if (v_bShowName->GetBool())
-				ent->AddESPString(color, bgclr, "%s", info.name);
+				ent->AddESPString("%s", info.name);
 			if (v_bShowFriendID->GetBool()) {
-				ent->AddESPString(color, bgclr, "%lu", info.friendsID);
+				ent->AddESPString("%lu", info.friendsID);
 			}
 			if (v_bShowClass->GetBool()) {
 				if (pclass > 0 && pclass < 10)
-					ent->AddESPString(color, bgclr, "%s", classes[pclass - 1]);
+					ent->AddESPString("%s", classes[pclass - 1]);
 			}
 			if (this->v_bShowHealthNumbers->GetBool()) {
-				ent->AddESPString(color, bgclr, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
+				ent->AddESPString("%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
 			}
 			if (v_bShowConditions->GetBool()) {
 				if (IsPlayerInvisible(ent)) {
-					ent->AddESPString(color, bgclr, "INVISIBLE");
+					ent->AddESPString("INVISIBLE");
 				}
 				if (IsPlayerInvulnerable(ent)) {
-					ent->AddESPString(color, bgclr, "INVULNERABLE");
+					ent->AddESPString("INVULNERABLE");
 				}
 				if (HasCondition(ent, TFCond_UberBulletResist)) {
-					ent->AddESPString(color, bgclr, "VACCINATOR ACTIVE");
+					ent->AddESPString("VACCINATOR ACTIVE");
 				}
 				if (HasCondition(ent, TFCond_SmallBulletResist)) {
-					ent->AddESPString(color, bgclr, "VACCINATOR PASSIVE");
+					ent->AddESPString("VACCINATOR PASSIVE");
 				}
 				if (IsPlayerCritBoosted(ent)) {
-					ent->AddESPString(color, bgclr, "CRIT BOOSTED");
+					ent->AddESPString("CRIT BOOSTED");
 				}
 			}
 			if (this->v_bShowDistance->GetBool()) {
-				ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 			}
 		}
 		break;
@@ -332,12 +332,12 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 				return;
 			}
 		}
-		ent->AddESPString(color, bgclr, "LV %i %s", level, name);
+		ent->AddESPString("LV %i %s", level, name);
 		if (this->v_bShowHealthNumbers->GetBool()) {
-			ent->AddESPString(color, bgclr, "%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
+			ent->AddESPString("%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
 		}
 		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString(color, bgclr, "%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		break;
 	}

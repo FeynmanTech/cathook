@@ -125,10 +125,10 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 				ESPStringCompound str = ce->GetESPString(j);
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
 				if (!ce->m_ESPOrigin.IsZero(1.0)) {
-					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, str.m_Color, str.m_Background, false, str.m_String);
+					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, ce->m_ESPColorFG, ce->m_ESPColorBG, false, str.m_String);
 					ce->m_ESPOrigin.y += 11;
 				} else {
-					draw::DrawString(screen.x, screen.y, str.m_Color, str.m_Background, true, str.m_String);
+					draw::DrawString(screen.x, screen.y, ce->m_ESPColorFG, ce->m_ESPColorBG, true, str.m_String);
 					screen.y += 11;
 				}
 			}
