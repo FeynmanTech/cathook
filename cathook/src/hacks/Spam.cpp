@@ -67,6 +67,7 @@ void Spam::LoadFile() {
 	for (m_nSpam = 0; m_nSpam < SPAM_MAX_AMOUNT; m_nSpam++) {
 		if(fgets(m_Spam[m_nSpam], SPAM_MAX_LENGTH, file)) {
 			m_Spam[m_nSpam][strlen(m_Spam[m_nSpam]) - 1] = '\0';
+			ReplaceString(m_Spam[m_nSpam], "\\n", "\n");
 		} else break;
 	}
 }
