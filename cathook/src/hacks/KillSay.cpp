@@ -48,6 +48,7 @@ const char* KillSay::ComposeKillSay(IGameEvent* event) {
 	if (!event) return 0;
 	int vid = event->GetInt("userid");
 	int kid = event->GetInt("attacker");
+	if (kid == vid) return 0;
 	if (interfaces::engineClient->GetPlayerForUserID(kid) != interfaces::engineClient->GetLocalPlayer()) return 0;
 	char* msg = strfmt("%s", m_KillSays[rand() % m_nKillSays]);
 	player_info_s info;

@@ -40,8 +40,10 @@
 #include <iserver.h>
 #include <view_shared.h>
 #include <basehandle.h>
+#include <iachievementmgr.h>
 #include <VGuiMatSurface/IMatSystemSurface.h>
 #include <steam/isteamuser.h>
+#include <steam/steam_api.h>
 
 #include "sdk/in_buttons.h"
 #include "sdk/iinput.h"
