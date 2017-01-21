@@ -32,6 +32,7 @@ public:
 	CatVar* bShowAntiAim;
 	CatVar* bThirdperson;
 	CatVar* bNoVisuals;
+	CatVar* bCleanScreenshots;
 	Vector last_angles;
 	bool bInvalid;
 };

@@ -32,6 +32,7 @@ void GlobalSettings::Init() {
 	this->bShowAntiAim = CREATE_CV(CV_SWITCH, "thirdperson_angles", "1", "Real angles in thirdperson");
 	this->bThirdperson = CREATE_CV(CV_SWITCH, "thirdperson", "0", "Thirdperson");
 	this->bNoVisuals = CREATE_CV(CV_SWITCH, "novisuals", "0", "Disable visuals");
+	this->bCleanScreenshots = CREATE_CV(CV_SWITCH, "clean_screenshot", "1", "Clean screenshots");
 	this->bThirdperson->m_pConVar->InstallChangeCallback(ThirdpersonCallback);
 	bInvalid = true;
 }

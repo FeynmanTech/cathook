@@ -62,6 +62,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (g_Settings.bNoVisuals->GetBool()) {
 		return;
 	}
+	if (g_Settings.bCleanScreenshots->GetBool() && interfaces::engineClient->IsTakingScreenshot()) return;
 
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
