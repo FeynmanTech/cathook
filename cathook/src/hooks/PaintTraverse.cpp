@@ -31,6 +31,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (!autoexec_done) {
 		interfaces::engineClient->ExecuteClientCmd("exec cat_autoexec");
 		interfaces::engineClient->ExecuteClientCmd("cat_killsay_reload");
+		interfaces::engineClient->ExecuteClientCmd("cat_spam_reload");
 		autoexec_done = true;
 	}
 #if NO_IPC != true

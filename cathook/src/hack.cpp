@@ -69,6 +69,7 @@ void hack::InitHacks() {
 	ADD_HACK(SpyAlert);
 	ADD_HACK(Glow);
 	ADD_HACK(KillSay);
+	ADD_HACK(Spam);
 	ADD_HACK(AchievementHack);
 }
 
@@ -210,4 +211,5 @@ void hack::Shutdown() {
 	DELETE_HACK(Glow);
 	DELETE_HACK(KillSay);
 	DELETE_HACK(AchievementHack);
+	DELETE_HACK(Spam);
 }

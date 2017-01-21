@@ -48,6 +48,7 @@ void EntityHitboxCache::Update() {
 void EntityHitboxCache::Init() {
 	m_bInit = true;
 	model_t* model = 0;
+	if (CE_BAD(m_pParentEntity)) return;
 	SAFE_CALL(model = (model_t*)RAW_ENT(m_pParentEntity)->GetModel());
 	if (!model) return;
 	if (!m_bModelSet || model != m_pLastModel) {
