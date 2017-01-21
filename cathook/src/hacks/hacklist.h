@@ -26,5 +26,6 @@
 #include "Glow.h"
 #include "KillSay.h"
 #include "Achievement.h"
+#include "Spam.h"
 
 #endif /* HACKS_HACKLIST_H_ */
