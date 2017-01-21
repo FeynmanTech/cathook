@@ -69,6 +69,7 @@ void hack::InitHacks() {
 	ADD_HACK(SpyAlert);
 	ADD_HACK(Glow);
 	ADD_HACK(KillSay);
+	ADD_HACK(AchievementHack);
 }
 
 ConCommand* hack::c_Cat = 0;
@@ -208,4 +209,5 @@ void hack::Shutdown() {
 	DELETE_HACK(SpyAlert);
 	DELETE_HACK(Glow);
 	DELETE_HACK(KillSay);
+	DELETE_HACK(AchievementHack);
 }

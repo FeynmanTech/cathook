@@ -25,5 +25,6 @@
 #include "Trigger.h"
 #include "Glow.h"
 #include "KillSay.h"
+#include "Achievement.h"
 
 #endif /* HACKS_HACKLIST_H_ */

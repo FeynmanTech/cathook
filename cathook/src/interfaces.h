@@ -32,6 +32,8 @@ class IGameMovement;
 class IInput;
 class IMatSystemSurface;
 class ISteamUser;
+class IAchievementMgr;
+class ISteamUserStats;
 
 namespace interfaces {
 
@@ -54,6 +56,8 @@ extern IGameMovement* gamemovement;
 extern IInput* iinput;
 extern IMatSystemSurface* matsurface;
 extern ISteamUser* user;
+extern IAchievementMgr* achievements;
+extern ISteamUserStats* stats;
 
 void CreateInterfaces();
 

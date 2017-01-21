@@ -125,7 +125,7 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 	SVDBG("FSN %i", __LINE__);
 	SAFE_CALL(((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage));
 	SVDBG("FSN %i", __LINE__);
-	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
+	//if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
 		/*if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
 			static Vector oldPunchAngles = Vector();
 			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
@@ -145,7 +145,7 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 			}
 		}*/
 		SVDBG("FSN %i", __LINE__);
-	}
+	//}
 	SVDBG("FSN %i", __LINE__);
 	//logging::Info("fsi end");// TODO dbg
 	SEGV_END;
