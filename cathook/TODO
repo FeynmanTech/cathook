@@ -4,6 +4,10 @@ Time DRM
 Build DRM
 SteamID DRM
 
+HWID:
+	/etc/machine-id
+	/etc/fstab
+
 FIX crash
 FIX conds
 Player List

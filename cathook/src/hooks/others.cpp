@@ -171,7 +171,23 @@ void OverrideView_hook(void* thisptr, CViewSetup* setup) {
 }
 
 bool DispatchUserMessage_hook(void* thisptr, int type, bf_read& buf) {
+	SEGV_BEGIN;
+	if (type == 4) {
+		int s = buf.GetNumBytesLeft();
+		char* data = new char[s];
+		for (int i = 0; i < s; i++)
+			data[i] = buf.ReadByte();
+		int j = 0;
+		for (int i = 0; i < 3; i++) {
+			while (char c = data[j++]) {
+				if (c == '\n') data[j - 1] = ' ';
+			}
+		}
+		buf = bf_read(data, s);
+		buf.Seek(0);
+	}
 	return ((DispatchUserMessage_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify + 1))(thisptr, type, buf);
+	SEGV_END; return false;
 }
 
 void LevelInit_hook(void* thisptr, const char* newmap) {
