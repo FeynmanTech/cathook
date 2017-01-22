@@ -8,8 +8,6 @@
 #ifndef DRM_H_
 #define DRM_H_
 
-//#include "autogen/autogen.h"
-
 #include <ctime>
 
 #ifndef __DRM_ENABLED
@@ -19,47 +17,46 @@
 
 #define __QUIT_SEGV (*((int*)0) = 0)
 
-#if __DRM_STEAMID == 76561198307538553 || __DRM_ENABLED == false //TODO!!
+#if __DRM_ENABLED == false
 #define _DEVELOPER true
 #else
 #define _DEVELOPER false
 #endif
 
-#ifndef __DRM_STEAMID
-#define __DRM_STEAMID 0
-#define __DRM_STEAMID_S "UNDEFINED"
+#ifndef __DRM_HWID_0
+#define __DRM_HWID_0 0x7fa8d247bb8389e7
+#define __DRM_HWID_1 0x08ebdb1cdb642f0e
+#define __DRM_HWID_2 0xf571eeb0c17a0aed
+#define __DRM_HWID_3 0x20cea01f36f359ac
 #endif
+
 #ifndef __DRM_EXPIRES
 #define __DRM_EXPIRES 0
 #endif
 #ifndef __DRM_BUILDNUMBER
 #define __DRM_BUILDNUMBER 0
-#define __DRM_BUILDNUMBER_MAX 0
 #endif
 #ifndef __DRM_NAME
 #define __DRM_NAME "UNDEFINED"
 #endif
 
 #if __DRM_ENABLED != false
-#define DRM_CHECK_STEAM __DRM_STEAM
+#define DRM_CHECK_HWID __DRM_HWID
 #define DRM_CHECK_EXPIRE __DRM_EXPIRE
 #define DRM_CHECK_ENGINE __DRM_ENGINE
 #define DRM_ENFORCE __DRM_ENFORCE
 #else
-#define DRM_CHECK_STEAM
+#define DRM_CHECK_HWID
 #define DRM_CHECK_EXPIRE
 #define DRM_CHECK_ENGINE
 #define DRM_ENFORCE
 #endif
 
-#define __DRM_RAND_0 548285
-#define __DRM_RAND(a, b) ((__DRM_RAND_##a << b) & 1)
-
-#define __DRM_STEAM (__DRM_RAND(0, 0) ? __DRM_STEAMID != __DRM_STEAM_GET_UINT64_1 : __DRM_STEAMID != __DRM_STEAM_GET_UINT64_2)
-#define __DRM_STEAM_GET_USER (interfaces::user)
-#define __DRM_STEAM_GET_UINT64_1 __DRM_STEAM_GET_UINT64_2//(reinterpret_cast<unsigned long long>(__DRM_STEAM_GET_USER->GetSteamID()))
-#define __DRM_STEAM_GET_UINT64_2 (__DRM_STEAM_GET_USER->GetSteamID().ConvertToUint64())
-
+#if __DRM_HWID_0 == 0
+#define __DRM_HWID false
+#else
+#define __DRM_HWID !(hwid::check_hwid(__DRM_HWID_0, __DRM_HWID_1, __DRM_HWID_2, __DRM_HWID_3))
+#endif
 #if __DRM_EXPIRES == 0
 #define __DRM_EXPIRE false
 #else
@@ -68,9 +65,9 @@
 #if __DRM_BUILDNUMBER == 0
 #define __DRM_ENGINE false
 #else
-#define __DRM_EXPIRE true
+#define __DRM_ENGINE true
 #endif
 
-#define __DRM_ENFORCE if (DRM_CHECK_STEAM || DRM_CHECK_EXPIRE || DRM_CHECK_ENGINE) __QUIT_SEGV
+#define __DRM_ENFORCE if (DRM_CHECK_EXPIRE || DRM_CHECK_ENGINE || DRM_CHECK_HWID) __QUIT_SEGV
 
 #endif /* DRM_H_ */

@@ -27,6 +27,7 @@
 #include "common.h"
 #include "sharedobj.h"
 #include "hooks.h"
+#include "hwid.h"
 #include "netmessage.h"
 #include "targeting/ITargetSystem.h"
 #include "profiler.h"
@@ -83,7 +84,7 @@ void hack::CC_Cat(const CCommand& args) {
 #if _DEVELOPER
 	interfaces::cvar->ConsoleColorPrintf(colors::red, "[DEVELOPER BUILD]\n");
 #endif
-	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build for user " __DRM_NAME " (" __DRM_STEAMID_S ") (Early Access)\n");
+	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build for user " __DRM_NAME " (Early Access)\n");
 #ifdef __DRM_NOTES
 	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build notes: " __DRM_NOTES "\n");
 #endif
@@ -93,6 +94,10 @@ void hack::Initialize() {
 	logging::Initialize();
 	srand(time(0));
 	prctl(PR_SET_DUMPABLE,0,42,42,42);
+	hwid::unpack_strings();
+	hwid::read_hwid_fstab();
+	hwid::read_hwid_machineid();
+	hwid::compute_result();
 	logging::Info("Build: " __DATE__ " " __TIME__);
 	logging::Info("Loading shared objects...");
 	sharedobj::LoadAllSharedObjects();

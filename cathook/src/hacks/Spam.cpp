@@ -27,6 +27,7 @@ Spam::Spam() {
 bool Spam::CreateMove(void*, float, CUserCmd*) {
 	if (!v_bSpam->GetBool()) return true;
 	if (interfaces::gvars->curtime - m_fLastSpam < 0.8f) return true;
+	if (interfaces::gvars->curtime < m_fLastSpam) m_fLastSpam = 0.0f;
 	if (m_nSpam == 0) return true;
 	if (m_iCurrentIndex >= m_nSpam || m_iCurrentIndex >= SPAM_MAX_AMOUNT) m_iCurrentIndex = 0;
 	char* spam = 0;
@@ -47,9 +48,12 @@ void Spam::LevelInit(const char*) {
 }
 
 void Spam::PaintTraverse(void*, unsigned int, bool, bool) {}
-void Spam::LevelShutdown() {}
+void Spam::LevelShutdown() {
+	m_fLastSpam = 0.0f;
+}
 
 void Spam::LoadFile() {
+	m_fLastSpam = 0.0f;
 	uid_t uid = geteuid();
 	passwd* pw = getpwuid(uid);
 	if (!pw) {

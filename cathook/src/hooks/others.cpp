@@ -9,6 +9,7 @@
 #include "../netmessage.h"
 #include "../gui/gui.h"
 #include "../hack.h"
+#include "../hwid.h"
 #include "hookedmethods.h"
 
 bool CanPacket_hook(void* thisptr) {
@@ -63,7 +64,6 @@ void Shutdown_hook(void* thisptr, const char* reason) {
 
 void FrameStageNotify_hook(void* thisptr, int stage) {
 	SEGV_BEGIN;
-	DRM_ENFORCE;
 	//logging::Info("FrameStageNotify %i", stage);
 	// Ambassador to festive ambassador changer. simple.
 	if (!interfaces::engineClient->IsInGame()) g_Settings.bInvalid = true;
@@ -192,6 +192,7 @@ bool DispatchUserMessage_hook(void* thisptr, int type, bf_read& buf) {
 
 void LevelInit_hook(void* thisptr, const char* newmap) {
 	((LevelInit_t*) hooks::hkClientMode->GetMethod(hooks::offLevelInit))(thisptr, newmap);
+	DRM_ENFORCE;
 	logging::Info("LevelInit %s", newmap);
 	LEVEL_INIT(Aimbot, newmap);
 	LEVEL_INIT(Airstuck, newmap);
