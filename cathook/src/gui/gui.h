@@ -27,6 +27,7 @@ public:
 	void PushList(const char* id);
 	void PopList();
 	void UpdateKeys();
+	void UpdateMouse();
 
 	void Setup();
 
@@ -38,6 +39,9 @@ public:
 	int m_nListCount;
 	int m_nStackSize;
 	CatVar* v_bGUIVisible;
+	int m_nMouseX;
+	int m_nMouseY;
+	IGUIListElement* m_pLastHoveredElement;
 };
 
 extern GUI* g_pGUI;

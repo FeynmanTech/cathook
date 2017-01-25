@@ -85,7 +85,7 @@ void AddCenterString(Color fg, Color bg, const char* fmt, ...) {
 // TODO globals
 unsigned long draw::font_handle = 0;
 unsigned long draw::panel_top = 0;
-unsigned long draw::font_handle_large = 0;
+unsigned long draw::font_handle_menu = 0;
 int draw::width = 0;
 int draw::height = 0;
 
@@ -286,15 +286,15 @@ ESPStringCompound::ESPStringCompound() {
 
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
-	draw::font_handle_large = interfaces::surface->CreateFont();
+	draw::font_handle_menu = interfaces::surface->CreateFont();
 	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Ubuntu Mono Bold", 14, 0, 0, 0, 0x0); // Ubuntu Mono Bold
-	interfaces::surface->SetFontGlyphSet(draw::font_handle_large, "TF2 BUILD", 32, 500, 0, 0, 0x200);
+	interfaces::surface->SetFontGlyphSet(draw::font_handle_menu, "Verdana", 12, 0, 0, 0, 0x0);
 }
 
 void draw::DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text) {
 	interfaces::surface->DrawSetTextPos(x, y);
 	interfaces::surface->DrawSetTextColor(color);
-	interfaces::surface->DrawSetTextFont(draw::font_handle);
+	interfaces::surface->DrawSetTextFont(font);
 	//interfaces::surface->DrawPrintText(text, wcslen(text));
 	interfaces::surface->DrawUnicodeString(text, vgui::FONT_DRAW_DEFAULT);
 }
@@ -329,7 +329,21 @@ void draw::DrawString(int x, int y, Color color, const char* text, ...) {
 	vsprintf(buffer, text, list);
 	va_end(list);
 	swprintf(string, 1024, L"%s", buffer);
+	draw::DrawString(draw::font_handle, x + 1, y + 1, colors::black, string);
 	draw::DrawString(draw::font_handle, x, y, color, string);
+}
+
+void draw::DrawString(unsigned font_handle, int x, int y, Color color, const char* text, ...) {
+	if (!text) return;
+	va_list list;
+	char buffer[1024] = { '\0' };
+	wchar_t string[1024] = { '\0' };
+	va_start(list, text);
+	vsprintf(buffer, text, list);
+	va_end(list);
+	swprintf(string, 1024, L"%s", buffer);
+	draw::DrawString(font_handle, x + 1, y + 1, colors::black, string);
+	draw::DrawString(font_handle, x, y, color, string);
 }
 
 bool draw::EntityCenterToScreen(CachedEntity* entity, Vector& out) {

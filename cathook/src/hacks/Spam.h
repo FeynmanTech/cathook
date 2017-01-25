@@ -13,18 +13,18 @@
 #define SPAM_MAX_AMOUNT 64
 #define SPAM_MAX_LENGTH 256
 
+class TextFile;
+
 class Spam : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	Spam();
-	void LoadFile();
 	CatVar* v_bSpam;
 	CatVar* v_sSpamFile;
 	CatVar* v_bSpamNewlines;
 	ConCommand* c_Reload;
-	char m_Spam[SPAM_MAX_AMOUNT][SPAM_MAX_LENGTH];
-	int m_nSpam;
 	int m_iCurrentIndex;
+	TextFile* m_TextFile;
 	float m_fLastSpam;
 };
 

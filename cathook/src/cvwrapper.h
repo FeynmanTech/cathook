@@ -52,6 +52,7 @@ public:
 	bool GetBool();
 	int GetInt();
 	float GetFloat();
+	const char* GetString();
 
 	void Increment(int factor = 1);
 	void Decrement(int factor = 1);

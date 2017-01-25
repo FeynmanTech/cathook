@@ -27,6 +27,8 @@
 #include "prediction.h"
 #include "conditions.h"
 #include "ipc/ipcctl.h"
+#include "chatstack.h"
+#include "textfile.h"
 
 #include "hacks/hacklist.h"
 #include "glowobjects.h"

@@ -94,6 +94,8 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		}
 	}*/
 	g_Settings.bInvalid = false;
+	if (g_pChatStack)
+		g_pChatStack->OnCreateMove();
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 		if (g_pLocalPlayer->bUseSilentAngles) {
 			Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);

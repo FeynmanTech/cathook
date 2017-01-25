@@ -24,6 +24,8 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	static unsigned long panel_scope = 0;
 	bool call_default = true;
 	if (g_Settings.bHackEnabled->GetBool() && panel_scope && g_Settings.bNoZoom->GetBool() && vp == panel_scope) call_default = false;
+	if (g_Settings.bHackEnabled->GetBool())
+		interfaces::surface->SetCursorAlwaysVisible(g_pGUI->v_bGUIVisible->GetBool());
 	if (call_default) SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
 	if (!g_Settings.bHackEnabled->GetBool()) return;
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
@@ -142,6 +144,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 		}
 #if GUI_ENABLED == true
 		g_pGUI->UpdateKeys();
+		g_pGUI->UpdateMouse();
 		g_pGUI->Draw();
 #endif
 		DrawStrings();

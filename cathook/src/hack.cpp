@@ -180,6 +180,7 @@ void hack::Initialize() {
 	g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
 	logging::Info("GlowObjectManager: 0x%08x", g_GlowObjectManager);
 	InitStrings();
+	g_pChatStack = new ChatStack();
 	logging::Info("Init done!");
 }
 

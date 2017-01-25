@@ -16,6 +16,7 @@ GUI::GUI() {
 	m_nStackSize = 0;
 	m_ListStack = new GUI_List*[LISTS_MAX]();
 	m_Lists = new GUI_List*[LISTS_MAX]();
+	m_pLastHoveredElement = 0;
 }
 
 void GUI::AddList(GUI_List* list) {
@@ -41,12 +42,18 @@ void GUI::PopList() {
 }
 
 void GUI::Draw() {
-	if (!v_bGUIVisible || !v_bGUIVisible->GetBool()) return;
+	if (!v_bGUIVisible || !v_bGUIVisible->GetBool()) {
+		return;
+	}
+
 	for (int i = 0; i < m_nStackSize; i++) {
 		GUI_List* list = m_ListStack[i];
 		if (list)
 			list->Draw();
 	}
+
+	draw::DrawRect(m_nMouseX - 5, m_nMouseY - 5, 10, 10, colors::Transparent(colors::white));
+	draw::OutlineRect(m_nMouseX - 5, m_nMouseY - 5, 10, 10, colors::pink);
 }
 
 void GUI::UpdateKeys() {
@@ -61,14 +68,27 @@ void GUI::UpdateKeys() {
 			}
 		}
 	}
+
 	if (!m_bKeysInit) m_bKeysInit = 1;
+}
+
+void GUIVisibleCallback(IConVar* var, const char* pOldValue, float flOldValue) {
+	if (g_pGUI->v_bGUIVisible) {
+		interfaces::input->SetCursorPosition(0, 0);
+	}
+}
+
+void GUI::UpdateMouse() {
+	m_nMouseX = interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X);
+	m_nMouseY = interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y);
 }
 
 bool GUI::KeyEvent(ButtonCode_t key) {
 //	logging::Info("pressed %i", key);
 	if (m_bPressedState[key]) {
-		if (key == KEY_INSERT)
+		if (key == KEY_INSERT) {
 			v_bGUIVisible->m_pConVar->SetValue(!v_bGUIVisible->GetBool());
+		}
 		if (!v_bGUIVisible || !v_bGUIVisible->GetBool()) return false;
 		if (key == KEY_BACKSPACE) {
 			PopList();
@@ -93,22 +113,27 @@ bool GUI::KeyEvent(ButtonCode_t key) {
 #define ADD_VAR(list, var) \
 	list_##list->AddElement(new GUIListElement_Var(var));
 
+#define ADD_TITLE(list, name) \
+	list_##list->AddElement(new GUIListElement_TitleList(name));
+
 
 void GUI::Setup() {
 	v_bGUIVisible = CREATE_CV(CV_SWITCH, "gui_visible", "0", "Shows/hides the GUI");
 
 	CREATE_LIST(main, "MAIN");
-	CREATE_LIST(aimbot, "Aimbot");
+	CREATE_LIST(aimbot, "Aim Bot");
 	CREATE_LIST(antiaim, "Anti-Aim");
 	CREATE_LIST(autoheal, "Auto Heal");
 	CREATE_LIST(autoreflect, "Auto Reflect");
 	CREATE_LIST(autosticky, "Auto Sticky");
 	CREATE_LIST(esp, "ESP");
-	CREATE_LIST(bhop, "Bunnyhop");
-	CREATE_LIST(trigger, "Triggerbot");
+	CREATE_LIST(bhop, "Bunny Hop");
+	CREATE_LIST(trigger, "Trigger Bot");
 	CREATE_LIST(spy, "Spy Alert");
 
 	list_main->Move(100, 100);
+
+	ADD_TITLE(main, ">>> CatHook <<<");
 
 	ADD_SUBLIST(main, aimbot);
 	ADD_SUBLIST(main, antiaim);
@@ -119,6 +144,8 @@ void GUI::Setup() {
 	ADD_SUBLIST(main, bhop);
 	ADD_SUBLIST(main, trigger);
 	ADD_SUBLIST(main, spy);
+
+	ADD_TITLE(aimbot, ">>> Aim Bot Menu <<<");
 
 	ADD_VAR(aimbot, g_phAimbot->v_bEnabled);
 	// TODO enums
