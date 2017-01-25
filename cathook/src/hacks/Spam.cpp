@@ -19,63 +19,39 @@ Spam::Spam() {
 	v_bSpamNewlines = CREATE_CV(CV_SWITCH, "spam_newlines", "1", "Prepend newlines to messages");
 	v_sSpamFile = CREATE_CV(CV_STRING, "spam_file", "spam.txt", "Spam file (~/.cathook/...)");
 	c_Reload = CreateConCommand(CON_PREFIX "spam_reload", &CC_Spam_ReloadFile, "Reloads spam file");
-	m_nSpam = 0;
 	m_iCurrentIndex = 0;
 	m_fLastSpam = 0;
+	m_TextFile = new TextFile(256, 256);
 }
 
 bool Spam::CreateMove(void*, float, CUserCmd*) {
 	if (!v_bSpam->GetBool()) return true;
 	if (interfaces::gvars->curtime - m_fLastSpam < 0.8f) return true;
 	if (interfaces::gvars->curtime < m_fLastSpam) m_fLastSpam = 0.0f;
-	if (m_nSpam == 0) return true;
-	if (m_iCurrentIndex >= m_nSpam || m_iCurrentIndex >= SPAM_MAX_AMOUNT) m_iCurrentIndex = 0;
+	if (m_TextFile->GetLineCount() == 0) return true;
+	if (m_iCurrentIndex >= m_TextFile->GetLineCount() || m_iCurrentIndex < 0) m_iCurrentIndex = 0;
 	char* spam = 0;
 	if (v_bSpamNewlines->GetBool()) {
-		spam = strfmt("say \"\n\n\n\n\n\n\n\n\n\n\n\n%s\"", m_Spam[m_iCurrentIndex]);
+		spam = strfmt("\n\n\n\n\n\n\n\n\n\n\n\n\n%s", m_TextFile->GetLine(m_iCurrentIndex));
 	} else {
-		spam = strfmt("say \"%s\"", m_Spam[m_iCurrentIndex]);
+		spam = strfmt("%s", m_TextFile->GetLine(m_iCurrentIndex));
 	}
-	interfaces::engineClient->ServerCmd(spam);
-	m_fLastSpam = interfaces::gvars->curtime;
+	ReplaceString(spam, "\\n", "\n");
+	g_pChatStack->Push(spam);
 	delete [] spam;
 	m_iCurrentIndex++;
+	m_fLastSpam = interfaces::gvars->curtime;
 	return true;
 }
 
 void Spam::LevelInit(const char*) {
-	m_fLastSpam = 0.0f;
+	m_fLastSpam = 0;
 }
-
 void Spam::PaintTraverse(void*, unsigned int, bool, bool) {}
 void Spam::LevelShutdown() {
-	m_fLastSpam = 0.0f;
-}
-
-void Spam::LoadFile() {
-	m_fLastSpam = 0.0f;
-	uid_t uid = geteuid();
-	passwd* pw = getpwuid(uid);
-	if (!pw) {
-		logging::Info("can't get the username!");
-		return;
-	}
-	char* filename = strfmt("/home/%s/.cathook/%s", pw->pw_name, v_sSpamFile->m_pConVar->GetString());
-	FILE* file = fopen(filename, "r");
-	if (!file) {
-		logging::Info("Could not open the file: %s", filename);
-		delete filename;
-		return;
-	}
-	delete filename;
-	for (m_nSpam = 0; m_nSpam < SPAM_MAX_AMOUNT; m_nSpam++) {
-		if(fgets(m_Spam[m_nSpam], SPAM_MAX_LENGTH, file)) {
-			m_Spam[m_nSpam][strlen(m_Spam[m_nSpam]) - 1] = '\0';
-			ReplaceString(m_Spam[m_nSpam], "\\n", "\n");
-		} else break;
-	}
+	m_fLastSpam = 0;
 }
 
 void CC_Spam_ReloadFile(const CCommand& args) {
-	g_phSpam->LoadFile();
+	g_phSpam->m_TextFile->LoadFile(g_phSpam->v_sSpamFile->GetString());
 }

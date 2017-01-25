@@ -65,7 +65,7 @@ extern int g_nStringsCenter;
 namespace draw {
 
 extern unsigned long font_handle;
-extern unsigned long font_handle_large;
+extern unsigned long font_handle_menu;
 extern unsigned long panel_top;
 extern int width;
 extern int height;
@@ -79,6 +79,7 @@ bool WorldToScreen(Vector &origin, Vector &screen);
 bool EntityCenterToScreen(CachedEntity* entity, Vector& out);
 void OutlineRect(int x, int y, int w, int h, Color color);
 void GetStringLength(char* string, int& length, int& height);
+void DrawString(unsigned font_handle, int x, int y, Color color, const char* text, ...);
 
 }
 

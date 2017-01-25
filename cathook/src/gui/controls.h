@@ -11,8 +11,8 @@
 #include "../cvwrapper.h"
 #include "../sdk.h"
 
-#define VERTICAL_SPACING 14
-#define LIST_WIDTH 200
+#define VERTICAL_SPACING 16
+#define LIST_WIDTH 220
 
 class IGUIListElement;
 
@@ -62,6 +62,15 @@ public:
 	void KeyEvent(ButtonCode_t key);
 
 	GUI_List* m_pList;
+};
+
+class GUIListElement_TitleList : public IGUIListElement {
+public:
+	GUIListElement_TitleList(const char* title);
+	void Draw(int x, int y, bool selected);
+	void KeyEvent(ButtonCode_t key);
+
+	const char* m_pszTitle;
 };
 
 #endif /* CONTROLS_H_ */

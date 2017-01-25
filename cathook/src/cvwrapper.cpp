@@ -35,6 +35,7 @@ int CatEnum::Minimum() {
 bool CatVar::GetBool() { return m_pConVar->GetBool(); }
 int CatVar::GetInt() { return m_pConVar->GetInt(); }
 float CatVar::GetFloat() { return m_pConVar->GetFloat(); }
+const char* CatVar::GetString() { return m_pConVar->GetString(); }
 
 void CatVar::Increment(int factor) {
 	if (!m_pConVar) return;
