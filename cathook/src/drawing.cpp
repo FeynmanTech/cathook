@@ -287,7 +287,7 @@ ESPStringCompound::ESPStringCompound() {
 void draw::Initialize() {
 	draw::font_handle = interfaces::surface->CreateFont();
 	draw::font_handle_menu = interfaces::surface->CreateFont();
-	interfaces::surface->SetFontGlyphSet(draw::font_handle, "Ubuntu Mono Bold", 14, 0, 0, 0, 0x0); // Ubuntu Mono Bold
+	interfaces::surface->SetFontGlyphSet(draw::font_handle, "TF2 Build", 14, 0, 0, 0, 0x0); // Ubuntu Mono Bold
 	interfaces::surface->SetFontGlyphSet(draw::font_handle_menu, "Verdana", 12, 0, 0, 0, 0x0);
 }
 
@@ -297,6 +297,11 @@ void draw::DrawString(unsigned long font, int x, int y, Color color, const wchar
 	interfaces::surface->DrawSetTextFont(font);
 	//interfaces::surface->DrawPrintText(text, wcslen(text));
 	interfaces::surface->DrawUnicodeString(text, vgui::FONT_DRAW_DEFAULT);
+}
+
+void draw::DrawLine(int x, int y, int dx, int dy, Color color) {
+	interfaces::surface->DrawSetColor(color);
+	interfaces::surface->DrawLine(x, y, x + dx, y + dy);
 }
 
 void draw::DrawString(int x, int y, Color color, Color background, bool center, const char* text, ...) {
@@ -316,7 +321,12 @@ void draw::DrawString(int x, int y, Color color, Color background, bool center, 
 	draw::GetStringLength((char*)text, l, h);
 	Color clr = background;
 	clr[3] = (unsigned char)180;
-	draw::DrawRect(x, y + 1, l + 2, h - 4, clr);
+	//draw::DrawRect(x, y + 1, l + 2, h - 4, clr);
+	Color tb = color[3] == 255 ? colors::black : colors::Transparent(colors::black, (float)(color[3] / 255.0f) / 3.0f);
+	draw::DrawString(draw::font_handle, x + 1, y + 1, tb, string);
+	draw::DrawString(draw::font_handle, x - 1, y - 1, tb, string);
+	draw::DrawString(draw::font_handle, x + 1, y - 1, tb, string);
+	draw::DrawString(draw::font_handle, x - 1, y + 1, tb, string);
 	draw::DrawString(draw::font_handle, x, y, color, string);
 }
 

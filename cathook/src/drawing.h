@@ -62,6 +62,7 @@ extern int g_nStringsSide;
 extern ESPStringCompound* g_pStringsCenter;
 extern int g_nStringsCenter;
 
+
 namespace draw {
 
 extern unsigned long font_handle;
@@ -71,10 +72,18 @@ extern int width;
 extern int height;
 
 void Initialize();
+
+void DrawWideString(unsigned long font, int x, int y, unsigned color, const wchar_t* text);
+void DrawString(unsigned long font, int x, int y, unsigned color, const char* text);
+void DrawFormatString(unsigned long font, int x, int y, unsigned color, const char* text, ...);
+void DrawShadowString(unsigned long font, int x, int y, unsigned color, const char* text, ...);
+void DrawFormatShadowString(unsigned long font, int x, int y, unsigned color, const char* text, ...);
+
 void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);
 void DrawString(int x, int y, Color color, Color background, bool center, const char* text, ...);
 void DrawString(int x, int y, Color color, const char* text, ...);
 void DrawRect(int x, int y, int w, int h, Color color);
+void DrawLine(int x, int y, int dx, int dy, Color color);
 bool WorldToScreen(Vector &origin, Vector &screen);
 bool EntityCenterToScreen(CachedEntity* entity, Vector& out);
 void OutlineRect(int x, int y, int w, int h, Color color);

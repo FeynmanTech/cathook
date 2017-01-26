@@ -31,8 +31,8 @@
 #include "netmessage.h"
 #include "targeting/ITargetSystem.h"
 #include "profiler.h"
-#include "gui/gui.h"
-#include "gui/controls.h"
+#include "gui/GUI.h"
+//#include "gui/controls.h"
 #include "cvwrapper.h"
 
 #include "hooks/hookedmethods.h"
@@ -135,7 +135,7 @@ void hack::Initialize() {
 		g_vEntityCacheProfiling = CREATE_CV(CV_SWITCH, "entity_cache_profiling", "0", "Entity cache profiling");
 	}
 #endif
-	g_pGUI = new GUI();
+	g_pGUI = new CatGUI();
 	g_pGUI->Setup();
 	EndConVars();
 	logging::Info("Initializing NetVar tree...");

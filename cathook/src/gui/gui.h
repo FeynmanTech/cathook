@@ -16,6 +16,7 @@
 
 class CatVar;
 class GUI_List;
+class IGUIListElement;
 
 class GUI {
 public:
@@ -44,6 +45,6 @@ public:
 	IGUIListElement* m_pLastHoveredElement;
 };
 
-extern GUI* g_pGUI;
+extern GUI* g_pGUIDeprecated;
 
 #endif /* GUI_H_ */

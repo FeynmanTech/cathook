@@ -52,8 +52,9 @@ void GUI::Draw() {
 			list->Draw();
 	}
 
+
 	draw::DrawRect(m_nMouseX - 5, m_nMouseY - 5, 10, 10, colors::Transparent(colors::white));
-	draw::OutlineRect(m_nMouseX - 5, m_nMouseY - 5, 10, 10, colors::pink);
+		draw::OutlineRect(m_nMouseX - 5, m_nMouseY - 5, 10, 10, colors::pink);
 }
 
 void GUI::UpdateKeys() {
@@ -70,12 +71,6 @@ void GUI::UpdateKeys() {
 	}
 
 	if (!m_bKeysInit) m_bKeysInit = 1;
-}
-
-void GUIVisibleCallback(IConVar* var, const char* pOldValue, float flOldValue) {
-	if (g_pGUI->v_bGUIVisible) {
-		interfaces::input->SetCursorPosition(0, 0);
-	}
 }
 
 void GUI::UpdateMouse() {

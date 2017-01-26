@@ -9,7 +9,7 @@
 #include "../common.h"
 #include "../hack.h"
 #include "hookedmethods.h"
-#include "../gui/gui.h"
+#include "../gui/GUI.h"
 #include "../segvcatch/segvcatch.h"
 
 void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
@@ -28,6 +28,13 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 		interfaces::surface->SetCursorAlwaysVisible(g_pGUI->v_bGUIVisible->GetBool());
 	if (call_default) SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
 	if (!g_Settings.bHackEnabled->GetBool()) return;
+#if GUI_ENABLED == true
+		/*g_pGUI->UpdateKeys();
+		g_pGUI->UpdateMouse();
+		g_pGUI->Draw();*/
+		if (vp == draw::panel_top)
+			g_pGUI->Update();
+#endif
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	static bool autoexec_done = false;
 	if (!autoexec_done) {
@@ -142,11 +149,6 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
 			}
 		}
-#if GUI_ENABLED == true
-		g_pGUI->UpdateKeys();
-		g_pGUI->UpdateMouse();
-		g_pGUI->Draw();
-#endif
 		DrawStrings();
 	}
 	SEGV_END;
