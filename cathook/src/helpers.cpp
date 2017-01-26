@@ -446,7 +446,7 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 		// TODO offset (GetProjectileSpeed)
 		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
 		// TODO Wrong grenade launcher gravity
-		rgrav = 0.5f;
+		rgrav = 0.25f;
 	break;
 	case ClassID::CTFCompoundBow: {
 		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
@@ -460,7 +460,7 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 	break;
 	case ClassID::CTFFlareGun:
 		rspeed = 2000.0f;
-		rgrav = 0.5f;
+		rgrav = 0.25f;
 	break;
 	case ClassID::CTFSyringeGun:
 		rgrav = 0.2f;

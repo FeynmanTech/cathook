@@ -160,8 +160,8 @@ void GUIListElement_Var::Draw(int x, int y, bool selected) {
 
 void GUIListElement_Var::KeyEvent(ButtonCode_t key) {
 	int factor = 1;
-	if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LSHIFT]) factor *= 10;
-	if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LCONTROL]) factor *= 100;
+	//if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LSHIFT]) factor *= 10;
+	//if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LCONTROL]) factor *= 100;
 	switch (key) {
 	case ButtonCode_t::KEY_SPACE:
 	case ButtonCode_t::KEY_ENTER:
@@ -197,6 +197,6 @@ void GUIListElement_SubList::KeyEvent(ButtonCode_t key) {
 	case ButtonCode_t::KEY_SPACE:
 	case ButtonCode_t::KEY_RIGHT:
 		m_pList->Move(m_pParentList->x + LIST_WIDTH - 1, m_pParentList->y + VERTICAL_SPACING * m_nIndex - m_nIndex);
-		g_pGUI->PushList(m_pList->m_pszListID);
+		//g_pGUI->PushList(m_pList->m_pszListID);
 	}
 }

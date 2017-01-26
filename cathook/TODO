@@ -1,12 +1,12 @@
-BEFORE RELEASE!!
 
-Time DRM
-Build DRM
-SteamID DRM
-
-HWID:
-	/etc/machine-id
-	/etc/fstab
+GUI ELEMENTS:
+	List Entry
+	Main Menu (BIG)
+	Checkbox
+	Text Input
+	Slider
+	Counter
+	List
 	
 fullbright toggle
 instant taunt
