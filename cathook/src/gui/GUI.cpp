@@ -8,12 +8,14 @@
 #include "GUI.h"
 #include "IWidget.h"
 #include "RootWindow.h"
+#include "CTooltip.h"
 
 #include "../common.h"
 #include "../sdk.h"
 
 void GUIVisibleCallback(IConVar* var, const char* pOldValue, float flOldValue) {
-	interfaces::input->SetCursorPosition(0, 0);
+	interfaces::input->SetCursorPosition(draw::width / 2, draw::height / 2);
+	interfaces::surface->SetCursor(vgui::CursorCode::dc_none);
 }
 
 CatGUI::CatGUI() {
@@ -28,10 +30,19 @@ CatGUI::~CatGUI() {
 
 void CatGUI::Setup() {
 	m_pRootWindow = new RootWindow();
+	m_pTooltip = new CTooltip(m_pRootWindow, "tooltip");
+	m_pRootWindow->AddChild(m_pTooltip);
 	v_bGUIVisible->m_pConVar->InstallChangeCallback(GUIVisibleCallback);
 }
 
+void CatGUI::ShowTooltip(const char* text) {
+	m_pTooltip->SetText(text);
+	m_pTooltip->SetOffset(m_iMouseX + 5, m_iMouseY + 5);
+	m_pTooltip->Show();
+}
+
 void CatGUI::Update() {
+	m_pTooltip->Hide();
 	for (int i = 0; i < ButtonCode_t::MOUSE_LAST; i++) {
 		bool down = interfaces::input->IsButtonDown((ButtonCode_t)(KEY_FIRST + i));
 		bool changed = m_bPressedState[i] != down;
@@ -71,3 +82,5 @@ void CatGUI::Update() {
 IWidget* CatGUI::GetRootWindow() {
 	return m_pRootWindow;
 }
+
+CatGUI* g_pGUI = 0;

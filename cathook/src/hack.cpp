@@ -77,16 +77,19 @@ void hack::InitHacks() {
 ConCommand* hack::c_Cat = 0;
 
 void hack::CC_Cat(const CCommand& args) {
-	interfaces::cvar->ConsoleColorPrintf(colors::blu, "CatHook");
-	interfaces::cvar->ConsoleColorPrintf(colors::white, " by ");
-	interfaces::cvar->ConsoleColorPrintf(colors::blu, "d4rkc4t\n");
-	interfaces::cvar->ConsoleColorPrintf(colors::white, "Build: " __DATE__ " " __TIME__"\n");
+	Color x = *reinterpret_cast<Color*>(&colors::blu);
+	logging::Info("x: %i", x.GetRawColor());
+	logging::Info("r %i g %i b %i", x.r(), x.g(), x.b());
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "CatHook");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), " by ");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "d4rkc4t\n");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), "Build: " __DATE__ " " __TIME__"\n");
 #if _DEVELOPER
-	interfaces::cvar->ConsoleColorPrintf(colors::red, "[DEVELOPER BUILD]\n");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "[DEVELOPER BUILD]\n");
 #endif
-	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build for user " __DRM_NAME " (Early Access)\n");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build for user " __DRM_NAME " (Early Access)\n");
 #ifdef __DRM_NOTES
-	interfaces::cvar->ConsoleColorPrintf(colors::red, "Build notes: " __DRM_NOTES "\n");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build notes: " __DRM_NOTES "\n");
 #endif
 }
 
@@ -115,7 +118,6 @@ void hack::Initialize() {
 	draw::Initialize();
 	logging::Info("Colorizing...");
 	colors::Init();
-	logging::Info("Boosting luck...");
 	uintptr_t mmmf = (gSignatures.GetClientSignature("C7 44 24 04 09 00 00 00 BB ? ? ? ? C7 04 24 00 00 00 00 E8 ? ? ? ? BA ? ? ? ? 85 C0 B8 ? ? ? ? 0F 44 DA") + 37);
 	if (mmmf) {
 		unsigned char patch1[] = { 0x89, 0xD3, 0x90 };
@@ -180,6 +182,11 @@ void hack::Initialize() {
 	g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
 	logging::Info("GlowObjectManager: 0x%08x", g_GlowObjectManager);
 	InitStrings();
+
+	KeyValues::AutoDelete kv("TestKeyValues");
+	kv->SetBool("rekt", true);
+	logging::Info("%i", kv->GetBool("rekt"));
+
 	g_pChatStack = new ChatStack();
 	logging::Info("Init done!");
 }

@@ -17,6 +17,7 @@ public:
 	virtual void GetSize(int& x, int& y);
 	virtual void Draw();
 	virtual void Update();
+	virtual bool ShouldResizeToFit();
 
 	char m_Text[256];
 	int m_iDraggingStage;

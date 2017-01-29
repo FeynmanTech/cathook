@@ -74,7 +74,7 @@ ESP::ESP() {
 
 #define ESP_HEIGHT 14
 
-void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
+void ESP::DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (CE_BAD(ent)) return;
 	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent);
 	Vector min, max;
@@ -102,14 +102,15 @@ void ESP::DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeig
 	//draw::DrawString((int)so.x, (int)so.y, draw::white, false, "origin");
 	ent->m_ESPOrigin.x = so.x + width / 2 + 1;
 	ent->m_ESPOrigin.y = so.y - height;
-	float trf = (float)((float)clr[3] / 255);
-	Color border = cloak ? Color(127, 127, 127, clr[3]) : colors::Transparent(colors::black, trf);
+	unsigned char alpha = clr >> 24;
+	float trf = (float)((float)alpha / 255.0f);
+	int border = cloak ? colors::Create(160, 160, 160, alpha) : colors::Transparent(colors::black, trf);
 
 	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, border);
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
 	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, border);
 	if (healthbar) {
-		Color hp = colors::Transparent(colors::Health(health, healthmax), trf);
+		int hp = colors::Transparent(colors::Health(health, healthmax), trf);
 		int hbh = (height) * min((float)health / (float)healthmax, 1.0f);
 		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, border);
 		draw::DrawRect(so.x - width / 2 - 6, so.y - hbh, 5, hbh, hp);
@@ -124,7 +125,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (CE_BAD(ent)) return;
 	if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
 		ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
-	Color fg = ent->m_ESPColorFG;
+	int fg = ent->m_ESPColorFG;
 	switch (ent->m_Type) {
 	case ENTITY_PLAYER: {
 		bool cloak = IsPlayerInvisible(ent);

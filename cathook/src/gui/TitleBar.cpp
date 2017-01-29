@@ -22,8 +22,7 @@ TitleBar::TitleBar(IWidget* parent, const char* name) : CBaseWidget(parent, "tit
 void TitleBar::GetSize(int& x, int& y) {
 	int sx, sy;
 	m_pParentWidget->GetSize(sx, sy);
-	if (sx < 100) x = 100;
-	else x = sx;
+	x = (sx - 4) ;
 	y = 16;
 	m_nSizeX = x;
 	m_nSizeY = y;
@@ -31,15 +30,18 @@ void TitleBar::GetSize(int& x, int& y) {
 
 void TitleBar::Draw() {
 	int ox, oy;
-	int sx, sy;
 	GetAbsolutePosition(ox, oy);
 	draw::DrawRect(ox, oy, m_nSizeX, m_nSizeY, colors::pink);
 	int l, h;
-	draw::GetStringLength(m_Text, l, h);
-	draw::DrawString(draw::font_handle_menu, ox + (m_nSizeX - l) / 2, oy + 1, colors::white, "%s", m_Text);
+	draw::GetStringLength(fonts::MENU, m_Text, l, h);
+	draw::String(fonts::MENU, ox + (m_nSizeX - l) / 2, oy + 1, colors::white, 1, m_Text);
 }
 
 void TitleBar::Update() {
+	int sx, sy;
+	m_pParentWidget->GetSize(sx, sy);
+	m_nSizeX = sx - 4;
+	m_nSizeY = 16;
 	if (!m_bMousePressed) {
 		m_iDraggingStage = 0;
 		return;
@@ -52,8 +54,14 @@ void TitleBar::Update() {
 		int dy = g_pGUI->m_iMouseY - m_nLastY;
 		this->m_pParentWidget->GetOffset(ox, oy);
 		this->m_pParentWidget->SetOffset(ox + dx, oy + dy);
-		logging::Info("Dragging %s: NEW %i %i", this->m_pParentWidget->GetName(), ox + dx, oy + dy);
+		//logging::Info("Dragging %s: NEW %i %i", this->m_pParentWidget->GetName(), ox + dx, oy + dy);
 	}
 	m_nLastX = g_pGUI->m_iMouseX;
 	m_nLastY = g_pGUI->m_iMouseY;
 }
+
+bool TitleBar::ShouldResizeToFit() {
+	return false;
+}
+
+

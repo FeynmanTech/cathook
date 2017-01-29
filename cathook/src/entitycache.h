@@ -17,7 +17,6 @@ struct matrix3x4_t;
 #define ENTITY_CACHE_PROFILER false
 
 class IClientEntity;
-class Color;
 struct ESPStringCompound;
 struct player_info_s;
 struct model_t;
@@ -152,10 +151,14 @@ public:
 	IClientEntity* InternalEntity();
 	IClientEntity* m_pEntity;
 	ESPStringCompound* m_Strings;
-	Color m_ESPColorFG;
-	Color m_ESPColorBG;
+	int m_ESPColorFG;
+	int m_ESPColorBG;
 	int m_nESPStrings;
 	Vector m_ESPOrigin;
+	Vector m_vecVOrigin;
+	Vector m_vecVelocity;
+	Vector m_vecAcceleration;
+	float m_fLastUpdate;
 };
 
 class EntityCache {

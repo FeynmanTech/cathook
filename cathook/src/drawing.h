@@ -8,9 +8,6 @@
 #ifndef DRAWING_H_
 #define DRAWING_H_
 
-#include "fixsdk.h"
-#include <Color.h>
-
 class CachedEntity;
 class Vector;
 class IClientEntity;
@@ -20,41 +17,54 @@ struct ESPStringCompound {
 	~ESPStringCompound();
 	char* m_String;
 	bool m_bColored;
-	Color m_Color;
-	Color m_Background;
+	int m_nColor;
+	//Color m_Color;
+	//Color m_Background;
 };
 
-extern Color TEAM_COLORS[4];
+namespace fonts {
+
+extern unsigned long ESP;
+extern unsigned long MENU;
+extern unsigned long MENU_BIG;
+
+const int ESP_HEIGHT = 14;
+const int MENU_HEIGHT = 12;
+const int MENU_BIG_HEIGHT = 30;
+
+}
 
 namespace colors {
-extern Color pink;
+extern int pink;
 
-extern Color white;
-extern Color black;
+extern int white;
+extern int black;
 
-extern Color red,    blu;
-extern Color red_b,  blu_b;  // Background
-extern Color red_v,  blu_v;  // Vaccinator
-extern Color red_u,  blu_u;  // Ubercharged
-extern Color yellow; // Deprecated
-extern Color orange;
-extern Color green;
+extern int red,    blu;
+extern int red_b,  blu_b;  // Background
+extern int red_v,  blu_v;  // Vaccinator
+extern int red_u,  blu_u;  // Ubercharged
+extern int yellow; // Deprecated
+extern int orange;
+extern int green;
 
 void Init();
 
-Color Transparent(Color base, float mod = 0.5f);
-Color FromHSL(float h, float s, float l);
-Color RainbowCurrent();
-Color Health(int health, int max);
-Color EntityF(CachedEntity* ent);
-Color EntityB(CachedEntity* ent);
+int Create(int r, int g, int b, int a);
+
+int Transparent(int base, float mod = 0.5f);
+int FromHSL(float h, float s, float l);
+int RainbowCurrent();
+int Health(int health, int max);
+int EntityF(CachedEntity* ent);
+int EntityB(CachedEntity* ent);
 
 }
 
 void InitStrings();
 void ResetStrings();
-void AddCenterString(Color fg, Color bg, const char* fmt, ...);
-void AddSideString(Color fg, Color bg, const char* fmt, ...);
+void AddCenterString(int fg, const char* fmt, ...);
+void AddSideString(int fg, const char* fmt, ...);
 void DrawStrings();
 
 extern ESPStringCompound* g_pStringsSide;
@@ -65,30 +75,25 @@ extern int g_nStringsCenter;
 
 namespace draw {
 
-extern unsigned long font_handle;
-extern unsigned long font_handle_menu;
-extern unsigned long panel_top;
 extern int width;
 extern int height;
 
 void Initialize();
 
-void DrawWideString(unsigned long font, int x, int y, unsigned color, const wchar_t* text);
-void DrawString(unsigned long font, int x, int y, unsigned color, const char* text);
-void DrawFormatString(unsigned long font, int x, int y, unsigned color, const char* text, ...);
-void DrawShadowString(unsigned long font, int x, int y, unsigned color, const char* text, ...);
-void DrawFormatShadowString(unsigned long font, int x, int y, unsigned color, const char* text, ...);
+void String (unsigned long font, int x, int y, int color, int shadow, const char* text);
+void WString(unsigned long font, int x, int y, int color, int shadow, const wchar_t* text);
+void FString(unsigned long font, int x, int y, int color, int shadow, const char* text, ...);
 
-void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);
+/*void DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text);
 void DrawString(int x, int y, Color color, Color background, bool center, const char* text, ...);
-void DrawString(int x, int y, Color color, const char* text, ...);
-void DrawRect(int x, int y, int w, int h, Color color);
-void DrawLine(int x, int y, int dx, int dy, Color color);
+void DrawString(int x, int y, Color color, const char* text, ...);*/
+void DrawRect(int x, int y, int w, int h, int color);
+void DrawLine(int x, int y, int dx, int dy, int color);
 bool WorldToScreen(Vector &origin, Vector &screen);
 bool EntityCenterToScreen(CachedEntity* entity, Vector& out);
-void OutlineRect(int x, int y, int w, int h, Color color);
-void GetStringLength(char* string, int& length, int& height);
-void DrawString(unsigned font_handle, int x, int y, Color color, const char* text, ...);
+void OutlineRect(int x, int y, int w, int h, int color);
+void GetStringLength(unsigned long font, char* string, int& length, int& height);
+//void DrawString(unsigned font_handle, int x, int y, Color color, const char* text, ...);
 
 }
 

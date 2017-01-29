@@ -122,7 +122,7 @@ uintptr_t CSignature::GetEngineSignature(char* chPattern)
 	// into memory, meaning that we cannot get the string table from the module.
 	static int fd = open(sharedobj::engine->path, O_RDONLY);
 	static void *module = mmap(NULL, lseek(fd, 0, SEEK_END), PROT_READ, MAP_SHARED, fd, 0);
-	static link_map *moduleMap = (link_map *)GetModuleHandleSafe("./tf/bin/engine.so");
+	static link_map *moduleMap = sharedobj::engine->lmap;
 
 	//static void *module = (void *)moduleMap->l_addr;
 	

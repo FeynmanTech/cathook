@@ -10,8 +10,9 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CTextLabel::CTextLabel(IWidget* parent, const char* name) : CBaseWidget(parent, name) {
+CTextLabel::CTextLabel(IWidget* parent, const char* name, const char* text) : CBaseWidget(parent, name) {
 	m_pszText = 0;
+	if (text) SetText(text);
 }
 
 CTextLabel::~CTextLabel() {
@@ -21,7 +22,7 @@ CTextLabel::~CTextLabel() {
 void CTextLabel::SetText(const char* text) {
 	m_pszText = new char[strlen(text) + 1];
 	strcpy(m_pszText, text);
-	draw::GetStringLength(m_pszText, m_nSizeX, m_nSizeY);
+	draw::GetStringLength(fonts::MENU, m_pszText, m_nSizeX, m_nSizeY);
 }
 
 const char* CTextLabel::GetText() {
@@ -31,5 +32,6 @@ const char* CTextLabel::GetText() {
 void CTextLabel::Draw() {
 	int ax, ay;
 	GetAbsolutePosition(ax, ay);
-	draw::DrawString(ax, ay, colors::white, "%s", m_pszText);
+	if (m_pszText)
+		draw::String(fonts::MENU, ax, ay, colors::white, 1, m_pszText);
 }

@@ -36,9 +36,9 @@ void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
 		if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) continue;
 		float distance = ent->m_flDistance;
 		if (distance < this->v_flBackstabDistance->GetFloat()) {
-			AddCenterString(colors::yellow, colors::red, "BACKSTAB WARNING! %im", (int)(distance / 64 * 1.22f));
+			AddCenterString(colors::red, "BACKSTAB WARNING! %im", (int)(distance / 64 * 1.22f));
 		} else if (distance < this->v_flWarningDistance->GetFloat()) {
-			AddCenterString(colors::yellow, colors::black, "Incoming spy! %im", (int)(distance / 64 * 1.22f));
+			AddCenterString(colors::yellow, "Incoming spy! %im", (int)(distance / 64 * 1.22f));
 		}
 	}
 }

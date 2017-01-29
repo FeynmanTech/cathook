@@ -11,14 +11,13 @@
 #include "IHack.h"
 
 class ConVar;
-class Color;
 class CachedEntity;
 
 class ESP : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	ESP();
-	void DrawBox(CachedEntity* ent, Color clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
+	void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);
 	CatVar* v_bSeeLocal;

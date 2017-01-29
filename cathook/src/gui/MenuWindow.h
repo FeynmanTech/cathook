@@ -9,7 +9,7 @@
 
 class MenuWindow : public CBaseWindow {
 public:
-	MenuWindow();
+	MenuWindow(IWidget* parent, const char* name);
 	~MenuWindow();
 
 	IWidget* m_pMenuList;

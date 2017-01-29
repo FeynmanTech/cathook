@@ -15,7 +15,7 @@ const char* AchievementHack::GetName() { return "ACHIEVEMENT"; }
 
 AchievementHack::AchievementHack() {
 	c_Unlock = CreateConCommand(CON_PREFIX "achievement_unlock", &CC_Achievement_Unlock, "Unlocks all achievements.");
-	c_Lock = CreateConCommand(CON_PREFIX "achievement_lock", &CC_Achievement_Unlock, "Locks all achievements.");
+	c_Lock = CreateConCommand(CON_PREFIX "achievement_lock", &CC_Achievement_Lock, "Locks all achievements.");
 }
 
 void CC_Achievement_Unlock(const CCommand& args) {
@@ -25,6 +25,8 @@ void CC_Achievement_Unlock(const CCommand& args) {
 }
 
 void CC_Achievement_Lock(const CCommand& args) {
+	interfaces::stats->RequestCurrentStats();
+	//interfaces::stats->ResetAllStats(true);
 	for (int i = 0; i < interfaces::achievements->GetAchievementCount(); i++) {
 		interfaces::stats->ClearAchievement(interfaces::achievements->GetAchievementByIndex(i)->GetName());
 	}

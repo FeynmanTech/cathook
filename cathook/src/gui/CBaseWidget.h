@@ -26,10 +26,25 @@ public:
 		m_nSizeY = 0;
 		m_nChildCount = 0;
 		m_pszName = new char[128];
-		m_pChildrenList = new IWidget*[64];
+		m_pChildrenList = 0;
 		strncpy((char*)m_pszName, name, 127);
+		m_iMode = PositionMode::INLINE_BLOCK;
+		m_bVisible = true;
+		m_nMaxX = 0;
+		m_nMaxY = 0;
 	}
 
+
+	inline virtual void SetMaxSize(int w, int h) {
+		if (w >= 0)
+			m_nMaxX = w;
+		if (h >= 0)
+			m_nMaxY = h;
+	}
+
+	inline virtual void OnFocusGain() { m_bFocused = true; }
+	inline virtual void OnFocusLose() { m_bFocused = false; }
+	inline virtual bool ShouldResizeToFit() { return true; }
 	virtual void DrawBounds();
 	inline virtual void Update() {};
 	inline virtual void OnMouseEnter() { m_bMouseInside = true; };
@@ -73,8 +88,28 @@ public:
 		return m_pParentWidget;
 	}
 
-	virtual int GetChildrenCount() {
+	inline virtual void SetPositionMode(PositionMode mode) {
+		m_iMode = mode;
+	}
+
+	inline PositionMode GetPositionMode() {
+		return m_iMode;
+	}
+
+	inline virtual int GetChildrenCount() {
 		return m_nChildCount;
+	}
+
+	inline virtual void Show() {
+		m_bVisible = true;
+	}
+
+	inline virtual void Hide() {
+		m_bVisible = false;
+	}
+
+	inline virtual bool IsVisible() {
+		return m_bVisible;
 	}
 
 	virtual IWidget* GetChildByIndex(int idx) {
@@ -84,7 +119,7 @@ public:
 
 	virtual IWidget* GetChildByName(const char* name) {
 		for (int i = 0; i < m_nChildCount; i++) {
-			if (!strcmp(name, m_pszName)) return m_pChildrenList[i];
+			if (!strcmp(name, m_pChildrenList[i]->GetName())) return m_pChildrenList[i];
 		}
 		return 0;
 	}
@@ -116,10 +151,15 @@ public:
 	int m_nChildCount;
 	bool m_bMouseInside;
 	bool m_bMousePressed;
+	PositionMode m_iMode;
 	int m_nSizeX;
 	int m_nSizeY;
+	bool m_bVisible;
 	int m_nOffsetX;
 	int m_nOffsetY;
+	int m_nMaxX;
+	int m_nMaxY;
+	bool m_bFocused;
 	IWidget** m_pChildrenList;
 	IWidget* m_pParentWidget;
 

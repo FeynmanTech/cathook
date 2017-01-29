@@ -266,7 +266,6 @@ Misc::Misc() {
 
 int sa_switch = 0;
 
-
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 	//SetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::taunting);
 	/*if (false && v_strName->GetString()[0] != '\0') {
@@ -322,30 +321,38 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 	}*/
 
 		if (CE_GOOD(g_pLocalPlayer->weapon())) {
-			AddSideString(colors::white, colors::black, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
-			AddSideString(colors::white, colors::black, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
-			AddSideString(colors::white, colors::black, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, colors::black, "CanShoot: %i", CanShoot());
-			AddSideString(colors::white, colors::black, "Decaps: %i", CE_INT(g_pLocalPlayer->entity, netvar.iDecapitations));
-			AddSideString(colors::white, colors::black, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage));
-			AddSideString(colors::white, colors::black, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
-			AddSideString(colors::white, colors::black, "GlobalVars: 0x%08x", interfaces::gvars);
-			AddSideString(colors::white, colors::black, "realtime: %f", interfaces::gvars->realtime);
-			AddSideString(colors::white, colors::black, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, colors::black, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
-			AddSideString(colors::white, colors::black, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
-			AddSideString(colors::white, colors::black, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
-			AddSideString(colors::white, colors::black, "ServerTime: %f", CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, colors::black, "CurTime: %f", interfaces::gvars->curtime);
-			AddSideString(colors::white, colors::black, "FrameCount: %i", interfaces::gvars->framecount);
+			AddSideString(colors::white, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
+			AddSideString(colors::white, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
+			AddSideString(colors::white, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
+			AddSideString(colors::white, "CanShoot: %i", CanShoot());
+			AddSideString(colors::white, "Decaps: %i", CE_INT(g_pLocalPlayer->entity, netvar.iDecapitations));
+			AddSideString(colors::white, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage));
+			AddSideString(colors::white, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
+			AddSideString(colors::white, "GlobalVars: 0x%08x", interfaces::gvars);
+			AddSideString(colors::white, "realtime: %f", interfaces::gvars->realtime);
+			AddSideString(colors::white, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
+			AddSideString(colors::white, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
+			AddSideString(colors::white, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
+			AddSideString(colors::white, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
+			AddSideString(colors::white, "ServerTime: %f", CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
+			AddSideString(colors::white, "CurTime: %f", interfaces::gvars->curtime);
+			AddSideString(colors::white, "FrameCount: %i", interfaces::gvars->framecount);
 			float speed, gravity;
 			GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
-			AddSideString(colors::white, colors::black, "Speed: %f", speed);
-			AddSideString(colors::white, colors::black, "Gravity: %f", gravity);
-			AddSideString(colors::white, colors::black, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
-			AddSideString(colors::white, colors::black, "CanHeadshot: %i", CanHeadshot());
-			AddSideString(colors::white, colors::black, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
-			//AddSideString(draw::white, draw::black, "???: %f", NET_FLOAT(g_pLocalPlayer->entity, netvar.test));
+			AddSideString(colors::white, "Speed: %f", speed);
+			AddSideString(colors::white, "Gravity: %f", gravity);
+			AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
+			AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
+			AddSideString(colors::white, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
+			for (int i = 0; i < HIGHEST_ENTITY; i++) {
+				CachedEntity* e = ENTITY(i);
+				if (CE_GOOD(e)) {
+					if (e->m_Type == EntityType::ENTITY_PROJECTILE) {
+						//logging::Info("Entity %i [%s]: V %.2f (X: %.2f, Y: %.2f, Z: %.2f) ACC %.2f (X: %.2f, Y: %.2f, Z: %.2f)", i, RAW_ENT(e)->GetClientClass()->GetName(), e->m_vecVelocity.Length(), e->m_vecVelocity.x, e->m_vecVelocity.y, e->m_vecVelocity.z, e->m_vecAcceleration.Length(), e->m_vecAcceleration.x, e->m_vecAcceleration.y, e->m_vecAcceleration.z);
+						AddSideString(colors::white, "Entity %i [%s]: V %.2f (X: %.2f, Y: %.2f, Z: %.2f) ACC %.2f (X: %.2f, Y: %.2f, Z: %.2f)", i, RAW_ENT(e)->GetClientClass()->GetName(), e->m_vecVelocity.Length(), e->m_vecVelocity.x, e->m_vecVelocity.y, e->m_vecVelocity.z, e->m_vecAcceleration.Length(), e->m_vecAcceleration.x, e->m_vecAcceleration.y, e->m_vecAcceleration.z);
+					}
+				}
+			}//AddSideString(draw::white, draw::black, "???: %f", NET_FLOAT(g_pLocalPlayer->entity, netvar.test));
 			//AddSideString(draw::white, draw::black, "VecPunchAngle: %f %f %f", pa.x, pa.y, pa.z);
 			//draw::DrawString(10, y, draw::white, draw::black, false, "VecPunchAngleVel: %f %f %f", pav.x, pav.y, pav.z);
 			//y += 14;

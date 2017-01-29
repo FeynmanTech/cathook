@@ -25,6 +25,7 @@ class Vector;
 
 #include "fixsdk.h"
 #include <tier1/convar.h>
+#include <inputsystem/ButtonCode.h>
 
 //typedef void ( *FnCommandCallback_t )( const CCommand &command );
 
@@ -87,6 +88,9 @@ Vector QAngleToVector(QAngle in);
 
 bool CanHeadshot();
 bool CanShoot();
+
+char GetUpperChar(ButtonCode_t button);
+char GetChar(ButtonCode_t button);
 
 bool IsEntityVisiblePenetration(CachedEntity* entity, int hb);
 

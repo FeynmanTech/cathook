@@ -221,6 +221,75 @@ void VectorAngles(Vector &forward, Vector &angles) {
 	angles[2] = 0;
 }
 
+char GetUpperChar(ButtonCode_t button) {
+	switch (button) {
+	case KEY_0:
+		return ')';
+	case KEY_1:
+		return '!';
+	case KEY_2:
+		return '@';
+	case KEY_3:
+		return '#';
+	case KEY_4:
+		return '$';
+	case KEY_5:
+		return '%';
+	case KEY_6:
+		return '^';
+	case KEY_7:
+		return '&';
+	case KEY_8:
+		return '*';
+	case KEY_9:
+		return '(';
+	case KEY_LBRACKET:
+		return '{';
+	case KEY_RBRACKET:
+		return '}';
+	case KEY_SEMICOLON:
+		return ':';
+	case KEY_BACKQUOTE:
+		return '~';
+	case KEY_APOSTROPHE:
+		return '"';
+	case KEY_COMMA:
+		return '<';
+	case KEY_PERIOD:
+		return '>';
+	case KEY_SLASH:
+		return '?';
+	case KEY_BACKSLASH:
+		return '|';
+	case KEY_MINUS:
+		return '_';
+	case KEY_EQUAL:
+		return '+';
+	default:
+		return toupper(*interfaces::input->ButtonCodeToString(button));
+	}
+}
+
+char GetChar(ButtonCode_t button) {
+	switch (button) {
+	case KEY_PAD_DIVIDE:
+		return '/';
+	case KEY_PAD_MULTIPLY:
+		return '*';
+	case KEY_PAD_MINUS:
+		return '-';
+	case KEY_PAD_PLUS:
+		return '+';
+	case KEY_SEMICOLON:
+		return ';';
+	default:
+		if (button >= KEY_PAD_0 && button <= KEY_PAD_9) {
+			return button - KEY_PAD_0 + '0';
+		}
+		return *interfaces::input->ButtonCodeToString(button);
+	}
+}
+
 void FixMovement(CUserCmd& cmd, Vector& viewangles) {
 	Vector movement(cmd.forwardmove, cmd.sidemove, cmd.upmove);
 	float speed = sqrt(movement.x * movement.x + movement.y * movement.y);
