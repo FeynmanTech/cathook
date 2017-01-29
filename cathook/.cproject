@@ -50,10 +50,17 @@
 								<option id="gnu.cpp.compiler.option.other.verbose.1509393088" name="Verbose (-v)" superClass="gnu.cpp.compiler.option.other.verbose" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.116822749" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="TF2"/>
-									<listOptionValue builtIn="false" value="__DRM_ENABLED=false"/>
+									<listOptionValue builtIn="false" value="_POSIX=1"/>
+									<listOptionValue builtIn="false" value="RAD_TELEMETRY_DISABLED"/>
+									<listOptionValue builtIn="false" value="LINUX=1"/>
+									<listOptionValue builtIn="false" value="_LINUX=1"/>
+									<listOptionValue builtIn="false" value="POSIX=1"/>
+									<listOptionValue builtIn="false" value="GNUC=1"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.debugging.other.1695695237" name="Other debugging flags" superClass="gnu.cpp.compiler.option.debugging.other" useByScannerDiscovery="false" value="-ggdb" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.dialect.flags.1534861554" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=gnu++11" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.dialect.flags.1534861554" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=gnu++11" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.warnings.allwarn.1479643223" name="All warnings (-Wall)" superClass="gnu.cpp.compiler.option.warnings.allwarn" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.warnings.nowarn.1243202916" name="Inhibit all warnings (-w)" superClass="gnu.cpp.compiler.option.warnings.nowarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.236333340" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1506529605" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
