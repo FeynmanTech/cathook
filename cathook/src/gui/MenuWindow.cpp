@@ -10,3 +10,5 @@
 MenuWindow::MenuWindow(IWidget* parent, const char* name) : CBaseWindow(parent, name) {
 
 }
+
+MenuWindow::~MenuWindow() {}

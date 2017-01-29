@@ -8,6 +8,10 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include "beforecheaders.h"
+#include <vector>
+
+#include "aftercheaders.h"
 #include "drawing.h"
 #include "entitycache.h"
 #include "enums.h"

@@ -8,11 +8,11 @@
 #ifndef FIXSDK_H_
 #define FIXSDK_H_
 
-#define  LINUX 1
+/*#define  LINUX 1
 #define _LINUX 1
 #define  POSIX 1
 #define   GNUC 1
 #define NO_MALLOC_OVERRIDE 1
-#undef min
+#undef min*/
 
 #endif /* FIXSDK_H_ */

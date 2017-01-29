@@ -7,6 +7,10 @@
 
 #include "hack.h"
 
+#include "beforecheaders.h"
+#include <vector>
+#include <map>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sys/prctl.h>
@@ -19,6 +23,7 @@
 #include "segvcatch/segvcatch.h"
 #include <csignal>
 #include <sys/sysinfo.h>
+#include "aftercheaders.h"
 
 #include <steam/isteamuser.h>
 // All Hacks
@@ -51,6 +56,7 @@
 bool hack::shutdown = false;
 
 ICvar* g_pCVar = 0;
+std::string ggggppppvvvv;
 
 void hack::InitHacks() {
 	ADD_HACK(AutoStrafe);
@@ -182,11 +188,6 @@ void hack::Initialize() {
 	g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
 	logging::Info("GlowObjectManager: 0x%08x", g_GlowObjectManager);
 	InitStrings();
-
-	KeyValues::AutoDelete kv("TestKeyValues");
-	kv->SetBool("rekt", true);
-	logging::Info("%i", kv->GetBool("rekt"));
-
 	g_pChatStack = new ChatStack();
 	logging::Info("Init done!");
 }
