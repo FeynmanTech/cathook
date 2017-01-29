@@ -7,7 +7,6 @@
 
 #include "../common.h"
 #include "../netmessage.h"
-#include "../gui/gui.h"
 #include "../hack.h"
 #include "../hwid.h"
 #include "hookedmethods.h"

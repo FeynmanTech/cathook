@@ -29,6 +29,7 @@
 #include "ipc/ipcctl.h"
 #include "chatstack.h"
 #include "textfile.h"
+#include "gui/GUI.h"
 
 #include "hacks/hacklist.h"
 #include "glowobjects.h"

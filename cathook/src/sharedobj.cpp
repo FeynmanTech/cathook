@@ -8,6 +8,7 @@
 #include "sharedobj.h"
 #include "logging.h"
 #include "helpers.h"
+#include "copypasted/CSignature.h"
 
 #include <unistd.h>
 #include <link.h>
@@ -114,6 +115,19 @@ void* sharedobj::SharedObject::CreateInterface(const char* name) {
 
 void sharedobj::LoadAllSharedObjects() {
 	sharedobj::client = new SharedObject("client.so", true);
+	uintptr_t itemschemapatch = (gSignatures.GetClientSignature("8B 85 78 FF FF FF 89 44 24 0C 8B 85 68 FF FF FF 89 44 24 08 8B 85 38 FF FF FF 89 44 24 04 8B 85 28 FF FF FF 89 04 24 E8 F4 D0 FF FF 84 C0 0F 84 FC 00 00 00") + 44);
+	logging::Info("Patching @ 0x%08x", itemschemapatch);
+	if (itemschemapatch) {
+		unsigned char patch1[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+		Patch((void*)itemschemapatch, (void*)patch1, 8);
+	}
+
+	uintptr_t itemschemapatch2 = (gSignatures.GetClientSignature("8B 45 10 89 44 24 08 8B 45 0C 89 44 24 04 8B 45 08 89 04 24 E8 CA 35 A8 00 A2 B4 A9 F8 01 C9 C3") + 22);
+	logging::Info("Patching @ 0x%08x", itemschemapatch2);
+	if (itemschemapatch2) {
+		unsigned char patch1[] = { 0xb0, 0x01, 0x90, 0x90, 0x90 };
+		Patch((void*)itemschemapatch2, (void*)patch1, 5);
+	}
 	sharedobj::engine = new SharedObject("engine.so", true);
 	sharedobj::steamclient = new SharedObject("steamclient.so", true);
 	sharedobj::tier0 = new SharedObject("libtier0.so", false);

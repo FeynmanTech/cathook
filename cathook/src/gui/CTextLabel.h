@@ -15,7 +15,7 @@
 
 class CTextLabel : public CBaseWidget {
 public:
-	CTextLabel(IWidget* parent, const char* name);
+	CTextLabel(IWidget* parent, const char* name, const char* text = 0);
 	~CTextLabel();
 
 	void SetText(const char* text);

@@ -11,6 +11,13 @@
 #include "../fixsdk.h"
 #include "../inputsystem/ButtonCode.h"
 
+enum PositionMode {
+	ABSOLUTE = 0,
+	INLINE,
+	INLINE_BLOCK,
+	FLOATING
+};
+
 class IWidget {
 public:
 		virtual ~IWidget();
@@ -24,12 +31,24 @@ public:
 		virtual void OnKeyPress(ButtonCode_t key) = 0;
 		virtual void OnKeyRelease(ButtonCode_t key) = 0;
 
+		virtual void OnFocusGain() = 0;
+		virtual void OnFocusLose() = 0;
+
+		virtual void Show() = 0;
+		virtual void Hide() = 0;
+		virtual bool IsVisible() = 0;
+
 		virtual void DrawBounds() = 0;
 		virtual void SetOffset(int x, int y) = 0;
 		virtual void GetOffset(int& x, int& y) = 0;
 		virtual void GetAbsolutePosition(int& x, int& y) = 0;
 		virtual void Draw() = 0;
 		virtual void GetSize(int& width, int& height) = 0;
+		virtual void SetMaxSize(int width, int height) = 0;
+		virtual bool ShouldResizeToFit() = 0;
+
+		virtual PositionMode GetPositionMode() = 0;
+		virtual void SetPositionMode(PositionMode) = 0;
 
 		virtual IWidget* GetParent() = 0;
 

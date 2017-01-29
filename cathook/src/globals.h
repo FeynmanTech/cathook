@@ -12,6 +12,9 @@ class Vector;
 class ConVar;
 class CatVar;
 
+typedef void(EstimateAbsVelocity_t)(IClientEntity*, Vector&);
+extern EstimateAbsVelocity_t* EstimateAbsVelocity;
+
 class GlobalSettings {
 public:
 	void Init();

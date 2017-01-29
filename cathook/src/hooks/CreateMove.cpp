@@ -14,7 +14,6 @@
 
 bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
-
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 
 	if (!cmd) {

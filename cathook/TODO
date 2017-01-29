@@ -2,11 +2,16 @@
 GUI ELEMENTS:
 	List Entry
 	Main Menu (BIG)
-	Checkbox
-	Text Input
+
 	Slider
 	Counter
 	List
+	
+FIX PROJAIM
+	
+alias clearcond "host_timescale 300;wait 500;host_timescale 1"
+alias clearcond_taunt "taunt;wait 50;host_timescale 300;wait 500;host_timescale 1"
+bind l clearcond_taunt
 	
 fullbright toggle
 instant taunt
@@ -20,6 +25,8 @@ Player List
 dominatesay assistsay worldsay
 Huntsman Leg
 DS esp slow
+antinewl switch
+menu reorder
 
 MAX -> MIN priority
 Crit Hack

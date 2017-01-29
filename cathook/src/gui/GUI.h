@@ -16,6 +16,8 @@ class CatVar;
 #include "../fixsdk.h"
 #include "../inputsystem/ButtonCode.h"
 
+class CTooltip;
+
 class CatGUI {
 public:
 	CatGUI();
@@ -24,6 +26,9 @@ public:
 	void Update();
 	void Setup();
 	IWidget* GetRootWindow();
+
+	void ShowTooltip(const char* text);
+	CTooltip* m_pTooltip;
 
 	IWidget* m_pRootWindow;
 	CatVar* v_bGUIVisible;

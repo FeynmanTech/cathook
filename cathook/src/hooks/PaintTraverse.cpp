@@ -22,17 +22,21 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 #endif
 	SEGV_BEGIN;
 	static unsigned long panel_scope = 0;
+	static unsigned long panel_top = 0;
 	bool call_default = true;
 	if (g_Settings.bHackEnabled->GetBool() && panel_scope && g_Settings.bNoZoom->GetBool() && vp == panel_scope) call_default = false;
-	if (g_Settings.bHackEnabled->GetBool())
-		interfaces::surface->SetCursorAlwaysVisible(g_pGUI->v_bGUIVisible->GetBool());
+	if (g_Settings.bHackEnabled->GetBool()) {
+		bool vis = g_pGUI->v_bGUIVisible->GetBool();
+		interfaces::surface->SetCursorAlwaysVisible(vis);
+	}
+
 	if (call_default) SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
 	if (!g_Settings.bHackEnabled->GetBool()) return;
 #if GUI_ENABLED == true
 		/*g_pGUI->UpdateKeys();
 		g_pGUI->UpdateMouse();
 		g_pGUI->Draw();*/
-		if (vp == draw::panel_top)
+		if (vp == panel_top)
 			g_pGUI->Update();
 #endif
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
@@ -76,11 +80,11 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
 	}
-	if (!draw::panel_top) {
+	if (!panel_top) {
 		const char* name = interfaces::panel->GetName(vp);
 		if (strlen(name) > 4) {
 			if (name[0] == 'M' && name[3] == 'S') {
-				draw::panel_top = vp;
+				panel_top = vp;
 				logging::Info("Got top panel: %i", vp);
 			}
 		}
@@ -99,16 +103,16 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (CE_BAD(g_pLocalPlayer->entity)) {
 		return;
 	}
-	if (draw::panel_top == vp) {
+	if (panel_top == vp) {
 		ResetStrings();
 		if (g_Settings.bShowLogo->GetBool()) {
-			AddSideString(colors::green, colors::black, "cathook by d4rkc4t");
+			AddSideString(colors::green, "cathook by d4rkc4t");
 #if _DEVELOPER
-			AddSideString(colors::red, colors::black, "DEVELOPER BUILD");
+			AddSideString(colors::red, "DEVELOPER BUILD");
 #else
-			AddSideString(colors::green, colors::black, "Early Access: " __DRM_NAME);
+			AddSideString(colors::green, "Early Access: " __DRM_NAME);
 #endif
-			AddSideString(colors::green, colors::black, "Version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
+			AddSideString(colors::green, "Version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
 		}
 
 		//SAFE_CALL(PAINT_TRAVERSE(AutoStrafe));
@@ -134,12 +138,13 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 				if (!draw::EntityCenterToScreen(ce, screen)) continue;
 			for (int j = 0; j < ce->m_nESPStrings; j++) {
 				ESPStringCompound str = ce->GetESPString(j);
+				int color = str.m_bColored ? str.m_nColor : ce->m_ESPColorFG;
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
 				if (!ce->m_ESPOrigin.IsZero(1.0)) {
-					draw::DrawString(ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, ce->m_ESPColorFG, ce->m_ESPColorBG, false, str.m_String);
-					ce->m_ESPOrigin.y += 11;
+					draw::String(fonts::ESP, ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, color, 2, str.m_String);
+					ce->m_ESPOrigin.y += 12;
 				} else {
-					draw::DrawString(screen.x, screen.y, ce->m_ESPColorFG, ce->m_ESPColorBG, true, str.m_String);
+					draw::String(fonts::ESP, screen.x, screen.y, color, 2, str.m_String);
 					screen.y += 11;
 				}
 			}

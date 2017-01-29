@@ -5,4 +5,8 @@
  *      Author: nullifiedcat
  */
 
+#include "MenuWindow.h"
 
+MenuWindow::MenuWindow(IWidget* parent, const char* name) : CBaseWindow(parent, name) {
+
+}

@@ -22,6 +22,7 @@ CachedEntity::CachedEntity() {
 	m_Bones = new matrix3x4_t[MAXSTUDIOBONES];
 	m_pHitboxCache = new EntityHitboxCache(this);
 	m_pPlayerInfo = 0;
+	m_fLastUpdate = 0.0f;
 }
 
 CachedEntity::~CachedEntity() {
@@ -45,8 +46,8 @@ void CachedEntity::Update(int idx) {
 #if ENTITY_CACHE_PROFILER == true
 	long p_begin = gECP.CurrentTime();
 #endif
-
 	m_ESPOrigin.Zero();
+
 	m_nESPStrings = 0;
 	m_IDX = idx;
 	m_pEntity = interfaces::entityList->GetClientEntity(idx);
@@ -54,6 +55,24 @@ void CachedEntity::Update(int idx) {
 		return;
 	}
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
+
+	Vector origin = m_pEntity->GetAbsOrigin();
+	EstimateAbsVelocity(m_pEntity, m_vecVelocity);
+	/*if ((interfaces::gvars->realtime - m_fLastUpdate) >= 0.05f) {
+		//if (interfaces::gvars->tickcount - m_nLastTick > 1) {
+			//logging::Info("Running %i ticks behind!", interfaces::gvars->tickcount - m_nLastTick);
+		//}
+		//Vector velnew = (origin - m_vecVOrigin) * (0.05f / (m_fLastUpdate - interfaces::gvars->realtime)) * 20;
+		Vector velnew;
+		if (EstimateAbsVelocity)
+			EstimateAbsVelocity(m_pEntity, velnew);
+		m_vecAcceleration = (velnew - m_vecVelocity);
+		m_vecVelocity = (m_vecVelocity + velnew) / 2;
+		//logging::Info("Multiplier for %i: %f", m_IDX, (0.1f / (m_fLastUpdate - interfaces::gvars->realtime)));
+		m_vecVOrigin = origin;
+		m_fLastUpdate = interfaces::gvars->realtime;
+	}*/
+	m_vecOrigin = origin;
 
 	m_bGrenadeProjectile = false;
 	m_bBonesSetup = false;
@@ -96,7 +115,6 @@ void CachedEntity::Update(int idx) {
 		m_Type = EntityType::ENTITY_GENERIC; break;
 	}
 
-	m_vecOrigin = m_pEntity->GetAbsOrigin();
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 		m_flDistance = (g_pLocalPlayer->v_Origin.DistTo(m_vecOrigin));
 	}

@@ -24,7 +24,8 @@ void ResetStrings() {
 	g_nStringsCenter = 0;
 }
 
-void AddSideString(Color fg, Color bg, const char* fmt, ...) {
+void AddSideString(int fg, const char* fmt, ...) {
+	if (!g_pStringsSide) return;
 	if (g_pStringsSide[g_nStringsSide].m_String) {
 		delete g_pStringsSide[g_nStringsSide].m_String;
 	}
@@ -37,8 +38,7 @@ void AddSideString(Color fg, Color bg, const char* fmt, ...) {
 		logging::Info("Can't attach more than %i strings to an entity", 32);
 		return;
 	}
-	g_pStringsSide[g_nStringsSide].m_Color = fg;
-	g_pStringsSide[g_nStringsSide].m_Background = bg;
+	g_pStringsSide[g_nStringsSide].m_nColor = fg;
 	g_pStringsSide[g_nStringsSide].m_String = buffer;
 	g_pStringsSide[g_nStringsSide].m_bColored = true;
 	g_nStringsSide++;
@@ -47,12 +47,13 @@ void AddSideString(Color fg, Color bg, const char* fmt, ...) {
 void DrawStrings() {
 	int y = 8;
 	for (int i = 0; i < g_nStringsSide; i++) {
-		draw::DrawString(8, y, g_pStringsSide[i].m_Color, g_pStringsSide[i].m_Background, false, g_pStringsSide[i].m_String);
+		//draw::DrawString(8, y, g_pStringsSide[i].m_Color, g_pStringsSide[i].m_Background, false, g_pStringsSide[i].m_String);
+		draw::String(fonts::ESP, 8, y, g_pStringsSide[i].m_nColor, 2, g_pStringsSide[i].m_String);
 		y += 14;
 	}
 	y = draw::height / 2;
 	for (int i = 0; i < g_nStringsCenter; i++) {
-		draw::DrawString(draw::width / 2, y, g_pStringsCenter[i].m_Color, g_pStringsCenter[i].m_Background, false, g_pStringsCenter[i].m_String);
+		draw::String(fonts::ESP, draw::width / 2, y, g_pStringsCenter[i].m_nColor, 2, g_pStringsCenter[i].m_String);
 		y += 14;
 	}
 }
@@ -61,7 +62,7 @@ ESPStringCompound::~ESPStringCompound() {
 	//if (m_String) delete [] m_String;
 }
 
-void AddCenterString(Color fg, Color bg, const char* fmt, ...) {
+void AddCenterString(int fg, const char* fmt, ...) {
 	if (g_pStringsCenter[g_nStringsCenter].m_String) {
 		delete g_pStringsCenter[g_nStringsCenter].m_String;
 	}
@@ -74,8 +75,7 @@ void AddCenterString(Color fg, Color bg, const char* fmt, ...) {
 		logging::Info("Can't attach more than %i strings to an entity", 32);
 		return;
 	}
-	g_pStringsCenter[g_nStringsCenter].m_Color = fg;
-	g_pStringsCenter[g_nStringsCenter].m_Background = bg;
+	g_pStringsCenter[g_nStringsCenter].m_nColor = fg;
 	g_pStringsCenter[g_nStringsCenter].m_String = buffer;
 	g_pStringsCenter[g_nStringsCenter].m_bColored = true;
 	g_nStringsCenter++;
@@ -83,64 +83,59 @@ void AddCenterString(Color fg, Color bg, const char* fmt, ...) {
 
 
 // TODO globals
-unsigned long draw::font_handle = 0;
-unsigned long draw::panel_top = 0;
-unsigned long draw::font_handle_menu = 0;
+unsigned long fonts::ESP = 0;
+unsigned long fonts::MENU = 0;
+unsigned long fonts::MENU_BIG = 0;
 int draw::width = 0;
 int draw::height = 0;
 
 namespace colors {
 
-Color pink;
+int pink;
 
-Color white;
-Color black;
+int white;
+int black;
 
-Color red,    blu;
-Color red_b,  blu_b;  // Background
-Color red_v,  blu_v;  // Invis
-Color red_u,  blu_u;
+int red,    blu;
+int red_b,  blu_b;  // Background
+int red_v,  blu_v;  // Invis
+int red_u,  blu_u;
 
-Color yellow; // Deprecated
-Color orange;
-Color green;
+int yellow; // Deprecated
+int orange;
+int green;
 
 }
 
-/*Color colors::white(255, 255, 255, 255);
-Color colors::black(0,  0,  0,   255);
-Color colors::tf_red(184, 56,  59,  255);
-Color colors::tf_blu(88,  133, 162, 255);
-Color colors::yellow(255, 255, 0,   255);
-Color colors::orange(255, 128,  0,  255);
-Color colors::green(0,  255,  0,   255);
-Color colors::dk_red(150, 75,  75,  180);
-Color colors::dk_blu(75,  75,  150, 180);
-Color colors::bg_red(64,  32,  32,  255);
-Color colors::bg_blu(32,  32,  64,  255);
-Color colors::dbgred(48,  16,  16,  255);
-Color colors::dbgblu(16,  16,  48,  255);*/
+int colors::Create(int r, int g, int b, int a) {
+	unsigned char bytes[4];
+	bytes[0] = r;
+	bytes[1] = g;
+	bytes[2] = b;
+	bytes[3] = a;
+	return *(int*)bytes;
+}
 
 void colors::Init() {
 	using namespace colors;
-	pink = Color(255, 105, 180, 255);
-	white = Color(255, 255, 255, 255);
-	black = Color(0, 0, 0, 255);
-	red = Color(237, 42, 42, 255);
-	blu = Color(28, 108, 237, 255);
-	red_b = Color(64, 32, 32, 178);
-	blu_b = Color(32, 32, 64, 178);
-	red_v = Color(196, 102, 108, 255);
-	blu_v = Color(102, 182, 196, 255);
-	red_u = Color(216, 34, 186, 255);
-	blu_u = Color(167, 75, 252, 255);
-	yellow = Color(255, 255, 0, 255);
-	green = Color(0, 255, 0, 255);
+	pink = Create(255, 105, 180, 255);
+	white = Create(255, 255, 255, 255);
+	black = Create(0, 0, 0, 255);
+	red = Create(237, 42, 42, 255);
+	blu = Create(28, 108, 237, 255);
+	red_b = Create(64, 32, 32, 178);
+	blu_b = Create(32, 32, 64, 178);
+	red_v = Create(196, 102, 108, 255);
+	blu_v = Create(102, 182, 196, 255);
+	red_u = Create(216, 34, 186, 255);
+	blu_u = Create(167, 75, 252, 255);
+	yellow = Create(255, 255, 0, 255);
+	green = Create(0, 255, 0, 255);
 }
 
-Color colors::EntityB(CachedEntity* ent) {
+int colors::EntityB(CachedEntity* ent) {
 	using namespace colors;
-	Color result = Transparent(black);
+	int result = Transparent(black);
 	if (ent->m_Type == ENTITY_PLAYER || ent->m_Type == ENTITY_BUILDING) {
 		if (ent->m_iTeam == TEAM_BLU) result = blu_b;
 		else if (ent->m_iTeam == TEAM_RED) result = red_b;
@@ -154,9 +149,9 @@ Color colors::EntityB(CachedEntity* ent) {
 	return result;
 }
 
-Color colors::EntityF(CachedEntity* ent) {
+int colors::EntityF(CachedEntity* ent) {
 	using namespace colors;
-	Color result = white;
+	int result = white;
 	if (ent->m_iClassID == ClassID::CBaseAnimating) {
 		item_type type = GetItemType(ent);
 		if (type != item_null) {
@@ -220,22 +215,22 @@ Color colors::EntityF(CachedEntity* ent) {
 	return result;
 }
 
-Color colors::Transparent(Color base, float mod /*= 0.5f*/) {
-	Color result = base;
+int colors::Transparent(int base, float mod /*= 0.5f*/) {
+	unsigned char* result = (unsigned char*)&base;
 	result[3] *= mod;
-	return result;
+	return *(int*)result;
 }
 
-Color colors::RainbowCurrent() {
+int colors::RainbowCurrent() {
 	return colors::FromHSL(fabs(sin(interfaces::gvars->curtime / 2.0f)) * 360.0f, 0.85f, 0.9f);
 }
 
-Color colors::FromHSL(float h, float s, float v) {
+int colors::FromHSL(float h, float s, float v) {
 	double      hh, p, q, t, ff;
 	long        i;
 
 	if(s <= 0.0) {       // < is bogus, just shuts up warnings
-		return Color(v * 255, v * 255, v * 255, 255);
+		return colors::Create(v * 255, v * 255, v * 255, 255);
 	}
 	hh = h;
 	if(hh >= 360.0) hh = 0.0;
@@ -248,112 +243,54 @@ Color colors::FromHSL(float h, float s, float v) {
 
 	switch(i) {
 	case 0:
-		return Color(v * 255, t * 255, p * 255, 255);
+		return colors::Create(v * 255, t * 255, p * 255, 255);
 	case 1:
-		return Color(q * 255, v * 255, p * 255, 255);
+		return colors::Create(q * 255, v * 255, p * 255, 255);
 	case 2:
-		return Color(p * 255, v * 255, t * 255, 255);
+		return colors::Create(p * 255, v * 255, t * 255, 255);
 	case 3:
-		return Color(p * 255, q * 255, v * 255, 255);
+		return colors::Create(p * 255, q * 255, v * 255, 255);
 		break;
 	case 4:
-		return Color(t * 255, p * 255, v * 255, 255);
+		return colors::Create(t * 255, p * 255, v * 255, 255);
 	case 5:
 	default:
-		return Color(v * 255, p * 255, q * 255, 255);
+		return colors::Create(v * 255, p * 255, q * 255, 255);
 	}
 }
 
-Color colors::Health(int health, int max) {
+int colors::Health(int health, int max) {
 	float hf = (float)health / (float)max;
 	if (hf > 1) {
-		return Color(64, 128, 255, 255);
+		return colors::Create(64, 128, 255, 255);
 	}
-	return Color((hf <= 0.5 ? 1.0 : 1.0 - 2 * (hf - 0.5)) * 255, (hf <= 0.5 ? (2 * hf) : 1) * 255, 0, 255);
+	return colors::Create((hf <= 0.5 ? 1.0 : 1.0 - 2 * (hf - 0.5)) * 255, (hf <= 0.5 ? (2 * hf) : 1) * 255, 0, 255);
 }
 
-void draw::DrawRect(int x, int y, int w, int h, Color color) {
-	interfaces::surface->DrawSetColor(color);
+void draw::DrawRect(int x, int y, int w, int h, int color) {
+	interfaces::surface->DrawSetColor(*reinterpret_cast<Color*>(&color));
 	interfaces::surface->DrawFilledRect(x, y, x + w, y + h);
 }
 
 ESPStringCompound::ESPStringCompound() {
-	m_Color = colors::white;
 	m_String = nullptr;
 	m_bColored = false;
-	m_Background = colors::black;
+	m_nColor = colors::white;
 }
 
 void draw::Initialize() {
-	draw::font_handle = interfaces::surface->CreateFont();
-	draw::font_handle_menu = interfaces::surface->CreateFont();
-	interfaces::surface->SetFontGlyphSet(draw::font_handle, "TF2 Build", 14, 0, 0, 0, 0x0); // Ubuntu Mono Bold
-	interfaces::surface->SetFontGlyphSet(draw::font_handle_menu, "Verdana", 12, 0, 0, 0, 0x0);
+	fonts::ESP = interfaces::surface->CreateFont();
+	fonts::MENU = interfaces::surface->CreateFont();
+	fonts::MENU_BIG = interfaces::surface->CreateFont();
+
+	interfaces::surface->SetFontGlyphSet(fonts::ESP, "TF2 Build", fonts::ESP_HEIGHT, 0, 0, 0, 0x0); // or Ubuntu Mono Bold
+	interfaces::surface->SetFontGlyphSet(fonts::MENU, "Verdana", fonts::MENU_HEIGHT, 0, 0, 0, 0x0);
+	interfaces::surface->SetFontGlyphSet(fonts::MENU_BIG, "Verdana Bold", fonts::MENU_BIG_HEIGHT, 0, 0, 0, 0x0);
 }
 
-void draw::DrawString(unsigned long font, int x, int y, Color color, const wchar_t* text) {
-	interfaces::surface->DrawSetTextPos(x, y);
-	interfaces::surface->DrawSetTextColor(color);
-	interfaces::surface->DrawSetTextFont(font);
-	//interfaces::surface->DrawPrintText(text, wcslen(text));
-	interfaces::surface->DrawUnicodeString(text, vgui::FONT_DRAW_DEFAULT);
-}
-
-void draw::DrawLine(int x, int y, int dx, int dy, Color color) {
-	interfaces::surface->DrawSetColor(color);
+void draw::DrawLine(int x, int y, int dx, int dy, int color) {
+	interfaces::surface->DrawSetColor(*reinterpret_cast<Color*>(&color));
 	interfaces::surface->DrawLine(x, y, x + dx, y + dy);
-}
-
-void draw::DrawString(int x, int y, Color color, Color background, bool center, const char* text, ...) {
-	if (!text) return;
-	va_list list;
-	char buffer[1024] = { '\0' };
-	wchar_t string[1024] = { '\0' };
-	va_start(list, text);
-	vsprintf(buffer, text, list);
-	va_end(list);
-	swprintf(string, 1024, L"%s", buffer);
-	int l, h;
-	draw::GetStringLength((char*)text, l, h);
-	if (center) {
-		x -= (l / 2);
-	}
-	draw::GetStringLength((char*)text, l, h);
-	Color clr = background;
-	clr[3] = (unsigned char)180;
-	//draw::DrawRect(x, y + 1, l + 2, h - 4, clr);
-	Color tb = color[3] == 255 ? colors::black : colors::Transparent(colors::black, (float)(color[3] / 255.0f) / 3.0f);
-	draw::DrawString(draw::font_handle, x + 1, y + 1, tb, string);
-	draw::DrawString(draw::font_handle, x - 1, y - 1, tb, string);
-	draw::DrawString(draw::font_handle, x + 1, y - 1, tb, string);
-	draw::DrawString(draw::font_handle, x - 1, y + 1, tb, string);
-	draw::DrawString(draw::font_handle, x, y, color, string);
-}
-
-void draw::DrawString(int x, int y, Color color, const char* text, ...) {
-	if (!text) return;
-	va_list list;
-	char buffer[1024] = { '\0' };
-	wchar_t string[1024] = { '\0' };
-	va_start(list, text);
-	vsprintf(buffer, text, list);
-	va_end(list);
-	swprintf(string, 1024, L"%s", buffer);
-	draw::DrawString(draw::font_handle, x + 1, y + 1, colors::black, string);
-	draw::DrawString(draw::font_handle, x, y, color, string);
-}
-
-void draw::DrawString(unsigned font_handle, int x, int y, Color color, const char* text, ...) {
-	if (!text) return;
-	va_list list;
-	char buffer[1024] = { '\0' };
-	wchar_t string[1024] = { '\0' };
-	va_start(list, text);
-	vsprintf(buffer, text, list);
-	va_end(list);
-	swprintf(string, 1024, L"%s", buffer);
-	draw::DrawString(font_handle, x + 1, y + 1, colors::black, string);
-	draw::DrawString(font_handle, x, y, color, string);
 }
 
 bool draw::EntityCenterToScreen(CachedEntity* entity, Vector& out) {
@@ -382,13 +319,75 @@ bool draw::WorldToScreen(Vector& origin, Vector& screen) {
 	return false;
 }
 
-void draw::OutlineRect(int x, int y, int w, int h, Color color) {
-	interfaces::surface->DrawSetColor(color);
+void draw::OutlineRect(int x, int y, int w, int h, int color) {
+	interfaces::surface->DrawSetColor(*reinterpret_cast<Color*>(&color));
 	interfaces::surface->DrawOutlinedRect(x, y, x + w, y + h);
 }
 
-void draw::GetStringLength(char* string, int& length, int& height) {
+void draw::GetStringLength(unsigned long font, char* string, int& length, int& height) {
 	wchar_t buf[1024] = {'\0'};
 	mbstowcs(buf, string, strlen(string));
-	interfaces::surface->GetTextSize(draw::font_handle, buf, length, height);
+	interfaces::surface->GetTextSize(font, buf, length, height);
+}
+
+void draw::String (unsigned long font, int x, int y, int color, int shadow, const char* text) {
+	bool newlined = false;
+	for (int i = 0; i < strlen(text); i++) {
+		if (text[i] == '\n') {
+			newlined = true; break;
+		}
+	}
+	if (newlined) {
+		int w, h;
+		GetStringLength(font, "W", w, h);
+		char ch[1024];
+		memcpy(ch, text, 1024);
+		int s = 0;
+		int n = 0;
+		for (int i = 0; i < strlen(text); i++) {
+			if (ch[i] == '\n') {
+				ch[i] = 0;
+				draw::String(font, x, y + n * (h), color, shadow, &ch[0] + s);
+				n++;
+				s = i + 1;
+			}
+		}
+		draw::String(font, x, y + n * (h), color, shadow, &ch[0] + s);
+	} else {
+		wchar_t string[1024] = { '\0' };
+		mbstowcs(string, text, 1024);
+		draw::WString(font, x, y, color, shadow, string);
+	}
+}
+
+void draw::WString(unsigned long font, int x, int y, int color, int shadow, const wchar_t* text) {
+	if (shadow) {
+		unsigned char alpha = (color >> 24);
+		int black_t = ((alpha == 255) ? colors::black : colors::Create(0, 0, 0, alpha / shadow));
+		if (shadow > 0) {
+			draw::WString(font, x + 1, y + 1, black_t, false, text);
+		}
+		if (shadow > 1) {
+			draw::WString(font, x - 1, y + 1, black_t, false, text);
+			draw::WString(font, x - 1, y - 1, black_t, false, text);
+			draw::WString(font, x + 1, y - 1, black_t, false, text);
+			draw::WString(font, x + 1, y, black_t, false, text);
+			draw::WString(font, x, y + 1, black_t, false, text);
+			draw::WString(font, x, y - 1, black_t, false, text);
+			draw::WString(font, x - 1, y, black_t, false, text);
+		}
+	}
+	interfaces::surface->DrawSetTextPos(x, y);
+	interfaces::surface->DrawSetTextColor(*reinterpret_cast<Color*>(&color));
+	interfaces::surface->DrawSetTextFont(font);
+	interfaces::surface->DrawUnicodeString(text);
+}
+
+void draw::FString(unsigned long font, int x, int y, int color, int shadow, const char* text, ...) {
+	va_list list;
+	char buffer[2048] = { '\0' };
+	va_start(list, text);
+	vsprintf(buffer, text, list);
+	va_end(list);
+	draw::String(font, x, y, color, shadow, buffer);
 }
