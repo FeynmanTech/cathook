@@ -13,6 +13,9 @@ alias clearcond "host_timescale 300;wait 500;host_timescale 1"
 alias clearcond_taunt "taunt;wait 50;host_timescale 300;wait 500;host_timescale 1"
 bind l clearcond_taunt
 	
+Тебе нужно отследить, что MatSystemTopPanel отрисовался, поставить какой то флаг в 1, далее ждать FocusOverlayPanel и проверять что твой флаг был вяставлен в 1, потом рисовать всё что надо и ставить флаг в 0
+
+	
 fullbright toggle
 instant taunt
 TTS

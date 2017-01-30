@@ -49,14 +49,13 @@
 #include "CDumper.h"
 #include "ipc/ipcctl.h"
 
+#include <KeyValues.h>
+
 /*
  *  Credits to josh33901 aka F1ssi0N for butifel F1Public and Darkstorm 2015 Linux
  */
 
 bool hack::shutdown = false;
-
-ICvar* g_pCVar = 0;
-std::string ggggppppvvvv;
 
 void hack::InitHacks() {
 	ADD_HACK(AutoStrafe);
@@ -83,20 +82,23 @@ void hack::InitHacks() {
 ConCommand* hack::c_Cat = 0;
 
 void hack::CC_Cat(const CCommand& args) {
-	Color x = *reinterpret_cast<Color*>(&colors::blu);
-	logging::Info("x: %i", x.GetRawColor());
-	logging::Info("r %i g %i b %i", x.r(), x.g(), x.b());
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "CatHook");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "cathook");
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), " by ");
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "d4rkc4t\n");
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), "Build: " __DATE__ " " __TIME__"\n");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), "build: " CATHOOK_BUILD_NUMBER " \"" CATHOOK_BUILD_NAME "\"\n");
 #if _DEVELOPER
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "[DEVELOPER BUILD]\n");
-#endif
+#else
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build for user " __DRM_NAME " (Early Access)\n");
+#endif
 #ifdef __DRM_NOTES
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build notes: " __DRM_NOTES "\n");
 #endif
+}
+
+typedef bool(handlevent_t)(IMatSystemSurface* thisptr, const InputEvent_t& event);
+bool test_handleevent(IMatSystemSurface* thisptr, const InputEvent_t& event) {
+
 }
 
 void hack::Initialize() {
@@ -107,22 +109,13 @@ void hack::Initialize() {
 	hwid::read_hwid_fstab();
 	hwid::read_hwid_machineid();
 	hwid::compute_result();
-	logging::Info("Build: " __DATE__ " " __TIME__);
-	logging::Info("Loading shared objects...");
 	sharedobj::LoadAllSharedObjects();
 	g_pszTFPath = tf_path_from_maps();
-	logging::Info("TF folder: %s", g_pszTFPath);
-	logging::Info("Creating interfaces...");
 	interfaces::CreateInterfaces();
-	logging::Info("User: %llu", interfaces::user->GetSteamID().ConvertToUint64());
 	DRM_ENFORCE;
-	logging::Info("Interfaces created!");
-	logging::Info("Dumping NetVars...");
 	CDumper dumper;
 	dumper.SaveDump();
-	logging::Info("Initializing surface...");
 	draw::Initialize();
-	logging::Info("Colorizing...");
 	colors::Init();
 	uintptr_t mmmf = (gSignatures.GetClientSignature("C7 44 24 04 09 00 00 00 BB ? ? ? ? C7 04 24 00 00 00 00 E8 ? ? ? ? BA ? ? ? ? 85 C0 B8 ? ? ? ? 0F 44 DA") + 37);
 	if (mmmf) {
@@ -130,13 +123,9 @@ void hack::Initialize() {
 		unsigned char patch2[] = { 0x89, 0xC2, 0x90 };
 		Patch((void*)mmmf, (void*)patch1, 3);
 		Patch((void*)(mmmf + 8), (void*)patch2, 3);
-	} else logging::Info("You are already filled with luck.");
-	logging::Info("Adding hacks...");
-
-	BeginConVars();
+	}BeginConVars();
 	hack::c_Cat = CreateConCommand(CON_NAME, &hack::CC_Cat, "Info");
 	hack::InitHacks();
-	logging::Info("Init global settings");
 	g_Settings.Init();
 #if ENTITY_CACHE_PROFILER == true
 	if (!g_vEntityCacheProfiling) {
@@ -146,15 +135,12 @@ void hack::Initialize() {
 	g_pGUI = new CatGUI();
 	g_pGUI->Setup();
 	EndConVars();
-	logging::Info("Initializing NetVar tree...");
 	gNetvars.init();
-	logging::Info("Initializing entity offsets...");
 	InitNetVars();
 
 	g_pLocalPlayer = new LocalPlayer();
 	g_pPlayerResource = new TFPlayerResource();
 
-	logging::Info("Hooking methods...");
 	hooks::hkPanel = new hooks::VMTHook();
 	hooks::hkPanel->Init(interfaces::panel, 0);
 	//hooks::hkPanel->HookMethod((void*)&hack::Hk_PaintTraverse, hooks::offPaintTraverse);
@@ -165,6 +151,9 @@ void hack::Initialize() {
 	while(!(clientMode = **(uintptr_t***)((uintptr_t)((*(void***)interfaces::baseClient)[10]) + 1))) {
 		sleep(1);
 	}
+	//hooks::hkMatSurface = new hooks::VMTHook();
+	//hooks::hkMatSurface->Init((void*)interfaces::matsurface, 0);
+	//hooks::hkMatSurface->HookMethod((void*)test_handleevent, 1);
 	hooks::hkClientMode->Init((void*)clientMode, 0);
 	//hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
 	hooks::hkClientMode->HookMethod((void*)CreateMove_hook, hooks::offCreateMove);
@@ -178,18 +167,9 @@ void hack::Initialize() {
 	hooks::hkClient->HookMethod((void*)DispatchUserMessage_hook, hooks::offFrameStageNotify + 1);
 	hooks::hkClient->HookMethod((void*)IN_KeyEvent_hook, hooks::offKeyEvent);
 	hooks::hkClient->Apply();
-	/*hooks::hkMatSurface = new hooks::VMTHook();
-	hooks::hkMatSurface->Init((void*)interfaces::matsurface, 0);
-	hooks::hkMatSurface->HookMethod((void*)hk_HandleInputEvent, hooks::offHandleInputEvent);
-	hooks::hkMatSurface->Apply();
-	logging::Info("MatSurface Hooked? %f", interfaces::matsurface->DrawGetAlphaMultiplier());*/
-	logging::Info("Hooked!");
-	logging::Info("Finding GlowObjectManager...");
 	g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
-	logging::Info("GlowObjectManager: 0x%08x", g_GlowObjectManager);
 	InitStrings();
 	g_pChatStack = new ChatStack();
-	logging::Info("Init done!");
 }
 
 void hack::Think() {
@@ -199,7 +179,6 @@ void hack::Think() {
 void hack::Shutdown() {
 	if (hack::shutdown) return;
 	hack::shutdown = true;
-	logging::Info("Shutting down...");
 	logging::Shutdown();
 	if (hooks::hkPanel) hooks::hkPanel->Kill();
 	if (hooks::hkClientMode) hooks::hkClientMode->Kill();

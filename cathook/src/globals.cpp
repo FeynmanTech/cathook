@@ -39,6 +39,7 @@ void GlobalSettings::Init() {
 	this->bThirdperson = CREATE_CV(CV_SWITCH, "thirdperson", "0", "Thirdperson");
 	this->bNoVisuals = CREATE_CV(CV_SWITCH, "novisuals", "0", "Disable visuals");
 	this->bCleanScreenshots = CREATE_CV(CV_SWITCH, "clean_screenshot", "1", "Clean screenshots");
+	this->bDebugLog = CREATE_CV(CV_SWITCH, "log", "1", "Debug Log");
 	this->bThirdperson->m_pConVar->InstallChangeCallback(ThirdpersonCallback);
 	bInvalid = true;
 }

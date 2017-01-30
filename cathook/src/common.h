@@ -44,9 +44,10 @@
 
 #define SQR(x) x * x
 
-#define CATHOOK_VERSION_MAJOR "0"
-#define CATHOOK_VERSION_MINOR "5"
-#define CATHOOK_VERSION_PATCH "2"
+#ifndef CATHOOK_BUILD_NUMBER
+#define CATHOOK_BUILD_NUMBER "1"
+#endif
+#define CATHOOK_BUILD_NAME "Sweet Roll"
 
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"

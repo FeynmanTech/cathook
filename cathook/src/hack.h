@@ -26,11 +26,6 @@
 #define DELETE_HACK(x) \
 	delete g_ph##x
 
-#include "beforecheaders.h"
-#include <string>
-#include "aftercheaders.h"
-extern std::string ggggppppvvvv;
-
 class IHack;
 class CUserCmd;
 class CViewSetup;

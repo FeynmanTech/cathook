@@ -266,6 +266,7 @@ char GetUpperChar(ButtonCode_t button) {
 	case KEY_EQUAL:
 		return '+';
 	default:
+		if (strlen(interfaces::input->ButtonCodeToString(button)) != 1) return 0;
 		return toupper(*interfaces::input->ButtonCodeToString(button));
 	}
 }
@@ -286,6 +287,7 @@ char GetChar(ButtonCode_t button) {
 		if (button >= KEY_PAD_0 && button <= KEY_PAD_9) {
 			return button - KEY_PAD_0 + '0';
 		}
+		if (strlen(interfaces::input->ButtonCodeToString(button)) != 1) return 0;
 		return *interfaces::input->ButtonCodeToString(button);
 	}
 }
@@ -544,6 +546,9 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 }
 
 bool Developer(CachedEntity* ent) {
+#if _DEVELOPER == 1
+	return (ent == LOCAL_E);
+#endif
 	return (ent->m_pPlayerInfo && ent->m_pPlayerInfo->friendsID == 347272825UL);
 }
 

@@ -13,16 +13,15 @@
 #include "CTextInput.h"
 #include "CSplitContainer.h"
 #include "CSlider.h"
+#include "CTooltip.h"
 
 #include "../common.h"
 
 void B1Callback(IWidget* thisptr) {
 	IWidget* label = thisptr->GetParent()->GetChildByName("td");
-	logging::Info("0x%08x", label);
 	CTextLabel* tl = dynamic_cast<CTextLabel*>(label);
-	logging::Info("0x%08x", tl);
 	if (tl) {
-		char* text = strfmt("wow! curtime: %.2f", interfaces::gvars->curtime);
+		char* text = strfmt("wow! this[\"%s\"] = %i", "test_value", thisptr->GetKeyValues()->GetInt("test_value"));
 		tl->SetText(text);
 		delete [] text;
 	}
@@ -30,9 +29,7 @@ void B1Callback(IWidget* thisptr) {
 
 void TICallback(IWidget* thisptr, const char* old, const char* newc) {
 	IWidget* label = thisptr->GetParent()->GetChildByName("td");
-	logging::Info("0x%08x", label);
 	CTextLabel* tl = dynamic_cast<CTextLabel*>(label);
-	logging::Info("0x%08x", tl);
 	if (tl) {
 		char* text = strfmt("wow! text: %s", newc);
 		tl->SetText(text);
@@ -41,6 +38,8 @@ void TICallback(IWidget* thisptr, const char* old, const char* newc) {
 }
 
 RootWindow::RootWindow() : CBaseWindow(0, "root") {
+	g_pGUI->m_pTooltip = new CTooltip(this, "tooltip");
+	this->AddChild(g_pGUI->m_pTooltip);
 	CBaseWindow* ws = new CBaseWindow(this, "splitwindow");
 	ws->SetPositionMode(ABSOLUTE);
 	TitleBar* wst = new TitleBar(ws, "Window Layout Test");
@@ -55,11 +54,15 @@ RootWindow::RootWindow() : CBaseWindow(0, "root") {
 	CBaseButton* ccb1 = new CBaseButton(sc1, "b1");
 	ccb1->SetText("Ayy Lmao");
 	CSlider* sl = new CSlider(ws, "sl");
-	sl->Setup(0.0f, 100.0f);
+	sl->GetKeyValues()->SetString("cvar", "cat_fov");
+	sl->Setup(10.0f, 150.0f);
+	sl->SetCallback([](CSlider* slider, float newv, float oldv) {
+		interfaces::cvar->FindVar(slider->GetKeyValues()->GetString("cvar"))->SetValue(newv);
+	});
 	sc1->AddChild(ccb1);
 //sc1->AddChild(new CTextLabel(sc1, "tl3", "wow"));
 	ws->AddChild(sc1);
-	CSplitContainer* sc2 = new CSplitContainer(ws, "sc1");
+	CSplitContainer* sc2 = new CSplitContainer(ws, "sc2");
 	sc2->m_nSizeX = 480;
 	sc2->m_nMaxX = 480;
 	sc2->AddChild(new CTextLabel(sc2, "tl1", "1"));
@@ -67,7 +70,7 @@ RootWindow::RootWindow() : CBaseWindow(0, "root") {
 	sc2->AddChild(new CTextLabel(sc2, "tl3", "3"));
 	sc2->AddChild(new CTextLabel(sc2, "tl4", "4"));
 	ws->AddChild(sc2);
-	CSplitContainer* sc3 = new CSplitContainer(ws, "sc1");
+	CSplitContainer* sc3 = new CSplitContainer(ws, "sc3");
 	sc3->m_nSizeX = 480;
 		sc3->m_nMaxX = 480;
 	sc3->AddChild(new CTextLabel(sc3, "tl1", "ayy"));
@@ -105,6 +108,7 @@ RootWindow::RootWindow() : CBaseWindow(0, "root") {
 	b1->SetText("Press me!");
 	b1->SetCallback(B1Callback);
 	b1->SetPositionMode(INLINE_BLOCK);
+	b1->GetKeyValues()->SetInt("test_value", 1337);
 	wgt->AddChild(b1);
 	wgt->SetOffset(200, 200);
 	CTextLabel* td = new CTextLabel(wgt, "td", "");

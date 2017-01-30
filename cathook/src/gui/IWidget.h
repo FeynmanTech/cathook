@@ -18,11 +18,15 @@ enum PositionMode {
 	FLOATING
 };
 
+class KeyValues;
+
 class IWidget {
 public:
 		virtual ~IWidget();
 
 		virtual void Update() = 0;
+
+		virtual KeyValues* GetKeyValues() = 0;
 
 		virtual void OnMouseEnter() = 0;
 		virtual void OnMouseLeave() = 0;
@@ -30,6 +34,7 @@ public:
 		virtual void OnMouseRelease() = 0;
 		virtual void OnKeyPress(ButtonCode_t key) = 0;
 		virtual void OnKeyRelease(ButtonCode_t key) = 0;
+		virtual bool ConsumesKey(ButtonCode_t key) = 0;
 
 		virtual void OnFocusGain() = 0;
 		virtual void OnFocusLose() = 0;

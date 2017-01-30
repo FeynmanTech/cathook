@@ -17,6 +17,10 @@ CTextInput::CTextInput(IWidget* parent, const char* name) : CBaseWidget(parent, 
 	m_nLength = 0;
 }
 
+bool CTextInput::ConsumesKey(ButtonCode_t key) {
+	return key >= ButtonCode_t::KEY_FIRST && key <= ButtonCode_t::KEY_LAST && key != KEY_INSERT;
+}
+
 void CTextInput::SetMaxWidth(int width) {
 	int length, height;
 	draw::GetStringLength(fonts::MENU, "W", length, height);
@@ -30,7 +34,7 @@ void CTextInput::Draw() {
 	int height, length;
 	draw::GetStringLength(fonts::MENU, "W", length, height);
 	int color = colors::Create(0, 0, 0, 80);
-	if (m_bFocused) color = colors::Create(255, 255, 255, 80);
+	if (m_bFocused) color = colors::Transparent(colors::pink, 0.25);
 	draw::DrawRect(ax, ay, m_nSizeX, height + 4, color);
 	draw::OutlineRect(ax, ay, m_nSizeX, height + 4, colors::pink);
 	int ml = 0;
@@ -40,8 +44,8 @@ void CTextInput::Draw() {
 	for (int i = 0; i < strlen(m_pszContents); i++) {
 		int w, h;
 		draw::GetStringLength(fonts::MENU, m_pszContents + i, w, h);
-		if (w + 4 + tx > m_nSizeX) md = i;
-		if (w + 4 > m_nSizeX) ml = i;
+		if (w + 10 + tx >= m_nSizeX) md = i;
+		if (w + 8 > m_nSizeX) ml = i;
 	}
 	if (ml) {
 		draw::FString(fonts::MENU, ax + 2, ay + 2, colors::white, 1, "...%s", (m_pszContents + md));
@@ -87,12 +91,14 @@ void CTextInput::OnKeyPress(ButtonCode_t key) {
 		PutChar(' ');
 		return;
 	} else {
-		if (strlen(interfaces::input->ButtonCodeToString(key)) == 1) {
-			if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LSHIFT] || g_pGUI->m_bPressedState[ButtonCode_t::KEY_RSHIFT]) {
-				PutChar(GetUpperChar(key));
-			} else {
-				PutChar(GetChar(key));
-			}
+		char ch = 0;
+		if (g_pGUI->m_bPressedState[ButtonCode_t::KEY_LSHIFT] || g_pGUI->m_bPressedState[ButtonCode_t::KEY_RSHIFT]) {
+			ch = GetUpperChar(key);
+		} else {
+			ch = GetChar(key);
+		}
+		if (ch) {
+			PutChar(ch);
 		}
 	}
 }
