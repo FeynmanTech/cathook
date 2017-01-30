@@ -10,7 +10,7 @@
 #include "../sdk.h"
 
 CTooltip::CTooltip(IWidget* parent, const char* name) : CBaseWidget(parent, name) {
-
+	m_pszText = 0;
 }
 
 void CTooltip::SetText(const char* text) {

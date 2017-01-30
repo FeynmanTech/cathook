@@ -13,15 +13,9 @@
 #ifndef __DRM_ENABLED
 #define __DRM_ENABLED true
 #endif
-#define __DRM_NOTES "Unstable build, for testing only!"
+#define __DRM_NOTES "Semi-stable build"
 
 #define __QUIT_SEGV (*((int*)0) = 0)
-
-#if __DRM_ENABLED == false
-#define _DEVELOPER true
-#else
-#define _DEVELOPER false
-#endif
 
 #ifndef __DRM_HWID_0
 #define __DRM_HWID_0 0x7fa8d247bb8389e7

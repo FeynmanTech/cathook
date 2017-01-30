@@ -29,7 +29,10 @@ public:
 	virtual void OnMousePress();
 	virtual void OnMouseRelease();
 	virtual void OnKeyPress(ButtonCode_t key);
-	virtual void OnKeyRelease(ButtonCode_t key);/*
+	virtual void OnKeyRelease(ButtonCode_t key);
+	virtual bool ConsumesKey(ButtonCode_t key);
+	virtual void OnFocusLose();
+	/*
 
 	virtual void SetOffset(int x, int y);
 	virtual void GetOffset(int& x, int& y);*/

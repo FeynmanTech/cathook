@@ -18,6 +18,7 @@ public:
 
 	virtual void OnKeyPress(ButtonCode_t key);
 	virtual void Draw();
+	virtual bool ConsumesKey(ButtonCode_t key);
 
 	void PutChar(char ch);
 	void SetLength(int newlength);

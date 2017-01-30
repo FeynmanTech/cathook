@@ -94,6 +94,11 @@ void CBaseWindow::Update() {
 	hovered = nhov;
 }
 
+void CBaseWindow::OnFocusLose() {
+	m_bFocused = false;
+	if (focused) focused->OnFocusLose();
+}
+
 void CBaseWindow::OnMouseLeave() {
 	if (hovered) hovered->OnMouseLeave();
 	hovered = 0;
@@ -102,13 +107,11 @@ void CBaseWindow::OnMouseLeave() {
 void CBaseWindow::OnMousePress() {
 	int ax, ay;
 	this->GetAbsolutePosition(ax, ay);
-	logging::Info("%s MousePress! %i %i", GetName(), g_pGUI->m_iMouseX - ax, g_pGUI->m_iMouseY - ay);
 	IWidget* newfocus = GetChildByPoint(g_pGUI->m_iMouseX - ax, g_pGUI->m_iMouseY - ay);
 	if (newfocus) {
 		if (focused) focused->OnFocusLose();
 		focused = newfocus;
 		newfocus->OnFocusGain();
-		logging::Info("%s Child MousePress! %s", GetName(), focused->GetName());
 		newfocus->OnMousePress();
 	} else {
 		if (focused) focused->OnFocusLose();
@@ -140,8 +143,15 @@ void CBaseWindow::Draw() {
 	GetSize(sx, sy);
 	draw::DrawRect(px, py, sx, sy, colors::Transparent(colors::black));
 	draw::OutlineRect(px, py, sx, sy, colors::pink);
-	for (int i = 0; i < m_nChildCount; i++) {
+	for (int i = m_nChildCount - 1; i >= 0; i--) {
 		if (m_pChildrenList[i]->IsVisible())
 			m_pChildrenList[i]->Draw();
 	}
+}
+
+bool CBaseWindow::ConsumesKey(ButtonCode_t key) {
+	if (focused && focused->IsVisible()) {
+		return focused->ConsumesKey(key);
+	}
+	return false;
 }

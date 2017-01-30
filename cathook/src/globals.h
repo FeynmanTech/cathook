@@ -36,6 +36,7 @@ public:
 	CatVar* bThirdperson;
 	CatVar* bNoVisuals;
 	CatVar* bCleanScreenshots;
+	CatVar* bDebugLog;
 	Vector last_angles;
 	bool bInvalid;
 };

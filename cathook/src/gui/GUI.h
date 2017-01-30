@@ -26,14 +26,17 @@ public:
 	void Update();
 	void Setup();
 	IWidget* GetRootWindow();
+	bool ConsumesKey(ButtonCode_t key);
 
 	void ShowTooltip(const char* text);
-	CTooltip* m_pTooltip;
 
+	CTooltip* m_pTooltip;
 	IWidget* m_pRootWindow;
 	CatVar* v_bGUIVisible;
 	CatVar* v_bDrawBounds;
 
+	bool m_bShowTooltip;
+	bool m_bConsumeKeys;
 	bool m_bKeysInit;
 	bool m_bPressedState[ButtonCode_t::MOUSE_LAST];
 	int  m_iPressedFrame[ButtonCode_t::MOUSE_LAST];

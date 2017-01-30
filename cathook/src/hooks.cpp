@@ -40,11 +40,9 @@ void**& hooks::GetVMT(void* inst, unsigned int offset) {
 }
 
 void hooks::VMTHook::Init(void* inst, unsigned int offset) {
-	logging::Info("Initializing VMTHook at 0x%08x", inst);
 	vmt = &GetVMT(inst, offset);
 	oldvmt = *vmt;
 	unsigned int cnt = CountMethods(oldvmt);
-	logging::Info("found %i methods...", cnt);
 	void **arr = array = (void**)malloc((cnt + 4) * sizeof(void*));
 	arr[0] = this;
 	arr[1] = (void* )GUARD;

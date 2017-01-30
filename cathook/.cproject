@@ -50,6 +50,7 @@
 								<option id="gnu.cpp.compiler.option.other.verbose.1509393088" name="Verbose (-v)" superClass="gnu.cpp.compiler.option.other.verbose" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.116822749" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="TF2"/>
+									<listOptionValue builtIn="false" value="_DEVELOPER=1"/>
 									<listOptionValue builtIn="false" value="_POSIX=1"/>
 									<listOptionValue builtIn="false" value="RAD_TELEMETRY_DISABLED"/>
 									<listOptionValue builtIn="false" value="LINUX=1"/>

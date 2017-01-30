@@ -10,13 +10,21 @@
 
 #include "IWidget.h"
 
+#include <KeyValues.h>
+
 class CBaseWidget : public virtual IWidget {
 public:
 	inline ~CBaseWidget() {
 		delete [] m_pszName;
 	}
 
-	inline CBaseWidget(IWidget* parent, const char* name) {
+	KeyValues::AutoDelete m_pKeyValues;
+
+	inline KeyValues* GetKeyValues() {
+		return m_pKeyValues;
+	}
+
+	inline CBaseWidget(IWidget* parent, const char* name) : m_pKeyValues("widgetkv") {
 		m_pParentWidget = parent;
 		m_bMouseInside = false;
 		m_bMousePressed = false;
@@ -32,8 +40,11 @@ public:
 		m_bVisible = true;
 		m_nMaxX = 0;
 		m_nMaxY = 0;
+		m_bFocused = false;
 	}
 
+
+	inline virtual bool ConsumesKey(ButtonCode_t key) { return false; }
 
 	inline virtual void SetMaxSize(int w, int h) {
 		if (w >= 0)
@@ -106,6 +117,7 @@ public:
 
 	inline virtual void Hide() {
 		m_bVisible = false;
+		OnFocusLose();
 	}
 
 	inline virtual bool IsVisible() {
@@ -125,7 +137,7 @@ public:
 	}
 
 	virtual IWidget* GetChildByPoint(int x, int y) {
-		for (int i = 0; i < m_nChildCount; i++) {
+		for (int i = m_nChildCount - 1; i >= 0; i--) {
 			IWidget* child = m_pChildrenList[i];
 			int ox, oy;
 			child->GetOffset(ox, oy);

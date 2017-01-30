@@ -17,12 +17,13 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (!segvcatch::handler_fpe || !segvcatch::handler_segv) {
 		segvcatch::init_segv();
 		segvcatch::init_fpe();
-		logging::Info("segvcatch init!");
 	}
 #endif
 	SEGV_BEGIN;
+	static unsigned long panel_focus = 0;
 	static unsigned long panel_scope = 0;
 	static unsigned long panel_top = 0;
+	static bool draw_flag = false;
 	bool call_default = true;
 	if (g_Settings.bHackEnabled->GetBool() && panel_scope && g_Settings.bNoZoom->GetBool() && vp == panel_scope) call_default = false;
 	if (g_Settings.bHackEnabled->GetBool()) {
@@ -30,15 +31,10 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 		interfaces::surface->SetCursorAlwaysVisible(vis);
 	}
 
+
 	if (call_default) SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
+	if (vp == panel_top) draw_flag = true;
 	if (!g_Settings.bHackEnabled->GetBool()) return;
-#if GUI_ENABLED == true
-		/*g_pGUI->UpdateKeys();
-		g_pGUI->UpdateMouse();
-		g_pGUI->Draw();*/
-		if (vp == panel_top)
-			g_pGUI->Update();
-#endif
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	static bool autoexec_done = false;
 	if (!autoexec_done) {
@@ -72,10 +68,6 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	}
 #endif
 
-	if (g_Settings.bNoVisuals->GetBool()) {
-		return;
-	}
-	if (g_Settings.bCleanScreenshots->GetBool() && interfaces::engineClient->IsTakingScreenshot()) return;
 
 	if (!draw::width || !draw::height) {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
@@ -85,7 +77,9 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 		if (strlen(name) > 4) {
 			if (name[0] == 'M' && name[3] == 'S') {
 				panel_top = vp;
-				logging::Info("Got top panel: %i", vp);
+			}
+			if (name[0] == 'F' && name[5] == 'O') {
+				panel_focus = vp;
 			}
 		}
 	}
@@ -97,24 +91,36 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (!interfaces::engineClient->IsInGame()) {
 		g_Settings.bInvalid = true;
 	}
-	if (g_Settings.bInvalid) {
-		return;
-	}
-	if (CE_BAD(g_pLocalPlayer->entity)) {
-		return;
-	}
-	if (panel_top == vp) {
-		ResetStrings();
-		if (g_Settings.bShowLogo->GetBool()) {
-			AddSideString(colors::green, "cathook by d4rkc4t");
-#if _DEVELOPER
-			AddSideString(colors::red, "DEVELOPER BUILD");
-#else
-			AddSideString(colors::green, "Early Access: " __DRM_NAME);
-#endif
-			AddSideString(colors::green, "Version: " CATHOOK_VERSION_MAJOR "." CATHOOK_VERSION_MINOR "." CATHOOK_VERSION_PATCH);
-		}
 
+	if (g_Settings.bNoVisuals->GetBool()) {
+		return;
+	}
+	if (g_Settings.bCleanScreenshots->GetBool() && interfaces::engineClient->IsTakingScreenshot()) return;
+
+	ResetStrings();
+
+	if (vp != panel_focus) return;
+	if (!draw_flag) return;
+	draw_flag = false;
+
+#if GUI_ENABLED == true
+		/*g_pGUI->UpdateKeys();
+		g_pGUI->UpdateMouse();
+		g_pGUI->Draw();*/
+		g_pGUI->Update();
+#endif
+
+
+	if (g_Settings.bShowLogo->GetBool()) {
+		AddSideString(colors::green, "cathook by d4rkc4t");
+#if _DEVELOPER
+		AddSideString(colors::red, "[developer build]");
+#else
+		AddSideString(colors::green, "built for " __DRM_NAME);
+#endif
+		AddSideString(colors::green, "alpha build " CATHOOK_BUILD_NUMBER " \"" CATHOOK_BUILD_NAME "\"");
+	}
+	if (CE_GOOD(g_pLocalPlayer->entity) && !g_Settings.bInvalid) {
 		//SAFE_CALL(PAINT_TRAVERSE(AutoStrafe));
 		//SAFE_CALL(PAINT_TRAVERSE(AntiAim));
 		SAFE_CALL(PAINT_TRAVERSE(AntiDisguise));
@@ -154,8 +160,9 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
 			}
 		}
-		DrawStrings();
 	}
+
+	DrawStrings();
 	SEGV_END;
 }
 

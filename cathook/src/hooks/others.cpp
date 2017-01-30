@@ -20,9 +20,9 @@ bool CanPacket_hook(void* thisptr) {
 
 int IN_KeyEvent_hook(void* thisptr, int eventcode, int keynum, const char* pszCurrentBinding) {
 	SEGV_BEGIN;
-	/*if (eventcode == 1) {
-		if (g_pGUI->KeyEvent((ButtonCode_t)keynum)) return 1;
-	}*/
+	if (g_pGUI->ConsumesKey((ButtonCode_t)keynum)) {
+		return 0;
+	}
 	return ((IN_KeyEvent_t*)hooks::hkClient->GetMethod(hooks::offKeyEvent))(thisptr, eventcode, keynum, pszCurrentBinding);
 	SEGV_END;
 	return 0;
