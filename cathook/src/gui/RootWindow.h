@@ -14,6 +14,10 @@ class RootWindow : public CBaseWindow {
 public:
 	RootWindow();
 	~RootWindow();
+
+	void Setup();
+
+	inline virtual void MoveChildren() override {};
 };
 
 #endif /* ROOTWINDOW_H_ */

@@ -11,7 +11,9 @@
 
 #include <limits>
 
-CTooltip::CTooltip(IWidget* parent) : CTextLabel("tooltip", parent) {}
+CTooltip::CTooltip(IWidget* parent) : CTextLabel("tooltip", parent) {
+	SetZIndex(999);
+}
 
 void CTooltip::Draw(int x, int y) {
 	auto size = GetSize();

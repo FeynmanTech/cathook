@@ -72,9 +72,11 @@ void CBaseContainer::DrawBounds(int x, int y) {
 }
 
 void CBaseContainer::FocusOn(IWidget* child) {
-	if (GetFocusedChild()) GetFocusedChild()->OnFocusLose();
-	m_pFocusedChild = child;
-	if (child) child->OnFocusGain();
+	if (GetFocusedChild() != child) {
+		if (GetFocusedChild()) GetFocusedChild()->OnFocusLose();
+		if (child) child->OnFocusGain();
+		m_pFocusedChild = child;
+	}
 }
 
 IWidget* CBaseContainer::GetFocusedChild() {
@@ -138,7 +140,12 @@ void CBaseContainer::OnMouseRelease() {
 
 void CBaseContainer::PressOn(IWidget* child) {
 	m_pPressedChild = child;
-	if (child) child->OnMousePress();
+	if (child) {
+		logging::Info("> MousePress %s", child->GetName().c_str());
+		child->OnMousePress();
+		if (child->DoesStealFocus())
+			FocusOn(child);
+	}
 }
 
 void CBaseContainer::SortByZIndex() {
@@ -157,7 +164,11 @@ void CBaseContainer::UpdateHovers() {
 
 void CBaseContainer::Update() {
 	SortByZIndex();
+	MoveChildren();
 	UpdateHovers();
+	for (auto child : m_children) {
+		child->Update();
+	}
 }
 
 

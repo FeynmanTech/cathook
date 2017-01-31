@@ -37,6 +37,8 @@ public:
 	ConCommand* c_Reset;
 	ConCommand* c_Disconnect;
 	ConCommand* c_DisconnectVAC;
+
+	CatVar* v_bCleanChat;
 };
 
 DECLARE_HACK_SINGLETON(Misc);

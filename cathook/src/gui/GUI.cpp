@@ -30,6 +30,7 @@ CatGUI::~CatGUI() {
 
 void CatGUI::Setup() {
 	m_pRootWindow = new RootWindow();
+	m_pRootWindow->Setup();
 	v_bGUIVisible->m_pConVar->InstallChangeCallback(GUIVisibleCallback);
 }
 
@@ -106,7 +107,7 @@ bool CatGUI::ConsumesKey(ButtonCode_t key) {
 	else return false;
 }
 
-IWidget* CatGUI::GetRootWindow() {
+RootWindow* CatGUI::GetRootWindow() {
 	return m_pRootWindow;
 }
 

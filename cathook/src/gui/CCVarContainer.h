@@ -18,7 +18,6 @@ public:
 
 	IWidget* m_pControl;
 	IWidget* m_pLabel;
-	IWidget* m_pTooltip;
 
 	CatVar* m_pVar;
 };

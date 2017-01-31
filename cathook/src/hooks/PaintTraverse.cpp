@@ -109,10 +109,8 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 		g_pGUI->Draw();*/
 		g_pGUI->Update();
 #endif
-
-
 	if (g_Settings.bShowLogo->GetBool()) {
-		AddSideString(colors::green, "cathook by d4rkc4t");
+		AddSideString(colors::RainbowCurrent(), "cathook by d4rkc4t");
 #if _DEVELOPER
 		AddSideString(colors::red, "[developer build]");
 #else

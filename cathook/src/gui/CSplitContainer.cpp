@@ -17,10 +17,10 @@ void CSplitContainer::MoveChildren() {
 	int width = ((size.first - 4) / ChildCount()) - 2; // TODO padding!
 	for (int i = 0; i < ChildCount(); i++) {
 		auto child = ChildByIndex(i);
-		child->SetOffset(2 + i * width, newsize.second + 2);
+		child->SetOffset(2 + i * width, 2);
 		child->SetMaxSize(width, -1);
-		child->Update();
 		auto csize = child->GetSize();
-		if (csize.second + 2 > newsize.second) newsize.second += csize.second + 2;
+		if (csize.second + 2 > newsize.second) newsize.second = csize.second + 2;
 	}
+	SetSize(-1, newsize.second);
 }

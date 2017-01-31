@@ -20,7 +20,7 @@ CSlider::CSlider(std::string name, IWidget* parent) : CBaseWidget(name, parent) 
 
 void CSlider::Setup(float min, float max) {
 	Props()->SetFloat("value_min", min);
-	Props()->SetFloat("value_max", min);
+	Props()->SetFloat("value_max", max);
 	SetValue((min + max) / 2.0f);
 }
 
