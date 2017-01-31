@@ -35,8 +35,6 @@ void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
 	}
 }
 
-const char* psza__ProjectileESP[] = { "OFF", "ALL", "CRIT" };
-
 ESP::ESP() {
 	this->v_bSeeLocal = CREATE_CV(CV_SWITCH, "esp_local", "1", "Local ESP in thirdperson");
 	this->v_bEnabled = CREATE_CV(CV_SWITCH, "esp_enabled", "0", "ESP");
@@ -60,7 +58,7 @@ ESP::ESP() {
 	v_bShowHealthNumbers = CREATE_CV(CV_SWITCH, "esp_health_num", "1", "Health in numbers");
 	v_bShowMoney = CREATE_CV(CV_SWITCH, "esp_money", "1", "MvM money");
 	v_bShowRedMoney = CREATE_CV(CV_SWITCH, "esp_money_red", "1", "Red MvM money");
-	CatEnum* proj = new CatEnum(psza__ProjectileESP, ARRAYSIZE(psza__ProjectileESP));
+	CatEnum* proj = new CatEnum({ "OFF", "ALL", "CRIT" });
 	this->v_iShowRockets = CREATE_CV(proj, "esp_proj_rockets", "1", "Rockets");
 	this->v_iShowArrows = CREATE_CV(proj, "esp_proj_arrows", "1", "Arrows");
 	this->v_iShowStickies = CREATE_CV(proj, "esp_proj_stickies", "1", "Stickies");

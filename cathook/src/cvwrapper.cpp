@@ -10,18 +10,27 @@
 #include "common.h"
 #include "sdk.h"
 
-CatEnum::CatEnum(const char** values, int size, int min) {
-	m_Values = values;
-	m_iMin = min;
-	m_iMax = min + size - 1;
-	m_iLength = size;
+CatVar::CatVar(CatVar_t type, std::string name, std::string defaults, std::string short_description, ICatEnum* enum_type, float minv, float maxv, std::string long_description) {
+	m_Type = type;
+	m_pConVar = CreateConVar(name.c_str(), defaults.c_str(), short_description.c_str());
+	m_EnumType = enum_type;
+	m_flMinValue = minv;
+	m_flMaxValue = maxv;
+	SetDescription(long_description);
 }
 
-const char* CatEnum::Name(int value) {
+CatEnum::CatEnum(std::vector<std::string> values, int min) {
+	m_values = values;
+	m_iMin = min;
+	m_iMax = min + values.size() - 1;
+	m_iLength = values.size();
+}
+
+std::string CatEnum::Name(int value) {
 	if (value - m_iMin >= 0 && value - m_iMin <= m_iMax) {
-		return m_Values[value - m_iMin];
+		return m_values.at(value - Minimum());
 	}
-	return (const char*)0;
+	return "unknown";
 }
 
 int CatEnum::Maximum() {
@@ -44,7 +53,7 @@ void CatVar::Increment(int factor) {
 		m_pConVar->SetValue(!m_pConVar->GetInt());
 	} break;
 	case CatVar_t::CV_INT:
-		m_pConVar->SetValue(m_pConVar->GetInt() + factor * m_iStep);
+		m_pConVar->SetValue(m_pConVar->GetInt() + factor * m_fStep);
 		break;
 	case CatVar_t::CV_FLOAT:
 		m_pConVar->SetValue(m_pConVar->GetFloat() + (float)factor * m_fStep);
@@ -67,7 +76,7 @@ void CatVar::Decrement(int factor) {
 		m_pConVar->SetValue((int)!m_pConVar->GetInt());
 		break;
 	case CatVar_t::CV_INT:
-		m_pConVar->SetValue(m_pConVar->GetInt() - factor * m_iStep);
+		m_pConVar->SetValue(m_pConVar->GetInt() - factor * m_fStep);
 		break;
 	case CatVar_t::CV_FLOAT:
 		m_pConVar->SetValue(m_pConVar->GetFloat() - (float)factor * m_fStep);

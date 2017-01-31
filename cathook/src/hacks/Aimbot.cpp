@@ -33,31 +33,45 @@ const char* Aimbot::GetName() {
 	return "AIMBOT";
 }
 
-const char* psza__AimKeyMode[] = { "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" };
-const char* psza__Hitbox[] = {
-	"HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
-	"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
-	"KNEE R", "FOOT R"
-};
-const char* psza__Priority[] = {
-	"SMART", "FOV", "DISTANCE", "HEALTH"
-};
-
 Aimbot::Aimbot() {
 	target_systems[0] = new TargetSystemSmart();
 	target_systems[1] = new TargetSystemFOV();
 	target_systems[2] = new TargetSystemDistance();
 	m_bAimKeySwitch = false;
-	this->v_eAimKeyMode = CREATE_CV(new CatEnum(psza__AimKeyMode, ARRAYSIZE(psza__AimKeyMode)), "aimbot_aimkey_mode", "1", "Aimkey Mode");
-	this->v_bEnabled = CREATE_CV(CV_SWITCH, "aimbot_enabled", "0", "Enabled");
-	this->v_eHitbox = CREATE_CV(new CatEnum(psza__Hitbox, ARRAYSIZE(psza__Hitbox)), "aimbot_hitbox", "0", "Hitbox");
-	this->v_bAutoHitbox = CREATE_CV(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox");
-	this->v_bPrediction = CREATE_CV(CV_SWITCH, "aimbot_prediction", "1", "Latency pred");
-	this->v_bAutoShoot = CREATE_CV(CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot");
-	this->v_bSilent = CREATE_CV(CV_SWITCH, "aimbot_silent", "1", "Silent");
-	this->v_bZoomedOnly = CREATE_CV(CV_SWITCH, "aimbot_zoomed", "1", "Zoomed Only");
-	this->v_iAutoShootCharge = CREATE_CV(CV_FLOAT, "aimbot_autoshoot_charge", "0.0", "Autoshoot Charge");
-	this->v_iMaxRange = CREATE_CV(CV_INT, "aimbot_maxrange", "0", "Max distance");
+	this->v_eAimKeyMode = CREATE_CV_DESC(
+			new CatEnum({ "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" }),
+			"aimbot_aimkey_mode", "1", "Aimkey Mode",
+			"Disabled: aimbot is always active\nAimkey: aimbot is active when key is down\nReverse: aimbot is disabled when key is down\nToggle: key toggles aimbot");
+	this->v_bEnabled = CREATE_CV_DESC(
+			CV_SWITCH, "aimbot_enabled", "0", "Enabled",
+			"Main aimbot switch");
+	this->v_eHitbox = CREATE_CV_DESC(
+			new CatEnum({
+		"HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
+		"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
+		"KNEE R", "FOOT R" }),
+			"aimbot_hitbox", "0", "Hitbox",
+			"Hitbox to aim at.\nIgnored if AutoHitbox is on");
+	this->v_bAutoHitbox = CREATE_CV_DESC(
+			CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox",
+			"Automatically decide the hitbox to aim at.\nFor example: Sniper rifles and Ambassador always aim at head,\nrocket launchers aim at feet if enemy is standing and at body\nif enemy is midair for easy airshots");
+	this->v_bPrediction = CREATE_CV_DESC(
+			CV_SWITCH, "aimbot_interp", "1", "Latency interpolation",
+			"Enable simple latency interpolation");
+	this->v_bAutoShoot = CREATE_CV_DESC(
+			CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot",
+			"Shoot automatically when the target is locked");
+	this->v_bSilent = CREATE_CV_DESC(
+			CV_SWITCH, "aimbot_silent", "1", "Silent",
+			"Your screen doesn't get snapped to the point where aimbot aims at");
+	this->v_bZoomedOnly = CREATE_CV_DESC(
+			CV_SWITCH, "aimbot_zoomed", "1", "Zoomed Only",
+			"Don't aim with unzoomed rifles");
+	/*this->v_iAutoShootCharge = CREATE_CV(
+			CV_FLOAT, "aimbot_autoshoot_charge", "0.0", "Autoshoot Charge");*/
+	this->v_iMaxRange = CREATE_CV_DESC(
+			CV_INT, "aimbot_maxrange", "0", "Max distance",
+			"Max range for aimbot\n900-1100 range is efficient for scout/widowmaker engineer");
 	this->v_bRespectCloak = CREATE_CV(CV_SWITCH, "aimbot_respect_cloak", "1", "Respect cloak");
 	this->v_bCharge = CREATE_CV(CV_SWITCH, "aimbot_charge", "0", "Wait for charge");
 	this->v_bEnabledAttacking = CREATE_CV(CV_SWITCH, "aimbot_enable_attack_only", "0", "Active when attacking");
@@ -71,7 +85,7 @@ Aimbot::Aimbot() {
 	this->v_fAutoShootHuntsmanCharge = CREATE_CV(CV_FLOAT, "aimbot_huntsman_charge", "0.5", "Huntsman charge");
 	this->v_fSmoothValue = CREATE_CV(CV_FLOAT, "aimbot_smooth_value", "0.2", "Smooth value");
 	this->v_eAimKey = CREATE_CV(CV_INT, "aimbot_aimkey", "0", "Aimkey");
-	this->v_ePriorityMode = CREATE_CV(new CatEnum(psza__Priority, ARRAYSIZE(psza__Priority)), "aimbot_prioritymode", "0", "Priority mode");
+	this->v_ePriorityMode = CREATE_CV(new CatEnum({ "SMART", "FOV", "DISTANCE", "HEALTH" }), "aimbot_prioritymode", "0", "Priority mode");
 	v_bAimBuildings = CREATE_CV(CV_SWITCH, "aimbot_buildings", "1", "Aim @ Buildings");
 	v_bActiveOnlyWhenCanShoot = CREATE_CV(CV_SWITCH, "aimbot_only_when_can_shoot", "1", "Active when can shoot");
 	v_fSmoothAutoshootTreshold = CREATE_CV(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
@@ -440,12 +454,7 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	if (!smoothed && this->v_bAutoShoot->GetBool()) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 			if (g_pLocalPlayer->bZoomed) {
-				if (this->v_iAutoShootCharge->GetBool()) {
-					float bdmg = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage);
-					if (bdmg < this->v_iAutoShootCharge->GetFloat()) return true;
-				} else {
-					if (!CanHeadshot()) return true;
-				}
+				if (!CanHeadshot()) return true;
 			}
 		}
 		if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFCompoundBow) {

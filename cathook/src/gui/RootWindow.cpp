@@ -47,7 +47,6 @@ void RootWindow::Setup() {
 	g_pGUI->m_pTooltip = new CTooltip();
 	AddChild(g_pGUI->m_pTooltip);
 	CBaseWindow* ws = new CBaseWindow("splitwindow");
-	AddChild(ws);
 	ws->SetPositionMode(ABSOLUTE);
 	TitleBar* wst = new TitleBar(ws, "Window Layout Test");
 	ws->AddChild(wst);
