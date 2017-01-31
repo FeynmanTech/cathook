@@ -22,21 +22,30 @@ void CBaseWindow::MoveChildren() {
 			size.first += off.first;
 			size.second += off.second;
 		}
-		if (c->GetPositionMode() != FLOATING)
+		if (c->GetPositionMode() != FLOATING && c->GetPositionMode() != ABSOLUTE)
 			if (size.first > mx) mx = size.first;
 		if (c->GetPositionMode() != FLOATING)
 			my += (size.second + 2);
-		c->Update();
 	}
 	if (GetParent()) {
 		SetSize(mx + 4, my + 2);
 	}
 }
 
+void CBaseWindow::OnFocusGain() {
+	SetZIndex(GetZIndex() + 1);
+	CBaseContainer::OnFocusGain();
+}
+
+void CBaseWindow::OnFocusLose() {
+	SetZIndex(GetZIndex() - 1);
+	CBaseContainer::OnFocusLose();
+}
+
 void CBaseWindow::Draw(int x, int y) {
 	auto abs = AbsolutePosition();
 	auto size = GetSize();
-	draw::DrawRect(abs.first, abs.second, size.first, size.second, colors::Transparent(colors::black));
+	draw::DrawRect(abs.first, abs.second, size.first, size.second, colors::Transparent(colors::black, 0.75));
 	draw::OutlineRect(abs.first, abs.second, size.first, size.second, colors::pink);
 	CBaseContainer::Draw(x, y);
 }

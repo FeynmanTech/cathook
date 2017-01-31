@@ -16,6 +16,7 @@ TitleBar::TitleBar(IWidget* parent, std::string title) : CBaseWidget("titlebar",
 	m_iDraggingStage = 0;
 	m_nLastX = 0;
 	m_nLastY = 0;
+	SetPositionMode(ABSOLUTE);
 }
 
 void TitleBar::Draw(int x, int y) {
@@ -30,7 +31,7 @@ void TitleBar::Update() {
 	auto psize = GetParent()->GetSize();
 	int l, h;
 	draw::GetStringLength(fonts::MENU, (char*)m_strTitle.c_str(), l, h);
-	SetSize(max(2 * TITLEBAR_PADDING_W + l, psize.first), 2 * TITLEBAR_PADDING_H + h);
+	SetSize(psize.first, 2 * TITLEBAR_PADDING_H + h);
 	if (!IsPressed()) {
 		m_iDraggingStage = 0;
 		return;
@@ -40,7 +41,7 @@ void TitleBar::Update() {
 	} else {
 		int dx = g_pGUI->m_iMouseX - m_nLastX;
 		int dy = g_pGUI->m_iMouseY - m_nLastY;
-		auto offset = GetOffset();
+		auto offset = GetParent()->GetOffset();
 		GetParent()->SetOffset(offset.first + dx, offset.second + dy);
 	}
 	m_nLastX = g_pGUI->m_iMouseX;

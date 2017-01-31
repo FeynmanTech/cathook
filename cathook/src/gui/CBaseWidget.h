@@ -51,6 +51,8 @@ public:
 	inline virtual bool IsFocused() { return m_KeyValues->GetBool("focus"); }
 	inline virtual bool IsPressed() { return m_KeyValues->GetBool("press"); }
 
+	inline virtual bool DoesStealFocus() { return true; }
+
 	inline virtual void SetOffset(int x, int y) {
 		if (x >= 0) m_KeyValues->SetInt("offset_x", x);
 		if (y >= 0) m_KeyValues->SetInt("offset_y", y);

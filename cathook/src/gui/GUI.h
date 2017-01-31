@@ -17,6 +17,7 @@ class CatVar;
 #include "../inputsystem/ButtonCode.h"
 
 class CTooltip;
+class RootWindow;
 
 class CatGUI {
 public:
@@ -25,13 +26,13 @@ public:
 
 	void Update();
 	void Setup();
-	IWidget* GetRootWindow();
+	RootWindow* GetRootWindow();
 	bool ConsumesKey(ButtonCode_t key);
 
 	void ShowTooltip(const char* text);
 
 	CTooltip* m_pTooltip;
-	IWidget* m_pRootWindow;
+	RootWindow* m_pRootWindow;
 	CatVar* v_bGUIVisible;
 	CatVar* v_bDrawBounds;
 

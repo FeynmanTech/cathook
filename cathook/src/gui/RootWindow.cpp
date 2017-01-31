@@ -14,6 +14,7 @@
 #include "CSlider.h"
 #include "CTooltip.h"
 #include "CBaseContainer.h"
+#include "CDropdown.h"
 
 #include "../common.h"
 #include "CTitleBar.h"
@@ -39,6 +40,10 @@ void TICallback(CTextInput* thisptr, std::string olds, std::string news) {
 }
 
 RootWindow::RootWindow() : CBaseWindow("root") {
+
+}
+
+void RootWindow::Setup() {
 	g_pGUI->m_pTooltip = new CTooltip();
 	AddChild(g_pGUI->m_pTooltip);
 	CBaseWindow* ws = new CBaseWindow("splitwindow");
@@ -49,17 +54,17 @@ RootWindow::RootWindow() : CBaseWindow("root") {
 	ws->SetMaxSize(500, 0);
 	//ws->SetMaxSize(500, 300);
 	CSplitContainer* sc1 = new CSplitContainer("sc1", ws);
-	ws->AddChild(wst);
 	ws->AddChild(sc1);
 	sc1->SetMaxSize(480, -1);
 	sc1->SetSize(480, -1);
 	sc1->SetMaxSize(480, -1);
 	sc1->AddChild(new CTextLabel("tl1", sc1, ":thinking:"));
 	CBaseButton* ccb1 = new CBaseButton("b1", sc1);
-	ccb1->SetText("Ayy Lmao");
+	ccb1->SetText("nut");
 	CSlider* sl = new CSlider("sl", ws);
 	sl->Props()->SetString("cvar", "cat_fov");
 	sl->Setup(10.0f, 150.0f);
+	sl->SetValue(13.37f);
 	sl->SetCallback([](CSlider* slider, float oldv, float newv) {
 		interfaces::cvar->FindVar(slider->Props()->GetString("cvar"))->SetValue(newv);
 	});
@@ -77,8 +82,13 @@ RootWindow::RootWindow() : CBaseWindow("root") {
 	CSplitContainer* sc3 = new CSplitContainer("sc3", ws);
 	sc3->SetMaxSize(480, -1);
 	sc3->SetSize(480, -1);
-	sc3->AddChild(new CTextLabel("tl1", sc3, "ayy"));
-	sc3->AddChild(new CTextLabel("tl2", sc3, "lmao"));
+	sc3->AddChild(new CTextLabel("tl1", sc3, ":ok_hand:"));
+	sc3->AddChild(new CTextLabel("tl2", sc3, ":skin-tone-1:"));
+	CDropdown* dr = new CDropdown("dr1", sc3);
+	dr->AddValue("testing");
+	dr->AddValue("dropdown?!");
+	dr->AddValue("wow!");
+	sc3->AddChild(dr);
 	ws->AddChild(sc3);
 	AddChild(ws);
 	ws->AddChild(sl);
