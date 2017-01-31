@@ -61,7 +61,7 @@ public:
 	CatVar* v_bAutoShoot;
 	CatVar* v_bSilent;
 	CatVar* v_bZoomedOnly;
-	CatVar* v_iAutoShootCharge;
+	//CatVar* v_iAutoShootCharge;
 	CatVar* v_fAutoShootHuntsmanCharge;
 	CatVar* v_iMaxRange;
 	CatVar* v_bRespectCloak;
