@@ -9,12 +9,9 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CSlider::CSlider(IWidget* parent, const char* name) : CBaseWidget(parent, name) {
-	m_fValueMax = 1.0f;
-	m_fValueMin = 0.0f;
-	m_fValue = 0.5f;
-	m_nSizeX = 80;
-	m_nSizeY = 16;
+CSlider::CSlider(std::string name, IWidget* parent) : CBaseWidget(name, parent) {
+	Setup(0.0f, 1.0f);
+	SetSize(80, 16);
 	m_nLastX = 0;
 	m_nSliderPos = 40;
 	m_bDragInit = false;
@@ -22,33 +19,40 @@ CSlider::CSlider(IWidget* parent, const char* name) : CBaseWidget(parent, name) 
 }
 
 void CSlider::Setup(float min, float max) {
-	m_fValueMax = max;
-	m_fValueMin = min;
-	m_fValue = (max + min) / 2.0f;
+	Props()->SetFloat("value_min", min);
+	Props()->SetFloat("value_max", min);
+	SetValue((min + max) / 2.0f);
 }
 
-void CSlider::SetCallback(CSliderCallback_t* callback) {
+void CSlider::SetCallback(SliderCallbackFn_t callback) {
 	m_pCallback = callback;
 }
 
 void CSlider::SetValue(float value) {
-	m_fValue = value;
+	float old = Value();
+	Props()->SetFloat("value", value);
+	if (old != value) {
+		if (m_pCallback) {
+			m_pCallback(this, old, value);
+		}
+	}
+}
+
+float CSlider::Value() {
+	return Props()->GetFloat("value");
 }
 
 void CSlider::Update() {
-	if (m_bMousePressed) {
+	if (IsPressed()) {
 		if (m_bDragInit) {
 			int delta = m_nLastX - g_pGUI->m_iMouseX;
 			if (delta) {
-				int ax, ay;
-				GetAbsolutePosition(ax, ay);
-				int mv = g_pGUI->m_iMouseX - ax;
+				auto abs = AbsolutePosition();
+				auto size = GetSize();
+				int mv = g_pGUI->m_iMouseX - abs.first;
 				if (mv < 0) mv = 0;
-				if (mv > m_nSizeX) mv = m_nSizeX;
-				float newval = ((float)mv / (float)m_nSizeX) * (m_fValueMax - m_fValueMin);
-				if (m_pCallback && newval != m_fValue)
-					m_pCallback(this, newval, m_fValue);
-				m_fValue = newval;
+				if (mv > size.first) mv = size.first;
+				SetValue(((float)mv / (float)size.first) * (Props()->GetFloat("value_max") - Props()->GetFloat("value_min")));
 				m_nSliderPos = mv;
 			}
 		}
@@ -57,14 +61,11 @@ void CSlider::Update() {
 	} else m_bDragInit = false;
 }
 
-void CSlider::Draw() {
-	int ax, ay;
-	GetAbsolutePosition(ax, ay);
-	draw::DrawRect(ax, ay + 6, m_nSizeX, 4, colors::Create(0, 0, 0, 200));
-	draw::DrawRect(ax + m_nSliderPos - 2, ay + 2, 4, m_nSizeY - 4, colors::pink);
-	int tx, ty;
-	char* s = strfmt("%.2f", m_fValue);
-	draw::GetStringLength(fonts::MENU, s, tx, ty);
-	draw::String(fonts::MENU, ax + (m_nSizeX - tx) / 2, ay + m_nSizeY / 2 - ty, colors::white, 1, s);
-	delete [] s;
+void CSlider::Draw(int x, int y) {
+	auto size = GetSize();
+	draw::DrawRect(x, y + size.second / 2 - 2, size.first, 4, colors::Create(0, 0, 0, 200));
+	draw::DrawRect(x + m_nSliderPos - 2, y + 2, 4, size.second - 4, colors::pink);
+	std::string str(strfmt("%.2f", Value()));
+	auto sl = draw::GetStringLength(fonts::MENU, str);
+	draw::String(fonts::MENU, x + (size.first - sl.first) / 2, y + (size.second - sl.second) / 2, colors::white, 1, str);
 }

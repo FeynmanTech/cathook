@@ -10,18 +10,24 @@
 
 #include "CBaseWidget.h"
 
+class CCheckbox;
+
+typedef std::function<void(CCheckbox*, bool)> CheckboxCallbackFn_t;
+
 class CCheckbox : public CBaseWidget {
 public:
-	CCheckbox(IWidget* parent, const char* name, bool checked = false);
+	CCheckbox(std::string name = "unnamed", IWidget* parent = nullptr, bool checked = false);
 
 	void SetWidth(int width);
-	inline bool Value() { return m_bChecked; }
+	inline bool Value() { return Props()->GetBool("checked"); }
+	inline void SetValue(bool value) { Props()->SetBool("checked", value); }
+	void SetCallback(CheckboxCallbackFn_t callback);
 
 	virtual void OnMousePress();
-	virtual void Draw();
+	virtual void Draw(int x, int y);
 
-	int m_nWidth;
-	bool m_bChecked;
+	CheckboxCallbackFn_t m_pCallback;
+
 };
 
 

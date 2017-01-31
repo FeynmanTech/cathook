@@ -8,13 +8,13 @@
 #ifndef CSPLITCONTAINER_H_
 #define CSPLITCONTAINER_H_
 
-#include "CBaseWindow.h"
+#include "CBaseContainer.h"
 
-class CSplitContainer : public CBaseWindow {
+class CSplitContainer : public CBaseContainer {
 public:
-	CSplitContainer(IWidget* parent, const char* name);
+	CSplitContainer(std::string name = "unnamed", IWidget* parent = nullptr);
 
-	virtual void Update();
+	virtual void MoveChildren() override;
 };
 
 

@@ -82,17 +82,19 @@ void CatGUI::Update() {
 
 	if (!m_bKeysInit) m_bKeysInit = 1;
 	if (v_bGUIVisible->GetBool()) {
-		m_pRootWindow->Show();
+		if (!m_pRootWindow->IsVisible())
+			m_pRootWindow->Show();
 		m_pRootWindow->Update();
-		if (!m_bShowTooltip) m_pTooltip->Hide();
-		m_pRootWindow->Draw();
+		if (!m_bShowTooltip && m_pTooltip->IsVisible()) m_pTooltip->Hide();
+		m_pRootWindow->Draw(0, 0);
 		draw::DrawRect(m_iMouseX - 5, m_iMouseY - 5, 10, 10, colors::Transparent(colors::white));
 		draw::OutlineRect(m_iMouseX - 5, m_iMouseY - 5, 10, 10, colors::pink);
 		if (v_bDrawBounds->GetBool()) {
-			m_pRootWindow->DrawBounds();
+			m_pRootWindow->DrawBounds(0, 0);
 		}
 	} else {
-		m_pRootWindow->Hide();
+		if (m_pRootWindow->IsVisible())
+			m_pRootWindow->Hide();
 	}
 
 

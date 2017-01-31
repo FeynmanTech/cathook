@@ -8,29 +8,19 @@
 #include "CSplitContainer.h"
 #include "../common.h"
 
-CSplitContainer::CSplitContainer(IWidget* parent, const char* name) : CBaseWindow(parent, name) {
+CSplitContainer::CSplitContainer(std::string name, IWidget* parent) : CBaseContainer(name, parent) {}
 
-}
-
-void CSplitContainer::Update() {
-	m_nSizeX = m_nMaxX;
-	if (!GetChildrenCount()) return;
-	int width = ((m_nSizeX - 4) / GetChildrenCount()) - 2;
-	for (int i = 0; i < GetChildrenCount(); i++) {
-		IWidget* child = GetChildByIndex(i);
-		child->SetOffset(2 + i * width, 2);
+void CSplitContainer::MoveChildren() {
+	auto newsize = std::make_pair(GetMaxSize().first, 0);
+	auto size = GetSize();
+	if (!ChildCount()) return;
+	int width = ((size.first - 4) / ChildCount()) - 2; // TODO padding!
+	for (int i = 0; i < ChildCount(); i++) {
+		auto child = ChildByIndex(i);
+		child->SetOffset(2 + i * width, newsize.second + 2);
 		child->SetMaxSize(width, -1);
 		child->Update();
-		int sx, sy;
-		child->GetSize(sx, sy);
-		if (sy + 4 > m_nSizeY) m_nSizeY = sy + 4;
+		auto csize = child->GetSize();
+		if (csize.second + 2 > newsize.second) newsize.second += csize.second + 2;
 	}
-	int ax, ay;
-	GetAbsolutePosition(ax, ay);
-	IWidget* nhov = GetChildByPoint(g_pGUI->m_iMouseX - ax, g_pGUI->m_iMouseY - ay);
-	if (hovered) {
-		if (nhov != hovered) hovered->OnMouseLeave();
-		if (nhov) nhov->OnMouseEnter();
-	}
-	hovered = nhov;
 }

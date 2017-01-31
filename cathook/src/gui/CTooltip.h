@@ -10,17 +10,12 @@
 
 #include "CTextLabel.h"
 
-class CTooltip : public CBaseWidget {
+class CTooltip : public CTextLabel {
 public:
-	CTooltip(IWidget* parent, const char* name);
-	void SetText(const char* text);
+	CTooltip(IWidget* parent = nullptr);
 
-	virtual void Draw();
-	virtual void Update();
-	inline virtual bool ShouldResizeToFit() { return false; }
+	virtual void Draw(int x, int y);
 	inline virtual PositionMode GetPositionMode() { return PositionMode::FLOATING; }
-
-	const char* m_pszText;
 };
 
 #endif /* CTOOLTIP_H_ */

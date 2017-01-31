@@ -8,21 +8,29 @@
 #ifndef CBASEBUTTON_H_
 #define CBASEBUTTON_H_
 
+#include "../beforecheaders.h"
+#include <functional>
+#include "../aftercheaders.h"
+
 #include "CTextLabel.h"
 
-typedef void(ButtonCallback_t)(IWidget*);
+#define BUTTON_PADDING_W 3
+#define BUTTON_PADDING_H 2
+
+class CBaseButton;
+
+typedef std::function<void(CBaseButton*)> ButtonCallbackFn_t;
 
 class CBaseButton : public CTextLabel {
 public:
-	CBaseButton(IWidget* parent, const char* name);
+	CBaseButton(std::string name = "unnamed", IWidget* parent = nullptr, std::string text = "");
 
-	virtual void Draw();
+	virtual void Draw(int x, int y);
 	virtual void OnMousePress();
-	virtual void Update();
 
-	void SetCallback(ButtonCallback_t& callback);
+	void SetCallback(ButtonCallbackFn_t callback);
 
-	ButtonCallback_t* m_pCallback;
+	ButtonCallbackFn_t m_pCallback;
 };
 
 #endif /* CBASEBUTTON_H_ */

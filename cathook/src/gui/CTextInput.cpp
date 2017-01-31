@@ -11,80 +11,66 @@
 #include "../sdk.h"
 #include "GUI.h"
 
-CTextInput::CTextInput(IWidget* parent, const char* name) : CBaseWidget(parent, name) {
-	m_pszContents = new char[256];
-	m_pCallback = 0;
-	m_nLength = 0;
+CTextInput::CTextInput(std::string name, IWidget* parent) : CBaseWidget(name, parent) {
+	Props()->SetString("value", "");
 }
 
 bool CTextInput::ConsumesKey(ButtonCode_t key) {
-	return key >= ButtonCode_t::KEY_FIRST && key <= ButtonCode_t::KEY_LAST && key != KEY_INSERT;
+	return key >= ButtonCode_t::KEY_FIRST && key <= ButtonCode_t::KEY_BACKSPACE;
 }
 
 void CTextInput::SetMaxWidth(int width) {
-	int length, height;
-	draw::GetStringLength(fonts::MENU, "W", length, height);
-	m_nSizeX = width * length + 4;
-	m_nSizeY = height + 4;
+	auto length = draw::GetStringLength(fonts::MENU, "W");
+	SetSize(length.first * width + 4, length.second + 4); // TODO PADDING
 }
 
-void CTextInput::Draw() {
-	int ax, ay;
-	GetAbsolutePosition(ax, ay);
-	int height, length;
-	draw::GetStringLength(fonts::MENU, "W", length, height);
+std::string CTextInput::Value() {
+	return std::string(Props()->GetString("value"));
+}
+
+void CTextInput::SetValue(std::string value) {
+	std::string oldv = Value();
+	if (m_pCallback)
+		m_pCallback(this, oldv, value);
+	Props()->SetString("value", value.c_str());
+}
+
+void CTextInput::Draw(int x, int y) {
+	auto wsize = draw::GetStringLength(fonts::MENU, "W");
+	auto size = GetSize();
 	int color = colors::Create(0, 0, 0, 80);
-	if (m_bFocused) color = colors::Transparent(colors::pink, 0.25);
-	draw::DrawRect(ax, ay, m_nSizeX, height + 4, color);
-	draw::OutlineRect(ax, ay, m_nSizeX, height + 4, colors::pink);
+	if (IsFocused()) color = colors::Transparent(colors::pink, 0.25);
+	draw::DrawRect(x, y, size.first, wsize.second + 4, color);
+	draw::OutlineRect(x, y, size.first, wsize.second + 4, colors::pink);
 	int ml = 0;
 	int md = 0;
-	int tx, ty;
-	draw::GetStringLength(fonts::MENU, "...", tx, ty);
-	for (int i = 0; i < strlen(m_pszContents); i++) {
-		int w, h;
-		draw::GetStringLength(fonts::MENU, m_pszContents + i, w, h);
-		if (w + 10 + tx >= m_nSizeX) md = i;
-		if (w + 8 > m_nSizeX) ml = i;
+	auto dotssize = draw::GetStringLength(fonts::MENU, "..."); // TODO static?
+	std::string value = Value();
+	for (int i = 0; i < value.length(); i++) {
+		auto strsize = draw::GetStringLength(fonts::MENU, value.substr(i));
+		if (strsize.first + 10 + dotssize.first >= size.first) md = i;
+		if (strsize.first + 8 > size.first) ml = i;
 	}
 	if (ml) {
-		draw::FString(fonts::MENU, ax + 2, ay + 2, colors::white, 1, "...%s", (m_pszContents + md));
+		draw::FString(fonts::MENU, x + 2, y + 2, colors::white, 1, "...%s", value.substr(md).c_str());
 	} else {
-		draw::String(fonts::MENU, ax + 2, ay + 2, colors::white, 1, m_pszContents);
+		draw::String(fonts::MENU, x + 2, y + 2, colors::white, 1, value); // TODO recalc on update
 	}
 }
 
-void CTextInput::SetCallback(TextInputChangeCallback_t* callback) {
+void CTextInput::SetCallback(TextInputCallbackFn_t callback) {
 	m_pCallback = callback;
 }
 
-void CTextInput::SetLength(int newlength) {
-	m_pszContents[newlength] = 0;
-	m_nLength = newlength;
-}
-
 void CTextInput::PutChar(char ch) {
-	if (m_nLength >= 255) return;
-	char* old = new char[256];
-	memcpy(old, m_pszContents, 256);
-	m_pszContents[m_nLength] = ch;
-	SetLength(m_nLength + 1);
-	if (m_pCallback) {
-		m_pCallback(this, old, m_pszContents);
-	}
-	delete [] old;
+	SetValue(Value() + std::string(1, ch));
 }
 
 void CTextInput::OnKeyPress(ButtonCode_t key) {
 	if (key == ButtonCode_t::KEY_BACKSPACE) {
-		if (m_nLength > 0) {
-			char* old = new char[256];
-			memcpy(old, m_pszContents, 256);
-			SetLength(m_nLength - 1);
-			if (m_pCallback) {
-				m_pCallback(this, old, m_pszContents);
-			}
-			delete [] old;
+		std::string val = Value();
+		if (val.length() > 0) {
+			SetValue(val.substr(0, val.length() - 1));
 		}
 		return;
 	} else if (key == ButtonCode_t::KEY_SPACE) {

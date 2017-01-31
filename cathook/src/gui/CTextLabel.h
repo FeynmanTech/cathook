@@ -15,15 +15,13 @@
 
 class CTextLabel : public CBaseWidget {
 public:
-	CTextLabel(IWidget* parent, const char* name, const char* text = 0);
-	~CTextLabel();
+	CTextLabel(std::string name = "unnamed", IWidget* parent = nullptr, std::string text = "");
 
-	void SetText(const char* text);
-	const char* GetText();
+	void SetText(std::string text);
+	std::string GetText();
+	void SetPadding(int x, int y);
 
-	virtual void Draw();
-
-	char* m_pszText;
+	virtual void Draw(int x, int y);
 };
 
 #endif /* CTEXTLABEL_H_ */
