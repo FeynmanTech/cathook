@@ -36,38 +36,38 @@ void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
 }
 
 ESP::ESP() {
-	this->v_bSeeLocal = CREATE_CV(CV_SWITCH, "esp_local", "1", "Local ESP in thirdperson");
-	this->v_bEnabled = CREATE_CV(CV_SWITCH, "esp_enabled", "0", "ESP");
-	this->v_bEntityESP = CREATE_CV(CV_SWITCH, "esp_entity", "0", "Entity ESP");
-	this->v_bTeammates = CREATE_CV(CV_SWITCH, "esp_teammates", "0", "ESP Teammates");
-	this->v_bItemESP = CREATE_CV(CV_SWITCH, "esp_item", "1", "Item ESP");
-	this->v_bTeammatePowerup = CREATE_CV(CV_SWITCH, "esp_powerup_team", "1", "Teammate powerups");
-	this->v_bShowEntityID = CREATE_CV(CV_SWITCH, "esp_entity_id", "0", "Entity ID");
-	this->v_bShowDistance = CREATE_CV(CV_SWITCH, "esp_distance", "1", "Distance ESP");
-	this->v_bBox = CREATE_CV(CV_SWITCH, "esp_box", "1", "Box");
-	this->v_bShowFriendID = CREATE_CV(CV_SWITCH, "esp_friendid", "0", "Show FriendID");
-	this->v_bShowFriends = CREATE_CV(CV_SWITCH, "esp_friends", "1", "Show friends");
-	this->v_bVisCheck = CREATE_CV(CV_SWITCH, "esp_vischeck", "1", "VisCheck");
-	this->v_bLegit = CREATE_CV(CV_SWITCH, "esp_legit", "0", "Legit Mode");
-	this->v_iLegitSeenTicks = CREATE_CV(CV_INT, "esp_legit_seenticks", "150", "Legit delay");
-	v_bShowDroppedWeapons = CREATE_CV(CV_SWITCH, "esp_item_weapons", "0", "Dropped weapons");
-	v_bShowAmmoPacks = CREATE_CV(CV_SWITCH, "esp_item_ammo", "0", "Ammo packs");
-	v_bShowHealthPacks = CREATE_CV(CV_SWITCH, "esp_item_health", "1", "Health packs");
-	v_bShowPowerups = CREATE_CV(CV_SWITCH, "esp_item_powerups", "1", "Powerups");
-	this->v_bShowTank = CREATE_CV(CV_SWITCH, "esp_show_tank", "1", "Show tank");
-	v_bShowHealthNumbers = CREATE_CV(CV_SWITCH, "esp_health_num", "1", "Health in numbers");
-	v_bShowMoney = CREATE_CV(CV_SWITCH, "esp_money", "1", "MvM money");
-	v_bShowRedMoney = CREATE_CV(CV_SWITCH, "esp_money_red", "1", "Red MvM money");
+	this->v_bSeeLocal = new CatVar(CV_SWITCH, "esp_local", "1", "ESP Local Player", NULL, "Shows local player ESP in thirdperson");
+	this->v_bEnabled = new CatVar(CV_SWITCH, "esp_enabled", "0", "ESP", NULL, "Master ESP switch");
+	this->v_bEntityESP = new CatVar(CV_SWITCH, "esp_entity", "0", "Entity ESP", NULL, "Show entity info (debug)");
+	this->v_bTeammates = new CatVar(CV_SWITCH, "esp_teammates", "0", "ESP Teammates", NULL, "Teammate ESP");
+	this->v_bItemESP = new CatVar(CV_SWITCH, "esp_item", "1", "Item ESP", NULL, "Master Item ESP switch (health packs, etc.)");
+	this->v_bTeammatePowerup = new CatVar(CV_SWITCH, "esp_powerup_team", "1", "Teammate powerups", NULL, "Show Mannpower powerups on your teammates");
+	this->v_bShowEntityID = new CatVar(CV_SWITCH, "esp_entity_id", "1", "Entity ID", NULL, "Used with Entity ESP. Shows entityID");
+	this->v_bShowDistance = new CatVar(CV_SWITCH, "esp_distance", "1", "Distance ESP", NULL, "Show distance to target");
+	this->v_bBox = new CatVar(CV_SWITCH, "esp_box", "1", "Box", NULL, "Draw 2D box with healthbar. fancy.");
+	this->v_bShowFriendID = new CatVar(CV_SWITCH, "esp_friendid", "0", "Show FriendID", NULL, "Show SteamID");
+	this->v_bShowFriends = new CatVar(CV_SWITCH, "esp_friends", "1", "Show friends", NULL, "Always show friends");
+	this->v_bVisCheck = new CatVar(CV_SWITCH, "esp_vischeck", "1", "VisCheck", NULL, "ESP visibility check - makes enemy info behind walls darker, disable this if you get FPS drops");
+	this->v_bLegit = new CatVar(CV_SWITCH, "esp_legit", "0", "Legit Mode", NULL, "Don't show invisible enemies");
+	this->v_iLegitSeenTicks = new CatVar(CV_INT, "esp_legit_seenticks", "150", "Legit delay", NULL, "Delay after enemy gone behind a wall where you can still see them");
+	v_bShowDroppedWeapons = new CatVar(CV_SWITCH, "esp_item_weapons", "0", "Dropped weapons", NULL, "Show dropped weapons");
+	v_bShowAmmoPacks = new CatVar(CV_SWITCH, "esp_item_ammo", "0", "Ammo packs", NULL, "Show ammo packs");
+	v_bShowHealthPacks = new CatVar(CV_SWITCH, "esp_item_health", "1", "Health packs", NULL, "Show health packs");
+	v_bShowPowerups = new CatVar(CV_SWITCH, "esp_item_powerups", "1", "Powerups", NULL, "Show powerups");
+	this->v_bShowTank = new CatVar(CV_SWITCH, "esp_show_tank", "1", "Show tank", NULL, "Show tank");
+	v_bShowHealthNumbers = new CatVar(CV_SWITCH, "esp_health_num", "1", "Health numbers", NULL, "Show health in numbers");
+	v_bShowMoney = new CatVar(CV_SWITCH, "esp_money", "1", "MvM money", NULL, "Show MvM money");
+	v_bShowRedMoney = new CatVar(CV_SWITCH, "esp_money_red", "1", "Red MvM money", NULL, "Show/Hide red MvM money");
 	CatEnum* proj = new CatEnum({ "OFF", "ALL", "CRIT" });
-	this->v_iShowRockets = CREATE_CV(proj, "esp_proj_rockets", "1", "Rockets");
-	this->v_iShowArrows = CREATE_CV(proj, "esp_proj_arrows", "1", "Arrows");
-	this->v_iShowStickies = CREATE_CV(proj, "esp_proj_stickies", "1", "Stickies");
-	this->v_iShowPipes = CREATE_CV(proj, "esp_proj_pipes", "1", "Pipes");
-	this->v_bOnlyEnemyProjectiles = CREATE_CV(CV_SWITCH, "esp_proj_enemy", "0", "Only enemy projectiles	");
-	this->v_bProjectileESP = CREATE_CV(CV_SWITCH, "esp_proj", "1", "Projectile ESP");
-	v_bShowName = CREATE_CV(CV_SWITCH, "esp_name", "1", "Name ESP");
-	v_bShowClass = CREATE_CV(CV_SWITCH, "esp_class", "1", "Class ESP");
-	v_bShowConditions = CREATE_CV(CV_SWITCH, "esp_conds", "1", "Conditions ESP");
+	this->v_iShowRockets = new CatVar(CV_ENUM, "esp_proj_rockets", "1", "Rockets", proj, "Rockets");
+	this->v_iShowArrows = new CatVar(CV_ENUM, "esp_proj_arrows", "1", "Arrows", proj, "Arrows");
+	this->v_iShowStickies = new CatVar(CV_ENUM, "esp_proj_stickies", "1", "Stickies", proj, "Stickybombs");
+	this->v_iShowPipes = new CatVar(CV_ENUM, "esp_proj_pipes", "1", "Pipes", proj, "Pipebombs");
+	this->v_bOnlyEnemyProjectiles = new CatVar(CV_SWITCH, "esp_proj_enemy", "1", "Only enemy projectiles", NULL, "Don't show friendly projectiles");
+	this->v_bProjectileESP = new CatVar(CV_SWITCH, "esp_proj", "1", "Projectile ESP", NULL, "Projectile ESP");
+	v_bShowName = new CatVar(CV_SWITCH, "esp_name", "1", "Name ESP", NULL, "Show name");
+	v_bShowClass = new CatVar(CV_SWITCH, "esp_class", "1", "Class ESP", NULL, "Show class");
+	v_bShowConditions = new CatVar(CV_SWITCH, "esp_conds", "1", "Conditions ESP", NULL, "Show conditions");
 }
 
 #define ESP_HEIGHT 14

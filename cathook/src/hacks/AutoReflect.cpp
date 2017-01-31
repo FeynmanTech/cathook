@@ -35,10 +35,10 @@ bool AutoReflect::ShouldReflect(CachedEntity* ent) {
 // Hack Methods
 
 AutoReflect::AutoReflect() {
-	v_bEnabled = CREATE_CV(CV_SWITCH, "reflect_enabled", "0", "Enable");
-	v_iReflectDistance = CREATE_CV(CV_INT, "reflect_distance", "200", "Distance");
-	v_bDisableWhenAttacking = CREATE_CV(CV_SWITCH, "reflect_only_idle", "0", "Only when not shooting");
-	v_bReflectStickies = CREATE_CV(CV_SWITCH, "reflect_stickybombs", "0", "Reflect stickies");
+	v_bEnabled = new CatVar(CV_SWITCH, "reflect_enabled", "0", "Enable", NULL, "Master AutoReflect switch");
+	v_iReflectDistance = new CatVar(CV_INT, "reflect_distance", "200", "Distance", NULL, "Maximum distance to reflect at", true, 300.0f);
+	v_bDisableWhenAttacking = new CatVar(CV_SWITCH, "reflect_only_idle", "0", "Only when not shooting", NULL, "Don't AutoReflect if you're holding M1");
+	v_bReflectStickies = new CatVar(CV_SWITCH, "reflect_stickybombs", "0", "Reflect stickies", NULL, "Reflect Stickybombs");
 }
 // TODO
 bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {

@@ -10,12 +10,13 @@
 #include "common.h"
 #include "sdk.h"
 
-CatVar::CatVar(CatVar_t type, std::string name, std::string defaults, std::string short_description, ICatEnum* enum_type, float minv, float maxv, std::string long_description) {
+CatVar::CatVar(CatVar_t type, const char*  name, const char*  defaults, const char*  short_description, ICatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
 	m_Type = type;
-	m_pConVar = CreateConVar(name.c_str(), defaults.c_str(), short_description.c_str());
+	m_pConVar = CreateConVar(strfmt("cat_%s", name), defaults, short_description);
 	m_EnumType = enum_type;
 	m_flMinValue = minv;
 	m_flMaxValue = maxv;
+	m_bHasMinmax = hasminmax;
 	SetDescription(long_description);
 }
 

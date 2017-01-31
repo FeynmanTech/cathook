@@ -18,12 +18,12 @@ public:
 	Triggerbot();
 	~Triggerbot();
 	CatVar* v_bEnabled;
-	CatVar* v_bIgnoreCloak;
+	CatVar* v_bRespectCloak;
 	CatVar* v_bZoomedOnly;
 	CatVar* v_iHitbox;
 	CatVar* v_bBodyshot;
 	CatVar* v_bFinishingHit;
-	CatVar* v_iMinRange;
+	CatVar* v_iMaxRange;
 	CatVar* v_bBuildings;
 	CatVar* v_bIgnoreVaccinator;
 	CatVar* v_bAmbassadorCharge;

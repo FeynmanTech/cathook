@@ -33,7 +33,7 @@ void logging::Info(const char* fmt, ...) {
 	fprintf(logging::handle, "%s", result);
 	fflush(logging::handle);
 	if (interfaces::cvar) {
-		if (g_Settings.bDebugLog && g_Settings.bDebugLog->GetBool())
+		if (!g_Settings.bDebugLog || g_Settings.bDebugLog->GetBool())
 		interfaces::cvar->ConsolePrintf("%s", result);
 	}
 	delete [] buffer;

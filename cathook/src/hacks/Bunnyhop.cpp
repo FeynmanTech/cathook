@@ -17,9 +17,9 @@ const char* Bunnyhop::GetName() {
 }
 
 Bunnyhop::Bunnyhop() {
-	this->v_bEnabled = CREATE_CV(CV_SWITCH, "bhop_enabled", "0", "Enable");
-	this->v_bAutoJump = CREATE_CV(CV_SWITCH, "bhop_autojump", "0", "AutoJump");
-	this->v_iAutoJumpSpeed = CREATE_CV(CV_INT, "bhop_autojump_speed", "300", "AutoJump speed");
+	this->v_bEnabled = new CatVar(CV_SWITCH, "bhop_enabled", "0", "Enable", NULL, "Enable Bunnyhop");
+	this->v_bAutoJump = new CatVar(CV_SWITCH, "bhop_autojump", "0", "AutoJump", NULL, "Autojump if you reach certain speed");
+	this->v_iAutoJumpSpeed = new CatVar(CV_INT, "bhop_autojump_speed", "300", "AutoJump speed", NULL, "Minimum autojump speed");
 }
 
 bool bDoubleJumpFix = false;

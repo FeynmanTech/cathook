@@ -262,7 +262,7 @@ Misc::Misc() {
 	//v_bDumpEventInfo = CreateConVar(CON_PREFIX "debug_event_info", "0", "Show event info");
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
 
-	v_bCleanChat = CREATE_CV(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages");
+	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }
 

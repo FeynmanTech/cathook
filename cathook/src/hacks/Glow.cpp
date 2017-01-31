@@ -14,7 +14,7 @@ DEFINE_HACK_SINGLETON(Glow);
 const char* Glow::GetName() { return "GLOW"; }
 
 Glow::Glow() {
-	v_bEnabled = CREATE_CV(CV_SWITCH, "glow_enabled", "0", "Glow ESP - DO NOT USE!");
+	v_bEnabled = new CatVar(CV_SWITCH, "glow_enabled", "0", "Glow ESP", NULL, "Simply adds glow to all entities - DO NOT USE!");
 	m_bEnabledOnce = false;
 }
 

@@ -38,66 +38,81 @@ Aimbot::Aimbot() {
 	target_systems[1] = new TargetSystemFOV();
 	target_systems[2] = new TargetSystemDistance();
 	m_bAimKeySwitch = false;
-	this->v_eAimKeyMode = CREATE_CV_DESC(
-			new CatEnum({ "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" }),
-			"aimbot_aimkey_mode", "1", "Aimkey Mode",
-			"Disabled: aimbot is always active\nAimkey: aimbot is active when key is down\nReverse: aimbot is disabled when key is down\nToggle: key toggles aimbot");
-	this->v_bEnabled = CREATE_CV_DESC(
-			CV_SWITCH, "aimbot_enabled", "0", "Enabled",
+	this->v_eAimKeyMode = new CatVar(CV_ENUM, "aimbot_aimkey_mode", "1", "Aimkey mode", new CatEnum({ "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" }),
+			"DISABLED: aimbot is always active\AIMKEY: aimbot is active when key is down\REVERSE: aimbot is disabled when key is down\TOGGLE: pressing key toggles aimbot", false);
+	this->v_bEnabled = new CatVar(CV_SWITCH, "aimbot_enabled", "0", "Enable Aimbot", NULL,
 			"Main aimbot switch");
-	this->v_eHitbox = CREATE_CV_DESC(
-			new CatEnum({
+	this->v_eHitbox = new CatVar(CV_ENUM, "aimbot_hitbox", "0", "Hitbox", new CatEnum({
 		"HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
 		"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
 		"KNEE R", "FOOT R" }),
-			"aimbot_hitbox", "0", "Hitbox",
 			"Hitbox to aim at.\nIgnored if AutoHitbox is on");
-	this->v_bAutoHitbox = CREATE_CV_DESC(
-			CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox",
-			"Automatically decide the hitbox to aim at.\nFor example: Sniper rifles and Ambassador always aim at head,\nrocket launchers aim at feet if enemy is standing and at body\nif enemy is midair for easy airshots");
-	this->v_bPrediction = CREATE_CV_DESC(
-			CV_SWITCH, "aimbot_interp", "1", "Latency interpolation",
-			"Enable simple latency interpolation");
-	this->v_bAutoShoot = CREATE_CV_DESC(
-			CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot",
+	this->v_bAutoHitbox = new CatVar(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox", NULL,
+			"Automatically decide the hitbox to aim at.\n"
+			"For example: Sniper rifles and Ambassador always aim at head,\n"
+			"rocket launchers aim at feet if enemy is standing and at body\n"
+			"if enemy is midair for easy airshots");
+	this->v_bInterpolation = new CatVar(CV_SWITCH, "aimbot_interp", "1", "Latency interpolation", NULL,
+			"Enable basic latency interpolation");
+	this->v_bAutoShoot = new CatVar(CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot", NULL,
 			"Shoot automatically when the target is locked");
-	this->v_bSilent = CREATE_CV_DESC(
-			CV_SWITCH, "aimbot_silent", "1", "Silent",
+	this->v_bSilent = new CatVar(CV_SWITCH, "aimbot_silent", "1", "Silent", NULL,
 			"Your screen doesn't get snapped to the point where aimbot aims at");
-	this->v_bZoomedOnly = CREATE_CV_DESC(
-			CV_SWITCH, "aimbot_zoomed", "1", "Zoomed Only",
-			"Don't aim with unzoomed rifles");
+	this->v_bZoomedOnly = new CatVar(CV_SWITCH, "aimbot_zoomed", "1", "Zoomed only", NULL,
+			"Don't autoshoot with unzoomed rifles");
 	/*this->v_iAutoShootCharge = CREATE_CV(
 			CV_FLOAT, "aimbot_autoshoot_charge", "0.0", "Autoshoot Charge");*/
-	this->v_iMaxRange = CREATE_CV_DESC(
-			CV_INT, "aimbot_maxrange", "0", "Max distance",
-			"Max range for aimbot\n900-1100 range is efficient for scout/widowmaker engineer");
-	this->v_bRespectCloak = CREATE_CV(CV_SWITCH, "aimbot_respect_cloak", "1", "Respect cloak");
-	this->v_bCharge = CREATE_CV(CV_SWITCH, "aimbot_charge", "0", "Wait for charge");
-	this->v_bEnabledAttacking = CREATE_CV(CV_SWITCH, "aimbot_enable_attack_only", "0", "Active when attacking");
-	this->v_bTriggerMode = CREATE_CV(CV_SWITCH, "aimbot_triggerlock", "0", "Trigger lock");
-	this->v_bProjectileAimbot = CREATE_CV(CV_SWITCH, "aimbot_projectile", "1", "Projectile aimbot");
-	this->v_fOverrideProjSpeed = CREATE_CV(CV_FLOAT, "aimbot_proj_speed", "0", "Projectile speed");
-	this->v_bDebug = CREATE_CV(CV_SWITCH, "aimbot_debug", "0", "Debug");
-	this->v_fFOV = CREATE_CV(CV_FLOAT, "aimbot_fov", "0", "FOV");
-	this->v_bMachinaPenetration = CREATE_CV(CV_SWITCH, "aimbot_machina", "0", "Machina Mode");
-	this->v_bSmooth = CREATE_CV(CV_SWITCH, "aimbot_smooth", "0", "Smooth");
-	this->v_fAutoShootHuntsmanCharge = CREATE_CV(CV_FLOAT, "aimbot_huntsman_charge", "0.5", "Huntsman charge");
-	this->v_fSmoothValue = CREATE_CV(CV_FLOAT, "aimbot_smooth_value", "0.2", "Smooth value");
-	this->v_eAimKey = CREATE_CV(CV_INT, "aimbot_aimkey", "0", "Aimkey");
-	this->v_ePriorityMode = CREATE_CV(new CatEnum({ "SMART", "FOV", "DISTANCE", "HEALTH" }), "aimbot_prioritymode", "0", "Priority mode");
-	v_bAimBuildings = CREATE_CV(CV_SWITCH, "aimbot_buildings", "1", "Aim @ Buildings");
-	v_bActiveOnlyWhenCanShoot = CREATE_CV(CV_SWITCH, "aimbot_only_when_can_shoot", "1", "Active when can shoot");
-	v_fSmoothAutoshootTreshold = CREATE_CV(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
-	this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
-	this->v_iSeenDelay = CREATE_CV(CV_INT, "aimbot_delay", "0", "Aimbot delay");
-	this->v_bProjectilePredictionWalls = CREATE_CV(CV_SWITCH, "aimbot_proj_nowallpred", "0", "Don't predict if enemy is hidden");
-	this->v_bProjectileFOVCheckPrediction = CREATE_CV(CV_SWITCH, "aimbot_proj_fovpred", "0", "Legit projectile FOV");
+	this->v_iMaxRange = new CatVar(CV_INT, "aimbot_maxrange", "0", "Max distance", NULL,
+			"Max range for aimbot\n"
+			"900-1100 range is efficient for scout/widowmaker engineer", true, 4096.0f);
+	this->v_bRespectCloak = new CatVar(CV_SWITCH, "aimbot_respect_cloak", "1", "Respect cloak", NULL,
+			"Don't aim at invisible enemies");
+	this->v_bEnabledAttacking = new CatVar(CV_SWITCH, "aimbot_enable_attack_only", "1", "Active when attacking", NULL,
+			"Basically makes Mouse1 an AimKey\n"
+			"I can't think of a reason to turn this off");
+	this->v_bProjectileAimbot = new CatVar(CV_SWITCH, "aimbot_projectile", "1", "Projectile aimbot", NULL,
+			"If you turn it off, aimbot won't try to aim\n"
+			"with projectile weapons");
+	this->v_fOverrideProjSpeed = new CatVar(CV_FLOAT, "aimbot_proj_speed", "0", "Projectile speed", NULL,
+			"Force override projectile speed.\n"
+			"Can be useful for playing with MvM upgrades or on x10 servers\n"
+			"since there is no \"automatic\" projectile speed detection in\n"
+			"cathook. Yet.");
+	this->v_fFOV = new CatVar(CV_FLOAT, "aimbot_fov", "0", "Aimbot FOV", NULL,
+			"FOV range for aimbot to lock targets.\n"
+			"\"Smart FOV\" coming soon.", true, 360.0f);
+	this->v_fAutoShootHuntsmanCharge = new CatVar(CV_FLOAT, "aimbot_huntsman_charge", "0.5", "Huntsman autoshoot", NULL,
+			"Minimum charge for autoshooting with huntsman.\n"
+			"Set it to 0.01 if you want to shoot as soon as you start\n"
+			"pulling the arrow", true, 1.0f, 0.01f);
+	this->v_kAimKey = new CatVar(CV_KEY, "aimbot_aimkey", "0", "Aimkey", NULL,
+			"Aimkey. Look at Aimkey Mode too!");
+	this->v_ePriorityMode = new CatVar(CV_ENUM, "aimbot_prioritymode", "0", "Priority mode",
+			new CatEnum({ "SMART", "FOV", "DISTANCE", "HEALTH" }),
+			"Priority mode.\n"
+			"SMART: Basically Auto-Threat. Will be tweakable eventually\n"
+			"FOV, DISTANCE, HEALTH are self-explainable. HEALTH picks the\n"
+			"weakest enemy");
+	v_bAimBuildings = new CatVar(CV_SWITCH, "aimbot_buildings", "1", "Aim at buildings", NULL,
+			"Should aimbot aim at buildings?");
+	v_bActiveOnlyWhenCanShoot = new CatVar(CV_SWITCH, "aimbot_only_when_can_shoot", "1", "Active when can shoot", NULL,
+			"Aimbot only activates when you can instantly shoot, sometimes making the autoshoot\n"
+			"invisible for spectators");
+	//v_fSmoothAutoshootTreshold = new CatVar(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
+	//this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
+	this->v_iSeenDelay = new CatVar(CV_INT, "aimbot_delay", "0", "Aimbot delay", NULL,
+			"# of ticks that should've passed since you can see any\n"
+			"hitbox of enemy before aimbot will aim at them", true, 300.0f);
+	this->v_bProjPredVisibility = new CatVar(CV_SWITCH, "aimbot_proj_vispred", "0", "Projectile visibility prediction", NULL,
+			"If disabled, aimbot won't lock at enemies that are behind walls, but will\n"
+			"come out soon");
+	this->v_bProjPredFOV = new CatVar(CV_SWITCH, "aimbot_proj_fovpred", "0", "Projectile FOV mode", NULL,
+			"If disabled, FOV restrictions apply to current target position");
 }
 
 bool Aimbot::ShouldAim(CUserCmd* cmd) {
-	if (this->v_eAimKey->GetBool() && this->v_eAimKeyMode->GetBool()) {
-		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_eAimKey->GetInt());
+	if (this->v_kAimKey->GetBool() && this->v_eAimKeyMode->GetBool()) {
+		bool key_down = interfaces::input->IsButtonDown((ButtonCode_t)this->v_kAimKey->GetInt());
 		switch (this->v_eAimKeyMode->GetInt()) {
 		case AimKeyMode_t::PRESS_TO_ENABLE:
 			if (key_down) break;
@@ -141,7 +156,7 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 			return false;
 		}
 	}
-	if (this->v_bZoomedOnly->GetBool()) {
+	if (g_pLocalPlayer->bZoomed) {
 		// TODO IsSniperRifle()
 		if (g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifle ||
 			g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFSniperRifleDecap) {
@@ -166,6 +181,8 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	case weapon_throwable:
 	case weapon_invalid:
 		return true;
+	case weapon_projectile:
+		if (!v_bProjectileAimbot->GetBool()) return true;
 	};
 
 	if (HasCondition(g_pLocalPlayer->entity, TFCond_Cloaked)) return true; // TODO other kinds of cloak
@@ -173,9 +190,9 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 
 	if(cmd->buttons & IN_USE) return true;
 
-	if (this->v_bTriggerMode->GetBool() ) {
+	/*if (this->v_bTriggerMode->GetBool() ) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
-	}
+	}*/
 
 	m_bHeadOnly = false;
 
@@ -358,8 +375,8 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
 		if (m_bHeadOnly && hitbox) return false;
 		if (m_bProjectileMode) {
-			if (v_bProjectileFOVCheckPrediction->GetBool()) {
-				if (v_bProjectilePredictionWalls->GetBool()) {
+			if (v_bProjPredFOV->GetBool()) {
+				if (v_bProjPredVisibility->GetBool()) {
 					if (!GetHitbox(entity, hitbox, resultAim)) return false;
 					if (!IsEntityVisible(entity, hitbox)) return false;
 				}
@@ -369,10 +386,10 @@ bool Aimbot::ShouldTarget(CachedEntity* entity) {
 			}
 			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, resultAim)) return false;
 		} else {
-			if (v_bMachinaPenetration->GetBool()) {
+			/*if (v_bMachinaPenetration->GetBool()) {
 				if (!GetHitbox(entity, hitbox, resultAim)) return false;
 				if (!IsEntityVisiblePenetration(entity, v_eHitbox->GetInt())) return false;
-			} else {
+			} else*/ {
 				if (!GetHitbox(entity, hitbox, resultAim)) return false;
 				if (!IsEntityVisible(entity, hitbox)) return false;
 			}
@@ -422,30 +439,28 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 		//logging::Info("A");
 		GetHitbox(entity, hitbox, hit);
 		//logging::Info("B");
-		if (this->v_bPrediction->GetBool()) SimpleLatencyPrediction(entity, hitbox);
+		if (this->v_bInterpolation->GetBool()) SimpleLatencyPrediction(entity, hitbox);
 		//logging::Info("C");
 	} else if (entity->m_Type == ENTITY_BUILDING) {
 		hit = GetBuildingPosition(entity);
 	}
-	if (v_bProjectileAimbot->GetBool()) {
-		if (m_bProjectileMode) {
-			if (v_fOverrideProjSpeed->GetBool())
-				m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
-			hit = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
-		}
+	if (m_bProjectileMode) {
+		if (v_fOverrideProjSpeed->GetBool())
+			m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
+		hit = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
 	}
 	//logging::Info("ayyming!");
 	Vector tr = (hit - g_pLocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);
 	bool smoothed = false;
-	if (this->v_bSmooth->GetBool()) {
+	/*if (this->v_bSmooth->GetBool()) {
 		Vector da = (angles - g_pLocalPlayer->v_OrigViewangles);
 		fClampAngle(da);
 		smoothed = true;
 		if (da.IsZero(v_fSmoothAutoshootTreshold->GetFloat())) smoothed = false;
 		da *= this->v_fSmoothValue->GetFloat() * (((float)rand() / (float)RAND_MAX) * this->v_fSmoothRandomness->GetFloat());
 		angles = g_pLocalPlayer->v_OrigViewangles + da;
-	}
+	}*/
 	fClampAngle(angles);
 	cmd->viewangles = angles;
 	if (this->v_bSilent->GetBool()) {
@@ -455,6 +470,9 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
 			if (g_pLocalPlayer->bZoomed) {
 				if (!CanHeadshot()) return true;
+			}
+			if (g_pLocalPlayer->weapon()->m_iClassID == CTFSniperRifle || g_pLocalPlayer->weapon()->m_iClassID == CTFSniperRifleDecap) {
+				if (v_bZoomedOnly->GetBool() && !CanHeadshot()) return true;
 			}
 		}
 		if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFCompoundBow) {

@@ -17,7 +17,7 @@ const char* AutoStrafe::GetName() {
 }
 
 AutoStrafe::AutoStrafe() {
-	v_bEnabled = CREATE_CV(CV_SWITCH, "autostrafe", "0", "Enable AutoStrafe");
+	v_bEnabled = new CatVar(CV_SWITCH, "autostrafe", "0", "Enable AutoStrafe", NULL, "AutoStrafe switch. Doesn't work.");
 }
 
 

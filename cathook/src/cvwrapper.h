@@ -26,7 +26,8 @@ enum CatVar_t {
 	CV_INT,
 	CV_FLOAT,
 	CV_STRING,
-	CV_ENUM
+	CV_ENUM,
+	CV_KEY
 };
 
 class ICatEnum {
@@ -51,7 +52,7 @@ public:
 
 class CatVar {
 public:
-	CatVar(CatVar_t type, std::string name, std::string defaults, std::string short_description, ICatEnum* enum_type = 0, float min = 0.0f, float max = 1.0f, std::string long_description = "no description");
+	CatVar(CatVar_t type, const char* name, const char*  defaults, const char*  short_description, ICatEnum* enum_type = 0, std::string long_description = "no description", bool hasminmax = false, float max = 1.0f, float min = 0.0f);
 	//inline CatVar(ConVar* var, CatVar_t type, std::string desc = "") { m_fStep = 1; m_fStep = 0.5f; m_pConVar = var; m_Type = type; SetDescription(desc); }
 	//inline CatVar(ConVar* var, ICatEnum* catenum, std::string desc = "") { m_pConVar = var; m_Type = CatVar_t::CV_ENUM; m_EnumType = catenum; SetDescription(desc); }
 	inline CatVar_t GetType() { return m_Type; }
@@ -70,6 +71,7 @@ public:
 
 	inline void SetStep(float step) { m_fStep = step; }
 
+	bool m_bHasMinmax;
 	float m_flMaxValue;
 	float m_flMinValue;
 	float m_fStep;

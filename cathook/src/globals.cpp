@@ -25,21 +25,21 @@ void GlobalSettings::Init() {
 	this->sDisconnectMsg = CreateConVar(CON_PREFIX "disconnect_msg", "", "Set custom disconnect message");
 
 //	this->bMaxPerformance = CREATE_CV(CV_SWITCH, "optimize_performance", "0", "deprecated");
-	this->bHackEnabled = CREATE_CV(CV_SWITCH, "enabled", "1", "CatHook enabled");
-	this->bIgnoreTaunting = CREATE_CV(CV_SWITCH, "ignore_taunting", "1", "Ignore taunting players");
-	this->flForceFOV = CREATE_CV(CV_FLOAT, "fov", "0", "FOV");
+	this->bHackEnabled = new CatVar(CV_SWITCH, "enabled", "1", "CatHook enabled", NULL, "Master Hack Switch");
+	this->bIgnoreTaunting = new CatVar(CV_SWITCH, "ignore_taunting", "1", "Ignore taunting players", NULL, "Aimbot/Triggerbot won't attack taunting enemies");
+	this->flForceFOV = new CatVar(CV_FLOAT, "fov", "0", "FOV", NULL, "FOV override (0 - don't change)", 360.0f, 0.0f);
 //	this->bProfiler = CREATE_CV(CV_SWITCH, "profiler", "0", "Profiler");
-	this->bNoZoom = CREATE_CV(CV_SWITCH, "nozoom", "0", "No Zoom");
-	this->flForceFOVZoomed = CREATE_CV(CV_FLOAT, "fov_zoomed", "0", "FOV when zoomed");
-	this->bZoomedFOV = CREATE_CV(CV_SWITCH, "zoom_keep_fov", "1", "When zoomed, use " CON_PREFIX "fov_zoomed");
+	this->bNoZoom = new CatVar(CV_SWITCH, "nozoom", "0", "No Zoom", NULL, "Disable black scope overlay");
+	this->flForceFOVZoomed = new CatVar(CV_FLOAT, "fov_zoomed", "0", "FOV when zoomed", NULL, "FOV override (when zoomed)");
+	this->bZoomedFOV = new CatVar(CV_SWITCH, "zoom_keep_fov", "1", "When zoomed, use " CON_PREFIX "fov_zoomed");
 //	this->bNoFlinch = CREATE_CV(CV_SWITCH, "noflinch", "0", "No Flinch (broken)");
-	this->bSendPackets = CREATE_CV(CV_SWITCH, "sendpackets", "1", "Send packets");
-	this->bShowLogo = CREATE_CV(CV_SWITCH, "logo", "1", "Show logo");
-	this->bShowAntiAim = CREATE_CV(CV_SWITCH, "thirdperson_angles", "1", "Real angles in thirdperson");
-	this->bThirdperson = CREATE_CV(CV_SWITCH, "thirdperson", "0", "Thirdperson");
-	this->bNoVisuals = CREATE_CV(CV_SWITCH, "novisuals", "0", "Disable visuals");
-	this->bCleanScreenshots = CREATE_CV(CV_SWITCH, "clean_screenshot", "1", "Clean screenshots");
-	this->bDebugLog = CREATE_CV(CV_SWITCH, "log", "1", "Debug Log");
+	this->bSendPackets = new CatVar(CV_SWITCH, "sendpackets", "1", "Send packets", NULL, "bSendPackets");
+	this->bShowLogo = new CatVar(CV_SWITCH, "logo", "1", "Show cathook", NULL, "Show cathook build/version in top left corner");
+	this->bShowAntiAim = new CatVar(CV_SWITCH, "thirdperson_angles", "1", "Real angles in thirdperson", NULL, "You can see your own AA/Aimbot angles in thirdperson");
+	this->bThirdperson = new CatVar(CV_SWITCH, "thirdperson", "0", "Thirdperson", NULL, "Enable thirdperson view");
+	this->bNoVisuals = new CatVar(CV_SWITCH, "novisuals", "0", "Disable visuals", NULL, "Disable all visuals");
+	this->bCleanScreenshots = new CatVar(CV_SWITCH, "clean_screenshot", "1", "Clean screenshots", NULL, "Clean screenshots");
+	this->bDebugLog = new CatVar(CV_SWITCH, "log", "1", "Debug Log", NULL, "Disable this if you don't need cathook messages in your console");
 	this->bThirdperson->m_pConVar->InstallChangeCallback(ThirdpersonCallback);
 	bInvalid = true;
 }

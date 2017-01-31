@@ -68,8 +68,8 @@ const char* KillSay::ComposeKillSay(IGameEvent* event) {
 }
 
 KillSay::KillSay() {
-	v_bEnabled = CREATE_CV(CV_SWITCH, "killsay", "0", "KillSay");
-	v_sFileName = CREATE_CV(CV_STRING, "killsay_file", "killsays.txt", "Killsay file (~/.cathook/)");
+	v_bEnabled = new CatVar(CV_SWITCH, "killsay", "0", "KillSay", NULL, "Enable KillSay");
+	v_sFileName = new CatVar(CV_STRING, "killsay_file", "killsays.txt", "Killsay file (~/.cathook/)", NULL, "Killsay file name. Should be located in ~/.cathook folder.");
 	CreateConCommand("cat_killsay_reload", CC_KillSay_ReloadFile, "Reload KillSay");
 	m_TextFile = new TextFile(256, 1024);
 	interfaces::eventManager->AddListener(&m_Listener, "player_death", false);
