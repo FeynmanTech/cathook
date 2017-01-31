@@ -65,8 +65,8 @@ bool AutoHeal::CanHeal(int idx) {
 }
 
 AutoHeal::AutoHeal() {
-	this->v_bEnabled = CREATE_CV(CV_SWITCH, "autoheal_enabled", "0", "Enable");
-	this->v_bSilent = CREATE_CV(CV_SWITCH, "autoheal_silent", "1", "Silent");
+	this->v_bEnabled = new CatVar(CV_SWITCH, "autoheal_enabled", "0", "Enable", NULL, "Enable AutoHeal");
+	this->v_bSilent = new CatVar(CV_SWITCH, "autoheal_silent", "1", "Silent", NULL, "Silent AutoHeal.\nIt's better to keep this enabled");
 	m_iCurrentHealingTarget = -1;
 }
 

@@ -18,10 +18,10 @@ const char* AutoSticky::GetName() {
 
 // TODO scottish cyclops
 AutoSticky::AutoSticky() {
-	this->v_flDetonateDistance = CREATE_CV(CV_INT, "sticky_distance", "200", "Distance");
-	this->v_bBuildings = CREATE_CV(CV_SWITCH, "sticky_buildings", "1", "Detonate buildings");
-	this->v_bEnabled = CREATE_CV(CV_SWITCH, "sticky_enabled", "0", "Enable");
-	this->v_bScottish = CREATE_CV(CV_SWITCH, "sticky_scottish", "0", "Scottish");
+	this->v_flDetonateDistance = new CatVar(CV_INT, "sticky_distance", "200", "Distance", NULL, "Maximum distance to detonate");
+	this->v_bBuildings = new CatVar(CV_SWITCH, "sticky_buildings", "1", "Detonate buildings", NULL, "Stickies react at buildings");
+	this->v_bEnabled = new CatVar(CV_SWITCH, "sticky_enabled", "0", "Enable", NULL, "Master AutoSticky switch");
+	this->v_bScottish = new CatVar(CV_SWITCH, "sticky_scottish", "0", "Scottish", NULL, "Scottish Resistance mode - NOT YET IMPLEMENTED");
 }
 
 bool AutoSticky::ShouldDetonate(CachedEntity* bomb) {

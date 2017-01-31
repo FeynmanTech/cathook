@@ -23,20 +23,20 @@ trace::FilterDefault* filter;
 Triggerbot::Triggerbot() {
 	filter = new trace::FilterDefault();
 	enemy_trace = new trace_t();
-	this->v_bBodyshot = CREATE_CV(CV_SWITCH, "trigger_bodyshot", "1", "Bodyshot");
-	this->v_bEnabled = CREATE_CV(CV_SWITCH, "trigger_enabled", "0", "Enable");
-	this->v_bFinishingHit = CREATE_CV(CV_SWITCH, "trigger_finish", "1", "Noscope weak enemies");
-	this->v_bIgnoreCloak = CREATE_CV(CV_SWITCH, "trigger_cloak", "0", "Ignore cloak");
-	this->v_bZoomedOnly = CREATE_CV(CV_SWITCH, "trigger_zoomed", "1", "Zoomed only");
-	this->v_iHitbox = CREATE_CV(new CatEnum({
+	this->v_bBodyshot = new CatVar(CV_SWITCH, "trigger_bodyshot", "1", "Bodyshot", NULL, "Triggerbot will bodyshot enemies if you have enough charge to 1tap them");
+	this->v_bEnabled = new CatVar(CV_SWITCH, "trigger_enabled", "0", "Enable", NULL, "Master Triggerbot switch");
+	this->v_bFinishingHit = new CatVar(CV_SWITCH, "trigger_finish", "1", "Noscope weak enemies", NULL, "If enemy has <50 HP, noscope them");
+	this->v_bRespectCloak = new CatVar(CV_SWITCH, "trigger_respect_cloak", "1", "Respect cloak", NULL, "Don't shoot at cloaked spies");
+	this->v_bZoomedOnly = new CatVar(CV_SWITCH, "trigger_zoomed", "1", "Zoomed only", NULL, "Don't shoot if you aren't zoomed in");
+	this->v_iHitbox = new CatVar(CV_ENUM, "trigger_hitbox", "-1", "Hitbox", new CatEnum({
 		"ANY", "HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
 		"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
 		"KNEE R", "FOOT R"
-	}, -1), "trigger_hitbox", "-1", "Hitbox");
-	this->v_iMinRange = CREATE_CV(CV_INT, "trigger_range", "0", "Max range");
-	this->v_bBuildings = CREATE_CV(CV_SWITCH, "trigger_buildings", "1", "Trigger @ Buildings");
-	this->v_bIgnoreVaccinator = CREATE_CV(CV_SWITCH, "trigger_respect_vaccinator", "1", "Don't shoot at vaccinated enemies");
-	this->v_bAmbassadorCharge = CREATE_CV(CV_SWITCH, "trigger_ambassador", "1", "Smart Ambassador");
+	}, -1), "Triggerbot hitbox. Only useful settings are ANY and HEAD. Use ANY for scatter or any other shotgun-based weapon, HEAD for ambassador/sniper rifle");
+	this->v_iMaxRange = new CatVar(CV_INT, "trigger_range", "0", "Max range", NULL, "Triggerbot won't shoot if enemy is too far away", true, 4096.0f);
+	this->v_bBuildings = new CatVar(CV_SWITCH, "trigger_buildings", "1", "Trigger at buildings", NULL, "Shoot buildings");
+	this->v_bIgnoreVaccinator = new CatVar(CV_SWITCH, "trigger_respect_vaccinator", "1", "Respect vaccinator", NULL, "Don't shoot at bullet-vaccinated enemies");
+	this->v_bAmbassadorCharge = new CatVar(CV_SWITCH, "trigger_ambassador", "1", "Smart Ambassador", NULL, "Don't shoot if yuor ambassador can't headshot yet");
 }
 
 bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
@@ -93,8 +93,8 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 
 	Vector enemy_pos = entity->m_vecOrigin;
 	Vector my_pos = g_pLocalPlayer->entity->m_vecOrigin;
-	if (v_iMinRange->GetInt() > 0) {
-		if (entity->m_flDistance > v_iMinRange->GetInt()) return true;
+	if (v_iMaxRange->GetInt() > 0) {
+		if (entity->m_flDistance > v_iMaxRange->GetInt()) return true;
 	}
 	if (!isPlayer) {
 		cmd->buttons |= IN_ATTACK;
@@ -104,7 +104,7 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	relation rel = GetRelation(entity);
 	if (rel == relation::FRIEND || rel == relation::DEVELOPER) return true;
 	if (IsPlayerInvulnerable(entity)) return true;
-	if (!this->v_bIgnoreCloak->GetBool() &&
+	if (this->v_bRespectCloak->GetBool() &&
 		(IsPlayerInvisible(entity))) return true;
 	int health = CE_INT(entity, netvar.iHealth);
 	bool bodyshot = false;
