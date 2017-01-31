@@ -10,26 +10,31 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CCheckbox::CCheckbox(IWidget* parent, const char* name, bool checked) : CBaseWidget(parent, name) {
+CCheckbox::CCheckbox(std::string name, IWidget* parent, bool checked) : CBaseWidget(name, parent) {
 	SetWidth(16);
-	this->m_bChecked = checked;
+	SetValue(checked);
 }
 
 void CCheckbox::SetWidth(int width) {
-	m_nWidth = width;
-	m_nSizeX = width;
-	m_nSizeY = width;
+	Props()->SetInt("width", width);
+	SetSize(width, width);
 }
 
-void CCheckbox::Draw() {
-	int x, y;
-	GetAbsolutePosition(x, y);
-	draw::OutlineRect(x, y, m_nWidth, m_nWidth, colors::pink);
-	if (m_bChecked) {
-		draw::DrawRect(x + 2, y + 2, m_nWidth - 4, m_nWidth - 4, colors::pink);
+void CCheckbox::Draw(int x, int y) {
+	auto size = GetSize();
+	draw::OutlineRect(x, y, size.first, size.second, colors::pink);
+	if (Value()) {
+		draw::DrawRect(x + 3, y + 3, size.first - 6, size.second - 6, colors::pink);
 	}
 }
 
 void CCheckbox::OnMousePress() {
-	m_bChecked = !m_bChecked;
+	SetValue(!Value());
+	if (m_pCallback) {
+		m_pCallback(this, Value());
+	}
+}
+
+void CCheckbox::SetCallback(CheckboxCallbackFn_t callback) {
+	m_pCallback = callback;
 }

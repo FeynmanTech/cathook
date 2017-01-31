@@ -10,35 +10,23 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CBaseButton::CBaseButton(IWidget* parent, const char* name) : CTextLabel(parent, name) {
-	m_pCallback = 0;
+CBaseButton::CBaseButton(std::string name, IWidget* parent, std::string text) : CTextLabel(name, parent, text) {
+	SetPadding(BUTTON_PADDING_W, BUTTON_PADDING_H);
 }
 
-void CBaseButton::SetCallback(ButtonCallback_t& callback) {
+void CBaseButton::SetCallback(ButtonCallbackFn_t callback) {
 	m_pCallback = callback;
 }
 
-void CBaseButton::Update() {
-	int sx, sy;
-	if (m_pszText) {
-		draw::GetStringLength(fonts::MENU, m_pszText, sx, sy);
-		m_nSizeX = sx + 8;
-		m_nSizeY = sy + 6;
-	}
-	if (m_bMouseInside) g_pGUI->ShowTooltip("press\npls\nkthx");
-}
-
-void CBaseButton::Draw() {
-	int x, y;
-	GetAbsolutePosition(x, y);
+void CBaseButton::Draw(int x, int y) {
 	int textcolor = colors::pink;
-	if (m_bMousePressed) {
-		draw::DrawRect(x, y, m_nSizeX, m_nSizeY, colors::pink);
+	auto size = GetSize();
+	if (IsPressed()) {
+		draw::DrawRect(x, y, size.first, size.second, colors::pink);
 		textcolor = colors::white;
 	}
-	draw::OutlineRect(x, y, m_nSizeX, m_nSizeY, colors::pink);
-	if (m_pszText)
-		draw::String(fonts::MENU, x + 4, y + 3, textcolor, 1, m_pszText);
+	draw::OutlineRect(x, y, size.first, size.second, colors::pink);
+	draw::String(fonts::MENU, x + Props()->GetInt("padding_x"), y + Props()->GetInt("padding_y"), textcolor, 1, GetText());
 }
 
 void CBaseButton::OnMousePress() {

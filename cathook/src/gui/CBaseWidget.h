@@ -10,170 +10,84 @@
 
 #include "IWidget.h"
 
+#include "../beforecheaders.h"
+#include <memory>
+#include <vector>
+#include <cstring>
+#include <algorithm>
+#include "../aftercheaders.h"
+
 #include <KeyValues.h>
 
 class CBaseWidget : public virtual IWidget {
 public:
-	inline ~CBaseWidget() {
-		delete [] m_pszName;
+	inline ~CBaseWidget() {}
+	CBaseWidget(std::string name = "unnamed", IWidget* parent = nullptr);
+
+	virtual void Update();
+	inline virtual void Draw(int x, int y) {};
+	virtual void DrawBounds(int x, int y);
+
+	inline virtual KeyValues* Props() {
+		return m_KeyValues;
 	}
 
-	KeyValues::AutoDelete m_pKeyValues;
-
-	inline KeyValues* GetKeyValues() {
-		return m_pKeyValues;
-	}
-
-	inline CBaseWidget(IWidget* parent, const char* name) : m_pKeyValues("widgetkv") {
-		m_pParentWidget = parent;
-		m_bMouseInside = false;
-		m_bMousePressed = false;
-		m_nOffsetX = 0;
-		m_nOffsetY = 0;
-		m_nSizeX = 0;
-		m_nSizeY = 0;
-		m_nChildCount = 0;
-		m_pszName = new char[128];
-		m_pChildrenList = 0;
-		strncpy((char*)m_pszName, name, 127);
-		m_iMode = PositionMode::INLINE_BLOCK;
-		m_bVisible = true;
-		m_nMaxX = 0;
-		m_nMaxY = 0;
-		m_bFocused = false;
-	}
-
+	inline virtual void OnMouseEnter() { m_KeyValues->SetBool("hover", true); }
+	inline virtual void OnMouseLeave() { m_KeyValues->SetBool("hover", false); }
+	inline virtual void OnMousePress() { m_KeyValues->SetBool("press", true); }
+	inline virtual void OnMouseRelease() { m_KeyValues->SetBool("press", false); }
+	inline virtual void OnKeyPress(ButtonCode_t key) {};
+	inline virtual void OnKeyRelease(ButtonCode_t key) {};
+	inline virtual void OnFocusGain() { m_KeyValues->SetBool("focus", true); }
+	inline virtual void OnFocusLose() {	m_KeyValues->SetBool("focus", false); }
 
 	inline virtual bool ConsumesKey(ButtonCode_t key) { return false; }
 
-	inline virtual void SetMaxSize(int w, int h) {
-		if (w >= 0)
-			m_nMaxX = w;
-		if (h >= 0)
-			m_nMaxY = h;
-	}
+	inline virtual void Show() { m_KeyValues->SetBool("visible", true); }
+	inline virtual void Hide() { m_KeyValues->SetBool("visible", false); }
+	inline virtual bool IsVisible() { return m_KeyValues->GetBool("visible"); }
 
-	inline virtual void OnFocusGain() { m_bFocused = true; }
-	inline virtual void OnFocusLose() { m_bFocused = false; }
-	inline virtual bool ShouldResizeToFit() { return true; }
-	virtual void DrawBounds();
-	inline virtual void Update() {};
-	inline virtual void OnMouseEnter() { m_bMouseInside = true; };
-	inline virtual void OnMouseLeave() { m_bMouseInside = false; };
-	inline virtual void OnMousePress() { m_bMousePressed = true; };
-	inline virtual void OnMouseRelease() { m_bMousePressed = false; };
-	inline virtual void OnKeyPress(ButtonCode_t key) {};
-	inline virtual void OnKeyRelease(ButtonCode_t key) {};
+	inline virtual bool IsHovered() { return m_KeyValues->GetBool("hover"); }
+	inline virtual bool IsFocused() { return m_KeyValues->GetBool("focus"); }
+	inline virtual bool IsPressed() { return m_KeyValues->GetBool("press"); }
 
 	inline virtual void SetOffset(int x, int y) {
-		m_nOffsetX = x;
-		m_nOffsetY = y;
+		if (x >= 0) m_KeyValues->SetInt("offset_x", x);
+		if (y >= 0) m_KeyValues->SetInt("offset_y", y);
 	}
-	inline virtual void GetOffset(int& x, int& y) {
-		x = m_nOffsetX;
-		y = m_nOffsetY;
+	inline virtual void SetMaxSize(int x, int y) {
+		if (x >= 0) m_KeyValues->SetInt("max_x", x);
+		if (y >= 0) m_KeyValues->SetInt("max_y", y);
 	}
-	inline virtual void Draw() {};
-	inline virtual void GetSize(int& width, int& height) {
-		width = m_nSizeX;
-		height = m_nSizeY;
+	inline virtual std::pair<int, int> GetOffset() {
+		return std::make_pair(m_KeyValues->GetInt("offset_x"), m_KeyValues->GetInt("offset_y"));
+	}
+	inline virtual std::pair<int, int> GetSize() {
+		return std::make_pair(m_KeyValues->GetInt("size_x"), m_KeyValues->GetInt("size_y"));
+	}
+	inline virtual std::pair<int, int> GetMaxSize() {
+		return std::make_pair(m_KeyValues->GetInt("max_x"), m_KeyValues->GetInt("max_y"));
+	}
+	inline virtual int GetZIndex() { return m_KeyValues->GetInt("zindex"); }
+	inline virtual void SetZIndex(int idx) { m_KeyValues->SetInt("zindex", idx); }
+
+	inline virtual std::string GetTooltip() { return std::string(m_KeyValues->GetString("tooltip")); }
+
+	inline virtual PositionMode GetPositionMode() { return (PositionMode)m_KeyValues->GetInt("positionmode"); }
+	inline virtual void SetPositionMode(PositionMode mode) { m_KeyValues->SetInt("positionmode", mode); };
+
+	inline virtual IWidget* GetParent() { return m_pParent; }
+	inline virtual void SetParent(IWidget* parent) { m_pParent = parent; }
+	inline virtual std::string GetName() { return std::string(m_KeyValues->GetString("name")); }
+
+	std::pair<int, int> AbsolutePosition();
+	inline void SetSize(int x, int y) {
+		if (x >= 0) m_KeyValues->SetInt("size_x", x);
+		if (y >= 0) m_KeyValues->SetInt("size_y", y);
 	}
 
-	inline virtual void GetAbsolutePosition(int& x, int &y) {
-		int ox = 0;
-		int oy = 0;
-		GetOffset(ox, oy);
-		IWidget* parent = GetParent();
-		while (parent) {
-			int dx, dy;
-			parent->GetOffset(dx, dy);
-			ox += dx;
-			oy += dy;
-			parent = parent->GetParent();
-		}
-		x = ox;
-		y = oy;
-	}
-
-	inline virtual IWidget* GetParent() {
-		return m_pParentWidget;
-	}
-
-	inline virtual void SetPositionMode(PositionMode mode) {
-		m_iMode = mode;
-	}
-
-	inline PositionMode GetPositionMode() {
-		return m_iMode;
-	}
-
-	inline virtual int GetChildrenCount() {
-		return m_nChildCount;
-	}
-
-	inline virtual void Show() {
-		m_bVisible = true;
-	}
-
-	inline virtual void Hide() {
-		m_bVisible = false;
-		OnFocusLose();
-	}
-
-	inline virtual bool IsVisible() {
-		return m_bVisible;
-	}
-
-	virtual IWidget* GetChildByIndex(int idx) {
-		if (idx < 0 || idx >= m_nChildCount) return 0;
-		return m_pChildrenList[idx];
-	}
-
-	virtual IWidget* GetChildByName(const char* name) {
-		for (int i = 0; i < m_nChildCount; i++) {
-			if (!strcmp(name, m_pChildrenList[i]->GetName())) return m_pChildrenList[i];
-		}
-		return 0;
-	}
-
-	virtual IWidget* GetChildByPoint(int x, int y) {
-		for (int i = m_nChildCount - 1; i >= 0; i--) {
-			IWidget* child = m_pChildrenList[i];
-			int ox, oy;
-			child->GetOffset(ox, oy);
-			int sx, sy;
-			child->GetSize(sx, sy);
-			if (x >= ox && x <= (ox + sx) && y >= oy && y <= (oy + sy)) {
-				return child;
-			}
-		}
-		return 0;
-	}
-
-	virtual void AddChild(IWidget* child) {
-		m_pChildrenList[m_nChildCount] = child;
-		m_nChildCount++;
-	}
-
-	virtual const char* GetName() {
-		return m_pszName;
-	}
-
-	const char* m_pszName;
-	int m_nChildCount;
-	bool m_bMouseInside;
-	bool m_bMousePressed;
-	PositionMode m_iMode;
-	int m_nSizeX;
-	int m_nSizeY;
-	bool m_bVisible;
-	int m_nOffsetX;
-	int m_nOffsetY;
-	int m_nMaxX;
-	int m_nMaxY;
-	bool m_bFocused;
-	IWidget** m_pChildrenList;
-	IWidget* m_pParentWidget;
+	KeyValues::AutoDelete m_KeyValues;
+	IWidget* m_pParent;
 
 };
 

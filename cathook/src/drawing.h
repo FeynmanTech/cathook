@@ -8,6 +8,11 @@
 #ifndef DRAWING_H_
 #define DRAWING_H_
 
+#include "beforecheaders.h"
+#include <string>
+#include <utility>
+#include "aftercheaders.h"
+
 class CachedEntity;
 class Vector;
 class IClientEntity;
@@ -81,6 +86,7 @@ extern int height;
 void Initialize();
 
 void String (unsigned long font, int x, int y, int color, int shadow, const char* text);
+void String (unsigned long font, int x, int y, int color, int shadow, std::string text);
 void WString(unsigned long font, int x, int y, int color, int shadow, const wchar_t* text);
 void FString(unsigned long font, int x, int y, int color, int shadow, const char* text, ...);
 
@@ -93,6 +99,7 @@ bool WorldToScreen(Vector &origin, Vector &screen);
 bool EntityCenterToScreen(CachedEntity* entity, Vector& out);
 void OutlineRect(int x, int y, int w, int h, int color);
 void GetStringLength(unsigned long font, char* string, int& length, int& height);
+std::pair<int, int> GetStringLength(unsigned long font, std::string string);
 //void DrawString(unsigned font_handle, int x, int y, Color color, const char* text, ...);
 
 }

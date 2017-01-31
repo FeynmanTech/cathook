@@ -10,28 +10,26 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CTextLabel::CTextLabel(IWidget* parent, const char* name, const char* text) : CBaseWidget(parent, name) {
-	m_pszText = 0;
-	if (text) SetText(text);
+CTextLabel::CTextLabel(std::string name, IWidget* parent, std::string text) : CBaseWidget(name, parent) {
+	SetText(text);
 }
 
-CTextLabel::~CTextLabel() {
-	if (m_pszText) delete [] m_pszText;
+void CTextLabel::SetPadding(int x, int y) {
+	Props()->SetInt("padding_x", x);
+	Props()->SetInt("padding_y", y);
 }
 
-void CTextLabel::SetText(const char* text) {
-	m_pszText = new char[strlen(text) + 1];
-	strcpy(m_pszText, text);
-	draw::GetStringLength(fonts::MENU, m_pszText, m_nSizeX, m_nSizeY);
+void CTextLabel::SetText(std::string text) {
+	Props()->SetString("text", text.c_str());
+	auto padding = std::make_pair(Props()->GetInt("padding_x"), Props()->GetInt("padding_y"));
+	auto size = draw::GetStringLength(fonts::MENU, text);
+	SetSize(size.first + padding.first * 2, size.second + padding.second * 2);
 }
 
-const char* CTextLabel::GetText() {
-	return (const char*)m_pszText;
+std::string CTextLabel::GetText() {
+	return std::string(Props()->GetString("text", ""));
 }
 
-void CTextLabel::Draw() {
-	int ax, ay;
-	GetAbsolutePosition(ax, ay);
-	if (m_pszText)
-		draw::String(fonts::MENU, ax, ay, colors::white, 1, m_pszText);
+void CTextLabel::Draw(int x, int y) {
+	draw::String(fonts::MENU, x, y, colors::white, 1, GetText());
 }

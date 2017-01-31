@@ -5,24 +5,25 @@
  *      Author: nullifiedcat
  */
 
-#ifndef TITLEBAR_H_
-#define TITLEBAR_H_
+#ifndef CTITLEBAR_H_
+#define CTITLEBAR_H_
 
 #include "CBaseWidget.h"
 
+#define TITLEBAR_PADDING_W 2
+#define TITLEBAR_PADDING_H 1
+
 class TitleBar : public CBaseWidget {
 public:
-	TitleBar(IWidget* parent, const char* text);
+	TitleBar(IWidget* parent, std::string title);
 
-	virtual void GetSize(int& x, int& y);
-	virtual void Draw();
+	virtual void Draw(int x, int y);
 	virtual void Update();
-	virtual bool ShouldResizeToFit();
 
-	char m_Text[256];
+	std::string m_strTitle;
 	int m_iDraggingStage;
 	int m_nLastX;
 	int m_nLastY;
 };
 
-#endif /* TITLEBAR_H_ */
+#endif /* CTITLEBAR_H_ */
