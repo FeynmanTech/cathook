@@ -18,7 +18,7 @@ class CTextInput : public CBaseWidget {
 public:
 	CTextInput(std::string name = "unnamed", IWidget* parent = nullptr);
 
-	virtual void OnKeyPress(ButtonCode_t key);
+	virtual void OnKeyPress(ButtonCode_t key, bool repeat);
 	virtual void Draw(int x, int y);
 	virtual bool ConsumesKey(ButtonCode_t key);
 

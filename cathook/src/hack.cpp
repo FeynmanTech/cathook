@@ -60,23 +60,24 @@ bool hack::shutdown = false;
 void hack::InitHacks() {
 	ADD_HACK(AutoStrafe);
 	ADD_HACK(AntiAim);
-	ADD_HACK(AntiDisguise);
-	ADD_HACK(AutoReflect);
+	if (TF) ADD_HACK(AntiDisguise);
+	if (TF) ADD_HACK(AutoReflect);
 	//ADD_HACK(FollowBot);
 	ADD_HACK(Misc);
 	ADD_HACK(Aimbot);
 	ADD_HACK(Bunnyhop);
 	ADD_HACK(ESP);
 	ADD_HACK(Triggerbot);
-	ADD_HACK(AutoSticky);
+	if (TF) ADD_HACK(AutoSticky);
 	ADD_HACK(Airstuck);
-	ADD_HACK(AutoHeal);
-	ADD_HACK(HuntsmanCompensation);
-	ADD_HACK(SpyAlert);
-	ADD_HACK(Glow);
+	if (TF) ADD_HACK(AutoHeal);
+	if (TF) ADD_HACK(HuntsmanCompensation);
+	if (TF) ADD_HACK(SpyAlert);
+	if (TF2) ADD_HACK(Glow);
 	ADD_HACK(KillSay);
 	ADD_HACK(Spam);
-	ADD_HACK(AchievementHack);
+	if (TF) ADD_HACK(AchievementHack);
+	if (TF2) ADD_HACK(Noisemaker);
 }
 
 ConCommand* hack::c_Cat = 0;
@@ -115,15 +116,30 @@ void hack::Initialize() {
 	DRM_ENFORCE;
 	CDumper dumper;
 	dumper.SaveDump();
+	ClientClass* cc = interfaces::baseClient->GetAllClasses();
+	FILE* cd = fopen("/tmp/cathook-classdump.txt", "w");
+	while (cc) {
+		fprintf(cd, "[%d] %s\n", cc->m_ClassID, cc->GetName());
+		cc = cc->m_pNext;
+	}
+	fclose(cd);
+	if (TF2) g_pClassID = new ClassIDTF2();
+	else if (TF2C) g_pClassID = new ClassIDTF2C();
+	else if (HL2DM) g_pClassID = new ClassIDHL2DM();
+	g_pClassID->Init();
+
 	draw::Initialize();
 	colors::Init();
-	uintptr_t mmmf = (gSignatures.GetClientSignature("C7 44 24 04 09 00 00 00 BB ? ? ? ? C7 04 24 00 00 00 00 E8 ? ? ? ? BA ? ? ? ? 85 C0 B8 ? ? ? ? 0F 44 DA") + 37);
-	if (mmmf) {
-		unsigned char patch1[] = { 0x89, 0xD3, 0x90 };
-		unsigned char patch2[] = { 0x89, 0xC2, 0x90 };
-		Patch((void*)mmmf, (void*)patch1, 3);
-		Patch((void*)(mmmf + 8), (void*)patch2, 3);
-	}BeginConVars();
+	if (TF2) {
+		uintptr_t mmmf = (gSignatures.GetClientSignature("C7 44 24 04 09 00 00 00 BB ? ? ? ? C7 04 24 00 00 00 00 E8 ? ? ? ? BA ? ? ? ? 85 C0 B8 ? ? ? ? 0F 44 DA") + 37);
+		if (mmmf) {
+			unsigned char patch1[] = { 0x89, 0xD3, 0x90 };
+			unsigned char patch2[] = { 0x89, 0xC2, 0x90 };
+			Patch((void*)mmmf, (void*)patch1, 3);
+			Patch((void*)(mmmf + 8), (void*)patch2, 3);
+		}
+	}
+	BeginConVars();
 	hack::c_Cat = CreateConCommand(CON_NAME, &hack::CC_Cat, "Info");
 	hack::InitHacks();
 	g_Settings.Init();
@@ -167,7 +183,7 @@ void hack::Initialize() {
 	hooks::hkClient->HookMethod((void*)DispatchUserMessage_hook, hooks::offFrameStageNotify + 1);
 	hooks::hkClient->HookMethod((void*)IN_KeyEvent_hook, hooks::offKeyEvent);
 	hooks::hkClient->Apply();
-	g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
+	if (TF2) g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
 	InitStrings();
 	g_pChatStack = new ChatStack();
 }
@@ -188,21 +204,22 @@ void hack::Shutdown() {
 	ConVar_Unregister();
 	DELETE_HACK(AutoStrafe);
 	DELETE_HACK(AntiAim);
-	DELETE_HACK(AntiDisguise);
-	DELETE_HACK(AutoReflect);
+	if (TF) DELETE_HACK(AntiDisguise);
+	if (TF) DELETE_HACK(AutoReflect);
 	DELETE_HACK(FollowBot);
 	DELETE_HACK(Misc);
 	DELETE_HACK(Aimbot);
 	DELETE_HACK(Bunnyhop);
 	DELETE_HACK(ESP);
 	DELETE_HACK(Triggerbot);
-	DELETE_HACK(AutoSticky);
+	if (TF) DELETE_HACK(AutoSticky);
 	DELETE_HACK(Airstuck);
-	DELETE_HACK(AutoHeal);
-	DELETE_HACK(HuntsmanCompensation);
+	if (TF) DELETE_HACK(AutoHeal);
+	if (TF) DELETE_HACK(HuntsmanCompensation);
 	DELETE_HACK(SpyAlert);
-	DELETE_HACK(Glow);
+	if (TF) DELETE_HACK(Glow);
 	DELETE_HACK(KillSay);
-	DELETE_HACK(AchievementHack);
+	if (TF) DELETE_HACK(AchievementHack);
+	if (TF2) DELETE_HACK(Noisemaker);
 	DELETE_HACK(Spam);
 }

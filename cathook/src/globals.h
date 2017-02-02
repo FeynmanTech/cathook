@@ -15,6 +15,8 @@ class CatVar;
 typedef void(EstimateAbsVelocity_t)(IClientEntity*, Vector&);
 extern EstimateAbsVelocity_t* EstimateAbsVelocity;
 
+extern int g_AppID;
+
 class GlobalSettings {
 public:
 	void Init();
@@ -31,7 +33,7 @@ public:
 	CatVar* bSendPackets;
 	CatVar* bShowLogo;
 	CatVar* flDrawingOpacity;
-	ConVar* sDisconnectMsg;
+	CatVar* sDisconnectMsg;
 	CatVar* bShowAntiAim;
 	CatVar* bThirdperson;
 	CatVar* bNoVisuals;

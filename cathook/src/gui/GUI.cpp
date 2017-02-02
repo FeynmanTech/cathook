@@ -34,7 +34,7 @@ void CatGUI::Setup() {
 	v_bGUIVisible->m_pConVar->InstallChangeCallback(GUIVisibleCallback);
 }
 
-void CatGUI::ShowTooltip(const char* text) {
+void CatGUI::ShowTooltip(std::string text) {
 	m_pTooltip->SetText(text);
 	m_pTooltip->SetOffset(m_iMouseX + 5, m_iMouseY + 5);
 	m_pTooltip->Show();
@@ -43,23 +43,23 @@ void CatGUI::ShowTooltip(const char* text) {
 
 void CatGUI::Update() {
 	m_bShowTooltip = false;
-	for (int i = 0; i < ButtonCode_t::MOUSE_LAST; i++) {
-		bool down = interfaces::input->IsButtonDown((ButtonCode_t)(KEY_FIRST + i));
+	for (int i = 0; i < ButtonCode_t::BUTTON_CODE_COUNT; i++) {
+		bool down = interfaces::input->IsButtonDown((ButtonCode_t)(i));
 		bool changed = m_bPressedState[i] != down;
 		if (changed && down) m_iPressedFrame[i] = interfaces::gvars->framecount;
 		m_bPressedState[i] = down;
 		if (m_bKeysInit) {
 			if (changed) {
 				//logging::Info("Key %i changed! Now %i.", i, down);
-				if (i >= ButtonCode_t::MOUSE_FIRST && i <= ButtonCode_t::MOUSE_LEFT) {
+				if (i == ButtonCode_t::MOUSE_LEFT) {
 					if (down) m_pRootWindow->OnMousePress();
 					else m_pRootWindow->OnMouseRelease();
 				} else {
-					if (down) m_pRootWindow->OnKeyPress((ButtonCode_t)i);
+					if (down) m_pRootWindow->OnKeyPress((ButtonCode_t)i, false);
 					else m_pRootWindow->OnKeyRelease((ButtonCode_t)i);
 				}
 			} else {
-				if (down && i >= ButtonCode_t::KEY_FIRST && i <= ButtonCode_t::KEY_LAST) {
+				if (down) {
 					int frame = interfaces::gvars->framecount - m_iPressedFrame[i];
 					bool shouldrepeat = false;
 					if (frame) {
@@ -71,7 +71,7 @@ void CatGUI::Update() {
 							}
 						}
 					}
-					if (shouldrepeat) m_pRootWindow->OnKeyPress((ButtonCode_t)i);
+					if (shouldrepeat) m_pRootWindow->OnKeyPress((ButtonCode_t)i, true);
 				}
 			}
 		}

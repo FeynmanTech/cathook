@@ -153,7 +153,7 @@ enum pack_type {
 	PACK_COUNT
 };
 
-enum ClassID {
+/*enum ClassID {
 	CTFWearableLevelableItem = 326,
 	CTFWearableDemoShield = 324,
 	CTFBaseRocket = 184,
@@ -509,7 +509,7 @@ enum ClassID {
 	CBaseParticleEntity = 12,
 	CBaseGrenade = 9,
 	CBaseCombatWeapon = 5
-};
+};*/
 
 enum tf_team {
 	TEAM_UNK = 0,

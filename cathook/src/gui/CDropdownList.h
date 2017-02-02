@@ -20,6 +20,7 @@ public:
 
 	virtual void Draw(int x, int y);
 	virtual void MoveChildren();
+	inline virtual void SortByZIndex() override {};
 	inline virtual bool DoesStealFocus() { return false; }
 
 	void AddEntry(std::string name);

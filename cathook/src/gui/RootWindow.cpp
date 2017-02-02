@@ -15,6 +15,7 @@
 #include "CTooltip.h"
 #include "CBaseContainer.h"
 #include "CDropdown.h"
+#include "CCVarContainer.h"
 
 #include "../common.h"
 #include "CTitleBar.h"
@@ -51,7 +52,7 @@ void RootWindow::Setup() {
 	TitleBar* wst = new TitleBar(ws, "Window Layout Test");
 	ws->AddChild(wst);
 	ws->SetMaxSize(500, 0);
-	//ws->SetMaxSize(500, 300);
+	/*//ws->SetMaxSize(500, 300);
 	CSplitContainer* sc1 = new CSplitContainer("sc1", ws);
 	ws->AddChild(sc1);
 	sc1->SetMaxSize(480, -1);
@@ -60,14 +61,14 @@ void RootWindow::Setup() {
 	sc1->AddChild(new CTextLabel("tl1", sc1, ":thinking:"));
 	CBaseButton* ccb1 = new CBaseButton("b1", sc1);
 	ccb1->SetText("nut");
-	CSlider* sl = new CSlider("sl", ws);
+	/*CSlider* sl = new CSlider("sl", ws);
 	sl->Props()->SetString("cvar", "cat_fov");
 	sl->Setup(10.0f, 150.0f);
 	sl->SetValue(13.37f);
 	sl->SetCallback([](CSlider* slider, float oldv, float newv) {
 		interfaces::cvar->FindVar(slider->Props()->GetString("cvar"))->SetValue(newv);
-	});
-	sc1->AddChild(ccb1);
+	});*/
+	/*sc1->AddChild(ccb1);
 //sc1->AddChild(new CTextLabel(sc1, "tl3", "wow"));
 	//ws->AddChild(sc1);
 	CSplitContainer* sc2 = new CSplitContainer("sc2", ws);
@@ -88,9 +89,27 @@ void RootWindow::Setup() {
 	dr->AddValue("dropdown?!");
 	dr->AddValue("wow!");
 	sc3->AddChild(dr);
-	ws->AddChild(sc3);
+	ws->AddChild(sc3);*/
 	AddChild(ws);
-	ws->AddChild(sl);
+	CSplitContainer* sc4 = new CSplitContainer("sc4", ws);
+	ws->AddChild(sc4);
+	sc4->SetMaxSize(480, -1);
+	sc4->SetSize(480, -1);
+	CSplitContainer* sc5 = new CSplitContainer("sc5", ws);
+	ws->AddChild(sc5);
+	sc5->SetMaxSize(480, -1);
+	sc5->SetSize(480, -1);
+	CSplitContainer* sc6 = new CSplitContainer("sc6", ws);
+	ws->AddChild(sc6);
+	sc6->SetMaxSize(480, -1);
+	sc6->SetSize(480, -1);
+	sc4->AddChild(new CCVarContainer(sc4, g_Settings.flForceFOV));
+	sc4->AddChild(new CCVarContainer(sc4, g_Settings.bCleanScreenshots));
+	sc5->AddChild(new CCVarContainer(sc5, g_Settings.sDisconnectMsg));
+	sc5->AddChild(new CCVarContainer(sc5, g_phAimbot->v_eHitbox));
+	sc6->AddChild(new CCVarContainer(sc6, g_phAimbot->v_kAimKey));
+	sc6->AddChild(new CTextLabel());
+	//ws->AddChild(sl);
 
 	CBaseWindow* wgt = new CBaseWindow("testwindow", this);
 	IWidget* title = new TitleBar(wgt, "Test Window");

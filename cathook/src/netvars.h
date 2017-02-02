@@ -73,10 +73,10 @@ public:
 	offset_t iNextMeleeCrit;
 	offset_t flNextPrimaryAttack;
 	offset_t iNextThinkTick;
-	offset_t flReloadPriorNextFire;
-	offset_t flObservedCritChance;
+	//offset_t flReloadPriorNextFire;
+	//offset_t flObservedCritChance;
 	offset_t nTickBase;
-	offset_t iDecapitations;
+	//offset_t iDecapitations;
 	offset_t iMaxBuffedHealth;
 
 	offset_t iItemDefinitionIndex;
@@ -108,6 +108,8 @@ public:
 	offset_t iFOV;
 	offset_t _condition_bits;
 	offset_t iPlayerClass;
+
+	offset_t hOwner;
 };
 
 extern NetVars netvar;

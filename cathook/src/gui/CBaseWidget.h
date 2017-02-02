@@ -36,7 +36,7 @@ public:
 	inline virtual void OnMouseLeave() { m_KeyValues->SetBool("hover", false); }
 	inline virtual void OnMousePress() { m_KeyValues->SetBool("press", true); }
 	inline virtual void OnMouseRelease() { m_KeyValues->SetBool("press", false); }
-	inline virtual void OnKeyPress(ButtonCode_t key) {};
+	inline virtual void OnKeyPress(ButtonCode_t key, bool repeat) {};
 	inline virtual void OnKeyRelease(ButtonCode_t key) {};
 	inline virtual void OnFocusGain() { m_KeyValues->SetBool("focus", true); }
 	inline virtual void OnFocusLose() {	m_KeyValues->SetBool("focus", false); }

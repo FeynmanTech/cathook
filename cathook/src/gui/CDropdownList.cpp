@@ -34,7 +34,7 @@ void CDropdownList::AddEntry(std::string name) {
 }
 
 void CDropdownList::SetValue(int value) {
-	m_pMenu->SetValue(value);
+	m_pMenu->SetValueInternal(value);
 	Hide();
 }
 

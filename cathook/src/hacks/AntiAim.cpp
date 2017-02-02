@@ -36,7 +36,7 @@ bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 	if (cmd->buttons & IN_ATTACK) {
 		if (CanShoot()) return true;
 	}
-	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon()->m_iClassID == ClassID::CTFLunchBox) return true;
+	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFLunchBox) return true;
 	if (g_pLocalPlayer->bAttackLastTick) return true;
 	if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee ||
 			GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_throwable) return true;

@@ -64,6 +64,10 @@ private:
 	*/
 	int get_offset_recursive(map_type &map, int acc, const char *name)
 	{
+		if (!map.count(name)) {
+			logging::Info("can't find %s!", name);
+			return 0;
+		}
 		return acc + map[name]->offset;
 	}
 
@@ -80,6 +84,10 @@ private:
 	template <typename... args_t>
 	int get_offset_recursive(map_type &map, int acc, const char *name, args_t... args)
 	{
+		if (!map.count(name)) {
+			logging::Info("can't find %s!", name);
+			return 0;
+		}
 		const auto &node = map[name];
 		return get_offset_recursive(node->nodes, acc + node->offset, args...);
 	}
@@ -113,7 +121,8 @@ public:
 			logging::Info("Invalid NetVar node: %s", name);
 			return 0;
 		}
-		return get_offset_recursive(node->nodes, node->offset, args...);
+		int offset = get_offset_recursive(node->nodes, node->offset, args...);
+		return offset;
 	}
 
 	template<typename... args_t>

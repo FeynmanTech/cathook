@@ -74,7 +74,7 @@ ESP::ESP() {
 
 void ESP::DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (CE_BAD(ent)) return;
-	bool cloak = ent->m_iClassID == ClassID::CTFPlayer && IsPlayerInvisible(ent);
+	bool cloak = ent->m_iClassID == g_pClassID->C_Player && IsPlayerInvisible(ent);
 	Vector min, max;
 	RAW_ENT(ent)->GetRenderBounds(min, max);
 	Vector origin = RAW_ENT(ent)->GetAbsOrigin();
@@ -166,74 +166,82 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		}
 	}
 
-	switch (ent->m_iClassID) {
-	case ClassID::CTFProjectile_Rocket:
-	case ClassID::CTFProjectile_SentryRocket: {
-		if (!v_bProjectileESP->GetBool() || !v_iShowRockets->GetBool()) break;
-		if (v_iShowRockets->GetInt() == 2 && !ent->m_bCritProjectile) break;
-		if (!ent->m_bEnemy) {
-			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
+	if (v_bProjectileESP->GetBool() && (ent->m_bEnemy || (v_bTeammates->GetBool() && !v_bOnlyEnemyProjectiles->GetBool()))) {
+		if (ent->m_iClassID == g_pClassID->CTFProjectile_Rocket || ent->m_iClassID ==  g_pClassID->CTFProjectile_SentryRocket) {
+			if (v_iShowRockets->GetBool()) {
+				if (v_iShowRockets->GetInt() != 2 || ent->m_bCritProjectile) {
+					ent->AddESPString("[ ==> ]");
+					if (this->v_bShowDistance->GetBool()) {
+						ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
+					}
+				}
+			}
+		} else if (ent->m_iClassID == g_pClassID->CTFGrenadePipebombProjectile) {
+			switch (CE_INT(ent, netvar.iPipeType)) {
+			case 0:
+				if (!v_iShowPipes->GetBool()) break;
+				if (v_iShowPipes->GetInt() == 2 && !ent->m_bCritProjectile) break;
+				ent->AddESPString("[ (PP) ]");
+				break;
+			case 1:
+				if (!v_iShowStickies->GetBool()) break;
+				if (v_iShowStickies->GetInt() == 2 && !ent->m_bCritProjectile) break;
+				ent->AddESPString("[ {*} ]");
+			}
+			if (this->v_bShowDistance->GetBool()) {
+				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			}
+		} else if (ent->m_iClassID == g_pClassID->CTFProjectile_Arrow) {
+			if (v_iShowArrows->GetInt() != 2 || ent->m_bCritProjectile) {
+				ent->AddESPString("[ >>---> ]");
+				if (this->v_bShowDistance->GetBool()) {
+					ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
+				}
+			}
 		}
-		ent->AddESPString("[ ==> ]");
-		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
+	}
+
+	if (HL2DM) {
+		if (v_bItemESP->GetBool() && v_bShowDroppedWeapons->GetBool()) {
+			if (CE_BYTE(ent, netvar.hOwner) == (unsigned char)-1) {
+				int a = ent->m_nESPStrings;
+				if (ent->m_iClassID == g_pClassID->CWeapon_SLAM) ent->AddESPString("SLAM");
+				else if (ent->m_iClassID == g_pClassID->CWeapon357) ent->AddESPString(".357");
+				else if (ent->m_iClassID == g_pClassID->CWeaponAR2) ent->AddESPString("AR2");
+				else if (ent->m_iClassID == g_pClassID->CWeaponAlyxGun) ent->AddESPString("Alyx Gun");
+				else if (ent->m_iClassID == g_pClassID->CWeaponAnnabelle) ent->AddESPString("Annabelle");
+				else if (ent->m_iClassID == g_pClassID->CWeaponBinoculars) ent->AddESPString("Binoculars");
+				else if (ent->m_iClassID == g_pClassID->CWeaponBugBait) ent->AddESPString("Bug Bait");
+				else if (ent->m_iClassID == g_pClassID->CWeaponCrossbow) ent->AddESPString("Crossbow");
+				else if (ent->m_iClassID == g_pClassID->CWeaponShotgun) ent->AddESPString("Shotgun");
+				else if (ent->m_iClassID == g_pClassID->CWeaponSMG1) ent->AddESPString("SMG");
+				else if (ent->m_iClassID == g_pClassID->CWeaponRPG) ent->AddESPString("RPG");
+				if (a != ent->m_nESPStrings) {
+					ent->m_ESPColorFG = colors::yellow;
+					if (this->v_bShowDistance->GetBool()) {
+						ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
+					}
+				}
+			}
 		}
-	} break;
-	case ClassID::CTFGrenadePipebombProjectile: {
-		if (!v_bProjectileESP->GetBool()) break;
-		if (!ent->m_bEnemy) {
-			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
+		if (v_bItemESP->GetBool() && v_bShowHealthPacks->GetBool()) {
+			//if (ent->m_iClassID == g_pClassID->)
 		}
-		switch (CE_INT(ent, netvar.iPipeType)) {
-		case 0:
-			if (!v_iShowPipes->GetBool()) break;
-			if (v_iShowPipes->GetInt() == 2 && !ent->m_bCritProjectile) break;
-			ent->AddESPString("[ (PP) ]");
-			break;
-		case 1:
-			if (!v_iShowStickies->GetBool()) break;
-			if (v_iShowStickies->GetInt() == 2 && !ent->m_bCritProjectile) break;
-			ent->AddESPString("[ {*} ]");
-		}
-		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
-		}
-	} break;
-	case ClassID::CTFProjectile_Arrow: {
-		if (!v_bProjectileESP->GetBool() || !v_iShowArrows->GetBool()) break;
-		if (v_iShowArrows->GetInt() == 2 && !ent->m_bCritProjectile) break;
-		if (!ent->m_bEnemy) {
-			if (!v_bTeammates->GetBool() || v_bOnlyEnemyProjectiles->GetBool()) break;
-		}
-		ent->AddESPString("[ >>---> ]");
-		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
-		}
-	} break;
-	case ClassID::CTFTankBoss: {
-		if (!this->v_bShowTank->GetBool()) break;
+	}
+
+	if (ent->m_iClassID == g_pClassID->CTFTankBoss && this->v_bShowTank->GetBool()) {
 		ent->AddESPString("Tank");
-	} break;
-	case ClassID::CTFDroppedWeapon: {
-		if (!this->v_bItemESP->GetBool()) break;
-		if (!this->v_bShowDroppedWeapons->GetBool()) break;
+	} else if (ent->m_iClassID == g_pClassID->CTFDroppedWeapon && this->v_bItemESP->GetBool() && this->v_bShowDroppedWeapons->GetBool()) {
 		ent->AddESPString("WEAPON");
 		if (this->v_bShowDistance->GetBool()) {
 			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
-		break;
-	}
-	case ClassID::CTFAmmoPack: {
-		if (!this->v_bItemESP->GetBool()) break;
-		if (!this->v_bShowAmmoPacks->GetBool()) break;
+	} else if (ent->m_iClassID == g_pClassID->CTFAmmoPack && this->v_bItemESP->GetBool() && this->v_bShowAmmoPacks->GetBool()) {
 		ent->AddESPString("++ AMMO");
 		if (this->v_bShowDistance->GetBool()) {
 			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
-		break;
-	}
-	case ClassID::CCurrencyPack: {
-		if (!v_bShowMoney->GetBool()) break;
+	} else if (ent->m_iClassID == g_pClassID->CCurrencyPack && v_bShowMoney->GetBool()) {
 		if (CE_BYTE(ent, netvar.bDistributed)) {
 			if (this->v_bShowRedMoney->GetBool()) {
 				ent->AddESPString("$$$");
@@ -243,32 +251,28 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			ent->AddESPString("$$$");
 			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
-	} break;
-	case ClassID::CBaseAnimating: {
-		if (!this->v_bItemESP->GetBool()) break;
+	} else if (ent->m_iClassID == g_pClassID->CBaseAnimating && this->v_bItemESP->GetBool()) {
 		item_type type = GetItemType(ent);
-		if (type == item_type::item_null) break;
-		bool shown = false;
-		if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
-			ent->AddESPString("%s HEALTH", packs[type - item_medkit_small]);
-			//CE_INT(ent, netvar.bGlowEnabled) = 1;
-			shown = true;
-		} else if (type >= item_ammo_small && type <= item_ammo_large && this->v_bShowAmmoPacks->GetBool()) {
-			ent->AddESPString("%s AMMO", packs[type - item_ammo_small]);
-			shown = true;
-		} else if (type >= item_mp_strength && type <= item_mp_crit && this->v_bShowPowerups->GetBool()) {
-			ent->AddESPString("%s PICKUP", powerups[type - item_mp_strength]);
-			shown = true;
+		if (type != item_type::item_null) {
+			bool shown = false;
+			if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
+				ent->AddESPString("%s HEALTH", packs[type - item_medkit_small]);
+				//CE_INT(ent, netvar.bGlowEnabled) = 1;
+				shown = true;
+			} else if (type >= item_ammo_small && type <= item_ammo_large && this->v_bShowAmmoPacks->GetBool()) {
+				ent->AddESPString("%s AMMO", packs[type - item_ammo_small]);
+				shown = true;
+			} else if (type >= item_mp_strength && type <= item_mp_crit && this->v_bShowPowerups->GetBool()) {
+				ent->AddESPString("%s PICKUP", powerups[type - item_mp_strength]);
+				shown = true;
+			}
+			if (this->v_bShowDistance->GetBool() && shown) {
+				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
+			}
 		}
-		if (this->v_bShowDistance->GetBool() && shown) {
-			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
-		}
-		break;
-	}
-	case ClassID::CTFPlayer: {
-		if (!ent->m_bAlivePlayer) break;
+	} else if (ent->m_iClassID == g_pClassID->C_Player && ent->m_bAlivePlayer) {
 		if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
-			ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) break;
+			ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
 		int pclass = CE_INT(ent, netvar.iClass);
 		player_info_t info;
 		if (!interfaces::engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
@@ -297,7 +301,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (this->v_bShowHealthNumbers->GetBool()) {
 				ent->AddESPString("%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
 			}
-			if (v_bShowConditions->GetBool()) {
+			if (v_bShowConditions->GetBool() && TF) {
 				if (IsPlayerInvisible(ent)) {
 					ent->AddESPString("INVISIBLE");
 				}
@@ -318,12 +322,9 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 			}
 		}
-		break;
-	}
-	case ClassID::CObjectSentrygun:
-	case ClassID::CObjectDispenser:
-	case ClassID::CObjectTeleporter: {
-		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) break;
+		return;
+	} else if (ent->m_iClassID == g_pClassID->CObjectSentrygun || ent->m_iClassID == g_pClassID->CObjectDispenser || ent->m_iClassID == g_pClassID->CObjectTeleporter) {
+		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) return;
 		int level = CE_INT(ent, netvar.iUpgradeLevel);
 		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
@@ -338,8 +339,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (this->v_bShowDistance->GetBool()) {
 			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
-		break;
-	}
+		return;
 	}
 }
 

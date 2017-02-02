@@ -51,7 +51,7 @@ void Shutdown_hook(void* thisptr, const char* reason) {
 	SEGV_BEGIN;
 	if (g_Settings.bHackEnabled->GetBool()) {
 		const char* new_reason = reason;
-		if (g_Settings.sDisconnectMsg->m_StringLength > 3) {
+		if (g_Settings.sDisconnectMsg->m_pConVar->m_StringLength > 3) {
 			new_reason = g_Settings.sDisconnectMsg->GetString();
 		}
 		((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, new_reason);
@@ -69,35 +69,7 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 	//logging::Info("fsi begin");// TODO dbg
 	SVDBG("FSN %i", __LINE__);
 	// TODO hack FSN hook
-	if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
-		/*SEGV_BEGIN
-			for (int i = 0; i < g_GlowObjectManager->m_GlowObjectDefinitions.Size(); i++) {
-			GlowObjectDefinition_t& obj = g_GlowObjectManager->m_GlowObjectDefinitions.Element(i);
-			if (obj.m_nNextFreeSlot != ENTRY_IN_USE) continue;
-			CachedEntity* ent;
-			SAFE_CALL(ent = ENTITY(interfaces::entityList->GetClientEntityFromHandle(obj.m_hEntity)->entindex()));
-			//logging::Info("Glowing Entity %i <%s> LIFE_STATE %i DORMANT %i", ent->m_IDX, ent->m_pEntity->GetClientClass()->GetName(), CE_BYTE(ent, netvar.iLifeState), ent->m_pEntity->IsDormant());
-			if (CE_BAD(ent)) continue;
-			//logging::Info("adding glow to %i", ent->m_IDX);
-			//obj.m_vGlowColor = Vector(0.0f, 1.0f, 0.0f);
-			switch (ent->m_Type) {
-			case ENTITY_PLAYER:
-			case ENTITY_BUILDING:
-				if (!ent->m_bEnemy) continue;
-				Color c = colors::Health(ent->m_iHealth, ent->m_iMaxHealth);
-				//logging::Info("Adding color");
-				SAFE_CALL(obj.m_vGlowColor = Vector((float)c.r() / 255.0f, (float)c.g() / 255.0f, (float)c.b() / 255.0f));
-				//logging::Info("Color added");
-			}
-		}
-		SEGV_END_INFO("Glow");*/
-
-		/*if (CE_GOOD(g_pLocalPlayer->entity) && CE_GOOD(g_pLocalPlayer->weapon())) {
-			int defidx = CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex);
-			if (defidx == 61) {
-				CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex) = 1006;
-			}
-		}*/
+	if (TF && g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
 		SVDBG("FSN %i", __LINE__);
 		if (g_Settings.bThirdperson->GetBool() && !g_pLocalPlayer->life_state && CE_GOOD(g_pLocalPlayer->entity)) {
 			SVDBG("FSN %i", __LINE__);
@@ -112,41 +84,9 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 			}
 			SVDBG("FSN %i", __LINE__);
 		}
-		/*if (g_Settings.bNoZoom->GetBool()) {
-			SVDBG("FSN %i GOOD?", __LINE__);
-			SVDBG("GOOD %i", CE_GOOD(LOCAL_E));
-			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				SVDBG("FSN %i", __LINE__);
-				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
-			}
-		}*/
 	}
 	SVDBG("FSN %i", __LINE__);
 	SAFE_CALL(((FrameStageNotify_t*)hooks::hkClient->GetMethod(hooks::offFrameStageNotify))(thisptr, stage));
-	SVDBG("FSN %i", __LINE__);
-	//if (g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
-		/*if (stage == 5 && g_Settings.bNoFlinch->GetBool()) {
-			static Vector oldPunchAngles = Vector();
-			Vector punchAngles = CE_VECTOR(g_pLocalPlayer->entity, netvar.vecPunchAngle);
-			QAngle viewAngles;
-			interfaces::engineClient->GetViewAngles(viewAngles);
-			viewAngles -= VectorToQAngle(punchAngles - oldPunchAngles);
-			oldPunchAngles = punchAngles;
-			interfaces::engineClient->SetViewAngles(viewAngles);
-		}*/
-		SVDBG("FSN %i", __LINE__);
-		/*if (g_Settings.bNoZoom->GetBool()) {
-			SVDBG("FSN %i GOOD?", __LINE__);
-			SVDBG("GOOD %i", CE_GOOD(LOCAL_E));
-			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				SVDBG("FSN %i", __LINE__);
-				RemoveCondition(g_pLocalPlayer->entity, condition::TFCond_Zoomed);
-			}
-		}*/
-		SVDBG("FSN %i", __LINE__);
-	//}
-	SVDBG("FSN %i", __LINE__);
-	//logging::Info("fsi end");// TODO dbg
 	SEGV_END;
 }
 
@@ -198,18 +138,18 @@ void LevelInit_hook(void* thisptr, const char* newmap) {
 	LEVEL_INIT(Aimbot, newmap);
 	LEVEL_INIT(Airstuck, newmap);
 	LEVEL_INIT(AntiAim, newmap);
-	LEVEL_INIT(AntiDisguise, newmap);
-	LEVEL_INIT(AutoHeal, newmap);
-	LEVEL_INIT(AutoReflect, newmap);
-	LEVEL_INIT(AutoSticky, newmap);
+	if (TF) LEVEL_INIT(AntiDisguise, newmap);
+	if (TF) LEVEL_INIT(AutoHeal, newmap);
+	if (TF) LEVEL_INIT(AutoReflect, newmap);
+	if (TF) LEVEL_INIT(AutoSticky, newmap);
 	LEVEL_INIT(AutoStrafe, newmap);
 	LEVEL_INIT(Bunnyhop, newmap);
 	LEVEL_INIT(ESP, newmap);
 //	LEVEL_SHUTDOWN(FollowBot);
 	LEVEL_INIT(Misc, newmap);
-	LEVEL_INIT(SpyAlert, newmap);
+	if (TF) LEVEL_INIT(SpyAlert, newmap);
 	LEVEL_INIT(Triggerbot, newmap);
-	LEVEL_INIT(Glow, newmap);
+	if (TF2) LEVEL_INIT(Glow, newmap);
 	g_pChatStack->Reset();
 }
 
@@ -220,18 +160,18 @@ void LevelShutdown_hook(void* thisptr) {
 	LEVEL_SHUTDOWN(Aimbot);
 	LEVEL_SHUTDOWN(Airstuck);
 	LEVEL_SHUTDOWN(AntiAim);
-	LEVEL_SHUTDOWN(AntiDisguise);
-	LEVEL_SHUTDOWN(AutoHeal);
-	LEVEL_SHUTDOWN(AutoReflect);
-	LEVEL_SHUTDOWN(AutoSticky);
+	if (TF) LEVEL_SHUTDOWN(AntiDisguise);
+	if (TF) LEVEL_SHUTDOWN(AutoHeal);
+	if (TF) LEVEL_SHUTDOWN(AutoReflect);
+	if (TF) LEVEL_SHUTDOWN(AutoSticky);
 	LEVEL_SHUTDOWN(AutoStrafe);
 	LEVEL_SHUTDOWN(Bunnyhop);
 	LEVEL_SHUTDOWN(ESP);
 //	LEVEL_SHUTDOWN(FollowBot);
 	LEVEL_SHUTDOWN(Misc);
-	LEVEL_SHUTDOWN(SpyAlert);
+	if (TF) LEVEL_SHUTDOWN(SpyAlert);
 	LEVEL_SHUTDOWN(Triggerbot);
-	LEVEL_SHUTDOWN(Glow);
+	if (TF2) LEVEL_SHUTDOWN(Glow);
 	g_pChatStack->Reset();
 }
 

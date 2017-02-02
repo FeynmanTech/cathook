@@ -144,7 +144,7 @@ void FollowBot::Tick(CUserCmd* cmd) {
 		//
 		CachedEntity* owner_weapon = ENTITY(CE_INT(owner_entity, netvar.hActiveWeapon) & 0xFFF);
 		if (CE_GOOD(owner_weapon)) {
-			if (owner_weapon->m_iClassID == ClassID::CTFSniperRifle || owner_weapon->m_iClassID == ClassID::CTFSniperRifle) {
+			if (owner_weapon->m_iClassID == g_pClassID->CTFSniperRifle || owner_weapon->m_iClassID == g_pClassID->CTFSniperRifle) {
 				if (!g_pLocalPlayer->bZoomed) {
 					cmd->buttons |= IN_ATTACK2;
 				}

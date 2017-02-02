@@ -67,19 +67,20 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
 		SAFE_CALL(CREATE_MOVE(ESP));
 		if (!g_pLocalPlayer->life_state) {
+			SAFE_CALL(CREATE_MOVE(Noisemaker));
 			SAFE_CALL(CREATE_MOVE(Bunnyhop));
 			SAFE_CALL(CREATE_MOVE(AutoStrafe));
 			SAFE_CALL(CREATE_MOVE(Aimbot));
 			SAFE_CALL(CREATE_MOVE(Airstuck));
 			SAFE_CALL(CREATE_MOVE(AntiAim));
-			SAFE_CALL(CREATE_MOVE(AutoSticky));
-			SAFE_CALL(CREATE_MOVE(AutoReflect));
+			if (TF) SAFE_CALL(CREATE_MOVE(AutoSticky));
+			if (TF) SAFE_CALL(CREATE_MOVE(AutoReflect));
 			SAFE_CALL(CREATE_MOVE(Triggerbot));
-			SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
+			if (TF) SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
 		}
-		SAFE_CALL(CREATE_MOVE(AntiDisguise));
-		SAFE_CALL(CREATE_MOVE(AutoHeal));
-		SAFE_CALL(CREATE_MOVE(Glow));
+		if (TF) SAFE_CALL(CREATE_MOVE(AntiDisguise));
+		if (TF) SAFE_CALL(CREATE_MOVE(AutoHeal));
+		if (TF2) SAFE_CALL(CREATE_MOVE(Glow));
 		//SAFE_CALL(CREATE_MOVE(FollowBot));
 		SAFE_CALL(CREATE_MOVE(Misc));
 		SAFE_CALL(CREATE_MOVE(KillSay));

@@ -24,7 +24,7 @@ bool AutoReflect::ShouldReflect(CachedEntity* ent) {
 	if (CE_INT(ent, (ent->m_bGrenadeProjectile ?
 			/* NetVar for grenades */ netvar.Grenade_iDeflected :
 			/* For rockets */ netvar.Rocket_iDeflected))) return false;
-	if (ent->m_iClassID == ClassID::CTFGrenadePipebombProjectile) {
+	if (ent->m_iClassID == g_pClassID->CTFGrenadePipebombProjectile) {
 		if (CE_INT(ent, netvar.iPipeType) == 1) {
 			if (!v_bReflectStickies->GetBool()) return false;
 		}
@@ -45,7 +45,7 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return true;
 	if (CE_BAD(g_pLocalPlayer->weapon()) || CE_BAD(g_pLocalPlayer->entity)) return true;
 	if (g_pLocalPlayer->life_state) return true;
-	if (g_pLocalPlayer->weapon()->m_iClassID != ClassID::CTFFlameThrower) return true;
+	if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFFlameThrower) return true;
 	if (v_bDisableWhenAttacking->GetBool() && (cmd->buttons & IN_ATTACK)) return true;
 
 	CachedEntity* closest = 0;

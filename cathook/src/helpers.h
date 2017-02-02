@@ -23,6 +23,10 @@ class Vector;
 
 #include "enums.h"
 
+#include "beforecheaders.h"
+#include <string>
+#include "aftercheaders.h"
+
 #include "fixsdk.h"
 #include <tier1/convar.h>
 #include <inputsystem/ButtonCode.h>
@@ -43,7 +47,7 @@ const char* GetBuildingName(CachedEntity* ent);
 Vector GetBuildingPosition(CachedEntity* ent);
 bool IsBuildingVisible(CachedEntity* ent);
 
-ConVar* CreateConVar(const char* name, const char* value, const char* help);
+ConVar* CreateConVar(std::string name, std::string value, std::string help);
 ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, const char* help);
 
 powerup_type GetPowerupOnPlayer(CachedEntity* player);
