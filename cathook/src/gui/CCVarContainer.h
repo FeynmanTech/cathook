@@ -8,16 +8,22 @@
 #ifndef CCVARCONTAINER_H_
 #define CCVARCONTAINER_H_
 
-#include "CSplitContainer.h"
+#include "CBaseContainer.h"
 
 class CatVar;
+class CTextInput;
+class CTextLabel;
 
-class CCvarContainer : public CSplitContainer {
+class CCVarContainer : public CBaseContainer {
 public:
-	CCvarContainer(IWidget* parent, const char* name, CatVar* var);
+	CCVarContainer(IWidget* parent, CatVar* var);
 
+	virtual void MoveChildren() override;
+	virtual void Update() override;
+
+	CTextInput* m_pInput;
 	IWidget* m_pControl;
-	IWidget* m_pLabel;
+	CTextLabel* m_pLabel;
 
 	CatVar* m_pVar;
 };

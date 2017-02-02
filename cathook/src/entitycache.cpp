@@ -57,7 +57,7 @@ void CachedEntity::Update(int idx) {
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
 
 	Vector origin = m_pEntity->GetAbsOrigin();
-	EstimateAbsVelocity(m_pEntity, m_vecVelocity);
+	if (TF2 && EstimateAbsVelocity) EstimateAbsVelocity(m_pEntity, m_vecVelocity);
 	/*if ((interfaces::gvars->realtime - m_fLastUpdate) >= 0.05f) {
 		//if (interfaces::gvars->tickcount - m_nLastTick > 1) {
 			//logging::Info("Running %i ticks behind!", interfaces::gvars->tickcount - m_nLastTick);
@@ -88,31 +88,29 @@ void CachedEntity::Update(int idx) {
 #endif
 	}
 
-	switch (m_iClassID) {
-	case ClassID::CTFPlayer:
-		m_Type = EntityType::ENTITY_PLAYER; break;
-	case ClassID::CObjectTeleporter:
-	case ClassID::CObjectSentrygun:
-	case ClassID::CObjectDispenser:
-		m_Type = EntityType::ENTITY_BUILDING; break;
-	case ClassID::CTFGrenadePipebombProjectile:
-	case ClassID::CTFProjectile_Cleaver:
-	case ClassID::CTFProjectile_Jar:
-	case ClassID::CTFProjectile_JarMilk:
+	if (m_iClassID == g_pClassID->C_Player) {
+		m_Type = EntityType::ENTITY_PLAYER;
+	} else if (m_iClassID == g_pClassID->CTFGrenadePipebombProjectile ||
+			   m_iClassID == g_pClassID->CTFProjectile_Cleaver ||
+			   m_iClassID == g_pClassID->CTFProjectile_Jar ||
+			   m_iClassID == g_pClassID->CTFProjectile_JarMilk) {
+		m_Type = EntityType::ENTITY_PROJECTILE;
 		m_bGrenadeProjectile = true;
-		/* no break */
-	case ClassID::CTFProjectile_Arrow:
-	case ClassID::CTFProjectile_EnergyBall:
-	case ClassID::CTFProjectile_EnergyRing:
-	case ClassID::CTFProjectile_Flare:
-	case ClassID::CTFProjectile_GrapplingHook:
-	case ClassID::CTFProjectile_HealingBolt:
-	case ClassID::CTFProjectile_Rocket:
-	case ClassID::CTFProjectile_SentryRocket:
-		// TODO Spells
-		m_Type = EntityType::ENTITY_PROJECTILE; break;
-	default:
-		m_Type = EntityType::ENTITY_GENERIC; break;
+	} else if (m_iClassID == g_pClassID->CObjectTeleporter ||
+			   m_iClassID == g_pClassID->CObjectSentrygun ||
+			   m_iClassID == g_pClassID->CObjectDispenser) {
+		m_Type == EntityType::ENTITY_BUILDING;
+	} else if (m_iClassID == g_pClassID->CTFProjectile_Arrow ||
+			   m_iClassID == g_pClassID->CTFProjectile_EnergyBall ||
+			   m_iClassID == g_pClassID->CTFProjectile_EnergyRing ||
+			   m_iClassID == g_pClassID->CTFProjectile_GrapplingHook ||
+			   m_iClassID == g_pClassID->CTFProjectile_HealingBolt ||
+			   m_iClassID == g_pClassID->CTFProjectile_Rocket ||
+			   m_iClassID == g_pClassID->CTFProjectile_SentryRocket ||
+			   m_iClassID == g_pClassID->CTFProjectile_Flare) {
+		m_Type = EntityType::ENTITY_PROJECTILE;
+	} else {
+		m_Type = EntityType::ENTITY_GENERIC;
 	}
 
 	if (CE_GOOD(g_pLocalPlayer->entity)) {

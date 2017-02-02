@@ -39,6 +39,7 @@
 #include <iclient.h>
 #include <iserver.h>
 #include <view_shared.h>
+#include <KeyValues.h>
 #include <basehandle.h>
 #include <iachievementmgr.h>
 #include <VGuiMatSurface/IMatSystemSurface.h>

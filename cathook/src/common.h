@@ -34,6 +34,7 @@
 #include "chatstack.h"
 #include "textfile.h"
 #include "gui/GUI.h"
+#include "classid.h"
 
 #include "hacks/hacklist.h"
 #include "glowobjects.h"
@@ -41,6 +42,11 @@
 #include "drm.h"
 
 #include "sdk.h"
+
+#define TF2C (g_AppID == 243750)
+#define TF2  (g_AppID == 440)
+#define TF (TF2C || TF2)
+#define HL2DM (g_AppID == 320)
 
 #define SQR(x) x * x
 

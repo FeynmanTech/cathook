@@ -66,7 +66,7 @@ void CTextInput::PutChar(char ch) {
 	SetValue(Value() + std::string(1, ch));
 }
 
-void CTextInput::OnKeyPress(ButtonCode_t key) {
+void CTextInput::OnKeyPress(ButtonCode_t key, bool repeat) {
 	if (key == ButtonCode_t::KEY_BACKSPACE) {
 		std::string val = Value();
 		if (val.length() > 0) {

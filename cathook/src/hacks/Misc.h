@@ -22,6 +22,7 @@ public:
 	ConCommand* c_Name;
 	ConVar* v_bInfoSpam;
 	ConVar* v_bFastCrouch;
+	CatVar* v_bFlashlightSpam;
 	//ConVar* v_bDumpEventInfo;
 	ConCommand* c_DumpItemAttributes;
 	ConCommand* c_SayLine;

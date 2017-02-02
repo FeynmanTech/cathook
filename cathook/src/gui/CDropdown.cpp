@@ -54,10 +54,14 @@ void CDropdown::OnFocusLose() {
 	list->Hide();
 }
 
-void CDropdown::SetValue(int value) {
+void CDropdown::SetValueInternal(int value) {
 	Props()->SetInt("value", value);
 	if (m_pDropdownCallback)
 		m_pDropdownCallback(this, value);
+}
+
+void CDropdown::SetValue(int value) {
+	Props()->SetInt("value", value);
 }
 
 void CDropdown::ShowList() {

@@ -70,8 +70,15 @@ bool IsPlayerCritBoosted(CachedEntity* player) {
 		 || HasCondition(player, TFCond_CritRuneTemp) || HasCondition(player, TFCond_HalloweenCritCandy));
 }
 
-ConVar* CreateConVar(const char* name, const char* value, const char* help) {
-	ConVar* ret = new ConVar(name, value, 0, help);
+ConVar* CreateConVar(std::string name, std::string value, std::string help) {
+	char* namec = new char[256];
+	strncpy(namec, name.c_str(), 255);
+	char* valuec = new char[256];
+	strncpy(valuec, value.c_str(), 255);
+	char* helpc = new char[256];
+	strncpy(helpc, help.c_str(), 255);
+	//logging::Info("Creating ConVar: %s %s %s", namec, valuec, helpc);
+	ConVar* ret = new ConVar((const char*)namec, (const char*)valuec, 0, (const char*)helpc);
 	if (hConVarsFile)
 		fprintf(hConVarsFile, "%s %s\n", name, value);
 	interfaces::cvar->RegisterConCommand(ret);
@@ -92,16 +99,9 @@ const char* GetModelPath(CachedEntity* entity) {
 
 const char* GetBuildingName(CachedEntity* ent) {
 	if (!ent) return "[NULL]";
-	switch (ent->m_iClassID) {
-	case ClassID::CObjectSentrygun:
-		// TODO mini
-		return "Sentry";
-	case ClassID::CObjectDispenser:
-		return "Dispenser";
-	case ClassID::CObjectTeleporter:
-		// TODO exit/entr
-		return "Teleporter";
-	}
+	if (ent->m_iClassID == g_pClassID->CObjectSentrygun) return "Sentry";
+	if (ent->m_iClassID == g_pClassID->CObjectDispenser) return "Dispenser";
+	if (ent->m_iClassID == g_pClassID->CObjectTeleporter) return "Teleporter";
 	return "[NULL]";
 }
 
@@ -350,14 +350,9 @@ bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos) {
 
 Vector GetBuildingPosition(CachedEntity* ent) {
 	Vector res = ent->m_vecOrigin;
-	switch (ent->m_iClassID) {
-	case ClassID::CObjectDispenser:
-		res.z += 30;
-		break;
-	case ClassID::CObjectTeleporter:
-		res.z += 8;
-		break;
-	case ClassID::CObjectSentrygun:
+	if (ent->m_iClassID == g_pClassID->CObjectDispenser) res.z += 30;
+	if (ent->m_iClassID == g_pClassID->CObjectTeleporter) res.z += 8;
+	if (ent->m_iClassID == g_pClassID->CObjectSentrygun) {
 		switch (CE_INT(ent, netvar.iUpgradeLevel)) {
 		case 1:
 			res.z += 30;
@@ -369,7 +364,6 @@ Vector GetBuildingPosition(CachedEntity* ent) {
 			res.z += 60;
 			break;
 		}
-		break;
 	}
 	return res;
 }
@@ -428,22 +422,22 @@ float DistToSqr(CachedEntity* entity) {
 }
 
 bool IsMeleeWeapon(CachedEntity* ent) {
-	switch (ent->m_iClassID) {
-	case ClassID::CTFBat:
-	case ClassID::CTFBat_Fish:
-	case ClassID::CTFBat_Giftwrap:
-	case ClassID::CTFBat_Wood:
-	case ClassID::CTFShovel:
-	case ClassID::CTFKatana:
-	case ClassID::CTFFireAxe:
-	case ClassID::CTFBottle:
-	case ClassID::CTFSword:
-	case ClassID::CTFFists:
-	case ClassID::CTFWrench:
-	case ClassID::CTFRobotArm:
-	case ClassID::CTFBonesaw:
-	case ClassID::CTFClub:
-	case ClassID::CTFKnife:
+
+	if (ent->m_iClassID == g_pClassID->CTFBat ||
+		ent->m_iClassID == g_pClassID->CTFBat_Fish ||
+		ent->m_iClassID == g_pClassID->CTFBat_Giftwrap ||
+		ent->m_iClassID == g_pClassID->CTFBat_Wood ||
+		ent->m_iClassID == g_pClassID->CTFShovel ||
+		ent->m_iClassID == g_pClassID->CTFKatana ||
+		ent->m_iClassID == g_pClassID->CTFFireAxe ||
+		ent->m_iClassID == g_pClassID->CTFBottle ||
+		ent->m_iClassID == g_pClassID->CTFSword ||
+		ent->m_iClassID == g_pClassID->CTFFists ||
+		ent->m_iClassID == g_pClassID->CTFWrench ||
+		ent->m_iClassID == g_pClassID->CTFRobotArm ||
+		ent->m_iClassID == g_pClassID->CTFKnife ||
+		ent->m_iClassID == g_pClassID->CTFBonesaw ||
+		ent->m_iClassID == g_pClassID->CTFClub) {
 		return true;
 	}
 	return false;
@@ -472,31 +466,30 @@ weaponmode GetWeaponMode(CachedEntity* player) {
 	CachedEntity* weapon = (ENTITY(weapon_handle & 0xFFF));
 	if (CE_BAD(weapon)) return weaponmode::weapon_invalid;
 	if (IsMeleeWeapon(weapon)) return weaponmode::weapon_melee;
-	switch (weapon->m_iClassID) {
-	case ClassID::CTFLunchBox:
-	case ClassID::CTFLunchBox_Drink:
-	case ClassID::CTFBuffItem:
+	if (weapon->m_iClassID == g_pClassID->CTFLunchBox ||
+		weapon->m_iClassID == g_pClassID->CTFLunchBox_Drink ||
+		weapon->m_iClassID == g_pClassID->CTFBuffItem) {
 		return weaponmode::weapon_consumable;
-	case ClassID::CTFRocketLauncher_DirectHit:
-	case ClassID::CTFRocketLauncher:
-	case ClassID::CTFGrenadeLauncher:
-	case ClassID::CTFCompoundBow:
-	case ClassID::CTFBat_Wood:
-	case ClassID::CTFBat_Giftwrap:
-	case ClassID::CTFFlareGun:
-	case ClassID::CTFFlareGun_Revenge:
-	case ClassID::CTFSyringeGun:
+	} else if ( weapon->m_iClassID == g_pClassID->CTFRocketLauncher_DirectHit ||
+				weapon->m_iClassID == g_pClassID->CTFRocketLauncher ||
+				weapon->m_iClassID == g_pClassID->CTFGrenadeLauncher ||
+				weapon->m_iClassID == g_pClassID->CTFCompoundBow ||
+				weapon->m_iClassID == g_pClassID->CTFBat_Wood ||
+				weapon->m_iClassID == g_pClassID->CTFBat_Giftwrap ||
+				weapon->m_iClassID == g_pClassID->CTFFlareGun ||
+				weapon->m_iClassID == g_pClassID->CTFFlareGun_Revenge ||
+				weapon->m_iClassID == g_pClassID->CTFSyringeGun) {
 		return weaponmode::weapon_projectile;
-	case ClassID::CTFJar:
-	case ClassID::CTFJarMilk:
+	} else if (weapon->m_iClassID == g_pClassID->CTFJar ||
+			   weapon->m_iClassID == g_pClassID->CTFJarMilk) {
 		return weaponmode::weapon_throwable;
-	case ClassID::CTFWeaponPDA_Engineer_Build:
-	case ClassID::CTFWeaponPDA_Engineer_Destroy:
-	case ClassID::CTFWeaponPDA_Spy:
+	} else if (weapon->m_iClassID == g_pClassID->CTFWeaponPDA_Engineer_Build ||
+			   weapon->m_iClassID == g_pClassID->CTFWeaponPDA_Engineer_Destroy ||
+			   weapon->m_iClassID == g_pClassID->CTFWeaponPDA_Spy) {
 		return weaponmode::weapon_pda;
-	case ClassID::CWeaponMedigun:
+	} else if (weapon->m_iClassID == g_pClassID->CWeaponMedigun) {
 		return weaponmode::weapon_medigun;
-	};
+	}
 	return weaponmode::weapon_hitscan;
 }
 
@@ -506,43 +499,31 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 	float rspeed = 0.0f;
 	float rgrav = 0.0f;
 	typedef float(GetProjectileData)(IClientEntity*);
-	switch (weapon->m_iClassID) {
-	case ClassID::CTFRocketLauncher_DirectHit:
+
+	if (weapon->m_iClassID == g_pClassID->CTFRocketLauncher_DirectHit) {
 		rspeed = 1980.0f;
-	break;
-	case ClassID::CTFRocketLauncher:
+	} else if (weapon->m_iClassID == g_pClassID->CTFRocketLauncher) {
 		rspeed = 1100.0f;
-	break;
-	case ClassID::CTFGrenadeLauncher:
-		// TODO offset (GetProjectileSpeed)
+	} else if (weapon->m_iClassID == g_pClassID->CTFGrenadeLauncher) {
 		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
 		// TODO Wrong grenade launcher gravity
-		rgrav = 0.25f;
-	break;
-	case ClassID::CTFCompoundBow: {
+		rgrav = 0.5f;
+	} else if (weapon->m_iClassID == g_pClassID->CTFCompoundBow) {
 		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
 		rgrav = vfunc<GetProjectileData*>(RAW_ENT(weapon), 528)(RAW_ENT(weapon));
-		//rspeed = ((GetProjectileData*) *(*(const void ***) weapon + 527))(RAW_ENT(weapon));
-		//rgrav = ((GetProjectileData*) *(*(const void ***) weapon + 528))(RAW_ENT(weapon));
-	} break;
-	case ClassID::CTFBat_Wood:
+	} else if (weapon->m_iClassID == g_pClassID->CTFBat_Wood) {
 		rspeed = 3000.0f;
 		rgrav = 0.5f;
-	break;
-	case ClassID::CTFFlareGun:
+	} else if (weapon->m_iClassID == g_pClassID->CTFFlareGun) {
 		rspeed = 2000.0f;
 		rgrav = 0.25f;
-	break;
-	case ClassID::CTFSyringeGun:
+	} else if (weapon->m_iClassID == g_pClassID->CTFSyringeGun) {
 		rgrav = 0.2f;
 		rspeed = 990.0f;
-	break;
-	default:
-		return false;
 	}
 	speed = rspeed;
 	gravity = rgrav;
-	return true;
+	return (rspeed || rgrav);
 }
 
 bool Developer(CachedEntity* ent) {
@@ -635,7 +616,8 @@ bool IsSentryBuster(CachedEntity* entity) {
 }
 
 bool IsAmbassador(CachedEntity* entity) {
-	if (entity->m_iClassID != ClassID::CTFRevolver) return false;
+	if (!TF2) return false;
+	if (entity->m_iClassID != g_pClassID->CTFRevolver) return false;
 	int defidx = CE_INT(entity, netvar.iItemDefinitionIndex);
 	return (defidx == 61 || defidx == 1006);
 }
@@ -733,7 +715,7 @@ bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
 	if (trace_visible.m_pEnt) {
 		IClientEntity* ent = (IClientEntity*)trace_visible.m_pEnt;
 		if (ent) {
-			if (ent->GetClientClass()->m_ClassID == ClassID::CTFPlayer) {
+			if (ent->GetClientClass()->m_ClassID == g_pClassID->C_Player) {
 				if (ent == RAW_ENT(entity)) return false;
 				if (trace_visible.hitbox >= 0) {
 					return true;

@@ -115,7 +115,7 @@ void* sharedobj::SharedObject::CreateInterface(const char* name) {
 
 void sharedobj::LoadAllSharedObjects() {
 	sharedobj::client = new SharedObject("client.so", true);
-	uintptr_t itemschemapatch = (gSignatures.GetClientSignature("8B 85 78 FF FF FF 89 44 24 0C 8B 85 68 FF FF FF 89 44 24 08 8B 85 38 FF FF FF 89 44 24 04 8B 85 28 FF FF FF 89 04 24 E8 F4 D0 FF FF 84 C0 0F 84 FC 00 00 00") + 44);
+	/*uintptr_t itemschemapatch = (gSignatures.GetClientSignature("8B 85 78 FF FF FF 89 44 24 0C 8B 85 68 FF FF FF 89 44 24 08 8B 85 38 FF FF FF 89 44 24 04 8B 85 28 FF FF FF 89 04 24 E8 F4 D0 FF FF 84 C0 0F 84 FC 00 00 00") + 44);
 	logging::Info("Patching @ 0x%08x", itemschemapatch);
 	if (itemschemapatch) {
 		unsigned char patch1[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
@@ -127,7 +127,7 @@ void sharedobj::LoadAllSharedObjects() {
 	if (itemschemapatch2) {
 		unsigned char patch1[] = { 0xb0, 0x01, 0x90, 0x90, 0x90 };
 		Patch((void*)itemschemapatch2, (void*)patch1, 5);
-	}
+	}*/
 	sharedobj::engine = new SharedObject("engine.so", true);
 	sharedobj::steamclient = new SharedObject("steamclient.so", true);
 	sharedobj::tier0 = new SharedObject("libtier0.so", false);

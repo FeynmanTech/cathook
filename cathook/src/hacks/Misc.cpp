@@ -235,16 +235,18 @@ void CC_DumpConds(const CCommand& args) {
 	int idx = atoi(args[1]);
 	CachedEntity* ent = ENTITY(idx);
 	if (CE_BAD(ent)) return;
-	condition_data_s d1 = CE_VAR(ent, netvar._condition_bits, condition_data_s);
+	if (TF2) {
+		condition_data_s d1 = CE_VAR(ent, netvar._condition_bits, condition_data_s);
+		logging::Info("0x%08x 0x%08x 0x%08x 0x%08x", d1.cond_0, d1.cond_1, d1.cond_2, d1.cond_3);
+	}
 	condition_data_s d2 = FromOldNetvars(ent);
-	logging::Info("0x%08x 0x%08x 0x%08x 0x%08x", d1.cond_0, d1.cond_1, d1.cond_2, d1.cond_3);
 	logging::Info("0x%08x 0x%08x 0x%08x 0x%08x", d2.cond_0, d2.cond_1, d2.cond_2, d2.cond_3);
 }
 
 Misc::Misc() {
 	v_bDebugInfo = CreateConVar(CON_PREFIX "misc_debug", "0", "Debug info");
 	c_Name = CreateConCommand(CON_PREFIX "name", CC_SetName, "Sets custom name");
-	c_DumpItemAttributes = CreateConCommand(CON_PREFIX "dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
+	if (TF2) c_DumpItemAttributes = CreateConCommand(CON_PREFIX "dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
 	c_SayLine = CreateConCommand(CON_PREFIX "say_lines", CC_SayLines, "Uses ^ as a newline character");
 	c_Shutdown = CreateConCommand(CON_PREFIX "shutdown", CC_Shutdown, "Stops the hack");
 	c_AddFriend = CreateConCommand(CON_PREFIX "addfriend", CC_AddFriend, "Adds a friend");
@@ -259,6 +261,7 @@ Misc::Misc() {
 	c_DisconnectVAC = CreateConCommand(CON_PREFIX "disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
 	v_bInfoSpam = CreateConVar(CON_PREFIX "info_spam", "0", "Info spam");
 	v_bFastCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fast crouch");
+	v_bFlashlightSpam = new CatVar(CV_SWITCH, "flashlight_spam", "0", "Flashlight Spam", NULL, "Quickly turns flashlight on and off");
 	//v_bDumpEventInfo = CreateConVar(CON_PREFIX "debug_event_info", "0", "Show event info");
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
 
@@ -269,6 +272,11 @@ Misc::Misc() {
 int sa_switch = 0;
 
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
+	static bool flswitch = false;
+	if (v_bFlashlightSpam->GetBool()) {
+		if (flswitch && !cmd->impulse) cmd->impulse = 100;
+		flswitch = !flswitch;
+	}
 	//SetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::taunting);
 	/*if (false && v_strName->GetString()[0] != '\0') {
 		//logging::Info("Name: %s", v_strName->GetString());
@@ -299,7 +307,7 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 		//logging::Info("Making string for %i", curindex);
 		if (!ent || ent->IsDormant()) goto breakif;
 		//logging::Info("a");
-		if (ent->GetClientClass()->m_ClassID != ClassID::CTFPlayer) goto breakif;
+		if (ent->GetClientClass()->m_ClassID != g_pClassID->C_Player) goto breakif;
 		//logging::Info("a");
 		if (NET_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) goto breakif;
 		//logging::Info("Making string for %i", curindex);
@@ -327,13 +335,12 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(colors::white, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
 			AddSideString(colors::white, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, "CanShoot: %i", CanShoot());
-			AddSideString(colors::white, "Decaps: %i", CE_INT(g_pLocalPlayer->entity, netvar.iDecapitations));
 			AddSideString(colors::white, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage));
-			AddSideString(colors::white, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
+			if (TF2) AddSideString(colors::white, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
 			AddSideString(colors::white, "GlobalVars: 0x%08x", interfaces::gvars);
 			AddSideString(colors::white, "realtime: %f", interfaces::gvars->realtime);
 			AddSideString(colors::white, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
-			AddSideString(colors::white, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
+			if (TF2) AddSideString(colors::white, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
 			AddSideString(colors::white, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
 			AddSideString(colors::white, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
 			AddSideString(colors::white, "ServerTime: %f", CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);

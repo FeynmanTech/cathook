@@ -19,6 +19,7 @@ public:
 	CSlider(std::string name = "", IWidget* parent = nullptr);
 
 	void Setup(float min, float max);
+	void SetStep(float step);
 	float Value();
 	void SetValue(float value);
 	void SetCallback(SliderCallbackFn_t callback);

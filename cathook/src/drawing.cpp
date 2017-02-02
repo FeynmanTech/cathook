@@ -152,7 +152,7 @@ int colors::EntityB(CachedEntity* ent) {
 int colors::EntityF(CachedEntity* ent) {
 	using namespace colors;
 	int result = white;
-	if (ent->m_iClassID == ClassID::CBaseAnimating) {
+	if (ent->m_iClassID == g_pClassID->CBaseAnimating) {
 		item_type type = GetItemType(ent);
 		if (type != item_null) {
 			if (type >= item_medkit_small && type <= item_medkit_large) {
@@ -171,7 +171,7 @@ int colors::EntityF(CachedEntity* ent) {
 			}
 		}
 	}
-	if (ent->m_iClassID == ClassID::CCurrencyPack) {
+	if (ent->m_iClassID == g_pClassID->CCurrencyPack) {
 		if (CE_BYTE(ent, netvar.bDistributed))
 			result = red;
 		else

@@ -11,7 +11,7 @@ void TFPlayerResource::Update() {
 	m_pEntity = 0;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
-		if (CE_GOOD(ent) && ent->m_iClassID == ClassID::CTFPlayerResource) {
+		if (CE_GOOD(ent) && ent->m_iClassID == (TF ? g_pClassID->CTFPlayerResource : g_pClassID->CPlayerResource)) {
 			m_pEntity = ent;
 		}
 	}
@@ -19,12 +19,14 @@ void TFPlayerResource::Update() {
 
 int TFPlayerResource::GetMaxHealth(CachedEntity* player) {
 	if (!m_pEntity) return 0;
+	if (HL2DM) return 100;
 	int idx = player->m_IDX;
 	if (idx >= 64 || idx < 0) return 0;
 	return *(int*)((unsigned int)RAW_ENT(m_pEntity) + netvar.iMaxHealth + 4 * idx);
 }
 
 int TFPlayerResource::GetMaxBuffedHealth(CachedEntity* player) {
+	if (!TF2) return GetMaxHealth(player);
 	if (!m_pEntity) return 0;
 	int idx = player->m_IDX;
 	if (idx >= 64 || idx < 0) return 0;

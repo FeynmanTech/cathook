@@ -45,7 +45,7 @@ bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
-		if (ent->m_iClassID != ClassID::CTFGrenadePipebombProjectile) continue;
+		if (ent->m_iClassID != g_pClassID->CTFGrenadePipebombProjectile) continue;
 		if (CE_INT(ent, netvar.iPipeType) != 1) continue;
 		if ((CE_INT(ent, netvar.hThrower) & 0xFFF) != g_pLocalPlayer->entity->m_IDX) continue;
 		if (ShouldDetonate(ent)) {

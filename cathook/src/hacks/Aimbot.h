@@ -28,7 +28,7 @@ class Aimbot : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	Aimbot();
-	bool ShouldTarget(CachedEntity* entity);
+	int ShouldTarget(CachedEntity* entity);
 	bool Aim(CachedEntity* entity, CUserCmd* cmd);
 	bool ShouldAim(CUserCmd* cmd);
 	int BestHitbox(CachedEntity* target, int preferred = hitbox_t::spine_0);
@@ -61,6 +61,7 @@ public:
 	CatVar* v_bAutoShoot;
 	CatVar* v_bSilent;
 	CatVar* v_bZoomedOnly;
+	CatVar* v_bAimAtTeammates;
 	//CatVar* v_iAutoShootCharge;
 	CatVar* v_fAutoShootHuntsmanCharge;
 	CatVar* v_iMaxRange;

@@ -22,9 +22,13 @@ CBaseWidget::CBaseWidget(std::string name, IWidget* parent) : m_KeyValues(std::s
 	Props()->SetString("name", name.c_str());
 	SetPositionMode(INLINE);
 	Show();
+	SetMaxSize(-1, -1);
 }
 
 void CBaseWidget::Update() {
+	if (IsHovered() && Props()->FindKey("tooltip")) {
+		g_pGUI->ShowTooltip(Props()->GetString("tooltip"));
+	}
 	//logging::Info("Updating! %s", GetName().c_str());
 }
 

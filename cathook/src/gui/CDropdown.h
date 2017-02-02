@@ -24,6 +24,7 @@ public:
 	int ValueCount();
 	std::string ValueName(int idx);
 	void SetValue(int value);
+	void SetValueInternal(int value);
 	int  Value();
 
 	void ShowList();

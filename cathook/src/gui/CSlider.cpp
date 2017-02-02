@@ -24,12 +24,19 @@ void CSlider::Setup(float min, float max) {
 	SetValue((min + max) / 2.0f);
 }
 
+void CSlider::SetStep(float step) {
+	Props()->SetFloat("step", step);
+}
+
 void CSlider::SetCallback(SliderCallbackFn_t callback) {
 	m_pCallback = callback;
 }
 
 void CSlider::SetValue(float value) {
 	float old = Value();
+	if (Props()->GetFloat("step")) {
+		value -= fmod(value, Props()->GetFloat("step"));
+	}
 	Props()->SetFloat("value", value);
 	if (old != value) {
 		if (m_pCallback) {
@@ -65,7 +72,9 @@ void CSlider::Draw(int x, int y) {
 	auto size = GetSize();
 	draw::DrawRect(x, y + size.second / 2 - 2, size.first, 4, colors::Create(0, 0, 0, 200));
 	draw::DrawRect(x + m_nSliderPos - 2, y + 2, 4, size.second - 4, colors::pink);
-	std::string str(strfmt("%.2f", Value()));
+	char* s = strfmt("%.2f", Value());
+	std::string str(s);
+	delete [] s;
 	auto sl = draw::GetStringLength(fonts::MENU, str);
 	draw::String(fonts::MENU, x + (size.first - sl.first) / 2, y + (size.second - sl.second) / 2, colors::white, 1, str);
 }

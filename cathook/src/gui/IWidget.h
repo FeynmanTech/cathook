@@ -38,7 +38,7 @@ public:
 	virtual void OnMouseLeave() = 0;
 	virtual void OnMousePress() = 0;
 	virtual void OnMouseRelease() = 0;
-	virtual void OnKeyPress(ButtonCode_t key) = 0;
+	virtual void OnKeyPress(ButtonCode_t key, bool repeat) = 0;
 	virtual void OnKeyRelease(ButtonCode_t key) = 0;
 	virtual void OnFocusGain() = 0;
 	virtual void OnFocusLose() = 0;

@@ -21,8 +21,7 @@ int GetScoreForEntity(CachedEntity* entity) {
 	if (!entity) return 0;
 	// TODO
 	if (entity->m_Type == ENTITY_BUILDING) {
-		switch (entity->m_iClassID) {
-		case ClassID::CObjectSentrygun:
+		if (entity->m_iClassID == g_pClassID->CObjectSentrygun) {
 			float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin).Length();
 			// TODO
 			int total = 1;

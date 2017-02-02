@@ -10,6 +10,9 @@
 #include "../common.h"
 #include "../sdk.h"
 
+class IMemAlloc;
+IMemAlloc* g_pMemAlloc = 0;
+
 CBaseContainer::CBaseContainer(std::string name, IWidget* parent) : CBaseWidget(name, parent) {
 	m_pFocusedChild = 0;
 	m_pHoveredChild = 0;
@@ -19,6 +22,8 @@ CBaseContainer::CBaseContainer(std::string name, IWidget* parent) : CBaseWidget(
 void CBaseContainer::AddChild(IWidget* child) {
 	m_children.push_back(child);
 	child->SetParent(this);
+	//auto maxs = GetMaxSize();
+	//child->SetMaxSize(maxs.first, maxs.second);
 }
 
 IWidget* CBaseContainer::ChildByIndex(int idx) {
@@ -96,6 +101,12 @@ bool CBaseContainer::ConsumesKey(ButtonCode_t key) {
 	return false;
 }
 
+CBaseContainer::~CBaseContainer() {
+	for (auto child : m_children) {
+		delete child;
+	}
+}
+
 void CBaseContainer::Hide() {
 	CBaseWidget::Hide();
 	if (GetHoveredChild()) GetHoveredChild()->OnMouseLeave();
@@ -114,11 +125,12 @@ void CBaseContainer::MoveChildren() {
 }
 
 void CBaseContainer::OnFocusLose() {
-	if (GetFocusedChild()) GetFocusedChild()->OnFocusLose();
+	FocusOn(0);
+	CBaseWidget::OnFocusLose();
 }
 
-void CBaseContainer::OnKeyPress(ButtonCode_t key) {
-	if (GetFocusedChild()) GetFocusedChild()->OnKeyPress(key);
+void CBaseContainer::OnKeyPress(ButtonCode_t key, bool repeat) {
+	if (GetFocusedChild()) GetFocusedChild()->OnKeyPress(key, repeat);
 }
 
 void CBaseContainer::OnKeyRelease(ButtonCode_t key) {
@@ -126,7 +138,8 @@ void CBaseContainer::OnKeyRelease(ButtonCode_t key) {
 }
 
 void CBaseContainer::OnMouseLeave() {
-	if (GetHoveredChild()) GetHoveredChild()->OnMouseLeave();
+	HoverOn(0);
+	CBaseWidget::OnMouseLeave();
 }
 
 void CBaseContainer::OnMousePress() {
@@ -141,11 +154,11 @@ void CBaseContainer::OnMouseRelease() {
 void CBaseContainer::PressOn(IWidget* child) {
 	m_pPressedChild = child;
 	if (child) {
-		logging::Info("> MousePress %s", child->GetName().c_str());
+		//logging::Info("> MousePress %s", child->GetName().c_str());
 		child->OnMousePress();
 		if (child->DoesStealFocus())
 			FocusOn(child);
-	}
+	} else FocusOn(0);
 }
 
 void CBaseContainer::SortByZIndex() {
@@ -169,6 +182,7 @@ void CBaseContainer::Update() {
 	for (auto child : m_children) {
 		child->Update();
 	}
+	CBaseWidget::Update();
 }
 
 

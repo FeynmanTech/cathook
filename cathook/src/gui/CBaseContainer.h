@@ -13,6 +13,7 @@
 class CBaseContainer : public CBaseWidget, public virtual IWidget {
 public:
 	CBaseContainer(std::string name = "unnamed", IWidget* parent = nullptr);
+	virtual ~CBaseContainer();
 
 	void AddChild(IWidget* child);
 	int ChildCount();
@@ -25,14 +26,14 @@ public:
 	virtual void DrawBounds(int x, int y);
 	virtual void Hide();
 	virtual void OnFocusLose();
-	virtual void OnKeyPress(ButtonCode_t key);
+	virtual void OnKeyPress(ButtonCode_t key, bool repeat);
 	virtual void OnKeyRelease(ButtonCode_t key);
 	virtual void OnMouseLeave();
 	virtual void OnMousePress();
 	virtual void OnMouseRelease();
 	virtual void Update();
 
-	void SortByZIndex();
+	virtual void SortByZIndex();
 	void UpdateHovers();
 
 	virtual void MoveChildren();

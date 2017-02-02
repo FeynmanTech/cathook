@@ -79,15 +79,19 @@ condition_data_s FromOldNetvars(CachedEntity* ent) {
 }
 
 bool HasCondition(CachedEntity* ent, condition cond) {
-	return BitCheck(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond) || BitCheck(FromOldNetvars(ent), cond);
+	if (!TF) return false;
+	if (TF2) return BitCheck(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond) || BitCheck(FromOldNetvars(ent), cond);
+	return BitCheck(FromOldNetvars(ent), cond);
 }
 
 void AddCondition(CachedEntity* ent, condition cond) {
-	CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, true);
+	if (!TF) return;
+	if (TF2) CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, true);
 	OldCondSet(ent, cond, true);
 }
 
 void RemoveCondition(CachedEntity* ent, condition cond) {
-	CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, false);
+	if (!TF) return;
+	if (TF2) CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, false);
 	OldCondSet(ent, cond, false);
 }
