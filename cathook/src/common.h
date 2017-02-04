@@ -51,7 +51,7 @@
 #define SQR(x) x * x
 
 #ifndef CATHOOK_BUILD_NUMBER
-#define CATHOOK_BUILD_NUMBER "1"
+#define CATHOOK_BUILD_NUMBER "-1"
 #endif
 #define CATHOOK_BUILD_NAME "Sweet Roll"
 
