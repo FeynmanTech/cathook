@@ -214,6 +214,7 @@ void CachedEntity::AddESPString(const char* fmt, ...) {
 	if (m_Strings[m_nESPStrings].m_String) {
 		delete m_Strings[m_nESPStrings].m_String;
 	}
+	m_Strings[m_nESPStrings].m_bColored = false;
 	char* buffer = new char[1024]();
 	va_list list;
 	va_start(list, fmt);

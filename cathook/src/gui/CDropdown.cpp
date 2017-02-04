@@ -42,10 +42,10 @@ std::string CDropdown::ValueName(int idx) {
 
 void CDropdown::Draw(int x, int y) {
 	auto size = GetSize();
-	auto ssize = draw::GetStringLength(fonts::MENU, ValueName(Value()));
+	auto ssize = draw::GetStringLength(fonts::MENU, ValueName(Value() - Props()->GetInt("offset")));
 	draw::DrawRect(x, y, size.first, size.second, colors::Transparent(colors::black));
 	draw::OutlineRect(x, y, size.first, size.second, colors::pink);
-	draw::String(fonts::MENU, x + (size.first - ssize.first) / 2, y + (size.second - ssize.second) / 2, colors::pink, 1, ValueName(Value()));
+	draw::String(fonts::MENU, x + (size.first - ssize.first) / 2, y + (size.second - ssize.second) / 2, colors::pink, 1, ValueName(Value() - Props()->GetInt("offset")));
 	auto asize = draw::GetStringLength(fonts::MENU, ">");
 	draw::String(fonts::MENU, x + size.first - asize.first - 2, y + (size.second - asize.second) / 2, colors::pink, 1, ">");
 }
@@ -55,9 +55,9 @@ void CDropdown::OnFocusLose() {
 }
 
 void CDropdown::SetValueInternal(int value) {
-	Props()->SetInt("value", value);
+	Props()->SetInt("value", value + Props()->GetInt("offset"));
 	if (m_pDropdownCallback)
-		m_pDropdownCallback(this, value);
+		m_pDropdownCallback(this, value + Props()->GetInt("offset"));
 }
 
 void CDropdown::SetValue(int value) {
