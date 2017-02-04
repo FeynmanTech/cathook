@@ -25,6 +25,7 @@ public:
 	KillSay();
 	~KillSay();
 	const char* ComposeKillSay(IGameEvent* evt);
+	void Reload();
 
 	CatVar* v_bEnabled;
 	CatVar* v_sFileName;

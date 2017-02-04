@@ -79,8 +79,12 @@ KillSay::~KillSay() {
 	interfaces::eventManager->RemoveListener(&m_Listener);
 }
 
+void KillSay::Reload() {
+	m_TextFile->LoadFile(v_sFileName->m_pConVar->GetString());
+}
+
 void CC_KillSay_ReloadFile(const CCommand& args) {
-	SAFE_CALL(g_phKillSay->m_TextFile->LoadFile(g_phKillSay->v_sFileName->m_pConVar->GetString()));
+	SAFE_CALL(g_phKillSay->Reload());
 }
 
 bool KillSay::CreateMove(void*, float, CUserCmd*) {	return true; }

@@ -18,7 +18,7 @@ public:
 	DECLARE_HACK_METHODS();
 	Misc();
 	//ConVar* v_bNoShootUntilCanHeadshot;
-	ConVar* v_bDebugInfo;
+	CatVar* v_bDebugInfo;
 	ConCommand* c_Name;
 	ConVar* v_bInfoSpam;
 	ConVar* v_bFastCrouch;
@@ -41,6 +41,8 @@ public:
 
 	CatVar* v_bCleanChat;
 };
+
+void CC_Misc_Disconnect_VAC();
 
 DECLARE_HACK_SINGLETON(Misc);
 

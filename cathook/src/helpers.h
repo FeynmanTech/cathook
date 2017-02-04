@@ -25,6 +25,7 @@ class Vector;
 
 #include "beforecheaders.h"
 #include <string>
+#include <sstream>
 #include "aftercheaders.h"
 
 #include "fixsdk.h"
@@ -83,6 +84,8 @@ void Patch(void* address, void* patch, size_t length);
 
 void AimAt(Vector origin, Vector target, CUserCmd* cmd);
 void AimAtHitbox(CachedEntity* ent, int hitbox, CUserCmd* cmd);
+
+std::string WordWrap(std::string& in, int max);
 
 bool IsMeleeWeapon(CachedEntity* ent);
 bool IsProjectileCrit(CachedEntity* ent);

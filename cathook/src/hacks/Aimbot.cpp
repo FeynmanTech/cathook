@@ -39,23 +39,23 @@ Aimbot::Aimbot() {
 	target_systems[2] = new TargetSystemDistance();
 	m_bAimKeySwitch = false;
 	this->v_eAimKeyMode = new CatVar(CV_ENUM, "aimbot_aimkey_mode", "1", "Aimkey mode", new CatEnum({ "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" }),
-			"DISABLED: aimbot is always active\AIMKEY: aimbot is active when key is down\REVERSE: aimbot is disabled when key is down\TOGGLE: pressing key toggles aimbot", false);
+			"DISABLED: aimbot is always active\nAIMKEY: aimbot is active when key is down\nREVERSE: aimbot is disabled when key is down\nTOGGLE: pressing key toggles aimbot", false);
 	this->v_bEnabled = new CatVar(CV_SWITCH, "aimbot_enabled", "0", "Enable Aimbot", NULL,
 			"Main aimbot switch");
 	this->v_eHitbox = new CatVar(CV_ENUM, "aimbot_hitbox", "0", "Hitbox", new CatEnum({
 		"HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
 		"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
 		"KNEE R", "FOOT R" }),
-			"Hitbox to aim at.\nIgnored if AutoHitbox is on");
+			"Hitbox to aim at. Ignored if AutoHitbox is on");
 	this->v_bAutoHitbox = new CatVar(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox", NULL,
 			"Automatically decide the hitbox to aim at.\n"
-			"For example: Sniper rifles and Ambassador always aim at head,\n"
-			"rocket launchers aim at feet if enemy is standing and at body\n"
+			"For example: Sniper rifles and Ambassador always aim at head, "
+			"rocket launchers aim at feet if enemy is standing and at body "
 			"if enemy is midair for easy airshots");
 	this->v_bInterpolation = new CatVar(CV_SWITCH, "aimbot_interp", "1", "Latency interpolation", NULL,
 			"Enable basic latency interpolation");
 	this->v_bAutoShoot = new CatVar(CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot", NULL,
-			"Shoot automatically when the target is locked");
+			"Shoot automatically when the target is locked, isn't compatible with 'Enable when attacking'");
 	this->v_bSilent = new CatVar(CV_SWITCH, "aimbot_silent", "1", "Silent", NULL,
 			"Your screen doesn't get snapped to the point where aimbot aims at");
 	this->v_bZoomedOnly = new CatVar(CV_SWITCH, "aimbot_zoomed", "1", "Zoomed only", NULL,
@@ -67,45 +67,44 @@ Aimbot::Aimbot() {
 			"900-1100 range is efficient for scout/widowmaker engineer", true, 4096.0f);
 	this->v_bRespectCloak = new CatVar(CV_SWITCH, "aimbot_respect_cloak", "1", "Respect cloak", NULL,
 			"Don't aim at invisible enemies");
-	this->v_bEnabledAttacking = new CatVar(CV_SWITCH, "aimbot_enable_attack_only", "1", "Active when attacking", NULL,
+	this->v_bEnabledAttacking = new CatVar(CV_SWITCH, "aimbot_enable_attack_only", "0", "Active when attacking", NULL,
 			"Basically makes Mouse1 an AimKey\n"
-			"I can't think of a reason to turn this off");
+			"Isn't compatible with AutoShoot");
 	this->v_bProjectileAimbot = new CatVar(CV_SWITCH, "aimbot_projectile", "1", "Projectile aimbot", NULL,
-			"If you turn it off, aimbot won't try to aim\n"
+			"If you turn it off, aimbot won't try to aim "
 			"with projectile weapons");
 	this->v_fOverrideProjSpeed = new CatVar(CV_FLOAT, "aimbot_proj_speed", "0", "Projectile speed", NULL,
 			"Force override projectile speed.\n"
-			"Can be useful for playing with MvM upgrades or on x10 servers\n"
-			"since there is no \"automatic\" projectile speed detection in\n"
+			"Can be useful for playing with MvM upgrades or on x10 servers "
+			"since there is no \"automatic\" projectile speed detection in "
 			"cathook. Yet.");
+	this->v_fOverrideProjGravity = new CatVar(CV_FLOAT, "aimbot_proj_gravity", "0", "Projectile gravity", NULL,
+			"Force override projectile gravity. Useful for debugging.", true);
 	this->v_fFOV = new CatVar(CV_FLOAT, "aimbot_fov", "0", "Aimbot FOV", NULL,
 			"FOV range for aimbot to lock targets.\n"
 			"\"Smart FOV\" coming soon.", true, 360.0f);
 	this->v_fAutoShootHuntsmanCharge = new CatVar(CV_FLOAT, "aimbot_huntsman_charge", "0.5", "Huntsman autoshoot", NULL,
 			"Minimum charge for autoshooting with huntsman.\n"
-			"Set it to 0.01 if you want to shoot as soon as you start\n"
+			"Set it to 0.01 if you want to shoot as soon as you start "
 			"pulling the arrow", true, 1.0f, 0.01f);
 	this->v_kAimKey = new CatVar(CV_KEY, "aimbot_aimkey", "0", "Aimkey", NULL,
 			"Aimkey. Look at Aimkey Mode too!");
 	this->v_ePriorityMode = new CatVar(CV_ENUM, "aimbot_prioritymode", "0", "Priority mode",
 			new CatEnum({ "SMART", "FOV", "DISTANCE", "HEALTH" }),
 			"Priority mode.\n"
-			"SMART: Basically Auto-Threat. Will be tweakable eventually\n"
-			"FOV, DISTANCE, HEALTH are self-explainable. HEALTH picks the\n"
-			"weakest enemy");
+			"SMART: Basically Auto-Threat. Will be tweakable eventually.\n"
+			"FOV, DISTANCE, HEALTH are self-explainable.\n"
+			"HEALTH picks the weakest enemy");
 	v_bAimBuildings = new CatVar(CV_SWITCH, "aimbot_buildings", "1", "Aim at buildings", NULL,
 			"Should aimbot aim at buildings?");
 	v_bActiveOnlyWhenCanShoot = new CatVar(CV_SWITCH, "aimbot_only_when_can_shoot", "1", "Active when can shoot", NULL,
-			"Aimbot only activates when you can instantly shoot, sometimes making the autoshoot\n"
-			"invisible for spectators");
+			"Aimbot only activates when you can instantly shoot, sometimes making the autoshoot invisible for spectators");
 	//v_fSmoothAutoshootTreshold = new CatVar(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
 	//this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
 	this->v_iSeenDelay = new CatVar(CV_INT, "aimbot_delay", "0", "Aimbot delay", NULL,
-			"# of ticks that should've passed since you can see any\n"
-			"hitbox of enemy before aimbot will aim at them", true, 300.0f);
+			"# of ticks that should've passed since you can see any hitbox of enemy before aimbot will aim at them", true, 300.0f);
 	this->v_bProjPredVisibility = new CatVar(CV_SWITCH, "aimbot_proj_vispred", "0", "Projectile visibility prediction", NULL,
-			"If disabled, aimbot won't lock at enemies that are behind walls, but will\n"
-			"come out soon");
+			"If disabled, aimbot won't lock at enemies that are behind walls, but will come out soon");
 	this->v_bProjPredFOV = new CatVar(CV_SWITCH, "aimbot_proj_fovpred", "0", "Projectile FOV mode", NULL,
 			"If disabled, FOV restrictions apply to current target position");
 	this->v_bAimAtTeammates = new CatVar(CV_SWITCH, "aimbot_teammates", "0", "Aim at teammates", NULL,
@@ -223,6 +222,11 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFGrapplingHook) return true;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
+	if (v_fOverrideProjSpeed->GetBool())
+		m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
+	if (v_fOverrideProjGravity->GetBool())
+		m_flProjGravity = v_fOverrideProjGravity->GetFloat();
+
 	// TODO priority modes (FOV, Smart, Distance, etc)
 	CachedEntity* target_highest = 0;
 	float target_highest_score = -256;
@@ -451,6 +455,8 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	if (m_bProjectileMode) {
 		if (v_fOverrideProjSpeed->GetBool())
 			m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
+		if (v_fOverrideProjGravity->GetBool())
+			m_flProjGravity = v_fOverrideProjGravity->GetFloat();
 		hit = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
 	}
 	//logging::Info("ayyming!");

@@ -19,12 +19,16 @@ AchievementHack::AchievementHack() {
 }
 
 void CC_Achievement_Unlock(const CCommand& args) {
+	Achievements_Unlock();
+}
+
+void Achievements_Unlock() {
 	for (int i = 0; i < interfaces::achievements->GetAchievementCount(); i++) {
 		interfaces::achievements->AwardAchievement(interfaces::achievements->GetAchievementByIndex(i)->GetAchievementID());
 	}
 }
 
-void CC_Achievement_Lock(const CCommand& args) {
+void Achievements_Lock() {
 	interfaces::stats->RequestCurrentStats();
 	//interfaces::stats->ResetAllStats(true);
 	for (int i = 0; i < interfaces::achievements->GetAchievementCount(); i++) {
@@ -32,6 +36,10 @@ void CC_Achievement_Lock(const CCommand& args) {
 	}
 	interfaces::stats->StoreStats();
 	interfaces::stats->RequestCurrentStats();
+}
+
+void CC_Achievement_Lock(const CCommand& args) {
+	Achievements_Lock();
 }
 
 bool AchievementHack::CreateMove(void*, float, CUserCmd*) { return true; }

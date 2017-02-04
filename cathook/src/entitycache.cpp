@@ -232,12 +232,10 @@ void CachedEntity::AddESPString(const char* fmt, ...) {
 	m_nESPStrings++;
 }
 
-ESPStringCompound CachedEntity::GetESPString(int idx) {
-	if (idx >= 0 && idx < m_nESPStrings) {
-		return m_Strings[idx];
-	} else {
-		return ESPStringCompound();
-	}
+ESPStringCompound& CachedEntity::GetESPString(int idx) {
+	//if (idx >= 0 && idx < m_nESPStrings) {
+	return m_Strings[idx];
+
 }
 
 matrix3x4_t* CachedEntity::GetBones() {
@@ -252,7 +250,6 @@ EntityCache::EntityCache() {
 }
 
 EntityCache::~EntityCache() {
-	logging::Info("Destroying EntityCache!");
 	delete [] m_pArray;
 }
 

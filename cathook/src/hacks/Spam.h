@@ -19,6 +19,7 @@ class Spam : public IHack {
 public:
 	DECLARE_HACK_METHODS();
 	Spam();
+	void Reload();
 	CatVar* v_bSpam;
 	CatVar* v_sSpamFile;
 	CatVar* v_bSpamNewlines;

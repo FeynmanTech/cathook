@@ -52,6 +52,10 @@ void Spam::LevelShutdown() {
 	m_fLastSpam = 0;
 }
 
+void Spam::Reload() {
+	m_TextFile->LoadFile(v_sSpamFile->GetString());
+}
+
 void CC_Spam_ReloadFile(const CCommand& args) {
-	g_phSpam->m_TextFile->LoadFile(g_phSpam->v_sSpamFile->GetString());
+	g_phSpam->Reload();
 }

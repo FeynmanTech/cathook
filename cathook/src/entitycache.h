@@ -109,7 +109,7 @@ public:
 
 	void Update(int idx);
 	void AddESPString(const char* string, ...);
-	ESPStringCompound GetESPString(int idx);
+	ESPStringCompound& GetESPString(int idx);
 
 	// Entity fields start here.
 

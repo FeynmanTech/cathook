@@ -49,6 +49,7 @@ CCVarContainer::CCVarContainer(IWidget* parent, CatVar* var) : CBaseContainer(("
 		if (var->m_bHasMinmax) {
 			CSlider* sl = new CSlider(GetName() + "_control", this);
 			sl->Setup(var->m_flMinValue, var->m_flMaxValue);
+			sl->SetValue(var->GetFloat());
 			m_pControl = sl;
 			sl->SetCallback([this](CSlider*, float oldv, float newv) {
 				m_pVar->SetValue(newv);
@@ -61,6 +62,7 @@ CCVarContainer::CCVarContainer(IWidget* parent, CatVar* var) : CBaseContainer(("
 			CSlider* sl = new CSlider(GetName() + "_control", this);
 			sl->Setup(var->m_flMinValue, var->m_flMaxValue);
 			sl->SetStep(1.0f);
+			sl->SetValue(var->GetInt());
 			sl->SetCallback([this](CSlider*, float oldv, float newv) {
 				m_pVar->SetValue(newv);
 			});
@@ -73,7 +75,7 @@ CCVarContainer::CCVarContainer(IWidget* parent, CatVar* var) : CBaseContainer(("
 		ki->SetCallback([this](CKeyInput*, ButtonCode_t key) {
 			m_pVar->SetValue(key);
 		});
-		ki->SetSize(30, 18);
+		ki->SetSize(60, 18);
 		m_pControl = ki;
 	} break;
 	case CatVar_t::CV_STRING: {
@@ -107,7 +109,7 @@ CCVarContainer::CCVarContainer(IWidget* parent, CatVar* var) : CBaseContainer(("
 		AddChild(m_pControl);
 	}
 	if (m_pInput) {
-		m_pInput->SetSize(40, 18);
+		m_pInput->SetMaxWidth(10);
 		AddChild(m_pInput);
 	}
 }

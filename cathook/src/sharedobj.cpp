@@ -77,7 +77,6 @@ sharedobj::SharedObject* sharedobj::tier0 = 0;
 sharedobj::SharedObject* sharedobj::inputsystem = 0;
 
 sharedobj::SharedObject::SharedObject(const char* name, bool factory) {
-	logging::Info("Loading SharedObject: %s", name);
 	while (!(this->path = path_from_proc_maps(name))) {
 		sleep(1);
 	}

@@ -43,6 +43,7 @@ IWidget* CBaseContainer::ChildByName(std::string name) {
 IWidget* CBaseContainer::ChildByPoint(int x, int y) {
 	for (int i = ChildCount() - 1; i >= 0; i--) {
 		auto child = ChildByIndex(i);
+		if (!child->IsVisible()) continue;
 		auto co = child->GetOffset();
 		auto cs = child->GetSize();
 		if (x >= co.first && x <= co.first + cs.first &&
@@ -154,7 +155,6 @@ void CBaseContainer::OnMouseRelease() {
 void CBaseContainer::PressOn(IWidget* child) {
 	m_pPressedChild = child;
 	if (child) {
-		//logging::Info("> MousePress %s", child->GetName().c_str());
 		child->OnMousePress();
 		if (child->DoesStealFocus())
 			FocusOn(child);
