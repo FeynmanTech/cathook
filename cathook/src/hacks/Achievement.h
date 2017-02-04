@@ -18,6 +18,9 @@ public:
 	ConCommand* c_Lock;
 };
 
+void Achievements_Unlock();
+void Achievements_Lock();
+
 void CC_Achievement_Unlock(const CCommand& args);
 void CC_Achievement_Lock(const CCommand& args);
 

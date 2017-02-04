@@ -40,8 +40,8 @@ void CTextInput::Draw(int x, int y) {
 	auto size = GetSize();
 	int color = colors::Create(0, 0, 0, 80);
 	if (IsFocused()) color = colors::Transparent(colors::pink, 0.25);
-	draw::DrawRect(x, y, size.first, wsize.second + 4, color);
-	draw::OutlineRect(x, y, size.first, wsize.second + 4, colors::pink);
+	draw::DrawRect(x, y, size.first, size.second, color);
+	draw::OutlineRect(x, y, size.first, size.second, colors::pink);
 	int ml = 0;
 	int md = 0;
 	auto dotssize = draw::GetStringLength(fonts::MENU, "..."); // TODO static?

@@ -57,6 +57,7 @@ public:
 
 	virtual void SetOffset(int x, int y) = 0;
 	virtual void SetMaxSize(int x, int y) = 0;
+	virtual void SetSize(int x, int y) = 0;
 	virtual std::pair<int, int> GetOffset() = 0;
 	virtual std::pair<int, int> GetSize() = 0;
 	virtual std::pair<int, int> GetMaxSize() = 0;

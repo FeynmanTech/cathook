@@ -26,10 +26,9 @@ CBaseWidget::CBaseWidget(std::string name, IWidget* parent) : m_KeyValues(std::s
 }
 
 void CBaseWidget::Update() {
-	if (IsHovered() && Props()->FindKey("tooltip")) {
+	if (IsHovered() && IsVisible() && Props()->FindKey("tooltip")) {
 		g_pGUI->ShowTooltip(Props()->GetString("tooltip"));
 	}
-	//logging::Info("Updating! %s", GetName().c_str());
 }
 
 std::pair<int, int> CBaseWidget::AbsolutePosition() {

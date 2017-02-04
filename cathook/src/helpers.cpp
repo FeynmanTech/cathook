@@ -80,7 +80,7 @@ ConVar* CreateConVar(std::string name, std::string value, std::string help) {
 	//logging::Info("Creating ConVar: %s %s %s", namec, valuec, helpc);
 	ConVar* ret = new ConVar((const char*)namec, (const char*)valuec, 0, (const char*)helpc);
 	if (hConVarsFile)
-		fprintf(hConVarsFile, "%s %s\n", name, value);
+		fprintf(hConVarsFile, "%s %s\n", name.c_str(), value.c_str());
 	interfaces::cvar->RegisterConCommand(ret);
 	return ret;
 }
@@ -103,6 +103,41 @@ const char* GetBuildingName(CachedEntity* ent) {
 	if (ent->m_iClassID == g_pClassID->CObjectDispenser) return "Dispenser";
 	if (ent->m_iClassID == g_pClassID->CObjectTeleporter) return "Teleporter";
 	return "[NULL]";
+}
+
+std::string WordWrap(std::string& in, int max) {
+	std::stringstream result;
+	std::stringstream line;
+	std::stringstream wordstream;
+	std::stringstream next;
+	for (int i = 0; i < in.size(); i++) {
+		char ch = in.at(i);
+		if (ch == ' ' || ch == '\n') {
+			std::string word = wordstream.str();
+			//logging::Info("got word: '%s'", word.c_str());
+			wordstream.str("");
+			auto size = draw::GetStringLength(fonts::MENU, line.str() + word);
+			if (size.first >= max) {
+				//logging::Info("wrapping: '%s'", line.str().c_str());
+				result << line.str() << '\n';
+				line.str("");
+			}
+			line << word << ch;
+		} else {
+			wordstream << ch;
+		}
+	}
+	std::string word = wordstream.str();
+	wordstream.str("");
+	auto size = draw::GetStringLength(fonts::MENU, line.str() + word);
+	if (size.first >= max) {
+		result << line.str() << '\n';
+		line.str(word);
+	} else {
+		line << word;
+	}
+	result << line.str();
+	return result.str();
 }
 
 /* Takes CBaseAnimating entity as input */

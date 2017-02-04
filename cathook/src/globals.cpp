@@ -22,7 +22,6 @@ void ThirdpersonCallback(IConVar* var, const char* pOldValue, float flOldValue) 
 
 void GlobalSettings::Init() {
 	EstimateAbsVelocity = (EstimateAbsVelocity_t*)gSignatures.GetClientSignature("55 89 E5 56 53 83 EC 30 8B 5D 08 8B 75 0C E8 4D 2E 01 00 39 D8 74 69 0F B6 05 24 3F 00 02 81 C3 B8 02 00 00 C6 05 24 3F 00 02 01 88 45 F0 A1 20 3F 00 02 89 45 F4 A1 28 3F 00 02 89 45 EC 8D 45 EC A3 28 3F 00 02 A1 14 C8 F6 01 8B 40 0C 89 74 24 04 89 1C 24 89 44 24 08 E8 A2 41 00 00 0F B6 45 F0 A2 24 3F 00 02 8B 45 F4 A3 20 3F 00 02 8B 45 EC A3 28 3F 00 02 83 C4 30 5B 5E 5D C3");
-	logging::Info("EstimateAbsVelocity: 0x%08x", EstimateAbsVelocity);
 
 	this->sDisconnectMsg = new CatVar(CV_STRING, "disconnect_msg", "", "Disconnect reason", NULL, "A custom disconnect message");
 

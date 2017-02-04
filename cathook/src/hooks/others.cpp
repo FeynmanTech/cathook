@@ -134,7 +134,6 @@ bool DispatchUserMessage_hook(void* thisptr, int type, bf_read& buf) {
 void LevelInit_hook(void* thisptr, const char* newmap) {
 	((LevelInit_t*) hooks::hkClientMode->GetMethod(hooks::offLevelInit))(thisptr, newmap);
 	DRM_ENFORCE;
-	logging::Info("LevelInit %s", newmap);
 	LEVEL_INIT(Aimbot, newmap);
 	LEVEL_INIT(Airstuck, newmap);
 	LEVEL_INIT(AntiAim, newmap);
@@ -156,7 +155,6 @@ void LevelInit_hook(void* thisptr, const char* newmap) {
 void LevelShutdown_hook(void* thisptr) {
 	((LevelShutdown_t*) hooks::hkClientMode->GetMethod(hooks::offLevelShutdown))(thisptr);
 	g_Settings.bInvalid = true;
-	logging::Info("LevelShutdown");
 	LEVEL_SHUTDOWN(Aimbot);
 	LEVEL_SHUTDOWN(Airstuck);
 	LEVEL_SHUTDOWN(AntiAim);

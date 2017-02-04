@@ -43,6 +43,7 @@ void CSlider::SetValue(float value) {
 			m_pCallback(this, old, value);
 		}
 	}
+	m_nSliderPos = (GetSize().first) * (float)value / (float)(Props()->GetFloat("value_max") - Props()->GetFloat("value_min"));
 }
 
 float CSlider::Value() {
@@ -59,7 +60,7 @@ void CSlider::Update() {
 				int mv = g_pGUI->m_iMouseX - abs.first;
 				if (mv < 0) mv = 0;
 				if (mv > size.first) mv = size.first;
-				SetValue(((float)mv / (float)size.first) * (Props()->GetFloat("value_max") - Props()->GetFloat("value_min")));
+				SetValue(((float)mv / (float)size.first) * (Props()->GetFloat("value_max") - Props()->GetFloat("value_min")) + Props()->GetFloat("value_min"));
 				m_nSliderPos = mv;
 			}
 		}
@@ -70,8 +71,8 @@ void CSlider::Update() {
 
 void CSlider::Draw(int x, int y) {
 	auto size = GetSize();
-	draw::DrawRect(x, y + size.second / 2 - 2, size.first, 4, colors::Create(0, 0, 0, 200));
-	draw::DrawRect(x + m_nSliderPos - 2, y + 2, 4, size.second - 4, colors::pink);
+	draw::DrawRect(x, y, size.first, size.second, colors::Create(0, 0, 0, 200));
+	draw::DrawRect(x, y, m_nSliderPos, size.second, colors::pink);
 	char* s = strfmt("%.2f", Value());
 	std::string str(s);
 	delete [] s;

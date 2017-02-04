@@ -25,18 +25,22 @@ void CKeyInput::SetValue(int value) {
 
 void CKeyInput::Draw(int x, int y) {
 	std::string key = "";
-	if (!Value()) {
-		if (IsFocused()) {
-			key = "< PRESS >";
-		} else {
-			key = "< CLICK >";
-		}
+	int color = colors::white;
+	if (Props()->GetBool("capturing")) {
+		key = "< PRESS >";
+		color = colors::pink;
 	} else {
-		key = interfaces::input->ButtonCodeToString(Value());
+		if (!Value()) {
+			if (!IsFocused()) {
+				key = "< CLICK >";
+			}
+		} else {
+			key = interfaces::input->ButtonCodeToString(Value());
+		}
 	}
 	auto size = GetSize();
 	auto ss = draw::GetStringLength(fonts::MENU, key);
-	draw::String(fonts::MENU, x + (size.first - ss.first) / 2, y + (size.second - ss.second) / 2, colors::white, 1, key);
+	draw::String(fonts::MENU, x + (size.first - ss.first) / 2, y + (size.second - ss.second) / 2, color, 1, key);
 }
 
 void CKeyInput::SetCallback(KeyInputCallbackFn_t callback) {

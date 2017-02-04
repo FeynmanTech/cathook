@@ -33,14 +33,12 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
 	if (ch && !hooks::IsHooked((void*)((uintptr_t)ch))) {
-		logging::Info("Hooking INetChannel!");
 		hooks::hkNetChannel = new hooks::VMTHook();
 		hooks::hkNetChannel->Init(ch, 0);
 		hooks::hkNetChannel->HookMethod((void*)CanPacket_hook, hooks::offCanPacket);
 		hooks::hkNetChannel->HookMethod((void*)SendNetMsg_hook, hooks::offSendNetMsg);
 		hooks::hkNetChannel->HookMethod((void*)Shutdown_hook, hooks::offShutdown);
 		hooks::hkNetChannel->Apply();
-		logging::Info("NetChannel Hooked!");
 	}
 	//logging::Info("canpacket: %i", ch->CanPacket());
 	//if (!cmd) return ret;

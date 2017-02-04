@@ -65,10 +65,9 @@ void CDropdown::SetValue(int value) {
 }
 
 void CDropdown::ShowList() {
-	logging::Info("Showing Menu!");
 	auto pos = AbsolutePosition();
 	auto size = GetSize();
-	list->SetOffset(pos.first + size.first, pos.second);
+	list->SetOffset(pos.first + size.first + 3, pos.second);
 	list->Show();
 }
 

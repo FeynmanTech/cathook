@@ -5,13 +5,14 @@
  *      Author: nullifiedcat
  */
 
+#include "CCTitleBar.h"
+
 #include "GUI.h"
 
 #include "../common.h"
 #include "../sdk.h"
-#include "CTitleBar.h"
 
-TitleBar::TitleBar(IWidget* parent, std::string title) : CBaseWidget("titlebar", parent) {
+CTitleBar::CTitleBar(IWidget* parent, std::string title) : CBaseWidget("titlebar", parent) {
 	m_strTitle = title;
 	m_iDraggingStage = 0;
 	m_nLastX = 0;
@@ -19,7 +20,7 @@ TitleBar::TitleBar(IWidget* parent, std::string title) : CBaseWidget("titlebar",
 	SetPositionMode(ABSOLUTE);
 }
 
-void TitleBar::Draw(int x, int y) {
+void CTitleBar::Draw(int x, int y) {
 	auto size = GetSize();
 	draw::DrawRect(x, y, size.first, size.second, colors::pink);
 	int l, h;
@@ -27,7 +28,7 @@ void TitleBar::Draw(int x, int y) {
 	draw::String(fonts::MENU, x + (size.first - l) / 2, y + TITLEBAR_PADDING_H, colors::white, 1, m_strTitle.c_str());
 }
 
-void TitleBar::Update() {
+void CTitleBar::Update() {
 	auto psize = GetParent()->GetSize();
 	int l, h;
 	draw::GetStringLength(fonts::MENU, (char*)m_strTitle.c_str(), l, h);

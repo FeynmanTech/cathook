@@ -23,10 +23,10 @@ typedef std::function<void(CBaseButton*)> ButtonCallbackFn_t;
 
 class CBaseButton : public CTextLabel {
 public:
-	CBaseButton(std::string name = "unnamed", IWidget* parent = nullptr, std::string text = "");
+	CBaseButton(std::string name = "unnamed", IWidget* parent = nullptr, std::string text = "", ButtonCallbackFn_t callback = nullptr);
 
 	virtual void Draw(int x, int y);
-	virtual void OnMousePress();
+	virtual void OnMousePress() override;
 
 	void SetCallback(ButtonCallbackFn_t callback);
 

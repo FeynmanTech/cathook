@@ -14,6 +14,9 @@
 CTooltip::CTooltip(IWidget* parent) : CTextLabel("tooltip", parent) {
 	SetZIndex(999);
 	SetPadding(4, 4);
+	SetMaxSize(100, -1);
+	SetAutoSize(false);
+	SetSize(100, -1);
 }
 
 void CTooltip::Draw(int x, int y) {

@@ -15,10 +15,12 @@
 #include "CTooltip.h"
 #include "CBaseContainer.h"
 #include "CDropdown.h"
+#include "CMenuContainer.h"
 #include "CCVarContainer.h"
+#include "CMenuWindow.h"
 
 #include "../common.h"
-#include "CTitleBar.h"
+#include "CCTitleBar.h"
 
 void B1Callback(CBaseButton* thisptr) {
 	CBaseContainer* container = dynamic_cast<CBaseContainer*>(thisptr->GetParent());
@@ -47,11 +49,18 @@ RootWindow::RootWindow() : CBaseWindow("root") {
 void RootWindow::Setup() {
 	g_pGUI->m_pTooltip = new CTooltip();
 	AddChild(g_pGUI->m_pTooltip);
+	SetMaxSize(draw::width, draw::height);
 	CBaseWindow* ws = new CBaseWindow("splitwindow");
 	ws->SetPositionMode(ABSOLUTE);
-	TitleBar* wst = new TitleBar(ws, "Window Layout Test");
+	CTitleBar* wst = new CTitleBar(ws, "Window Layout Test");
 	ws->AddChild(wst);
 	ws->SetMaxSize(500, 0);
+	CMenuWindow* win = new CMenuWindow("menu_window", this);
+	win->SetMaxSize(912, 410);
+	auto ms = GetMaxSize();
+	win->AddElements();
+	AddChild(win);
+	win->SetOffset((draw::width - 912) / 2, (draw::height - 410) / 2);
 	/*//ws->SetMaxSize(500, 300);
 	CSplitContainer* sc1 = new CSplitContainer("sc1", ws);
 	ws->AddChild(sc1);
@@ -90,7 +99,7 @@ void RootWindow::Setup() {
 	dr->AddValue("wow!");
 	sc3->AddChild(dr);
 	ws->AddChild(sc3);*/
-	AddChild(ws);
+	/*AddChild(ws);
 	CSplitContainer* sc4 = new CSplitContainer("sc4", ws);
 	ws->AddChild(sc4);
 	sc4->SetMaxSize(480, -1);
@@ -106,13 +115,11 @@ void RootWindow::Setup() {
 	sc4->AddChild(new CCVarContainer(sc4, g_Settings.flForceFOV));
 	sc4->AddChild(new CCVarContainer(sc4, g_Settings.bCleanScreenshots));
 	sc5->AddChild(new CCVarContainer(sc5, g_Settings.sDisconnectMsg));
-	sc5->AddChild(new CCVarContainer(sc5, g_phAimbot->v_eHitbox));
-	sc6->AddChild(new CCVarContainer(sc6, g_phAimbot->v_kAimKey));
 	sc6->AddChild(new CTextLabel());
 	//ws->AddChild(sl);
 
 	CBaseWindow* wgt = new CBaseWindow("testwindow", this);
-	IWidget* title = new TitleBar(wgt, "Test Window");
+	IWidget* title = new CTitleBar(wgt, "Test Window");
 	wgt->SetPositionMode(ABSOLUTE);
 	wgt->AddChild(title);
 	wgt->SetMaxSize(0, 100);
@@ -132,7 +139,7 @@ void RootWindow::Setup() {
 	wgt->AddChild(ti);
 	wgt->AddChild(td);
 	td->SetPositionMode(INLINE);
-	this->AddChild(wgt);
+	this->AddChild(wgt);*/
 }
 
 RootWindow::~RootWindow() {

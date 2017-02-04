@@ -194,7 +194,7 @@ void CC_Disconnect(const CCommand& args) {
 	ch->Shutdown(args.ArgS());
 }
 
-void CC_DisonnectVAC(const CCommand& args) {
+void CC_Misc_Disconnect_VAC(const CCommand& args) {
 	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
 	if (!ch) {
 		logging::Info("No net channel!");
@@ -244,7 +244,7 @@ void CC_DumpConds(const CCommand& args) {
 }
 
 Misc::Misc() {
-	v_bDebugInfo = CreateConVar(CON_PREFIX "misc_debug", "0", "Debug info");
+	v_bDebugInfo = new CatVar(CV_SWITCH, "misc_debug", "0", "Debug info", NULL, "Log stuff to console, enable this if tf2 crashes");
 	c_Name = CreateConCommand(CON_PREFIX "name", CC_SetName, "Sets custom name");
 	if (TF2) c_DumpItemAttributes = CreateConCommand(CON_PREFIX "dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
 	c_SayLine = CreateConCommand(CON_PREFIX "say_lines", CC_SayLines, "Uses ^ as a newline character");
@@ -258,7 +258,7 @@ Misc::Misc() {
 	c_Lockee = CreateConCommand(CON_PREFIX "lockee", CC_Lockee, "Lock/Unlock commands");
 	c_Reset = CreateConCommand(CON_PREFIX "reset_lists", CC_ResetLists, "Remove all friends and rage");
 	c_Disconnect = CreateConCommand(CON_PREFIX "disconnect", CC_Disconnect, "Disconnect");
-	c_DisconnectVAC = CreateConCommand(CON_PREFIX "disconnect_vac", CC_DisonnectVAC, "Disconnect (VAC)");
+	c_DisconnectVAC = CreateConCommand(CON_PREFIX "disconnect_vac", CC_Misc_Disconnect_VAC, "Disconnect (VAC)");
 	v_bInfoSpam = CreateConVar(CON_PREFIX "info_spam", "0", "Info spam");
 	v_bFastCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fast crouch");
 	v_bFlashlightSpam = new CatVar(CV_SWITCH, "flashlight_spam", "0", "Flashlight Spam", NULL, "Quickly turns flashlight on and off");

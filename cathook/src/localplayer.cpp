@@ -12,7 +12,6 @@ void LocalPlayer::Update() {
 	entity_idx = interfaces::engineClient->GetLocalPlayer();
 	entity = ENTITY(entity_idx);
 	if (CE_BAD(entity)) {
-		logging::Info("Local Player is BAD CACHED ENTITY!");
 		return;
 	}
 	team = CE_INT(entity, netvar.iTeamNum);

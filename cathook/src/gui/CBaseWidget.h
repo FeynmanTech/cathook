@@ -17,6 +17,8 @@
 #include <algorithm>
 #include "../aftercheaders.h"
 
+#include "../logging.h"
+
 #include <KeyValues.h>
 
 class CBaseWidget : public virtual IWidget {
@@ -45,7 +47,10 @@ public:
 
 	inline virtual void Show() { m_KeyValues->SetBool("visible", true); }
 	inline virtual void Hide() { m_KeyValues->SetBool("visible", false); }
-	inline virtual bool IsVisible() { return m_KeyValues->GetBool("visible"); }
+	inline virtual bool IsVisible() {
+		if (GetParent()) return GetParent()->IsVisible() && m_KeyValues->GetBool("visible");
+		return m_KeyValues->GetBool("visible");
+	}
 
 	inline virtual bool IsHovered() { return m_KeyValues->GetBool("hover"); }
 	inline virtual bool IsFocused() { return m_KeyValues->GetBool("focus"); }

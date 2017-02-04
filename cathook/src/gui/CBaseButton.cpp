@@ -10,8 +10,10 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CBaseButton::CBaseButton(std::string name, IWidget* parent, std::string text) : CTextLabel(name, parent, text) {
+CBaseButton::CBaseButton(std::string name, IWidget* parent, std::string text, ButtonCallbackFn_t callback) : CTextLabel(name, parent, text) {
 	SetPadding(BUTTON_PADDING_W, BUTTON_PADDING_H);
+	SetText(text);
+	if (callback) SetCallback(callback);
 }
 
 void CBaseButton::SetCallback(ButtonCallbackFn_t callback) {
@@ -31,6 +33,7 @@ void CBaseButton::Draw(int x, int y) {
 
 void CBaseButton::OnMousePress() {
 	CBaseWidget::OnMousePress();
-	if (m_pCallback)
+	if (m_pCallback) {
 		m_pCallback(this);
+	}
 }
