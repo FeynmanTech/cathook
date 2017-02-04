@@ -57,6 +57,7 @@ void CMenuWindow::AddElements() {
 	tab = GetTab("esp");
 	ADDCVAR(g_phESP->v_bEnabled);
 	if (TF) ADDCVAR(g_phESP->v_bShowTank);
+	if (TF) ADDCVAR(g_phESP->v_bBuildingESP);
 	ADDLABEL("Player ESP");
 	ADDCVAR(g_phESP->v_bBox);
 	ADDCVAR(g_phESP->v_bTeammates);
