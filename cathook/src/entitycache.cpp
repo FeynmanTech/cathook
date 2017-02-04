@@ -99,7 +99,7 @@ void CachedEntity::Update(int idx) {
 	} else if (m_iClassID == g_pClassID->CObjectTeleporter ||
 			   m_iClassID == g_pClassID->CObjectSentrygun ||
 			   m_iClassID == g_pClassID->CObjectDispenser) {
-		m_Type == EntityType::ENTITY_BUILDING;
+		m_Type = EntityType::ENTITY_BUILDING;
 	} else if (m_iClassID == g_pClassID->CTFProjectile_Arrow ||
 			   m_iClassID == g_pClassID->CTFProjectile_EnergyBall ||
 			   m_iClassID == g_pClassID->CTFProjectile_EnergyRing ||

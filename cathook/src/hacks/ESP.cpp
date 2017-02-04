@@ -68,6 +68,7 @@ ESP::ESP() {
 	v_bShowName = new CatVar(CV_SWITCH, "esp_name", "1", "Name ESP", NULL, "Show name");
 	v_bShowClass = new CatVar(CV_SWITCH, "esp_class", "1", "Class ESP", NULL, "Show class");
 	v_bShowConditions = new CatVar(CV_SWITCH, "esp_conds", "1", "Conditions ESP", NULL, "Show conditions");
+	this->v_bBuildingESP = new CatVar(CV_SWITCH, "esp_buildings", "1", "Building ESP", NULL, "Show buildings");
 }
 
 #define ESP_HEIGHT 14
@@ -164,9 +165,10 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (v_bShowEntityID->GetBool()) {
 			ent->AddESPString("%i", ent->m_IDX);
 		}
+		ent->AddESPString("Type: %i", ent->m_Type);
 	}
 
-	if (v_bProjectileESP->GetBool() && (ent->m_bEnemy || (v_bTeammates->GetBool() && !v_bOnlyEnemyProjectiles->GetBool()))) {
+	if (ent->m_Type == ENTITY_PROJECTILE && v_bProjectileESP->GetBool() && (ent->m_bEnemy || (v_bTeammates->GetBool() && !v_bOnlyEnemyProjectiles->GetBool()))) {
 		if (ent->m_iClassID == g_pClassID->CTFProjectile_Rocket || ent->m_iClassID ==  g_pClassID->CTFProjectile_SentryRocket) {
 			if (v_iShowRockets->GetBool()) {
 				if (v_iShowRockets->GetInt() != 2 || ent->m_bCritProjectile) {
@@ -270,7 +272,30 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 			}
 		}
-	} else if (ent->m_iClassID == g_pClassID->C_Player && ent->m_bAlivePlayer) {
+	} else if (ent->m_Type == ENTITY_BUILDING && v_bBuildingESP->GetBool()) {
+		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) return;
+		int level = CE_INT(ent, netvar.iUpgradeLevel);
+		const char* name = (ent->m_iClassID == g_pClassID->CObjectTeleporter ? "Teleporter" : (ent->m_iClassID == g_pClassID->CObjectSentrygun ? "Sentry Gun" : "Dispenser"));
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
+			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+				return;
+			}
+		}
+		ent->AddESPString("LV %i %s", level, name);
+		if (this->v_bShowHealthNumbers->GetBool()) {
+			ent->AddESPString("%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
+			ent->GetESPString(ent->m_nESPStrings - 1).m_bColored = true;
+			if (v_bVisCheck->GetBool()) {
+				ent->GetESPString(ent->m_nESPStrings - 1).m_nColor = colors::Transparent(colors::Health(ent->m_iHealth, ent->m_iMaxHealth), ent->IsVisible() ? 1.0 : 0.5f);
+			} else {
+				ent->GetESPString(ent->m_nESPStrings - 1).m_nColor = colors::Health(ent->m_iHealth, ent->m_iMaxHealth);
+			}
+		}
+		if (this->v_bShowDistance->GetBool()) {
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
+		}
+		return;
+	} else if (ent->m_Type == ENTITY_PLAYER && ent->m_bAlivePlayer) {
 		if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
 			ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
 		int pclass = CE_INT(ent, netvar.iClass);
@@ -301,7 +326,11 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (this->v_bShowHealthNumbers->GetBool()) {
 				ent->AddESPString("%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
 				ent->GetESPString(ent->m_nESPStrings - 1).m_bColored = true;
-				ent->GetESPString(ent->m_nESPStrings - 1).m_nColor = colors::Health(ent->m_iHealth, ent->m_iMaxHealth);
+				if (v_bVisCheck->GetBool()) {
+					ent->GetESPString(ent->m_nESPStrings - 1).m_nColor = colors::Transparent(colors::Health(ent->m_iHealth, ent->m_iMaxHealth), ent->IsVisible() ? 1.0 : 0.5f);
+				} else {
+					ent->GetESPString(ent->m_nESPStrings - 1).m_nColor = colors::Health(ent->m_iHealth, ent->m_iMaxHealth);
+				}
 			}
 			if (v_bShowConditions->GetBool() && TF) {
 				if (IsPlayerInvisible(ent)) {
@@ -323,23 +352,6 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			if (this->v_bShowDistance->GetBool()) {
 				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 			}
-		}
-		return;
-	} else if (ent->m_iClassID == g_pClassID->CObjectSentrygun || ent->m_iClassID == g_pClassID->CObjectDispenser || ent->m_iClassID == g_pClassID->CObjectTeleporter) {
-		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) return;
-		int level = CE_INT(ent, netvar.iUpgradeLevel);
-		const char* name = (ent->m_iClassID == 89 ? "Teleporter" : (ent->m_iClassID == 88 ? "Sentry Gun" : "Dispenser"));
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
-			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
-				return;
-			}
-		}
-		ent->AddESPString("LV %i %s", level, name);
-		if (this->v_bShowHealthNumbers->GetBool()) {
-			ent->AddESPString("%i / %i HP", ent->m_iHealth, ent->m_iMaxHealth);
-		}
-		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 		return;
 	}

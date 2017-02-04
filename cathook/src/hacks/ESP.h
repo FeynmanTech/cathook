@@ -21,6 +21,7 @@ public:
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);
 	CatVar* v_bSeeLocal;
+	CatVar* v_bBuildingESP;
 	CatVar* v_bEnabled;
 	CatVar* v_bEntityESP;
 	CatVar* v_bTeammates;
