@@ -65,7 +65,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
 		SAFE_CALL(CREATE_MOVE(ESP));
 		if (!g_pLocalPlayer->life_state) {
-			SAFE_CALL(CREATE_MOVE(Noisemaker));
+			if (TF2) SAFE_CALL(CREATE_MOVE(Noisemaker));
 			SAFE_CALL(CREATE_MOVE(Bunnyhop));
 			SAFE_CALL(CREATE_MOVE(AutoStrafe));
 			SAFE_CALL(CREATE_MOVE(Aimbot));
