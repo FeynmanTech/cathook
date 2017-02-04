@@ -403,7 +403,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 			}
 		}
 		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return false;
-		return 0;
+		return 25;
 	} else if (entity->m_Type == ENTITY_BUILDING) {
 		if (!v_bAimBuildings->GetBool()) return 19;
 		int team = CE_INT(entity, netvar.iTeamNum);
