@@ -55,6 +55,9 @@ void CatGUI::Update() {
 					if (down) m_pRootWindow->OnMousePress();
 					else m_pRootWindow->OnMouseRelease();
 				} else {
+					if (i == ButtonCode_t::KEY_INSERT && down) {
+						v_bGUIVisible->SetValue(!v_bGUIVisible->GetBool());
+					}
 					if (down) m_pRootWindow->OnKeyPress((ButtonCode_t)i, false);
 					else m_pRootWindow->OnKeyRelease((ButtonCode_t)i);
 				}
