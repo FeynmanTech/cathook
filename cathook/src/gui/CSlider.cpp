@@ -43,7 +43,7 @@ void CSlider::SetValue(float value) {
 			m_pCallback(this, old, value);
 		}
 	}
-	m_nSliderPos = (GetSize().first) * (float)value / (float)(Props()->GetFloat("value_max") - Props()->GetFloat("value_min"));
+	m_nSliderPos = (GetSize().first) * (float)(value - Props()->GetFloat("value_min")) / (float)(Props()->GetFloat("value_max") - Props()->GetFloat("value_min"));
 }
 
 float CSlider::Value() {

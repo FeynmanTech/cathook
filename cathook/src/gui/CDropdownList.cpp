@@ -12,7 +12,7 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CDropdownList::CDropdownList(std::string name, CDropdown* menu) : CBaseContainer(name, nullptr) {
+CDropdownList::CDropdownList(std::string name, CDropdown* menu, int offset) : CBaseContainer(name, nullptr) {
 	m_pMenu = menu;
 	Hide();
 	SetZIndex(5);

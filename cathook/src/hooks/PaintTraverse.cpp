@@ -103,12 +103,6 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (!draw_flag) return;
 	draw_flag = false;
 
-#if GUI_ENABLED == true
-		/*g_pGUI->UpdateKeys();
-		g_pGUI->UpdateMouse();
-		g_pGUI->Draw();*/
-		g_pGUI->Update();
-#endif
 	if (g_Settings.bShowLogo->GetBool()) {
 		AddSideString(colors::RainbowCurrent(), "cathook by d4rkc4t");
 #if _DEVELOPER
@@ -159,6 +153,13 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 			}
 		}
 	}
+
+#if GUI_ENABLED == true
+		/*g_pGUI->UpdateKeys();
+		g_pGUI->UpdateMouse();
+		g_pGUI->Draw();*/
+		g_pGUI->Update();
+#endif
 
 	DrawStrings();
 	SEGV_END;

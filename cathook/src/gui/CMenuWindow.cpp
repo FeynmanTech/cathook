@@ -115,12 +115,13 @@ void CMenuWindow::AddElements() {
 	}
 	AddTab("misc", "Misc");
 	tab = GetTab("misc");
-	tab->AddChild(new CBaseButton("ach_unlock", tab, "Unlock Achievements (DO NOT USE INGAME)", [this](CBaseButton*) {
+	//ADDLABEL("To lock/unlock achievements use cat_achievement_ commands!");
+	/*tab->AddChild(new CBaseButton("ach_unlock", tab, "Unlock Achievements (DO NOT USE INGAME)", [this](CBaseButton*) {
 		Achievements_Unlock();
 	}));
 	tab->AddChild(new CBaseButton("ach_lock", tab, "Lock Achievements", [this](CBaseButton*) {
 		Achievements_Lock();
-	}));
+	}));*/
 	if (TF) ADDCVAR(g_phAutoHeal->v_bEnabled);
 	if (TF) ADDCVAR(g_phAntiDisguise->v_bEnabled);
 	ADDCVAR(g_Settings.bCleanScreenshots);

@@ -43,6 +43,7 @@ CCVarContainer::CCVarContainer(IWidget* parent, CatVar* var) : CBaseContainer(("
 		dd->SetCallback([this](CDropdown*, int value) {
 			m_pVar->SetValue(value);
 		});
+		dd->Props()->SetInt("offset", var->GetEnum()->Minimum());
 		m_pControl = dd;
 	} break;
 	case CatVar_t::CV_FLOAT: {

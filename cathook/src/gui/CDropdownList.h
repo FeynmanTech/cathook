@@ -15,7 +15,7 @@ class CDropdownEntry;
 
 class CDropdownList : public CBaseContainer {
 public:
-	CDropdownList(std::string name = "unnamed", CDropdown* menu = nullptr);
+	CDropdownList(std::string name = "unnamed", CDropdown* menu = nullptr, int offset = 0);
 	~CDropdownList();
 
 	virtual void Draw(int x, int y);
