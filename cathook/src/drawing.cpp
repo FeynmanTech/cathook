@@ -331,7 +331,26 @@ void draw::GetStringLength(unsigned long font, char* string, int& length, int& h
 }
 
 void draw::String (unsigned long font, int x, int y, int color, int shadow, const char* text) {
-	bool newlined = false;
+	/*if (shadow) {
+		unsigned char alpha = (color >> 24);
+		int black_t = ((alpha == 255) ? colors::black : colors::Create(0, 0, 0, alpha / shadow));
+		if (shadow > 0) {
+			draw::String(font, x + 1, y + 1, black_t, false, text);
+		}
+		if (shadow > 1) {
+			draw::String(font, x - 1, y + 1, black_t, false, text);
+			draw::String(font, x - 1, y - 1, black_t, false, text);
+			draw::String(font, x + 1, y - 1, black_t, false, text);
+			draw::String(font, x + 1, y, black_t, false, text);
+			draw::String(font, x, y + 1, black_t, false, text);
+			draw::String(font, x, y - 1, black_t, false, text);
+			draw::String(font, x - 1, y, black_t, false, text);
+		}
+	}
+	char* col = new char[4];
+	*(int*)col = color;
+	interfaces::matsurface->DrawColoredText(font, x, y, col[0], col[1], col[2], col[3], "%s", text);
+	*/bool newlined = false;
 	for (int i = 0; i < strlen(text); i++) {
 		if (text[i] == '\n') {
 			newlined = true; break;
