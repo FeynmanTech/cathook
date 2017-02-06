@@ -125,6 +125,7 @@ void CMenuWindow::AddElements() {
 	}));*/
 	if (TF) ADDCVAR(g_phAutoHeal->v_bEnabled);
 	if (TF) ADDCVAR(g_phAntiDisguise->v_bEnabled);
+	ADDCVAR(g_phMisc->v_bAntiAFK);
 	ADDCVAR(g_Settings.bCleanScreenshots);
 	ADDCVAR(g_Settings.bHackEnabled);
 	if (TF) ADDCVAR(g_Settings.bIgnoreTaunting);
@@ -139,8 +140,10 @@ void CMenuWindow::AddElements() {
 	ADDCVAR(g_Settings.flForceFOV);
 	ADDCVAR(g_Settings.sDisconnectMsg);
 	ADDCVAR(g_phMisc->v_bCleanChat);
+	if (TF2C) ADDCVAR(g_phMisc->v_bMinigunJump);
 	//ADDCVAR(g_phMisc->v_bDebugInfo);
 	if (HL2DM) ADDCVAR(g_phMisc->v_bFlashlightSpam);
+	ADDCVAR(g_phMisc->v_iFakeLag);
 	if (TF) {
 		ADDLABEL("Spy Alert");
 		ADDCVAR(g_phSpyAlert->v_bEnabled);

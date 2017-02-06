@@ -27,6 +27,7 @@ int iTicksFlying = 0;
 int iTicksLastJump = 0;
 
 bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
+	m_bFakeLagFix = false;
 	if (!this->v_bEnabled->GetBool()) return true;
 	if (HasCondition(g_pLocalPlayer->entity, TFCond_GrapplingHook)) return true;
 	int flags = CE_INT(g_pLocalPlayer->entity, netvar.iFlags);
@@ -46,6 +47,8 @@ bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 	} else {
 		iTicksFlying++;
 	}
+
+	if (ground && jump) m_bFakeLagFix = true;
 
 	if (!ground && jump) {
 		if (iTicksLastJump++ >= 20) cmd->buttons = cmd->buttons &~ IN_JUMP;

@@ -68,10 +68,6 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	}
 #endif
 
-
-	if (!draw::width || !draw::height) {
-		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
-	}
 	if (!panel_top) {
 		const char* name = interfaces::panel->GetName(vp);
 		if (strlen(name) > 4) {

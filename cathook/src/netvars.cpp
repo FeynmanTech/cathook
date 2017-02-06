@@ -52,7 +52,9 @@ void NetVars::Init() {
 		this->Grenade_bCritical = gNetvars.get_offset("DT_TFWeaponBaseGrenadeProj", "m_bCritical");
 		this->iPlayerClass = gNetvars.get_offset("DT_TFPlayerResource", "m_iPlayerClass");
 		this->angEyeAngles = gNetvars.get_offset("DT_TFPlayer", "tfnonlocaldata", "m_angEyeAngles[0]");
+		this->iWeaponState = gNetvars.get_offset("DT_WeaponMinigun", "m_iWeaponState");
 	}
+	if (TF2C) this->iCritMult = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_iCritMult");
 	this->flNextAttack = gNetvars.get_offset("DT_BaseCombatCharacter", "bcc_localdata", "m_flNextAttack");
 	this->flNextPrimaryAttack = gNetvars.get_offset("DT_BaseCombatWeapon", "LocalActiveWeaponData", "m_flNextPrimaryAttack");
 	this->iNextThinkTick = gNetvars.get_offset("DT_BaseCombatWeapon", "LocalActiveWeaponData", "m_nNextThinkTick");

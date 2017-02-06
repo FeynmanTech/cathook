@@ -212,8 +212,6 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 				ci == g_pClassID->CTFRocketLauncher_DirectHit ||
 				ci == g_pClassID->CTFRocketLauncher_Mortar) {
 			m_iPreferredHitbox = hitbox_t::foot_L;
-		} else if (ci == g_pClassID->CTFFlareGun) {
-			m_iPreferredHitbox = hitbox_t::spine_3;
 		} else {
 			m_iPreferredHitbox = hitbox_t::pelvis;
 		}
@@ -339,7 +337,7 @@ void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
 
 int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 	if (!v_bAutoHitbox->GetBool()) return preferred;
-	if (m_bHeadOnly) return 0;
+	if (m_bHeadOnly) return hitbox_t::head;
 	int flags = CE_INT(target, netvar.iFlags);
 	bool ground = (flags & (1 << 0));
 	if (!ground) {
@@ -443,6 +441,7 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	Vector angles;
 	if (CE_BAD(entity)) return false;
 	int hitbox = BestHitbox(entity, m_iPreferredHitbox);
+	//if (m_bHeadOnly) hitbox = 0;
 	if (entity->m_Type == ENTITY_PLAYER) {
 		//logging::Info("A");
 		GetHitbox(entity, hitbox, hit);

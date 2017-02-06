@@ -14,6 +14,12 @@
 
 bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
+
+	if (TF2C && g_phMisc->v_bMinigunJump->GetBool() && CE_GOOD(LOCAL_W)) {
+		//RemoveCondition(LOCAL_E, TFCond_Slowed);
+		CE_INT(LOCAL_W, netvar.iWeaponState) = 0;
+		//RemoveCondition(LOCAL_E, TFCond_Taunting);
+	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 
 	if (!cmd) {

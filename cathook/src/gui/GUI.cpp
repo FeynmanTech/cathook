@@ -16,6 +16,14 @@
 void GUIVisibleCallback(IConVar* var, const char* pOldValue, float flOldValue) {
 	interfaces::input->SetCursorPosition(draw::width / 2, draw::height / 2);
 	interfaces::surface->SetCursor(vgui::CursorCode::dc_none);
+	interfaces::matsurface->SetCursorAlwaysVisible(false);
+	if (g_pGUI->v_bGUIVisible) {
+		if (g_pGUI->v_bGUIVisible->GetBool()) {
+			interfaces::matsurface->UnlockCursor();
+		} else {
+			interfaces::matsurface->LockCursor();
+		}
+	}
 }
 
 CatGUI::CatGUI() {

@@ -59,8 +59,10 @@ void RootWindow::Setup() {
 	win->SetMaxSize(912, 410);
 	auto ms = GetMaxSize();
 	win->AddElements();
-	AddChild(win);
 	win->SetOffset((draw::width - 912) / 2, (draw::height - 410) / 2);
+	//logging::Info("Set offset to %i %i", (draw::width - 912) / 2, (draw::height - 410) / 2);
+	AddChild(win);
+	//logging::Info("%i %i", win->GetOffset().first, win->GetOffset().second);
 	/*//ws->SetMaxSize(500, 300);
 	CSplitContainer* sc1 = new CSplitContainer("sc1", ws);
 	ws->AddChild(sc1);

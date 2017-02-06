@@ -110,6 +110,8 @@ public:
 	offset_t iPlayerClass;
 
 	offset_t hOwner;
+	offset_t iWeaponState;
+	offset_t iCritMult; // TF2C
 };
 
 extern NetVars netvar;

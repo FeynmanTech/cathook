@@ -244,9 +244,11 @@ void CC_DumpConds(const CCommand& args) {
 }
 
 Misc::Misc() {
+	if (TF2C) v_bMinigunJump = new CatVar(CV_SWITCH, "minigun_jump", "0", "Minigun Jump", NULL, "Allows you to jump while with minigun spun up");
 	v_bDebugInfo = new CatVar(CV_SWITCH, "misc_debug", "0", "Debug info", NULL, "Log stuff to console, enable this if tf2 crashes");
 	c_Name = CreateConCommand(CON_PREFIX "name", CC_SetName, "Sets custom name");
 	if (TF2) c_DumpItemAttributes = CreateConCommand(CON_PREFIX "dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
+	v_bAntiAFK = new CatVar(CV_SWITCH, "noafk", "0", "Anti AFK", NULL, "Sends random stuff to server to not be kicked for idling");
 	c_SayLine = CreateConCommand(CON_PREFIX "say_lines", CC_SayLines, "Uses ^ as a newline character");
 	c_Shutdown = CreateConCommand(CON_PREFIX "shutdown", CC_Shutdown, "Stops the hack");
 	c_AddFriend = CreateConCommand(CON_PREFIX "addfriend", CC_AddFriend, "Adds a friend");
@@ -262,21 +264,69 @@ Misc::Misc() {
 	v_bInfoSpam = CreateConVar(CON_PREFIX "info_spam", "0", "Info spam");
 	v_bFastCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fast crouch");
 	v_bFlashlightSpam = new CatVar(CV_SWITCH, "flashlight_spam", "0", "Flashlight Spam", NULL, "Quickly turns flashlight on and off");
+	v_iFakeLag = new CatVar(CV_INT, "fakelag", "0", "Fakelag", NULL, "# of packets jammed", true, 25.0f);
 	//v_bDumpEventInfo = CreateConVar(CON_PREFIX "debug_event_info", "0", "Show event info");
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
-
+	//v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "Debug Crits", NULL, "???");
 	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }
 
 int sa_switch = 0;
 
+bool s_bCrits;
+
+float clampNC( float val, float minVal, float maxVal )
+{
+	val = fpmax(minVal, val);
+	val = fpmin(maxVal, val);
+	return val;
+}
+
+float RemapValClampedNC( float val, float A, float B, float C, float D)
+{
+	if ( A == B )
+		return val >= B ? D : C;
+	float cVal = (val - A) / (B - A);
+	cVal = clampNC( cVal, 0.0f, 1.0f );
+
+	return C + (D - C) * cVal;
+}
+
+
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 	static bool flswitch = false;
+	g_Settings.bSendPackets->SetValue(true);
+	if (v_iFakeLag->GetInt()) {
+		static int fakelag = 0;
+		if (!g_phBunnyhop->m_bFakeLagFix && !(cmd->buttons & IN_ATTACK)) {
+			g_Settings.bSendPackets->SetValue(false);
+		}
+		if (fakelag > v_iFakeLag->GetInt()) {
+			fakelag = 0;
+			g_Settings.bSendPackets->SetValue(true);
+		}
+		fakelag++;
+	}
 	if (v_bFlashlightSpam->GetBool()) {
 		if (flswitch && !cmd->impulse) cmd->impulse = 100;
 		flswitch = !flswitch;
 	}
+	if (v_bAntiAFK->GetBool()) {
+		cmd->sidemove = RandFloatRange(-450.0, 450.0);
+		cmd->forwardmove  = RandFloatRange(-450.0, 450.0);
+		cmd->buttons = rand();
+	}
+	/*if (v_bDebugCrits->GetBool()) {
+		static float last = 0.0f;
+		if (interfaces::gvars->curtime - last >= 1.0f) {
+			RandomSeed(cmd->random_seed);
+			float chance = 0.02f * RemapValClampedNC( CE_INT(LOCAL_E, netvar.iCritMult), 0, 255, 1.0, 6 );
+			s_bCrits = (RandomInt(0, 10000) < chance * 10000);
+			last = interfaces::gvars->curtime;
+			RandomSeed(cmd->random_seed);
+		}
+	}*/
 	//SetEntityValue<int>(g_pLocalPlayer->entity, eoffsets.iCond, g_pLocalPlayer->cond_0 &~ cond::taunting);
 	/*if (false && v_strName->GetString()[0] != '\0') {
 		//logging::Info("Name: %s", v_strName->GetString());
@@ -332,15 +382,15 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 
 		if (CE_GOOD(g_pLocalPlayer->weapon())) {
 			AddSideString(colors::white, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
-			AddSideString(colors::white, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
-			AddSideString(colors::white, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
+			//AddSideString(colors::white, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
+			//AddSideString(colors::white, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
 			AddSideString(colors::white, "CanShoot: %i", CanShoot());
-			AddSideString(colors::white, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage));
+			//AddSideString(colors::white, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage));
 			if (TF2) AddSideString(colors::white, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
-			AddSideString(colors::white, "GlobalVars: 0x%08x", interfaces::gvars);
-			AddSideString(colors::white, "realtime: %f", interfaces::gvars->realtime);
-			AddSideString(colors::white, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
-			if (TF2) AddSideString(colors::white, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
+			//AddSideString(colors::white, "GlobalVars: 0x%08x", interfaces::gvars);
+			//AddSideString(colors::white, "realtime: %f", interfaces::gvars->realtime);
+			//AddSideString(colors::white, "interval_per_tick: %f", interfaces::gvars->interval_per_tick);
+			//if (TF2) AddSideString(colors::white, "ambassador_can_headshot: %i", (interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
 			AddSideString(colors::white, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
 			AddSideString(colors::white, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
 			AddSideString(colors::white, "ServerTime: %f", CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick);
@@ -350,9 +400,11 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
-			AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
-			AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
-			AddSideString(colors::white, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
+			//AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
+			//AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
+			//AddSideString(colors::white, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
+			//if (TF2C) AddSideString(colors::white, "Crits: %i", s_bCrits);
+			//if (TF2C) AddSideString(colors::white, "CritMult: %i", RemapValClampedNC( CE_INT(LOCAL_E, netvar.iCritMult), 0, 255, 1.0, 6 ));
 			for (int i = 0; i < HIGHEST_ENTITY; i++) {
 				CachedEntity* e = ENTITY(i);
 				if (CE_GOOD(e)) {
