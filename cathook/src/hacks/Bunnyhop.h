@@ -19,6 +19,7 @@ public:
 	CatVar* v_bEnabled;
 	CatVar* v_bAutoJump;
 	CatVar* v_iAutoJumpSpeed;
+	bool m_bFakeLagFix;
 };
 
 DECLARE_HACK_SINGLETON(Bunnyhop);

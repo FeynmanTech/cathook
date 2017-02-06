@@ -283,6 +283,10 @@ void draw::Initialize() {
 	fonts::MENU = interfaces::surface->CreateFont();
 	fonts::MENU_BIG = interfaces::surface->CreateFont();
 
+	if (!draw::width || !draw::height) {
+		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
+	}
+
 	interfaces::surface->SetFontGlyphSet(fonts::ESP, "TF2 Build", fonts::ESP_HEIGHT, 0, 0, 0, 0x0); // or Ubuntu Mono Bold
 	interfaces::surface->SetFontGlyphSet(fonts::MENU, "Verdana", fonts::MENU_HEIGHT, 0, 0, 0, 0x0);
 	interfaces::surface->SetFontGlyphSet(fonts::MENU_BIG, "Verdana Bold", fonts::MENU_BIG_HEIGHT, 0, 0, 0, 0x0);

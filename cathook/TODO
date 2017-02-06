@@ -1,22 +1,10 @@
-
-GUI ELEMENTS:
-	List Entry
-	Main Menu (BIG)
-
-	Slider
-	Counter
-	List
-	
-FIX PROJAIM
-
 Trace Fraction
 	
 alias clearcond "host_timescale 300;wait 500;host_timescale 1"
 alias clearcond_taunt "taunt;wait 50;host_timescale 300;wait 500;host_timescale 1"
 bind l clearcond_taunt
-	
-Тебе нужно отследить, что MatSystemTopPanel отрисовался, поставить какой то флаг в 1, далее ждать FocusOverlayPanel и проверять что твой флаг был вяставлен в 1, потом рисовать всё что надо и ставить флаг в 0
 
+no fakelag shoot
 	
 fullbright toggle
 instant taunt
@@ -24,8 +12,6 @@ TTS
 noise spam
 Auto backstab, noise maker spam, kill say, team name spam (pre round team name spam thing),  insta taunt (taunts for like .5 ms and then you can do it again lithium has it) auto vacc, namesteal, autovote, fix the menu im to lazy to hit x when i want to close the cheat, custom esp, voice command spam (not like 1 voice command every 1 ms but like just spamming it on the menu)
 
-FIX crash
-FIX conds
 Player List
 dominatesay assistsay worldsay
 Huntsman Leg
@@ -75,15 +61,8 @@ Airstuck Idle Kick fix
 Anti Backstab
 Critical rifles bodyshotting
 FLAG ESP
-Projectile ESP
-Hitbox position cache
 Spy alert uses angles
-Aimbot delay
-More esp tweaking
 halloween medkits
-Heavy Autoshoot continious
-NoZoom render hook
-Red money detect
 carrying esp
 Tracers/Spy Cam
 Bodyshot if not zoomed
