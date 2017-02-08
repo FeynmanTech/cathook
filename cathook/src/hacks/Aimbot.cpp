@@ -386,7 +386,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 					if (!GetHitbox(entity, hitbox, resultAim)) return 13;
 					if (!IsEntityVisible(entity, hitbox)) return 14;
 				}
-				resultAim = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
+				resultAim = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity, PlayerGravityMod(entity));
 			} else {
 				if (!GetHitbox(entity, hitbox, resultAim)) return 15;
 			}
@@ -456,7 +456,8 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 			m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
 		if (v_fOverrideProjGravity->GetBool())
 			m_flProjGravity = v_fOverrideProjGravity->GetFloat();
-		hit = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity);
+		bool succ = false;
+		hit = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity, PlayerGravityMod(entity));
 	}
 	//logging::Info("ayyming!");
 	Vector tr = (hit - g_pLocalPlayer->v_Eye);

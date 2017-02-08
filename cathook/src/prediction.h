@@ -14,8 +14,14 @@ class CachedEntity;
 class Vector;
 
 Vector SimpleLatencyPrediction(CachedEntity* ent, int hb);
-Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravitymod);
 
+bool PerformProjectilePrediction(CachedEntity* target, int hitbox);
+
+Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravitymod, float entgmod);
+
+float PlayerGravityMod(CachedEntity* player);
+
+float DistanceToGround(CachedEntity* ent);
 float DistanceToGround(Vector origin);
 
 #endif /* PREDICTION_H_ */

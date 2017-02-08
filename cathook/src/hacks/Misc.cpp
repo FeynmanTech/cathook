@@ -9,10 +9,18 @@
 
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <pwd.h>
+#include <fcntl.h>
+
 #include "../hack.h"
 #include "../common.h"
+#include <checksum_md5.h>
 #include "../sdk.h"
 #include "../netmessage.h"
+#include "../copypasted/CSignature.h"
 
 DEFINE_HACK_SINGLETON(Misc);
 
@@ -243,6 +251,35 @@ void CC_DumpConds(const CCommand& args) {
 	logging::Info("0x%08x 0x%08x 0x%08x 0x%08x", d2.cond_0, d2.cond_1, d2.cond_2, d2.cond_3);
 }
 
+void Schema_Reload() {
+	static uintptr_t InitSchema_s = gSignatures.GetClientSignature("89 44 24 04 89 34 24 74 7B E8 FE DC FB FF 88 45 C7 80 7D C7 00 74 7B 8B 76 0C 39 F3 0F 85 BA 00 00 00 8B 5D D4 83 EB 01 8D 34 9D 00 00 00 00 EB 15 8D 76 00") - 0x54;
+	typedef void(*InitSchema_t)(void*, void*, CUtlBuffer& buffer, bool byte, unsigned version);
+	static InitSchema_t InitSchema = (InitSchema_t)InitSchema_s;
+	static uintptr_t GetItemSchema_s = gSignatures.GetClientSignature("55 89 E5 83 EC 18 89 5D F8 8B 1D ? ? ? ? 89 7D FC 85 DB 74 12 89 D8 8B 7D FC 8B 5D F8 89 EC 5D C3 8D B6 00 00 00 00 C7 04 24 A8 06 00 00 E8 ? ? ? ? B9 AA 01 00 00 89 C3 31 C0 89 DF");
+	typedef void*(*GetItemSchema_t)(void);
+	static GetItemSchema_t GetItemSchema = (GetItemSchema_t)GetItemSchema_s;//(*(uintptr_t*)GetItemSchema_s + GetItemSchema_s + 4);
+	void* itemschema = (GetItemSchema() + 4);
+	void* data;
+	passwd* pwd = getpwuid(getuid());
+	char* user = pwd->pw_name;
+	char* path = strfmt("/home/%s/.cathook/items_game.txt", user);
+	FILE* file = fopen(path, "r");
+	delete [] path;
+	fseek(file, 0L, SEEK_END);
+	char buffer[4 * 1000 * 1000];
+	size_t len = ftell(file);
+	rewind(file);
+	buffer[len + 1] = 0;
+	fread(&buffer, sizeof(char), len, file);
+	fclose(file);
+	CUtlBuffer buf(&buffer, 4 * 1000 * 1000, 9);
+	InitSchema(0, itemschema, buf, false, 0xDEADCA7);
+}
+
+void CC_Misc_Schema(const CCommand& args) {
+	Schema_Reload();
+}
+
 Misc::Misc() {
 	if (TF2C) v_bMinigunJump = new CatVar(CV_SWITCH, "minigun_jump", "0", "Minigun Jump", NULL, "Allows you to jump while with minigun spun up");
 	v_bDebugInfo = new CatVar(CV_SWITCH, "misc_debug", "0", "Debug info", NULL, "Log stuff to console, enable this if tf2 crashes");
@@ -269,6 +306,7 @@ Misc::Misc() {
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
 	//v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "Debug Crits", NULL, "???");
 	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
+	if (TF2) c_Schema = CreateConCommand(CON_PREFIX "schema", CC_Misc_Schema, "Load item schema");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }
 
@@ -294,8 +332,24 @@ float RemapValClampedNC( float val, float A, float B, float C, float D)
 }
 
 
+bool ciac_s = false;
+
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 	static bool flswitch = false;
+	/*static uintptr_t critsig = gSignatures.GetClientSignature("89 1C 24 E8 ? ? ? ? 0F B6 83 0E 0B 00 00 89 74 24 04 C7 04 24 ? ? ? ? 89 44 24 08 E8 ? ? ? ? 8B 03 89 1C 24 FF 90 F8 06 00 00 83 F8 12 74 0A C7 83 FC 0A 00 00 00 00 00 00");
+	static uintptr_t critfnp = critsig + 4;
+	typedef void(*C_TFWeaponBase__CalcIsAttackCritical_t)(IClientEntity*);
+	static C_TFWeaponBase__CalcIsAttackCritical_t ciac = (C_TFWeaponBase__CalcIsAttackCritical_t)(*(uintptr_t*)critfnp + critfnp + 4);
+	if (CE_GOOD(LOCAL_W)) {
+		static float lastcheck = interfaces::gvars->curtime;
+		if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
+			RandomSeed(cmd->random_seed);
+			ciac(RAW_ENT(LOCAL_W));
+			//logging::Info("0x%08x", *(unsigned char*)(RAW_ENT(LOCAL_W) + 0x0B0E));
+			ciac_s = !!*(unsigned char*)(RAW_ENT(LOCAL_W) + 0x0B0E);
+		}
+		//if (ciac_s) cmd->buttons |= IN_ATTACK;
+	}*/
 	g_Settings.bSendPackets->SetValue(true);
 	if (v_iFakeLag->GetInt()) {
 		static int fakelag = 0;
@@ -400,6 +454,7 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
+			AddSideString(colors::white, "CIAC: %i", ciac_s);
 			//AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
 			//AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
 			//AddSideString(colors::white, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());

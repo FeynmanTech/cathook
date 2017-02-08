@@ -66,6 +66,7 @@ public:
 	offset_t iHitboxSet;
 	offset_t vVelocity;
 	offset_t bGlowEnabled;
+	offset_t movetype;
 	offset_t iGlowIndex;
 	offset_t iReloadMode;
 	offset_t iMaxHealth;

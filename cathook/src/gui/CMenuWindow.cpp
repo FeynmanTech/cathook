@@ -140,6 +140,13 @@ void CMenuWindow::AddElements() {
 	ADDCVAR(g_Settings.flForceFOV);
 	ADDCVAR(g_Settings.sDisconnectMsg);
 	ADDCVAR(g_phMisc->v_bCleanChat);
+	if (TF2) {
+		CBaseButton* but = new CBaseButton("schema", tab, "Load Custom Schema", [this](CBaseButton*) {
+			Schema_Reload();
+		});
+		but->Props()->SetString("tooltip", "Loads a custom item schema from ~/.cathook/\nitems_game.txt");
+		tab->AddChild(but);
+	}
 	if (TF2C) ADDCVAR(g_phMisc->v_bMinigunJump);
 	//ADDCVAR(g_phMisc->v_bDebugInfo);
 	if (HL2DM) ADDCVAR(g_phMisc->v_bFlashlightSpam);

@@ -7,8 +7,22 @@
 
 #include "prediction.h"
 
-#include "common.h"
-#include "sdk.h"
+#include <bspflags.h>
+#include <cdll_int.h>
+#include <cmodel.h>
+#include <engine/IEngineTrace.h>
+#include <icliententity.h>
+#include <inetchannelinfo.h>
+#include <mathlib/ssemath.h>
+#include <mathlib/vector.h>
+
+#include "conditions.h"
+#include "entitycache.h"
+#include "helpers.h"
+#include "interfaces.h"
+#include "localplayer.h"
+#include "netvars.h"
+#include "trace.h"
 
 // TODO there is a Vector() object created each call.
 
@@ -22,54 +36,64 @@ Vector SimpleLatencyPrediction(CachedEntity* ent, int hb) {
 	return result;
 }
 
-Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravitymod) {
+float PlayerGravityMod(CachedEntity* player) {
+	int movetype = CE_INT(player, netvar.movetype);
+	if (movetype == MOVETYPE_FLY || movetype == MOVETYPE_NOCLIP) return 0.0f;
+	if (HasCondition(player, TFCond_Parachute)) return 0.448f;
+	return 1.0f;
+}
+
+bool PerformProjectilePrediction(CachedEntity* target, int hitbox) {
+	Vector src, vel, hit; ;
+	//src = vfunc<Vector(*)(IClientEntity*)>(RAW_ENT(target), 299)(RAW_ENT(target));
+
+	return true;
+}
+
+Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravitymod, float entgmod) {
 	if (!ent) return Vector();
-	Vector result = ent->m_vecOrigin;
+	Vector result = SimpleLatencyPrediction(ent, hb);
 	if (speed == 0.0f) return Vector();
-	float dtg = DistanceToGround(result);
-	int flags = CE_INT(ent, netvar.iFlags);
-	bool ground = (flags & (1 << 0));
-	if (ground) dtg = 0;
-	GetHitbox(ent, hb, result);
-	Vector vel = CE_VECTOR(ent, netvar.vVelocity);
+	float dtg = DistanceToGround(ent);
+	Vector vel = ent->m_vecVelocity;
 	// TODO ProjAim
-	float ott = g_pLocalPlayer->v_Eye.DistTo(result) / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING);
-	float tt = ott - 0.5f;
-	if (tt <= 0.0f) tt = 0.01f;
-	float besttime = tt;
+	float medianTime = g_pLocalPlayer->v_Eye.DistTo(result) / speed;
+	float range = 1.5f;
+	float currenttime = medianTime - range;
+	if (currenttime <= 0.0f) currenttime = 0.01f;
+	float besttime = currenttime;
 	float mindelta = 65536.0f;
 	Vector bestpos = result;
-	int maxsteps = 100;
-	for (int steps = 0; steps < maxsteps; steps++, tt += ((float)1 / (float)maxsteps)) {
+	int maxsteps = 300;
+	for (int steps = 0; steps < maxsteps; steps++, currenttime += ((float)(2 * range) / (float)maxsteps)) {
 		Vector curpos = result;
-		curpos += vel * tt;
+		curpos += vel * currenttime;
 		if (dtg > 0.0f) {
-			curpos.z -= tt * tt * 400;
+			curpos.z -= currenttime * currenttime * 400 * entgmod;
 			if (curpos.z < result.z - dtg) curpos.z = result.z - dtg;
 		}
-		float rockettime = g_pLocalPlayer->v_Eye.DistTo(curpos) / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING);
-		//logging::Info("RocketTime: %.2f TT: %.2f Step: %i BestTime: %.2f", rockettime, tt, steps, besttime);
-		if (fabs(rockettime - tt) < mindelta) {
-			//if (mindelta != 65536.0) logging::Info("got better delta: %.2f at step %i (time: %.2f)", fabs(rockettime - tt), steps, tt);
-			besttime = tt;
+		float rockettime = g_pLocalPlayer->v_Eye.DistTo(curpos) / speed;
+		if (fabs(rockettime - currenttime) < mindelta) {
+			besttime = currenttime;
 			bestpos = curpos;
-			mindelta = fabs(rockettime - tt);
+			mindelta = fabs(rockettime - currenttime);
 		}
 	}
-
-	/*float dtt = g_pLocalPlayer->v_Eye.DistTo(result);
-	float ttt = dtt / speed + interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
-		interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
-	float oz = result.z;
-	int flags = CE_INT(ent, netvar.iFlags);
-	bool ground = (flags & (1 << 0));
-	if (!ground) result.z -= ttt * ttt * 400;
-	result += vel * ttt;
-	if (!ground) if (oz - result.z > dtg) { result.z = oz - dtg; }
-	*/
 	bestpos.z += (400 * besttime * besttime * gravitymod);
 	// S = at^2/2 ; t = sqrt(2S/a)*/
 	return bestpos;
+}
+
+float DistanceToGround(CachedEntity* ent) {
+	if (ent->m_Type == ENTITY_PLAYER) {
+		if (CE_INT(ent, netvar.iFlags) & FL_ONGROUND) return 0;
+	}
+	Vector& origin = ent->m_vecOrigin;
+	float v1 = DistanceToGround(origin + Vector(10.0f, 10.0f, 0.0f));
+	float v2 = DistanceToGround(origin + Vector(-10.0f, 10.0f, 0.0f));
+	float v3 = DistanceToGround(origin + Vector(10.0f, -10.0f, 0.0f));
+	float v4 = DistanceToGround(origin + Vector(-10.0f, -10.0f, 0.0f));
+	return MIN(v1, MIN(v2, MIN(v3, v4)));
 }
 
 float DistanceToGround(Vector origin) {
@@ -78,6 +102,6 @@ float DistanceToGround(Vector origin) {
 	Vector endpos = origin;
 	endpos.z -= 8192;
 	ray.Init(origin, endpos);
-	interfaces::trace->TraceRay(ray, 0x4200400B, trace::g_pFilterNoPlayer, ground_trace);
-	return ground_trace->startpos.DistTo(ground_trace->endpos);
+	interfaces::trace->TraceRay(ray, MASK_PLAYERSOLID, trace::g_pFilterNoPlayer, ground_trace);
+	return 8192.0f * ground_trace->fraction;
 }
