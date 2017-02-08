@@ -41,11 +41,13 @@ public:
 	ConCommand* c_DumpConds;
 	ConCommand* c_Reset;
 	ConCommand* c_Disconnect;
+	ConCommand* c_Schema;
 	ConCommand* c_DisconnectVAC;
 
 	CatVar* v_bCleanChat;
 };
 
+void Schema_Reload();
 void CC_Misc_Disconnect_VAC();
 
 DECLARE_HACK_SINGLETON(Misc);
