@@ -307,6 +307,7 @@ Misc::Misc() {
 	//v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "Debug Crits", NULL, "???");
 	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	if (TF2) c_Schema = CreateConCommand(CON_PREFIX "schema", CC_Misc_Schema, "Load item schema");
+	if (TF2) v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "???", NULL, "???");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }
 
@@ -332,24 +333,45 @@ float RemapValClampedNC( float val, float A, float B, float C, float D)
 }
 
 
-bool ciac_s = false;
+int ciac_s = false;
+float lastcheck = 0;
+
+bool canmeleecrit(IClientEntity* weapon) {
+	IClientEntity* owner = RAW_ENT(LOCAL_E);//vfunc<IClientEntity*(*)(IClientEntity*)>(weapon, 0, 0)(weapon);
+	if (owner) {
+
+	}
+	return false;
+}
 
 bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 	static bool flswitch = false;
-	/*static uintptr_t critsig = gSignatures.GetClientSignature("89 1C 24 E8 ? ? ? ? 0F B6 83 0E 0B 00 00 89 74 24 04 C7 04 24 ? ? ? ? 89 44 24 08 E8 ? ? ? ? 8B 03 89 1C 24 FF 90 F8 06 00 00 83 F8 12 74 0A C7 83 FC 0A 00 00 00 00 00 00");
-	static uintptr_t critfnp = critsig + 4;
-	typedef void(*C_TFWeaponBase__CalcIsAttackCritical_t)(IClientEntity*);
-	static C_TFWeaponBase__CalcIsAttackCritical_t ciac = (C_TFWeaponBase__CalcIsAttackCritical_t)(*(uintptr_t*)critfnp + critfnp + 4);
-	if (CE_GOOD(LOCAL_W)) {
-		static float lastcheck = interfaces::gvars->curtime;
-		if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
+	if (TF2 && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
+		//static uintptr_t helper = gSignatures.GetClientSignature("55 89 E5 81 EC 88 00 00 00 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 31 FF 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 0F 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 75 14 89 F8 8B 5D F4 8B 75 F8 8B 7D FC 89 EC 5D C3");
+		/*if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
 			RandomSeed(cmd->random_seed);
-			ciac(RAW_ENT(LOCAL_W));
-			//logging::Info("0x%08x", *(unsigned char*)(RAW_ENT(LOCAL_W) + 0x0B0E));
-			ciac_s = !!*(unsigned char*)(RAW_ENT(LOCAL_W) + 0x0B0E);
-		}
-		//if (ciac_s) cmd->buttons |= IN_ATTACK;
-	}*/
+			ciac_s = vfunc<int(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 458, 0)(RAW_ENT(LOCAL_W));
+			if (ciac_s) cmd->buttons |= IN_ATTACK;
+			lastcheck = interfaces::gvars->curtime;
+		}*/
+		static uintptr_t critsig = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 14 C8 F6 01 8B 40 04 3B 83 30 0B 00 00 74 41 89 83 30 0B 00 00 A1 ? ? ? ? C6 83 0F 0B 00 00 00 83 78 30 05 74 59");
+		typedef void(*C_TFWeaponBase__CalcIsAttackCritical_t)(IClientEntity*);
+		static C_TFWeaponBase__CalcIsAttackCritical_t ciac = (C_TFWeaponBase__CalcIsAttackCritical_t)critsig;
+			if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
+				//RandomSeed(cmd->random_seed);
+				ciac(RAW_ENT(LOCAL_W));
+				//logging::Info("0x%08x", *(unsigned char*)(RAW_ENT(LOCAL_W) + 0x0B0E));
+				//ciac_s = *(int*)((uintptr_t)RAW_ENT(LOCAL_W) + 0x0B0Eu) - 256;
+				RandomSeed(cmd->random_seed);
+				ciac_s = vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1836 / 4, 0)(RAW_ENT(LOCAL_W));
+				lastcheck = interfaces::gvars->curtime;
+				if (ciac_s != 0) {
+					logging::Info("Attack!!!");
+					cmd->buttons = cmd->buttons | IN_ATTACK;
+					AddCenterString(colors::red, "Crit!");
+				}
+			}
+	}
 	g_Settings.bSendPackets->SetValue(true);
 	if (v_iFakeLag->GetInt()) {
 		static int fakelag = 0;
@@ -435,6 +457,17 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 	}*/
 
 		if (CE_GOOD(g_pLocalPlayer->weapon())) {
+			if (v_bDebugCrits->GetBool()) {
+				if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465, 0)(RAW_ENT(LOCAL_W)))
+					AddCenterString(colors::white, "Random crits are disabled");
+				else {
+					if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465 + 21, 0)(RAW_ENT(LOCAL_W)))
+						AddCenterString(colors::white, "Weapon can't randomly crit");
+					else
+						AddCenterString(colors::white, "Weapon can randomly crit");
+				}
+
+			}
 			AddSideString(colors::white, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
 			//AddSideString(colors::white, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
 			//AddSideString(colors::white, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
@@ -455,6 +488,8 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
 			AddSideString(colors::white, "CIAC: %i", ciac_s);
+			AddSideString(colors::white, "Last CIAC: %.2f", lastcheck);
+			AddSideString(colors::white, "Bucket: %.2f", *(float*)((uintptr_t)RAW_ENT(LOCAL_W) + 2612u));
 			//AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
 			//AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
 			//AddSideString(colors::white, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());
