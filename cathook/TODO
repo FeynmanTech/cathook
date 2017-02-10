@@ -1,11 +1,11 @@
-Trace Fraction
-	
 alias clearcond "host_timescale 300;wait 500;host_timescale 1"
 alias clearcond_taunt "taunt;wait 50;host_timescale 300;wait 500;host_timescale 1"
 bind l clearcond_taunt
 
-no fakelag shoot
-	
+TF2C teams
+TF2C merc
+HL2DM teams
+
 fullbright toggle
 Hunter Rifle
 inspect shit
@@ -16,10 +16,9 @@ Auto backstab, noise maker spam, kill say, team name spam (pre round team name s
 
 Player List
 dominatesay assistsay worldsay
-Huntsman Leg
 DS esp slow
-antinewl switch
 menu reorder
+AutoDetonator
 
 MAX -> MIN priority
 Crit Hack
@@ -49,7 +48,6 @@ Engine Prediction
 An option to ignore taunting enemies
 AutoSticky improve
 No AutoShoot when disguised
-Cloaked ESP
 Ambassador bodyshotting
 No Trigger Mediguns
 More projectile weapons aimbot (wrap assassin, wrangler, stickybomb, airstrike)

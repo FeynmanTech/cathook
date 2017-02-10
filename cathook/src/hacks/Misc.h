@@ -29,6 +29,7 @@ public:
 	CatVar* v_bMinigunJump; // TF2C
 	CatVar* v_bDebugCrits; // TF2C
 	CatVar* v_bAntiAFK;
+	CatVar* v_bHookInspect;
 	CatVar* v_iFakeLag;
 	//ConVar* v_bDumpEventInfo;
 	ConCommand* c_DumpItemAttributes;

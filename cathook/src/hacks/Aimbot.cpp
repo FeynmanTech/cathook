@@ -105,6 +105,8 @@ Aimbot::Aimbot() {
 			"If disabled, FOV restrictions apply to current target position");
 	this->v_bAimAtTeammates = new CatVar(CV_SWITCH, "aimbot_teammates", "0", "Aim at teammates", NULL,
 			"Aim at your own team. Useful for HL2DM");
+	//this->v_bAdvancedSapperAim = new CatVar(CV_SWITCH, "aimbot_sapper", "1", "Advanced Sapper Aim", NULL,
+	//		"Aim at buildings while holding sapper");
 }
 
 bool Aimbot::ShouldAim(CUserCmd* cmd) {
