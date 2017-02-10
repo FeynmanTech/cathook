@@ -65,6 +65,10 @@ ESP::ESP() {
 	v_bShowClass = new CatVar(CV_SWITCH, "esp_class", "1", "Class ESP", NULL, "Show class");
 	v_bShowConditions = new CatVar(CV_SWITCH, "esp_conds", "1", "Conditions ESP", NULL, "Show conditions");
 	this->v_bBuildingESP = new CatVar(CV_SWITCH, "esp_buildings", "1", "Building ESP", NULL, "Show buildings");
+	this->v_bShowWeaponSpawners = new CatVar(CV_SWITCH, "esp_weapon_spawners", "1", "Show weapon spawners", NULL, "TF2C deathmatch weapon spawners");
+	v_bShowAdrenaline = new CatVar(CV_SWITCH, "esp_item_adrenaline", "0", "Show Adrenaline", NULL, "TF2C adrenaline pills");
+
+	v_bModelName = new CatVar(CV_SWITCH, "esp_model_name", "0", "Model name ESP", NULL, "Model name esp (DEBUG ONLY)");
 }
 
 #define ESP_HEIGHT 14
@@ -154,14 +158,18 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	if (CE_BAD(ent)) return;
 
 	ent->m_ESPColorFG = colors::EntityF(ent);
-	ent->m_ESPColorBG = colors::EntityB(ent);
+	//if (ent->IsVisible()) ent->AddESPString("VISIBLE");
 
 	if (v_bEntityESP->GetBool()) {
 		ent->AddESPString("%s [%i]", RAW_ENT(ent)->GetClientClass()->m_pNetworkName, ent->m_iClassID);
 		if (v_bShowEntityID->GetBool()) {
 			ent->AddESPString("%i", ent->m_IDX);
 		}
-		ent->AddESPString("Type: %i", ent->m_Type);
+		//ent->AddESPString("Type: %i", ent->m_Type);
+		if (v_bModelName->GetBool()) {
+			const model_t* model = RAW_ENT(ent)->GetModel();
+			if (model) ent->AddESPString("%s", interfaces::model->GetModelName(model));
+		}
 	}
 
 	if (ent->m_Type == ENTITY_PROJECTILE && v_bProjectileESP->GetBool() && (ent->m_bEnemy || (v_bTeammates->GetBool() && !v_bOnlyEnemyProjectiles->GetBool()))) {
@@ -234,11 +242,6 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		if (this->v_bShowDistance->GetBool()) {
 			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
-	} else if (ent->m_iClassID == g_pClassID->CTFAmmoPack && this->v_bItemESP->GetBool() && this->v_bShowAmmoPacks->GetBool()) {
-		ent->AddESPString("++ AMMO");
-		if (this->v_bShowDistance->GetBool()) {
-			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
-		}
 	} else if (ent->m_iClassID == g_pClassID->CCurrencyPack && v_bShowMoney->GetBool()) {
 		if (CE_BYTE(ent, netvar.bDistributed)) {
 			if (this->v_bShowRedMoney->GetBool()) {
@@ -249,24 +252,27 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			ent->AddESPString("$$$");
 			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
-	} else if (ent->m_iClassID == g_pClassID->CBaseAnimating && this->v_bItemESP->GetBool()) {
-		item_type type = GetItemType(ent);
-		if (type != item_type::item_null) {
-			bool shown = false;
-			if (type >= item_medkit_small && type <= item_medkit_large && this->v_bShowHealthPacks->GetBool()) {
-				ent->AddESPString("%s HEALTH", packs[type - item_medkit_small]);
-				//CE_INT(ent, netvar.bGlowEnabled) = 1;
-				shown = true;
-			} else if (type >= item_ammo_small && type <= item_ammo_large && this->v_bShowAmmoPacks->GetBool()) {
-				ent->AddESPString("%s AMMO", packs[type - item_ammo_small]);
-				shown = true;
-			} else if (type >= item_mp_strength && type <= item_mp_crit && this->v_bShowPowerups->GetBool()) {
-				ent->AddESPString("%s PICKUP", powerups[type - item_mp_strength]);
-				shown = true;
-			}
-			if (this->v_bShowDistance->GetBool() && shown) {
-				ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
-			}
+	} else if (ent->m_ItemType != ITEM_NONE && this->v_bItemESP->GetBool()) {
+		bool shown = false;
+		if (this->v_bShowHealthPacks->GetBool() && (ent->m_ItemType >= ITEM_HEALTH_SMALL && ent->m_ItemType <= ITEM_HEALTH_LARGE || ent->m_ItemType == ITEM_HL_BATTERY)) {
+			if (ent->m_ItemType == ITEM_HEALTH_SMALL) ent->AddESPString("[+]");
+			if (ent->m_ItemType == ITEM_HEALTH_MEDIUM) ent->AddESPString("[++]");
+			if (ent->m_ItemType == ITEM_HEALTH_LARGE) ent->AddESPString("[+++]");
+			if (ent->m_ItemType == ITEM_HL_BATTERY) ent->AddESPString("[Z]");
+		} else if (this->v_bShowAdrenaline->GetBool() && ent->m_ItemType == ITEM_TF2C_PILL) {
+			ent->AddESPString("[a]");
+		} else if (this->v_bShowAmmoPacks->GetBool() && ent->m_ItemType >= ITEM_AMMO_SMALL && ent->m_ItemType <= ITEM_AMMO_LARGE) {
+			if (ent->m_ItemType == ITEM_AMMO_SMALL) ent->AddESPString("{i}");
+			if (ent->m_ItemType == ITEM_AMMO_MEDIUM) ent->AddESPString("{ii}");
+			if (ent->m_ItemType == ITEM_AMMO_LARGE) ent->AddESPString("{iii}");
+		} else if (this->v_bShowPowerups->GetBool() && ent->m_ItemType >= ITEM_POWERUP_FIRST && ent->m_ItemType <= ITEM_POWERUP_LAST) {
+			ent->AddESPString("%s PICKUP", powerups[ent->m_ItemType - ITEM_POWERUP_FIRST]);
+		} else if (this->v_bShowWeaponSpawners->GetBool() && ent->m_ItemType >= ITEM_TF2C_W_FIRST && ent->m_ItemType <= ITEM_TF2C_W_LAST) {
+			ent->AddESPString("%s SPAWNER", tf2c_weapon_names[ent->m_ItemType - ITEM_TF2C_W_FIRST].c_str());
+			if (CE_BYTE(ent, netvar.bRespawning)) ent->AddESPString("-- RESPAWNING --");
+		}
+		if (this->v_bShowDistance->GetBool() && shown) {
+			ent->AddESPString("%im", (int)(ent->m_flDistance / 64 * 1.22f));
 		}
 	} else if (ent->m_Type == ENTITY_BUILDING && v_bBuildingESP->GetBool()) {
 		if (!ent->m_bEnemy && !v_bTeammates->GetBool()) return;

@@ -40,6 +40,7 @@ public:
 	CatVar* bCleanScreenshots;
 	CatVar* bDebugLog;
 	Vector last_angles;
+	CatVar* bFastOutline;
 	bool bInvalid;
 };
 

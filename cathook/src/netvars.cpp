@@ -56,6 +56,9 @@ void NetVars::Init() {
 		this->iWeaponState = gNetvars.get_offset("DT_WeaponMinigun", "m_iWeaponState");
 	}
 	if (TF2C) this->iCritMult = gNetvars.get_offset("DT_TFPlayer", "m_Shared", "m_iCritMult");
+	if (TF2C) {
+		this->bRespawning = gNetvars.get_offset("DT_WeaponSpawner", "m_bRespawning");
+	}
 	this->flNextAttack = gNetvars.get_offset("DT_BaseCombatCharacter", "bcc_localdata", "m_flNextAttack");
 	this->flNextPrimaryAttack = gNetvars.get_offset("DT_BaseCombatWeapon", "LocalActiveWeaponData", "m_flNextPrimaryAttack");
 	this->iNextThinkTick = gNetvars.get_offset("DT_BaseCombatWeapon", "LocalActiveWeaponData", "m_nNextThinkTick");

@@ -9,6 +9,7 @@
 #define ENTITYCACHE_H_
 
 #include "enums.h"
+#include "itemtypes.h"
 #include "fixsdk.h"
 #include <mathlib/vector.h>
 
@@ -127,6 +128,7 @@ public:
 
 	Vector m_vecOrigin;
 
+	k_EItemType m_ItemType;
 	int  m_iTeam;
 	bool m_bAlivePlayer;
 	bool m_bEnemy;
@@ -152,7 +154,6 @@ public:
 	IClientEntity* m_pEntity;
 	ESPStringCompound* m_Strings;
 	int m_ESPColorFG;
-	int m_ESPColorBG;
 	int m_nESPStrings;
 	Vector m_ESPOrigin;
 	Vector m_vecVOrigin;

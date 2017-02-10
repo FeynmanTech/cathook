@@ -30,6 +30,7 @@
 #include "hooks.h"
 #include "prediction.h"
 #include "conditions.h"
+#include "itemtypes.h"
 #include "ipc/ipcctl.h"
 #include "chatstack.h"
 #include "textfile.h"

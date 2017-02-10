@@ -62,7 +62,6 @@ int FromHSL(float h, float s, float l);
 int RainbowCurrent();
 int Health(int health, int max);
 int EntityF(CachedEntity* ent);
-int EntityB(CachedEntity* ent);
 
 }
 

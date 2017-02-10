@@ -75,6 +75,8 @@ void CMenuWindow::AddElements() {
 	ADDCVAR(g_phESP->v_bItemESP);
 	ADDCVAR(g_phESP->v_bShowMoney);
 	ADDCVAR(g_phESP->v_bShowHealthPacks);
+	if (TF2C) ADDCVAR(g_phESP->v_bShowWeaponSpawners);
+	if (TF2C) ADDCVAR(g_phESP->v_bShowAdrenaline);
 	if (TF) ADDCVAR(g_phESP->v_bShowAmmoPacks);
 	ADDCVAR(g_phESP->v_bShowDroppedWeapons);
 	if (TF) ADDCVAR(g_phESP->v_bShowPowerups);
@@ -151,6 +153,7 @@ void CMenuWindow::AddElements() {
 	//ADDCVAR(g_phMisc->v_bDebugInfo);
 	if (HL2DM) ADDCVAR(g_phMisc->v_bFlashlightSpam);
 	ADDCVAR(g_phMisc->v_iFakeLag);
+	ADDCVAR(g_Settings.bFastOutline);
 	if (TF) {
 		ADDLABEL("Spy Alert");
 		ADDCVAR(g_phSpyAlert->v_bEnabled);

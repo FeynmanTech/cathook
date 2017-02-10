@@ -74,6 +74,8 @@ void CachedEntity::Update(int idx) {
 	}*/
 	m_vecOrigin = origin;
 
+	m_ItemType = ITEM_NONE;
+
 	m_bGrenadeProjectile = false;
 	m_bBonesSetup = false;
 
@@ -110,6 +112,7 @@ void CachedEntity::Update(int idx) {
 			   m_iClassID == g_pClassID->CTFProjectile_Flare) {
 		m_Type = EntityType::ENTITY_PROJECTILE;
 	} else {
+		m_ItemType = g_ItemManager.GetItemType(this);
 		m_Type = EntityType::ENTITY_GENERIC;
 	}
 
