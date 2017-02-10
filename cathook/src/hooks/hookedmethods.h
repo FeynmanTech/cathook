@@ -13,6 +13,7 @@ class CUserCmd;
 class INetMessage;
 class bf_read;
 class CViewSetup;
+class IClientEntity;
 
 typedef bool(CreateMove_t)(void*, float, CUserCmd*);
 typedef void(PaintTraverse_t)(void*, unsigned int, bool, bool);
@@ -26,6 +27,9 @@ typedef void(FrameStageNotify_t)(void*, int);
 typedef void(LevelInit_t)(void*, const char*);
 typedef void(LevelShutdown_t)(void*);
 typedef void(BeginFrame_t)(IStudioRender*);
+typedef bool(*CanInspect_t)(IClientEntity*);
+bool CanInspect_hook(IClientEntity*);
+const unsigned int offCanInspect = 512;
 void BeginFrame_hook(IStudioRender*);
 
 #include "CreateMove.h"

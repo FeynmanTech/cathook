@@ -84,6 +84,7 @@ public:
 	CatVar* v_ePriorityMode;
 	CatVar* v_bProjPredVisibility;
 	CatVar* v_bProjPredFOV;
+	CatVar* v_bAdvancedSapperAim;
 };
 
 DECLARE_HACK_SINGLETON(Aimbot);

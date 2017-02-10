@@ -19,6 +19,7 @@
 #include "../common.h"
 #include <checksum_md5.h>
 #include "../sdk.h"
+#include "../hooks/hookedmethods.h"
 #include "../netmessage.h"
 #include "../copypasted/CSignature.h"
 
@@ -304,6 +305,7 @@ Misc::Misc() {
 	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	if (TF2) c_Schema = CreateConCommand(CON_PREFIX "schema", CC_Misc_Schema, "Load item schema");
 	if (TF2) v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "???", NULL, "???");
+	//if (TF2) v_bHookInspect = new CatVar(CV_SWITCH, "hook_inspect", "0", "Hook CanInspect", NULL, "Once enabled, can't be turned off. cathook can't be unloaded after enabling it");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }
 
@@ -342,6 +344,20 @@ bool canmeleecrit(IClientEntity* weapon) {
 
 void Misc::ProcessUserCmd(CUserCmd* cmd) {
 	static bool flswitch = false;
+
+	/*if (TF2 && v_bHookInspect->GetBool()) {
+		if (CE_GOOD(LOCAL_W)) {
+			//logging::Info("%i", vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), offCanInspect, 0)(RAW_ENT(LOCAL_W)));
+			uintptr_t* vtable = *(uintptr_t**)(RAW_ENT(LOCAL_W));
+			if (vtable[offCanInspect] != (uintptr_t)CanInspect_hook) {
+				uintptr_t patch = (uintptr_t)CanInspect_hook;
+				Patch((void*)((uintptr_t)vtable + offCanInspect * 4), &patch, 4);
+				//vtable[offCanInspect] = (uintptr_t*)CanInspect_hook;
+			}
+			//logging::Info("%i", vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), offCanInspect, 0)(RAW_ENT(LOCAL_W)));
+		}
+	}
+*/
 	if (TF2 && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
 		//static uintptr_t helper = gSignatures.GetClientSignature("55 89 E5 81 EC 88 00 00 00 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 31 FF 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 0F 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 75 14 89 F8 8B 5D F4 8B 75 F8 8B 7D FC 89 EC 5D C3");
 		/*if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
@@ -362,7 +378,7 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 				ciac_s = vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1836 / 4, 0)(RAW_ENT(LOCAL_W));
 				lastcheck = interfaces::gvars->curtime;
 				if (ciac_s != 0) {
-					logging::Info("Attack!!!");
+					//logging::Info("Attack!!!");
 					cmd->buttons = cmd->buttons | IN_ATTACK;
 					AddCenterString(colors::red, "Crit!");
 				}
