@@ -24,10 +24,6 @@
 
 DEFINE_HACK_SINGLETON(Misc);
 
-const char* Misc::GetName() {
-	return "MISC";
-}
-
 void CC_SayLines(const CCommand& args) {
 	char cmd[256];
 	sprintf(cmd, "say %s", args.ArgS());
@@ -344,7 +340,7 @@ bool canmeleecrit(IClientEntity* weapon) {
 	return false;
 }
 
-bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
+void Misc::ProcessUserCmd(CUserCmd* cmd) {
 	static bool flswitch = false;
 	if (TF2 && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
 		//static uintptr_t helper = gSignatures.GetClientSignature("55 89 E5 81 EC 88 00 00 00 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 31 FF 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 0F 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 75 14 89 F8 8B 5D F4 8B 75 F8 8B 7D FC 89 EC 5D C3");
@@ -443,11 +439,9 @@ bool Misc::CreateMove(void*, float, CUserCmd* cmd) {
 			lastsay = 1;
 		}*/
 	}
-	breakif:
-	return true;
 }
 
-void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
+void Misc::Draw() {
 
 	if (!v_bDebugInfo->GetBool())return;
 	/*if (!interfaces::input->IsButtonDown(ButtonCode_t::KEY_F)) {
@@ -510,6 +504,3 @@ void Misc::PaintTraverse(void*, unsigned int, bool, bool) {
 			//AddCenterString(draw::font_handle, interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X), interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y), draw::white, L"S\u0FD5");
 		}
 }
-
-void Misc::LevelInit(const char*) {}
-void Misc::LevelShutdown() {}

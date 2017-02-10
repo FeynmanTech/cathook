@@ -111,19 +111,20 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (CE_GOOD(g_pLocalPlayer->entity) && !g_Settings.bInvalid) {
 		//SAFE_CALL(PAINT_TRAVERSE(AutoStrafe));
 		//SAFE_CALL(PAINT_TRAVERSE(AntiAim));
-		if (TF) SAFE_CALL(PAINT_TRAVERSE(AntiDisguise));
+		if (TF) SAFE_CALL(HACK_DRAW(AntiDisguise));
 		//SAFE_CALL(PAINT_TRAVERSE(AutoReflect));
 		//SAFE_CALL(PAINT_TRAVERSE(FollowBot));
-		SAFE_CALL(PAINT_TRAVERSE(Misc));
+		SAFE_CALL(HACK_DRAW(Misc));
 		//SAFE_CALL(PAINT_TRAVERSE(Aimbot));
 		//SAFE_CALL(PAINT_TRAVERSE(Bunnyhop));
-		SAFE_CALL(PAINT_TRAVERSE(ESP));
+		SAFE_CALL(HACK_DRAW(ESP));
+		SAFE_CALL(HACK_DRAW(Triggerbot));
 		//SAFE_CALL(PAINT_TRAVERSE(Triggerbot));
 		//SAFE_CALL(PAINT_TRAVERSE(AutoSticky));
 		//SAFE_CALL(PAINT_TRAVERSE(Airstuck));
 		//SAFE_CALL(PAINT_TRAVERSE(AutoHeal));
 		//SAFE_CALL(PAINT_TRAVERSE(HuntsmanCompensation));
-		if (TF) SAFE_CALL(PAINT_TRAVERSE(SpyAlert));
+		if (TF) SAFE_CALL(HACK_DRAW(SpyAlert));
 		Vector screen;
 		for (int i = 0; i < HIGHEST_ENTITY; i++) {
 			CachedEntity* ce = gEntityCache.GetEntity(i);

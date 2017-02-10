@@ -4,7 +4,7 @@
  *  Created on: Oct 30, 2016
  *      Author: nullifiedcat
  */
-
+/*
 #include "FollowBot.h"
 
 #include <signal.h>
@@ -77,7 +77,7 @@ void FollowBot::ProcessEntity(CachedEntity* entity, bool enemy) {
  * 	goto pick target
  * if at shooting distance:
  *  shoot
- */
+ *//*
 
 // TODO
 int FollowBot::ShouldNotTarget(CachedEntity* ent, bool notrace) {
@@ -401,3 +401,4 @@ void FollowBot::PaintTraverse(void*, unsigned int, bool, bool) {}
 
 void FollowBot::LevelInit(const char*) {}
 void FollowBot::LevelShutdown() {}
+*/

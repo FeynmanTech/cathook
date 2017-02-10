@@ -12,14 +12,18 @@
 
 class AntiAim : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	AntiAim();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+
 	CatVar* v_bEnabled;
 	CatVar* v_flSpinSpeed;
 	CatVar* v_flYaw;
 	CatVar* v_flPitch;
 	CatVar* v_PitchMode;
 	CatVar* v_YawMode;
+	CatVar* v_bNoClamping;
+	CatVar* v_flRoll;
 };
 
 DECLARE_HACK_SINGLETON(AntiAim);

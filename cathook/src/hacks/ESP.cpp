@@ -12,10 +12,6 @@
 
 DEFINE_HACK_SINGLETON(ESP);
 
-const char* ESP::GetName() {
-	return "ESP";
-}
-
 const char* classes[] = {
 	"Scout",
 	"Sniper",
@@ -28,7 +24,7 @@ const char* classes[] = {
 	"Engineer"
 };
 
-void ESP::PaintTraverse(void*, unsigned int, bool, bool) {
+void ESP::Draw() {
 	if (CE_BAD(g_pLocalPlayer->entity)) return;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		ProcessEntityPT(ENTITY(i));
@@ -357,14 +353,10 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 	}
 }
 
-bool ESP::CreateMove(void*, float, CUserCmd*) {
-	if (CE_BAD(g_pLocalPlayer->entity)) return true;
+void ESP::ProcessUserCmd(CUserCmd*) {
+	if (CE_BAD(g_pLocalPlayer->entity)) return;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_GOOD(ent)) { ProcessEntity(ent); }
 	}
-	return true;
 };
-
-void ESP::LevelInit(const char*) {}
-void ESP::LevelShutdown() {}

@@ -12,15 +12,11 @@
 
 DEFINE_HACK_SINGLETON(AntiDisguise);
 
-const char* AntiDisguise::GetName() {
-	return "ANTI-DISGUISE";
-}
-
 AntiDisguise::AntiDisguise() {
 	v_bEnabled = new CatVar(CV_SWITCH, "antidisguise", "0", "Remove spy disguise", 0, "Remove disguise from all spies");
 }
 
-void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
+void AntiDisguise::Draw() {
 	if (!v_bEnabled->GetBool()) return;
 	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
@@ -32,8 +28,3 @@ void AntiDisguise::PaintTraverse(void*, unsigned int, bool, bool) {
 		}
 	}
 }
-
-bool AntiDisguise::CreateMove(void*, float, CUserCmd*) {return true;}
-
-void AntiDisguise::LevelInit(const char*) {}
-void AntiDisguise::LevelShutdown() {}

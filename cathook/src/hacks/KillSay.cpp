@@ -12,8 +12,6 @@
 
 DEFINE_HACK_SINGLETON(KillSay);
 
-const char* KillSay::GetName() { return "KILLSAY"; }
-
 const char* tf_classes_killsay[] = {
 	"class",
 	"scout",
@@ -86,8 +84,3 @@ void KillSay::Reload() {
 void CC_KillSay_ReloadFile(const CCommand& args) {
 	SAFE_CALL(g_phKillSay->Reload());
 }
-
-bool KillSay::CreateMove(void*, float, CUserCmd*) {	return true; }
-void KillSay::PaintTraverse(void*, unsigned int, bool, bool) {}
-void KillSay::LevelInit(const char*) {}
-void KillSay::LevelShutdown() {}

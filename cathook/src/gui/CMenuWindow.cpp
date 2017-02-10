@@ -169,6 +169,8 @@ void CMenuWindow::AddElements() {
 	ADDCVAR(g_phAntiAim->v_YawMode);
 	ADDCVAR(g_phAntiAim->v_flYaw);
 	ADDCVAR(g_phAntiAim->v_flSpinSpeed);
+	ADDCVAR(g_phAntiAim->v_bNoClamping);
+	ADDCVAR(g_phAntiAim->v_flRoll);
 	AddTab("spam", "Spam/Killsay");
 	tab = GetTab("spam");
 	ADDLABEL("Spam");

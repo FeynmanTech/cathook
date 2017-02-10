@@ -71,7 +71,6 @@ void hack::InitHacks() {
 	if (TF) ADD_HACK(AutoSticky);
 	ADD_HACK(Airstuck);
 	if (TF) ADD_HACK(AutoHeal);
-	if (TF) ADD_HACK(HuntsmanCompensation);
 	if (TF) ADD_HACK(SpyAlert);
 	if (TF2) ADD_HACK(Glow);
 	ADD_HACK(KillSay);
@@ -217,7 +216,7 @@ void hack::Shutdown() {
 	DELETE_HACK(AntiAim);
 	if (TF) DELETE_HACK(AntiDisguise);
 	if (TF) DELETE_HACK(AutoReflect);
-	DELETE_HACK(FollowBot);
+	//DELETE_HACK(FollowBot);
 	DELETE_HACK(Misc);
 	DELETE_HACK(Aimbot);
 	DELETE_HACK(Bunnyhop);
@@ -226,7 +225,6 @@ void hack::Shutdown() {
 	if (TF) DELETE_HACK(AutoSticky);
 	DELETE_HACK(Airstuck);
 	if (TF) DELETE_HACK(AutoHeal);
-	if (TF) DELETE_HACK(HuntsmanCompensation);
 	DELETE_HACK(SpyAlert);
 	if (TF) DELETE_HACK(Glow);
 	DELETE_HACK(KillSay);

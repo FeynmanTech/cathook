@@ -12,8 +12,10 @@
 
 class AutoReflect : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	AutoReflect();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+
 	bool ShouldReflect(CachedEntity* ent);
 	CatVar* v_bEnabled;
 	CatVar* v_bDisableWhenAttacking;

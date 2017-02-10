@@ -26,8 +26,11 @@ struct AimKeyMode_t {
 
 class Aimbot : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	Aimbot();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+	virtual void OnLevelInit() override;
+
 	int ShouldTarget(CachedEntity* entity);
 	bool Aim(CachedEntity* entity, CUserCmd* cmd);
 	bool ShouldAim(CUserCmd* cmd);

@@ -12,8 +12,9 @@
 
 class Airstuck : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	Airstuck();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
 
 	ConVar* v_bStuck;
 };

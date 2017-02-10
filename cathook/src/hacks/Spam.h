@@ -17,8 +17,12 @@ class TextFile;
 
 class Spam : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	Spam();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+	virtual void OnLevelShutdown() override;
+	virtual void OnLevelInit() override;
+
 	void Reload();
 	CatVar* v_bSpam;
 	CatVar* v_sSpamFile;

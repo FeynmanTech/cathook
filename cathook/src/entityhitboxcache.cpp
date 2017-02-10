@@ -82,8 +82,8 @@ bool EntityHitboxCache::VisibilityCheck(int id) {
 }
 
 CachedHitbox* EntityHitboxCache::GetHitbox(int id) {
-	if (id < 0 || id >= m_nNumHitboxes) return 0;
 	if (!m_bInit) Init();
+	if (id < 0 || id >= m_nNumHitboxes) return 0;
 	if (!m_bSuccess) return 0;
 	if (!m_CacheValidationFlags[id]) {
 		mstudiobbox_t* box = m_pHitboxSet->pHitbox(id);

@@ -21,7 +21,6 @@ class KillSayEventListener : public IGameEventListener2 {
 
 class KillSay : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	KillSay();
 	~KillSay();
 	const char* ComposeKillSay(IGameEvent* evt);

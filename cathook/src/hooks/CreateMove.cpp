@@ -69,26 +69,25 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 //		PROF_BEGIN();
 		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
-		SAFE_CALL(CREATE_MOVE(ESP));
+		SAFE_CALL(HACK_PROCESS_USERCMD(ESP, cmd));
 		if (!g_pLocalPlayer->life_state) {
-			if (TF2) SAFE_CALL(CREATE_MOVE(Noisemaker));
-			SAFE_CALL(CREATE_MOVE(Bunnyhop));
-			SAFE_CALL(CREATE_MOVE(AutoStrafe));
-			SAFE_CALL(CREATE_MOVE(Aimbot));
-			SAFE_CALL(CREATE_MOVE(Airstuck));
-			SAFE_CALL(CREATE_MOVE(AntiAim));
-			if (TF) SAFE_CALL(CREATE_MOVE(AutoSticky));
-			if (TF) SAFE_CALL(CREATE_MOVE(AutoReflect));
-			SAFE_CALL(CREATE_MOVE(Triggerbot));
-			if (TF) SAFE_CALL(CREATE_MOVE(HuntsmanCompensation));
+			//if (TF2) SAFE_CALL(HACK_PROCESS_USERCMD(Noisemaker, cmd));
+			SAFE_CALL(HACK_PROCESS_USERCMD(Bunnyhop, cmd));
+			SAFE_CALL(HACK_PROCESS_USERCMD(AutoStrafe, cmd));
+			SAFE_CALL(HACK_PROCESS_USERCMD(Aimbot, cmd));
+			SAFE_CALL(HACK_PROCESS_USERCMD(Airstuck, cmd));
+			SAFE_CALL(HACK_PROCESS_USERCMD(AntiAim, cmd));
+			if (TF) SAFE_CALL(HACK_PROCESS_USERCMD(AutoSticky, cmd));
+			if (TF) SAFE_CALL(HACK_PROCESS_USERCMD(AutoReflect, cmd));
+			SAFE_CALL(HACK_PROCESS_USERCMD(Triggerbot, cmd));
 		}
-		if (TF) SAFE_CALL(CREATE_MOVE(AntiDisguise));
-		if (TF) SAFE_CALL(CREATE_MOVE(AutoHeal));
-		if (TF2) SAFE_CALL(CREATE_MOVE(Glow));
+		if (TF) SAFE_CALL(HACK_PROCESS_USERCMD(AntiDisguise, cmd));
+		if (TF) SAFE_CALL(HACK_PROCESS_USERCMD(AutoHeal, cmd));
+		if (TF2) SAFE_CALL(HACK_PROCESS_USERCMD(Glow, cmd));
 		//SAFE_CALL(CREATE_MOVE(FollowBot));
-		SAFE_CALL(CREATE_MOVE(Misc));
-		SAFE_CALL(CREATE_MOVE(KillSay));
-		SAFE_CALL(CREATE_MOVE(Spam));
+		SAFE_CALL(HACK_PROCESS_USERCMD(Misc, cmd));
+		SAFE_CALL(HACK_PROCESS_USERCMD(KillSay, cmd));
+		SAFE_CALL(HACK_PROCESS_USERCMD(Spam, cmd));
 //		PROF_END("Hacks processing");
 		if (time_replaced) interfaces::gvars->curtime = curtime_old;
 	}

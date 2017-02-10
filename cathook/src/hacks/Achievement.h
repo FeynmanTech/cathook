@@ -12,14 +12,14 @@
 
 class AchievementHack : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	AchievementHack();
+
+	void UnlockAll();
+	void LockAll();
+
 	ConCommand* c_Unlock;
 	ConCommand* c_Lock;
 };
-
-void Achievements_Unlock();
-void Achievements_Lock();
 
 void CC_Achievement_Unlock(const CCommand& args);
 void CC_Achievement_Lock(const CCommand& args);

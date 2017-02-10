@@ -14,8 +14,10 @@ class CachedEntity;
 
 class AutoSticky : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	AutoSticky();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+
 	bool ShouldDetonate(CachedEntity* bomb);
 	CatVar* v_bEnabled;
 	CatVar* v_bBuildings;
