@@ -12,10 +12,6 @@
 
 DEFINE_HACK_SINGLETON(AutoReflect);
 
-const char* AutoReflect::GetName() {
-	return "AUTO-REFLECT";
-}
-
 bool AutoReflect::ShouldReflect(CachedEntity* ent) {
 	if (CE_BAD(ent)) return false;
 	if (ent->m_Type != ENTITY_PROJECTILE) return false;
@@ -41,12 +37,12 @@ AutoReflect::AutoReflect() {
 	v_bReflectStickies = new CatVar(CV_SWITCH, "reflect_stickybombs", "0", "Reflect stickies", NULL, "Reflect Stickybombs");
 }
 // TODO
-bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
-	if (!v_bEnabled->GetBool()) return true;
-	if (CE_BAD(g_pLocalPlayer->weapon()) || CE_BAD(g_pLocalPlayer->entity)) return true;
-	if (g_pLocalPlayer->life_state) return true;
-	if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFFlameThrower) return true;
-	if (v_bDisableWhenAttacking->GetBool() && (cmd->buttons & IN_ATTACK)) return true;
+void AutoReflect::ProcessUserCmd(CUserCmd* cmd) {
+	if (!v_bEnabled->GetBool()) return;
+	if (CE_BAD(g_pLocalPlayer->weapon()) || CE_BAD(g_pLocalPlayer->entity)) return;
+	if (g_pLocalPlayer->life_state) return;
+	if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFFlameThrower) return;
+	if (v_bDisableWhenAttacking->GetBool() && (cmd->buttons & IN_ATTACK)) return;
 
 	CachedEntity* closest = 0;
 	float closest_dist = 0.0f;
@@ -61,8 +57,8 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 			closest_dist = dist;
 		}
 	}
-	if (CE_BAD(closest)) return true;
-	if (closest_dist == 0 || closest_dist > SQR(v_iReflectDistance->GetInt())) return true;
+	if (CE_BAD(closest)) return;
+	if (closest_dist == 0 || closest_dist > SQR(v_iReflectDistance->GetInt())) return;
 
 	Vector tr = (closest->m_vecOrigin - g_pLocalPlayer->v_Eye);
 	Vector angles;
@@ -71,11 +67,5 @@ bool AutoReflect::CreateMove(void*, float, CUserCmd* cmd) {
 	cmd->viewangles = angles;
 	g_pLocalPlayer->bUseSilentAngles = true;
 	cmd->buttons |= IN_ATTACK2;
-
-	return true;
+	return;
 }
-
-void AutoReflect::PaintTraverse(void*, unsigned int, bool, bool) {}
-
-void AutoReflect::LevelInit(const char*) {}
-void AutoReflect::LevelShutdown() {}

@@ -14,9 +14,12 @@ class CatVar;
 
 class Triggerbot : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	Triggerbot();
 	~Triggerbot();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+	virtual void Draw() override;
+
 	CatVar* v_bEnabled;
 	CatVar* v_bRespectCloak;
 	CatVar* v_bZoomedOnly;

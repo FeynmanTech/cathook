@@ -12,8 +12,10 @@
 
 class AntiDisguise : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	AntiDisguise();
+
+	virtual void Draw() override;
+
 	CatVar* v_bEnabled;
 };
 

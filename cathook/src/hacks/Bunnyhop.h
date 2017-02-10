@@ -14,8 +14,10 @@ class ConVar;
 
 class Bunnyhop : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	Bunnyhop();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+
 	CatVar* v_bEnabled;
 	CatVar* v_bAutoJump;
 	CatVar* v_iAutoJumpSpeed;

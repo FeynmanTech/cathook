@@ -29,10 +29,6 @@ enum TargetSystem_t {
 
 ITargetSystem* target_systems[3];
 
-const char* Aimbot::GetName() {
-	return "AIMBOT";
-}
-
 Aimbot::Aimbot() {
 	target_systems[0] = new TargetSystemSmart();
 	target_systems[1] = new TargetSystemFOV();
@@ -167,13 +163,13 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 	return true;
 }
 
-bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return true;
-	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return true;
-	if (g_pLocalPlayer->life_state) return true;
+void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
+	if (!this->v_bEnabled->GetBool()) return;
+	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return;
+	if (g_pLocalPlayer->life_state) return;
 	//this->m_iLastTarget = -1;
 
-	if (HasCondition(g_pLocalPlayer->entity, TFCond_Taunting)) return true;
+	if (HasCondition(g_pLocalPlayer->entity, TFCond_Taunting)) return;
 
 	switch (GetWeaponMode(g_pLocalPlayer->entity)) {
 	case weapon_medigun:
@@ -181,15 +177,15 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 	case weapon_consumable:
 	case weapon_throwable:
 	case weapon_invalid:
-		return true;
+		return;
 	case weapon_projectile:
-		if (!v_bProjectileAimbot->GetBool()) return true;
+		if (!v_bProjectileAimbot->GetBool()) return;
 	};
 
-	if (HasCondition(g_pLocalPlayer->entity, TFCond_Cloaked)) return true; // TODO other kinds of cloak
+	if (HasCondition(g_pLocalPlayer->entity, TFCond_Cloaked)) return; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
 
-	if(cmd->buttons & IN_USE) return true;
+	if(cmd->buttons & IN_USE) return;
 
 	/*if (this->v_bTriggerMode->GetBool() ) {
 		cmd->buttons = cmd->buttons &~ IN_ATTACK;
@@ -217,7 +213,7 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 		}
 	}
 
-	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFGrapplingHook) return true;
+	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFGrapplingHook) return;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
 	if (v_fOverrideProjSpeed->GetBool())
@@ -318,21 +314,8 @@ bool Aimbot::CreateMove(void*, float, CUserCmd* cmd) {
 			m_nMinigunFixTicks && ShouldAim(cmd)) {
 		Aim(ENTITY(m_iLastTarget), cmd);
 	}
-	return !this->v_bSilent->GetBool();
-}
-
-void Aimbot::PaintTraverse(void*, unsigned int, bool, bool) {
-	/*if (!v_bEnabled->GetBool()) return;
-	if (IDX_BAD(m_iLastTarget)) return;
-	CachedEntity* ent = ENTITY(this->m_iLastTarget);
-	if (CE_BAD(ent)) return;
-	if (ent->m_Type == ENTITY_PLAYER) {
-		int clazz = CE_INT(ent, netvar.iClass);
-		if (clazz < 0 || clazz > 9) return;
-		AddCenterString(colors::yellow, colors::black, "Prey: %i HP %s (%s)", CE_INT(ent, netvar.iHealth), tfclasses[clazz], ent->m_pPlayerInfo->name);
-	} else if (ent->m_Type == ENTITY_BUILDING) {
-		AddCenterString(colors::yellow, colors::black, "Prey: %i HP LV %i %s", CE_INT(ent, netvar.iBuildingHealth), CE_INT(ent, netvar.iUpgradeLevel), GetBuildingName(ent));
-	}*/
+	if (this->v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
+	return;
 }
 
 int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
@@ -489,9 +472,7 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	return true;
 }
 
-void Aimbot::LevelInit(const char*) {
+void Aimbot::OnLevelInit() {
 	m_iLastTarget = -1;
 	m_bProjectileMode = false;
 }
-
-void Aimbot::LevelShutdown() {}

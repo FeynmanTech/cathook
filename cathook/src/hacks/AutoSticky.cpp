@@ -12,10 +12,6 @@
 
 DEFINE_HACK_SINGLETON(AutoSticky);
 
-const char* AutoSticky::GetName() {
-	return "AUTO-STICKY";
-}
-
 // TODO scottish cyclops
 AutoSticky::AutoSticky() {
 	this->v_flDetonateDistance = new CatVar(CV_INT, "sticky_distance", "200", "Distance", NULL, "Maximum distance to detonate");
@@ -36,12 +32,12 @@ bool AutoSticky::ShouldDetonate(CachedEntity* bomb) {
 	return false;
 }
 
-bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return true;
-	if (CE_BAD(g_pLocalPlayer->entity)) return true;
-	if (CE_BAD(g_pLocalPlayer->weapon())) return true;
-	if (g_pLocalPlayer->life_state) return true;
-	if (g_pLocalPlayer->clazz != tf_demoman) return true;
+void AutoSticky::ProcessUserCmd(CUserCmd* cmd) {
+	if (!this->v_bEnabled->GetBool()) return;
+	if (CE_BAD(g_pLocalPlayer->entity)) return;
+	if (CE_BAD(g_pLocalPlayer->weapon())) return;
+	if (g_pLocalPlayer->life_state) return;
+	if (g_pLocalPlayer->clazz != tf_demoman) return;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
@@ -52,12 +48,5 @@ bool AutoSticky::CreateMove(void*, float, CUserCmd* cmd) {
 			cmd->buttons |= IN_ATTACK2;
 		}
 	}
-	return true;
+	return;
 }
-
-void AutoSticky::PaintTraverse(void*, unsigned int, bool, bool) {
-
-}
-
-void AutoSticky::LevelInit(const char*) {}
-void AutoSticky::LevelShutdown() {}

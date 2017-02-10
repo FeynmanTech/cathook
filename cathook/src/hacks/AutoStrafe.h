@@ -12,8 +12,10 @@
 
 class AutoStrafe : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	AutoStrafe();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+
 	CatVar* v_bEnabled;
 };
 

@@ -12,9 +12,9 @@
 
 class Noisemaker : public IHack {
 public:
-	DECLARE_HACK_METHODS();
-
 	Noisemaker();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
 
 	CatVar* v_bEnabled;
 };

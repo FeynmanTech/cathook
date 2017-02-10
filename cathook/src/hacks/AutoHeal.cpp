@@ -12,8 +12,6 @@
 
 DEFINE_HACK_SINGLETON(AutoHeal);
 
-const char* AutoHeal::GetName() { return "AUTO-HEAL"; }
-
 int AutoHeal::GetBestHealingTarget() {
 	int best = -1;
 	int best_score = -65536;
@@ -70,11 +68,11 @@ AutoHeal::AutoHeal() {
 	m_iCurrentHealingTarget = -1;
 }
 
-bool AutoHeal::CreateMove(void*, float, CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return true;
-	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return true;
-	if (g_pLocalPlayer->life_state) return true;
-	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_medigun) return true;
+void AutoHeal::ProcessUserCmd(CUserCmd* cmd) {
+	if (!this->v_bEnabled->GetBool()) return;
+	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return;
+	if (g_pLocalPlayer->life_state) return;
+	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_medigun) return;
 	int old_target = m_iCurrentHealingTarget;
 	m_iCurrentHealingTarget = GetBestHealingTarget();
 	if (m_iNewTarget > 0 && m_iNewTarget < 10) m_iNewTarget++;
@@ -83,20 +81,12 @@ bool AutoHeal::CreateMove(void*, float, CUserCmd* cmd) {
 	if (new_target) {
 		m_iNewTarget = 1;
 	}
-	if (m_iCurrentHealingTarget == -1) return true;
+	if (m_iCurrentHealingTarget == -1) return;
 	CachedEntity* target = ENTITY(m_iCurrentHealingTarget);
 	Vector out;
 	GetHitbox(target, 7, out);
 	AimAt(g_pLocalPlayer->v_Eye, out, cmd);
 	if (v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
 	if (!m_iNewTarget && (interfaces::gvars->tickcount % 60)) cmd->buttons |= IN_ATTACK;
-	return false;
+	return;
 }
-
-void AutoHeal::PaintTraverse(void*, unsigned int, bool, bool) {
-	//if (m_iCurrentHealingTarget >= 0)
-		//gEntityCache.GetEntity(m_iCurrentHealingTarget)->AddESPString(colors::white, colors::black, "Healing priority: %i", GetHealingPriority(m_iCurrentHealingTarget));
-}
-
-void AutoHeal::LevelInit(const char*) {}
-void AutoHeal::LevelShutdown() {}

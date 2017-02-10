@@ -12,10 +12,6 @@
 
 DEFINE_HACK_SINGLETON(AntiAim);
 
-const char* AntiAim::GetName() {
-	return "ANTI-AIM";
-}
-
 AntiAim::AntiAim() {
 	this->v_bEnabled = new CatVar(CV_SWITCH, "aa_enabled", "0", "Enable AntiAim", NULL, "Master AntiAim switch");
 	this->v_flPitch = new CatVar(CV_FLOAT, "aa_pitch", "-89.0", "Pitch", NULL, "Static pitch (up/down)", true, 89.0, -89.0);
@@ -23,23 +19,25 @@ AntiAim::AntiAim() {
 	this->v_flSpinSpeed = new CatVar(CV_FLOAT, "aa_spin", "10.0", "Spin speed", NULL, "Spin speed (in deg/sec)");
 	this->v_PitchMode = new CatVar(CV_ENUM, "aa_pitch_mode", "1", "Pitch mode", new CatEnum({ "KEEP", "STATIC", "RANDOM" }), "Pitch mode");
 	this->v_YawMode = new CatVar(CV_ENUM, "aa_yaw_mode", "3", "Yaw mode", new CatEnum({ "KEEP", "STATIC", "RANDOM", "SPIN" }), "Yaw mode");
+	this->v_bNoClamping = new CatVar(CV_SWITCH, "aa_no_clamp", "0", "Don't clamp angles", NULL, "Use this with STATIC mode for unclamped manual angles");
+	this->v_flRoll = new CatVar(CV_FLOAT, "aa_roll", "0", "Roll", NULL, "Roll angle. ???", true, -180, 180);
 }
 
 float yaw = -180;
 float pitch = -89;
 
-bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return true;
+void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
+	if (!this->v_bEnabled->GetBool()) return;
 	if (cmd->buttons & IN_USE) {
-		return true;
+		return;
 	}
 	if (cmd->buttons & IN_ATTACK) {
-		if (CanShoot()) return true;
+		if (CanShoot()) return;
 	}
-	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFLunchBox) return true;
-	if (g_pLocalPlayer->bAttackLastTick) return true;
+	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFLunchBox) return;
+	if (g_pLocalPlayer->bAttackLastTick) return;
 	if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee ||
-			GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_throwable) return true;
+			GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_throwable) return;
 	float p = cmd->viewangles.x;
 	float y = cmd->viewangles.y;
 	switch (this->v_YawMode->GetInt()) {
@@ -65,14 +63,8 @@ bool AntiAim::CreateMove(void*, float, CUserCmd* cmd) {
 	}
 
 	Vector angl = Vector(p, y, 0);
-	fClampAngle(angl);
-	//angl.z = 180;
+	if (!v_bNoClamping->GetBool()) fClampAngle(angl);
+	if (v_flRoll->GetBool()) angl.z = v_flRoll->GetFloat();
 	cmd->viewangles = angl;
 	g_pLocalPlayer->bUseSilentAngles = true;
-	return false;
 }
-
-void AntiAim::PaintTraverse(void*, unsigned int, bool, bool) {}
-
-void AntiAim::LevelInit(const char*) {}
-void AntiAim::LevelShutdown() {}

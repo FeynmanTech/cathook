@@ -67,6 +67,8 @@ void VectorAngles(Vector &forward, Vector &angles);
 bool IsEntityVisible(CachedEntity* entity, int hb);
 bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos);
 
+bool LineIntersectsBox(Vector& bmin, Vector& bmax, Vector& lmin, Vector& lmax);
+
 float DistToSqr(CachedEntity* entity);
 void fClampAngle(Vector& qaAng);
 void fVectorAngles(Vector &forward, Vector &angles);

@@ -528,6 +528,16 @@ weaponmode GetWeaponMode(CachedEntity* player) {
 	return weaponmode::weapon_hitscan;
 }
 
+bool LineIntersectsBox(Vector& bmin, Vector& bmax, Vector& lmin, Vector& lmax) {
+	if (lmax.x < bmin.x && lmin.x < bmin.x) return false;
+	if (lmax.y < bmin.y && lmin.y < bmin.y) return false;
+	if (lmax.z < bmin.z && lmin.z < bmin.z) return false;
+	if (lmax.x > bmax.x && lmin.x > bmax.x) return false;
+	if (lmax.y > bmax.y && lmin.y > bmax.y) return false;
+	if (lmax.z > bmax.z && lmin.z > bmax.z) return false;
+	return true;
+}
+
 // TODO FIX this function
 bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 	if (CE_BAD(weapon)) return false;

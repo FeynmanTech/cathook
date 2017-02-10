@@ -11,17 +11,17 @@
 #define ADD_HACK(x) \
 	g_ph##x = new x()
 
-#define CREATE_MOVE(x) \
-	g_ph##x->CreateMove(thisptr, inputSample, cmd)
+#define HACK_PROCESS_USERCMD(x, y) \
+	g_ph##x->ProcessUserCmd(y)
 
-#define PAINT_TRAVERSE(x) \
-	g_ph##x->PaintTraverse(p, vp, fr, ar)
+#define HACK_DRAW(x) \
+	g_ph##x->Draw()
 
-#define LEVEL_INIT(x, a) \
-	g_ph##x->LevelInit(a)
+#define LEVEL_INIT(x) \
+	g_ph##x->OnLevelInit()
 
 #define LEVEL_SHUTDOWN(x) \
-	g_ph##x->LevelShutdown()
+	g_ph##x->OnLevelShutdown()
 
 #define DELETE_HACK(x) \
 	delete g_ph##x

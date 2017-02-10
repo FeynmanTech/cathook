@@ -134,21 +134,21 @@ bool DispatchUserMessage_hook(void* thisptr, int type, bf_read& buf) {
 void LevelInit_hook(void* thisptr, const char* newmap) {
 	((LevelInit_t*) hooks::hkClientMode->GetMethod(hooks::offLevelInit))(thisptr, newmap);
 	DRM_ENFORCE;
-	LEVEL_INIT(Aimbot, newmap);
-	LEVEL_INIT(Airstuck, newmap);
-	LEVEL_INIT(AntiAim, newmap);
-	if (TF) LEVEL_INIT(AntiDisguise, newmap);
-	if (TF) LEVEL_INIT(AutoHeal, newmap);
-	if (TF) LEVEL_INIT(AutoReflect, newmap);
-	if (TF) LEVEL_INIT(AutoSticky, newmap);
-	LEVEL_INIT(AutoStrafe, newmap);
-	LEVEL_INIT(Bunnyhop, newmap);
-	LEVEL_INIT(ESP, newmap);
+	LEVEL_INIT(Aimbot);
+	LEVEL_INIT(Airstuck);
+	LEVEL_INIT(AntiAim);
+	if (TF) LEVEL_INIT(AntiDisguise);
+	if (TF) LEVEL_INIT(AutoHeal);
+	if (TF) LEVEL_INIT(AutoReflect);
+	if (TF) LEVEL_INIT(AutoSticky);
+	LEVEL_INIT(AutoStrafe);
+	LEVEL_INIT(Bunnyhop);
+	LEVEL_INIT(ESP);
 //	LEVEL_SHUTDOWN(FollowBot);
-	LEVEL_INIT(Misc, newmap);
-	if (TF) LEVEL_INIT(SpyAlert, newmap);
-	LEVEL_INIT(Triggerbot, newmap);
-	if (TF2) LEVEL_INIT(Glow, newmap);
+	LEVEL_INIT(Misc);
+	//if (TF) LEVEL_INIT(SpyAlert);
+	//LEVEL_INIT(Triggerbot);
+	if (TF2) LEVEL_INIT(Glow);
 	g_pChatStack->Reset();
 }
 

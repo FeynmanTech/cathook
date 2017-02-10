@@ -12,10 +12,6 @@
 
 DEFINE_HACK_SINGLETON(Bunnyhop);
 
-const char* Bunnyhop::GetName() {
-	return "BUNNYHOP";
-}
-
 Bunnyhop::Bunnyhop() {
 	this->v_bEnabled = new CatVar(CV_SWITCH, "bhop_enabled", "0", "Enable", NULL, "Enable Bunnyhop");
 	this->v_bAutoJump = new CatVar(CV_SWITCH, "bhop_autojump", "0", "AutoJump", NULL, "Autojump if you reach certain speed");
@@ -26,10 +22,10 @@ bool bDoubleJumpFix = false;
 int iTicksFlying = 0;
 int iTicksLastJump = 0;
 
-bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
+void Bunnyhop::ProcessUserCmd(CUserCmd* cmd) {
 	m_bFakeLagFix = false;
-	if (!this->v_bEnabled->GetBool()) return true;
-	if (HasCondition(g_pLocalPlayer->entity, TFCond_GrapplingHook)) return true;
+	if (!this->v_bEnabled->GetBool()) return;
+	if (HasCondition(g_pLocalPlayer->entity, TFCond_GrapplingHook)) return;
 	int flags = CE_INT(g_pLocalPlayer->entity, netvar.iFlags);
 
 	if (v_bAutoJump->GetBool()) {
@@ -54,23 +50,5 @@ bool Bunnyhop::CreateMove(void* thisptr, float sampling, CUserCmd* cmd) {
 		if (iTicksLastJump++ >= 20) cmd->buttons = cmd->buttons &~ IN_JUMP;
 	}
 	if (!jump) iTicksLastJump = 0;
-
-	/*if (jump && !ground) {
-		if (!bDoubleJumpFix) {
-			cmd->buttons = cmd->buttons &~ IN_JUMP;
-		}
-		bDoubleJumpFix = false;
-	}
-	if (!jump && !ground) {
-		bDoubleJumpFix = true;
-	}
-	if (ground) {
-		bDoubleJumpFix = false;
-	}*/
-	return true;
+	return;
 }
-
-void Bunnyhop::PaintTraverse(void*, unsigned int, bool, bool) {}
-
-void Bunnyhop::LevelInit(const char*) {}
-void Bunnyhop::LevelShutdown() {}

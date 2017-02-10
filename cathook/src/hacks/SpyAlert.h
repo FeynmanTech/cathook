@@ -12,8 +12,10 @@
 
 class SpyAlert : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	SpyAlert();
+
+	virtual void Draw() override;
+
 	CatVar* v_bEnabled;
 	CatVar* v_flWarningDistance;
 	CatVar* v_flBackstabDistance;

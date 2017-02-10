@@ -18,14 +18,10 @@ Airstuck::Airstuck() {
 	v_bStuck = CreateConVar(CON_PREFIX "airstuck", "0", "Airstuck (BindToggle that to a key!)");
 }
 
-const char* Airstuck::GetName() {
-	return "AIRSTUCK";
-}
-
-bool Airstuck::CreateMove(void*, float, CUserCmd* cmd) {
+void Airstuck::ProcessUserCmd(CUserCmd* cmd) {
 	if (v_bStuck->GetBool()) {
 		if (cmd->buttons & (IN_ATTACK | IN_ATTACK2)) {
-			return true;
+			return;
 		}
 		if (interfaces::gvars->tickcount % 60 == 0) {
 			INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
@@ -35,10 +31,5 @@ bool Airstuck::CreateMove(void*, float, CUserCmd* cmd) {
 			ch->SendNetMsg(packet);
 		}
 	}
-	return true;
+	return;
 }
-
-void Airstuck::PaintTraverse(void*, unsigned int, bool, bool) {};
-
-void Airstuck::LevelInit(const char*) {}
-void Airstuck::LevelShutdown() {}

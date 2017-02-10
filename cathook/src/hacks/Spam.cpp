@@ -12,8 +12,6 @@
 
 DEFINE_HACK_SINGLETON(Spam);
 
-const char* Spam::GetName() { return "SPAM"; }
-
 Spam::Spam() {
 	v_bSpam = new CatVar(CV_SWITCH, "spam", "0", "Chat spam", NULL, "Enable Spam");
 	v_bSpamNewlines = new CatVar(CV_SWITCH, "spam_newlines", "1", "Prepend newlines to messages", NULL, "If enabled, several newlines will be added before each message");
@@ -24,11 +22,11 @@ Spam::Spam() {
 	m_TextFile = new TextFile(256, 256);
 }
 
-bool Spam::CreateMove(void*, float, CUserCmd*) {
-	if (!v_bSpam->GetBool()) return true;
-	if (interfaces::gvars->curtime - m_fLastSpam < 0.8f) return true;
+void Spam::ProcessUserCmd(CUserCmd*) {
+	if (!v_bSpam->GetBool()) return;
+	if (interfaces::gvars->curtime - m_fLastSpam < 0.8f) return;
 	if (interfaces::gvars->curtime < m_fLastSpam) m_fLastSpam = 0.0f;
-	if (m_TextFile->GetLineCount() == 0) return true;
+	if (m_TextFile->GetLineCount() == 0) return;
 	if (m_iCurrentIndex >= m_TextFile->GetLineCount() || m_iCurrentIndex < 0) m_iCurrentIndex = 0;
 	char* spam = 0;
 	if (v_bSpamNewlines->GetBool()) {
@@ -41,14 +39,14 @@ bool Spam::CreateMove(void*, float, CUserCmd*) {
 	delete [] spam;
 	m_iCurrentIndex++;
 	m_fLastSpam = interfaces::gvars->curtime;
-	return true;
+	return;
 }
 
-void Spam::LevelInit(const char*) {
+void Spam::OnLevelShutdown() {
 	m_fLastSpam = 0;
 }
-void Spam::PaintTraverse(void*, unsigned int, bool, bool) {}
-void Spam::LevelShutdown() {
+
+void Spam::OnLevelInit() {
 	m_fLastSpam = 0;
 }
 

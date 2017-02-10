@@ -12,19 +12,13 @@
 
 DEFINE_HACK_SINGLETON(SpyAlert);
 
-const char* SpyAlert::GetName() { return "SPY ALERT"; }
-
 SpyAlert::SpyAlert() {
 	this->v_bEnabled = new CatVar(CV_SWITCH, "spyalert_enabled", "0", "Enable", NULL, "Master SpyAlert switch");
 	this->v_flWarningDistance = new CatVar(CV_FLOAT, "spyalert_warning", "500.0", "Warning distance", NULL, "Distance where yellow warning shows");
 	this->v_flBackstabDistance = new CatVar(CV_FLOAT, "spyalert_backstab", "200.0", "Backstab distance", NULL, "Distance where red warning shows");
 }
 
-bool SpyAlert::CreateMove(void*, float, CUserCmd* cmd) {
-	return true;
-}
-
-void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
+void SpyAlert::Draw() {
 	if (CE_BAD(g_pLocalPlayer->entity)) return;
 	if (g_pLocalPlayer->life_state) return;
 	if (!v_bEnabled->GetBool()) return;
@@ -42,6 +36,3 @@ void SpyAlert::PaintTraverse(void*, unsigned int, bool, bool) {
 		}
 	}
 }
-
-void SpyAlert::LevelInit(const char*) {}
-void SpyAlert::LevelShutdown() {}

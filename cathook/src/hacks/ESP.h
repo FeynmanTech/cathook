@@ -15,8 +15,11 @@ class CachedEntity;
 
 class ESP : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	ESP();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+	virtual void Draw() override;
+
 	void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
 	void ProcessEntity(CachedEntity* ent);
 	void ProcessEntityPT(CachedEntity* ent);

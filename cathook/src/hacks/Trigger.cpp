@@ -12,10 +12,6 @@
 
 DEFINE_HACK_SINGLETON(Triggerbot);
 
-const char* Triggerbot::GetName() {
-	return "TRIGGER";
-}
-
 Vector eye;
 trace_t* enemy_trace;
 trace::FilterDefault* filter;
@@ -37,20 +33,20 @@ Triggerbot::Triggerbot() {
 	this->v_bBuildings = new CatVar(CV_SWITCH, "trigger_buildings", "1", "Trigger at buildings", NULL, "Shoot buildings");
 	this->v_bIgnoreVaccinator = new CatVar(CV_SWITCH, "trigger_respect_vaccinator", "1", "Respect vaccinator", NULL, "Don't shoot at bullet-vaccinated enemies");
 	this->v_bAmbassadorCharge = new CatVar(CV_SWITCH, "trigger_ambassador", "1", "Smart Ambassador", NULL, "Don't shoot if yuor ambassador can't headshot yet");
-	this->v_bImproveAccuracy = new CatVar(CV_SWITCH, "trigger_accuracy", "1", "Improve accuracy", NULL, "Might cause more lag");
+	this->v_bImproveAccuracy = new CatVar(CV_SWITCH, "trigger_accuracy", "0", "Improve accuracy (NOT WORKING)", NULL, "Might cause more lag (NOT WORKING YET!)");
 }
 
-bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return true;
-	if (g_pLocalPlayer->life_state) return true;
+void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
+	if (!this->v_bEnabled->GetBool()) return;
+	if (g_pLocalPlayer->life_state) return;
 	/*IClientEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
 	if (!local) return;
 	if (NET_BYTE(local, entityvars.iLifeState)) return;*/
-	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_hitscan) return true;
+	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_hitscan) return;
 	if (v_bAmbassadorCharge->GetBool()) {
 		if (IsAmbassador(g_pLocalPlayer->weapon())) {
 			if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
-				return true;
+				return;
 			}
 		}
 	}
@@ -70,43 +66,39 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	forward.z = -sp;
 	forward = forward * 8192.0f + eye;
 	ray.Init(eye, forward);
-	if (v_iHitbox->GetInt() == -1) {
-		interfaces::trace->TraceRay(ray, MASK_SHOT_HULL, filter, enemy_trace);
-	} else {
-		interfaces::trace->TraceRay(ray, 0x4200400B, filter, enemy_trace);
-	}
+	interfaces::trace->TraceRay(ray, 0x4200400B, filter, enemy_trace);
 
 	IClientEntity* raw_entity = (IClientEntity*)(enemy_trace->m_pEnt);
-	if (!raw_entity) return true;
+	if (!raw_entity) return;
 	CachedEntity* entity = ENTITY(raw_entity->entindex());
-	if (!entity->m_bEnemy) return true;
+	if (!entity->m_bEnemy) return;
 
 	bool isPlayer = false;
 	switch (entity->m_Type) {
 	case EntityType::ENTITY_PLAYER:
 		isPlayer = true; break;
 	case EntityType::ENTITY_BUILDING:
-		if (!this->v_bBuildings->GetBool()) return true;
+		if (!this->v_bBuildings->GetBool()) return;
 		break;
 	default:
-		return true;
+		return;
 	};
 
 	Vector enemy_pos = entity->m_vecOrigin;
 	Vector my_pos = g_pLocalPlayer->entity->m_vecOrigin;
 	if (v_iMaxRange->GetInt() > 0) {
-		if (entity->m_flDistance > v_iMaxRange->GetInt()) return true;
+		if (entity->m_flDistance > v_iMaxRange->GetInt()) return;
 	}
 	if (!isPlayer) {
 		cmd->buttons |= IN_ATTACK;
-		return true;
+		return;
 	}
-	if (HasCondition(entity, TFCond_UberBulletResist) && v_bIgnoreVaccinator->GetBool()) return true;
+	if (HasCondition(entity, TFCond_UberBulletResist) && v_bIgnoreVaccinator->GetBool()) return;
 	relation rel = GetRelation(entity);
-	if (rel == relation::FRIEND || rel == relation::DEVELOPER) return true;
-	if (IsPlayerInvulnerable(entity)) return true;
+	if (rel == relation::FRIEND || rel == relation::DEVELOPER) return;
+	if (IsPlayerInvulnerable(entity)) return;
 	if (this->v_bRespectCloak->GetBool() &&
-		(IsPlayerInvisible(entity))) return true;
+		(IsPlayerInvisible(entity))) return;
 	int health = CE_INT(entity, netvar.iHealth);
 	bool bodyshot = false;
 	if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
@@ -125,14 +117,35 @@ bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
 	}
 	if (!bodyshot && (g_pLocalPlayer->clazz == tf_class::tf_sniper) && this->v_bZoomedOnly->GetBool() &&
 		!((g_pLocalPlayer->bZoomed) && CanHeadshot())) {
-		return true;
+		return;
 	}
+	//interfaces::debug->AddBoxOverlay(enemy_trace->endpos, Vector(-1.0f, -1.0f, -1.0f), Vector(1.0f, 1.0f, 1.0f), QAngle(0, 0, 0), 255, 0, 0, 255, 2.0f);
 	//IClientEntity* weapon;
+	CachedHitbox* hb = entity->m_pHitboxCache->GetHitbox(enemy_trace->hitbox);
+	//logging::Info("hitbox: %i 0x%08x", enemy_trace->hitbox, hb);
+
+	if (v_bImproveAccuracy->GetBool()) {
+		if (hb) {
+			Vector siz = hb->max - hb->min;
+			Vector mns = hb->min + siz * 0.2f;
+			Vector mxs = hb->max - siz * 0.2f;
+			interfaces::debug->AddLineOverlay(enemy_trace->startpos, forward, 0, 0, 255, true, -1.0f);
+			if (LineIntersectsBox(mns, mxs, enemy_trace->startpos, forward)) {
+				interfaces::debug->AddBoxOverlay(mns, Vector(0, 0, 0), mxs - mns, QAngle(0, 0, 0), 0, 255, 0, 255, 1.0f);
+				interfaces::debug->AddLineOverlay(enemy_trace->startpos, forward, 255, 0, 0, true, 1.0f);
+				//logging::Info("%.2f %.2f %.2f", hb->center.DistToSqr(enemy_trace->endpos), SQR(hb->min.DistToSqr(hb->min)), SQR(hb->min.DistToSqr(hb->min) * 0.9f));
+
+			} else {
+				interfaces::debug->AddBoxOverlay(hb->min, Vector(0, 0, 0), hb->max - hb->min, QAngle(0, 0, 0), 0, 255, 255, 255, -1.0f);
+				interfaces::debug->AddBoxOverlay(mns, Vector(0, 0, 0), mxs - mns, QAngle(0, 0, 0), 255, 255, 0, 255, 0.5f);
+				return;
+			}
+		} else return;
+	}
 	if (this->v_iHitbox->GetInt() >= 0 && !bodyshot) {
-		if (enemy_trace->hitbox != this->v_iHitbox->GetInt()) return true;
+		if (enemy_trace->hitbox != this->v_iHitbox->GetInt()) return;
 	}
 	cmd->buttons |= IN_ATTACK;
-	return true;
 }
 
 Triggerbot::~Triggerbot() {
@@ -140,7 +153,6 @@ Triggerbot::~Triggerbot() {
 	delete enemy_trace;
 }
 
-void Triggerbot::PaintTraverse(void*, unsigned int, bool, bool) {};
+void Triggerbot::Draw() {
 
-void Triggerbot::LevelInit(const char*) {}
-void Triggerbot::LevelShutdown() {}
+};

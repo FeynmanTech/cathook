@@ -15,8 +15,11 @@ class ConCommand;
 
 class Misc : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	Misc();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+	virtual void Draw() override;
+
 	//ConVar* v_bNoShootUntilCanHeadshot;
 	CatVar* v_bDebugInfo;
 	ConCommand* c_Name;

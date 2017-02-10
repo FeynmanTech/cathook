@@ -9,7 +9,7 @@
 #define HPYROBOT_H_
 
 #include "IHack.h"
-
+/*
 class ipcctl;
 class IClientEntity;
 
@@ -69,5 +69,5 @@ public:
 };
 
 DECLARE_HACK_SINGLETON(FollowBot)
-
+*/
 #endif /* HPYROBOT_H_ */

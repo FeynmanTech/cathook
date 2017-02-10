@@ -12,8 +12,12 @@
 
 class Glow : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	Glow();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+	virtual void OnLevelInit() override;
+	virtual void OnLevelShutdown() override;
+
 	CatVar* v_bEnabled;
 	bool m_bEnabledOnce;
 };

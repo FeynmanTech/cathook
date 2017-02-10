@@ -12,8 +12,10 @@
 
 class AutoHeal : public IHack {
 public:
-	DECLARE_HACK_METHODS();
 	AutoHeal();
+
+	virtual void ProcessUserCmd(CUserCmd*) override;
+
 	int GetBestHealingTarget();
 	int GetHealingPriority(int idx);
 	bool CanHeal(int idx);

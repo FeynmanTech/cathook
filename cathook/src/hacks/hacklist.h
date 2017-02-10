@@ -19,7 +19,6 @@
 #include "Bunnyhop.h"
 #include "ESP.h"
 #include "FollowBot.h"
-#include "HuntsmanCompensation.h"
 #include "Misc.h"
 #include "SpyAlert.h"
 #include "Trigger.h"
