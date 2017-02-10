@@ -79,7 +79,7 @@ public:
 	offset_t nTickBase;
 	//offset_t iDecapitations;
 	offset_t iMaxBuffedHealth;
-
+	offset_t bRespawning;
 	offset_t iItemDefinitionIndex;
 	offset_t AttributeList;
 

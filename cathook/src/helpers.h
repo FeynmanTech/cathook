@@ -52,9 +52,6 @@ ConVar* CreateConVar(std::string name, std::string value, std::string help);
 ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, const char* help);
 
 powerup_type GetPowerupOnPlayer(CachedEntity* player);
-item_type GetItemType(CachedEntity* entity);
-const char* GetModelPath(IClientEntity* entity);
-
 // GetHitbox() is being called really frequently.
 // It's better if it won't create a new object each time it gets called.
 // So it returns a success state, and the values are stored in out reference.
@@ -117,7 +114,6 @@ float GetFov(Vector ang, Vector src, Vector dst);
 
 extern const char* tfclasses[10];
 extern const char* powerups[POWERUP_COUNT];
-extern const char* packs[PACK_COUNT];
 extern uint32 friends[256];
 extern int n_friends;
 extern int n_rage;

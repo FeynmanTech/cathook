@@ -133,44 +133,30 @@ void colors::Init() {
 	green = Create(0, 255, 0, 255);
 }
 
-int colors::EntityB(CachedEntity* ent) {
-	using namespace colors;
-	int result = Transparent(black);
-	if (ent->m_Type == ENTITY_PLAYER || ent->m_Type == ENTITY_BUILDING) {
-		if (ent->m_iTeam == TEAM_BLU) result = blu_b;
-		else if (ent->m_iTeam == TEAM_RED) result = red_b;
-
-		if (ent->m_Type == ENTITY_PLAYER) {
-			if (GetRelation(ent) == relation::DEVELOPER) result = Transparent(black, 0.6f);
-		}
-
-		if (!ent->IsVisible()) result = Transparent(result, 0.833f);
-	}
-	return result;
-}
-
 int colors::EntityF(CachedEntity* ent) {
 	using namespace colors;
 	int result = white;
-	if (ent->m_iClassID == g_pClassID->CBaseAnimating) {
-		item_type type = GetItemType(ent);
-		if (type != item_null) {
-			if (type >= item_medkit_small && type <= item_medkit_large) {
-				result = green;
-			} else if (type >= item_ammo_small && type <= item_ammo_large) {
-				// White.
-			} else if (type >= item_mp_strength && type <= item_mp_crit) {
-				int skin = RAW_ENT(ent)->GetSkin();
-				if (skin == 1) {
-					result = red;
-				} else if (skin == 2) {
-					result = blu;
-				} else {
-					result = yellow;
-				}
+	k_EItemType type = ent->m_ItemType;
+	if (type) {
+		if (type >= ITEM_HEALTH_SMALL && type <= ITEM_HEALTH_LARGE || type == ITEM_TF2C_PILL) result = green;
+		else if (type >= ITEM_POWERUP_FIRST && type <= ITEM_POWERUP_LAST) {
+			int skin = RAW_ENT(ent)->GetSkin();
+			if (skin == 1) result = red;
+			else if (skin == 2) result = blu;
+			else result = yellow;
+		}
+		else if (type >= ITEM_TF2C_W_FIRST && type <= ITEM_TF2C_W_LAST) {
+			if (CE_BYTE(ent, netvar.bRespawning)) {
+				result = red;
+			} else {
+				result = yellow;
 			}
 		}
+		else if (type == ITEM_HL_BATTERY) {
+			result = yellow;
+		}
 	}
+
 	if (ent->m_iClassID == g_pClassID->CCurrencyPack) {
 		if (CE_BYTE(ent, netvar.bDistributed))
 			result = red;
@@ -208,8 +194,10 @@ int colors::EntityF(CachedEntity* ent) {
 				result = RainbowCurrent(); break;
 			}
 		}
-		if (g_phESP->v_bVisCheck->GetBool())
-			if (!ent->IsVisible()) result = Transparent(result);
+	}
+
+	if (g_phESP->v_bVisCheck->GetBool()) {
+		if (!ent->IsVisible()) result = Transparent(result);
 	}
 
 	return result;
@@ -394,7 +382,7 @@ void draw::WString(unsigned long font, int x, int y, int color, int shadow, cons
 		if (shadow > 0) {
 			draw::WString(font, x + 1, y + 1, black_t, false, text);
 		}
-		if (shadow > 1) {
+		if (shadow > 1 && !g_Settings.bFastOutline->GetBool()) {
 			draw::WString(font, x - 1, y + 1, black_t, false, text);
 			draw::WString(font, x - 1, y - 1, black_t, false, text);
 			draw::WString(font, x + 1, y - 1, black_t, false, text);

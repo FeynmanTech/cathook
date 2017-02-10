@@ -139,7 +139,8 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 					draw::String(fonts::ESP, ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, color, 2, str.m_String);
 					ce->m_ESPOrigin.y += 12;
 				} else {
-					draw::String(fonts::ESP, screen.x, screen.y, color, 2, str.m_String);
+					auto l = draw::GetStringLength(fonts::ESP, std::string(str.m_String));
+					draw::String(fonts::ESP, screen.x - l.first / 2, screen.y, color, 2, str.m_String);
 					screen.y += 11;
 				}
 			}

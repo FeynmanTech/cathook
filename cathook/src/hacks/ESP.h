@@ -55,6 +55,9 @@ public:
 	CatVar* v_iShowStickies;
 	CatVar* v_bOnlyEnemyProjectiles;
 	CatVar* v_bProjectileESP;
+	CatVar* v_bModelName;
+	CatVar* v_bShowWeaponSpawners;
+	CatVar* v_bShowAdrenaline;
 
 	//ConVar* v_bModelInfo;
 };
