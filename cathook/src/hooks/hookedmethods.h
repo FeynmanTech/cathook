@@ -8,7 +8,11 @@
 #ifndef HOOKEDMETHODS_H_
 #define HOOKEDMETHODS_H_
 
-class SDL_Window;
+class IStudioRender;
+class CUserCmd;
+class INetMessage;
+class bf_read;
+class CViewSetup;
 
 typedef bool(CreateMove_t)(void*, float, CUserCmd*);
 typedef void(PaintTraverse_t)(void*, unsigned int, bool, bool);
@@ -21,7 +25,8 @@ typedef bool(DispatchUserMessage_t)(void*, int, bf_read&);
 typedef void(FrameStageNotify_t)(void*, int);
 typedef void(LevelInit_t)(void*, const char*);
 typedef void(LevelShutdown_t)(void*);
-typedef void(SwapWindow_t)(SDL_Window*);
+typedef void(BeginFrame_t)(IStudioRender*);
+void BeginFrame_hook(IStudioRender*);
 
 #include "CreateMove.h"
 #include "PaintTraverse.h"

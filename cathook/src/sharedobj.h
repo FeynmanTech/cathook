@@ -34,6 +34,7 @@ extern SharedObject* vgui2;
 extern SharedObject* vstdlib;
 extern SharedObject* tier0;
 extern SharedObject* inputsystem;
+extern SharedObject* studiorender;
 
 void LoadAllSharedObjects();
 

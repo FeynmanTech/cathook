@@ -37,6 +37,7 @@ extern VMTHook* hkClient;
 extern VMTHook* hkNetChannel;
 extern VMTHook* hkClientDLL;
 extern VMTHook* hkMatSurface;
+extern VMTHook* hkStudioRender;
 
 extern unsigned int offHandleInputEvent;
 extern unsigned int offPaintTraverse;
@@ -49,6 +50,7 @@ extern unsigned int offShutdown;
 extern unsigned int offKeyEvent;
 extern unsigned int offLevelInit;
 extern unsigned int offLevelShutdown;
+extern unsigned int offBeginFrame;
 
 }
 
