@@ -37,6 +37,7 @@ Triggerbot::Triggerbot() {
 	this->v_bBuildings = new CatVar(CV_SWITCH, "trigger_buildings", "1", "Trigger at buildings", NULL, "Shoot buildings");
 	this->v_bIgnoreVaccinator = new CatVar(CV_SWITCH, "trigger_respect_vaccinator", "1", "Respect vaccinator", NULL, "Don't shoot at bullet-vaccinated enemies");
 	this->v_bAmbassadorCharge = new CatVar(CV_SWITCH, "trigger_ambassador", "1", "Smart Ambassador", NULL, "Don't shoot if yuor ambassador can't headshot yet");
+	this->v_bImproveAccuracy = new CatVar(CV_SWITCH, "trigger_accuracy", "1", "Improve accuracy", NULL, "Might cause more lag");
 }
 
 bool Triggerbot::CreateMove(void* thisptr, float sampl, CUserCmd* cmd) {
