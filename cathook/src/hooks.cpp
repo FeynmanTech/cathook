@@ -22,6 +22,7 @@ unsigned int hooks::offKeyEvent = 20;
 unsigned int hooks::offHandleInputEvent = 78;
 unsigned int hooks::offLevelInit = 23;
 unsigned int hooks::offLevelShutdown = 24;
+unsigned int hooks::offBeginFrame = 5;
 
 // This thing had been copypasted from somewhere, maybe from F1Public.
 
@@ -77,3 +78,4 @@ hooks::VMTHook* hooks::hkClient = 0;
 hooks::VMTHook* hooks::hkNetChannel = 0;
 hooks::VMTHook* hooks::hkClientDLL = 0;
 hooks::VMTHook* hooks::hkMatSurface = 0;
+hooks::VMTHook* hooks::hkStudioRender = 0;

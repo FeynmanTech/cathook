@@ -34,6 +34,8 @@ class IMatSystemSurface;
 class ISteamUser;
 class IAchievementMgr;
 class ISteamUserStats;
+class IStudioRender;
+class IVDebugOverlay;
 
 namespace interfaces {
 
@@ -58,6 +60,8 @@ extern IMatSystemSurface* matsurface;
 extern ISteamUser* user;
 extern IAchievementMgr* achievements;
 extern ISteamUserStats* stats;
+extern IStudioRender* render;
+extern IVDebugOverlay* debug;
 
 void CreateInterfaces();
 

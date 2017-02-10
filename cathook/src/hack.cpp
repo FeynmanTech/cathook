@@ -182,6 +182,11 @@ void hack::Initialize() {
 	hooks::hkClientMode->HookMethod((void*)LevelInit_hook, hooks::offLevelInit);
 	hooks::hkClientMode->HookMethod((void*)LevelShutdown_hook, hooks::offLevelShutdown);
 	hooks::hkClientMode->Apply();
+	hooks::hkStudioRender = new hooks::VMTHook();
+	hooks::hkStudioRender->Init((void*)interfaces::render, 0);
+	hooks::hkStudioRender->HookMethod((void*)BeginFrame_hook, hooks::offBeginFrame);
+	hooks::hkStudioRender->Apply();
+
 	hooks::hkClient = new hooks::VMTHook();
 	hooks::hkClient->Init((void*)interfaces::baseClient, 0);
 	hooks::hkClient->HookMethod((void*)FrameStageNotify_hook, hooks::offFrameStageNotify);
@@ -206,6 +211,7 @@ void hack::Shutdown() {
 	if (hooks::hkClient) hooks::hkClient->Kill();
 	if (hooks::hkMatSurface) hooks::hkMatSurface->Kill();
 	if (hooks::hkNetChannel) hooks::hkNetChannel->Kill();
+	if (hooks::hkStudioRender) hooks::hkStudioRender->Kill();
 	ConVar_Unregister();
 	DELETE_HACK(AutoStrafe);
 	DELETE_HACK(AntiAim);

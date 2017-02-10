@@ -46,6 +46,7 @@
 #include <steam/isteamuser.h>
 #include <steam/steam_api.h>
 #include <vgui/Cursor.h>
+#include <engine/ivdebugoverlay.h>
 
 #include "sdk/in_buttons.h"
 #include "sdk/iinput.h"

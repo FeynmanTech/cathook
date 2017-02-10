@@ -35,6 +35,8 @@ IMatSystemSurface* interfaces::matsurface = 0;
 ISteamUser* interfaces::user = 0;
 IAchievementMgr* interfaces::achievements = 0;
 ISteamUserStats* interfaces::stats = 0;
+IStudioRender* interfaces::render = 0;
+IVDebugOverlay* interfaces::debug = 0;
 
 void interfaces::CreateInterfaces() {
 	interfaces::centerPrint = reinterpret_cast<ICenterPrint*>(sharedobj::client->fptr("VCENTERPRINT002", nullptr));
@@ -50,6 +52,8 @@ void interfaces::CreateInterfaces() {
 	interfaces::trace = reinterpret_cast<IEngineTrace*>(sharedobj::engine->CreateInterface("EngineTraceClient003"));
 	interfaces::model = reinterpret_cast<IVModelInfoClient*>(sharedobj::engine->CreateInterface("VModelInfoClient006"));
 	interfaces::input = reinterpret_cast<IInputSystem*>(sharedobj::inputsystem->CreateInterface("InputSystemVersion001"));
+	interfaces::render = reinterpret_cast<IStudioRender*>(sharedobj::studiorender->CreateInterface("VStudioRender025"));
+	interfaces::debug = reinterpret_cast<IVDebugOverlay*>(sharedobj::engine->CreateInterface("VDebugOverlay003"));
 	//interfaces::client = reinterpret_cast<IClient*>(sharedobj::client->CreateInterface("VClient017"));
 	HSteamPipe sp = interfaces::steamClient->CreateSteamPipe();
 	HSteamUser su = interfaces::steamClient->ConnectToGlobalUser(sp);
