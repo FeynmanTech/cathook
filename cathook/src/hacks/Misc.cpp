@@ -301,10 +301,14 @@ Misc::Misc() {
 	v_iFakeLag = new CatVar(CV_INT, "fakelag", "0", "Fakelag", NULL, "# of packets jammed", true, 25.0f);
 	//v_bDumpEventInfo = CreateConVar(CON_PREFIX "debug_event_info", "0", "Show event info");
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
+	if (TF2C) {
+		v_bTauntSlide = new CatVar(CV_SWITCH, "tauntslide", "0", "Taunt Slide", NULL, "Works only in TF2 Classic!");
+		v_bCritHack = new CatVar(CV_SWITCH, "crits", "0", "Crit Hack", NULL, "Works only in TF2 Classic!");
+	}
 	//v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "Debug Crits", NULL, "???");
 	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	if (TF2) c_Schema = CreateConCommand(CON_PREFIX "schema", CC_Misc_Schema, "Load item schema");
-	if (TF2) v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "???", NULL, "???");
+	if (TF) v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "???", NULL, "???");
 	//if (TF2) v_bHookInspect = new CatVar(CV_SWITCH, "hook_inspect", "0", "Hook CanInspect", NULL, "Once enabled, can't be turned off. cathook can't be unloaded after enabling it");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }
@@ -358,7 +362,26 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 		}
 	}
 */
-	if (TF2 && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
+	if (v_bTauntSlide->GetBool())
+		RemoveCondition(LOCAL_E, TFCond_Taunting);
+	if (TF2C && v_bCritHack->GetBool() && CE_GOOD(LOCAL_W)) {
+		static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 56 53 83 EC 10 8B 5D 08 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 59 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 4A A1 ? ? ? ? 8B 40 04 3B 83 A8 09 00 00 74 3A");
+		typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
+		CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
+		if (cmd->buttons & IN_ATTACK) {
+			int tries = 0;
+			RandomSeed(MD5_PseudoRandom(cmd->command_number) & 0x7fffffff);
+			CIACFn(RAW_ENT(LOCAL_W));
+			bool crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
+			if (!crit) cmd->buttons &= ~IN_ATTACK;
+			/*while (!crit && tries < 50) {
+				tries++;
+				//crit = (vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1764 / 4, 0))(RAW_ENT(LOCAL_W));
+			}*/
+		}
+	}
+
+	if (TF && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
 		//static uintptr_t helper = gSignatures.GetClientSignature("55 89 E5 81 EC 88 00 00 00 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 31 FF 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 0F 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 75 14 89 F8 8B 5D F4 8B 75 F8 8B 7D FC 89 EC 5D C3");
 		/*if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
 			RandomSeed(cmd->random_seed);
@@ -366,15 +389,16 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 			if (ciac_s) cmd->buttons |= IN_ATTACK;
 			lastcheck = interfaces::gvars->curtime;
 		}*/
-		static uintptr_t critsig = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 14 C8 F6 01 8B 40 04 3B 83 30 0B 00 00 74 41 89 83 30 0B 00 00 A1 ? ? ? ? C6 83 0F 0B 00 00 00 83 78 30 05 74 59");
-		typedef void(*C_TFWeaponBase__CalcIsAttackCritical_t)(IClientEntity*);
-		static C_TFWeaponBase__CalcIsAttackCritical_t ciac = (C_TFWeaponBase__CalcIsAttackCritical_t)critsig;
+		if (TF2) {
+			static uintptr_t critsig = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 14 C8 F6 01 8B 40 04 3B 83 30 0B 00 00 74 41 89 83 30 0B 00 00 A1 ? ? ? ? C6 83 0F 0B 00 00 00 83 78 30 05 74 59");
+			typedef void(*C_TFWeaponBase__CalcIsAttackCritical_t)(IClientEntity*);
+			static C_TFWeaponBase__CalcIsAttackCritical_t ciac = (C_TFWeaponBase__CalcIsAttackCritical_t)critsig;
 			if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
 				//RandomSeed(cmd->random_seed);
 				ciac(RAW_ENT(LOCAL_W));
 				//logging::Info("0x%08x", *(unsigned char*)(RAW_ENT(LOCAL_W) + 0x0B0E));
 				//ciac_s = *(int*)((uintptr_t)RAW_ENT(LOCAL_W) + 0x0B0Eu) - 256;
-				RandomSeed(cmd->random_seed);
+				//RandomSeed(cmd->random_seed);
 				ciac_s = vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1836 / 4, 0)(RAW_ENT(LOCAL_W));
 				lastcheck = interfaces::gvars->curtime;
 				if (ciac_s != 0) {
@@ -383,6 +407,10 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 					AddCenterString(colors::red, "Crit!");
 				}
 			}
+		} else if (TF2C) {
+
+
+		}
 	}
 	g_Settings.bSendPackets->SetValue(true);
 	if (v_iFakeLag->GetInt()) {
@@ -468,14 +496,17 @@ void Misc::Draw() {
 
 		if (CE_GOOD(g_pLocalPlayer->weapon())) {
 			if (v_bDebugCrits->GetBool()) {
-				if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465, 0)(RAW_ENT(LOCAL_W)))
-					AddCenterString(colors::white, "Random crits are disabled");
-				else {
-					if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465 + 21, 0)(RAW_ENT(LOCAL_W)))
-						AddCenterString(colors::white, "Weapon can't randomly crit");
-					else
-						AddCenterString(colors::white, "Weapon can randomly crit");
+				if (TF2) {
+					if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465, 0)(RAW_ENT(LOCAL_W)))
+						AddCenterString(colors::white, "Random crits are disabled");
+					else {
+						if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465 + 21, 0)(RAW_ENT(LOCAL_W)))
+							AddCenterString(colors::white, "Weapon can't randomly crit");
+						else
+							AddCenterString(colors::white, "Weapon can randomly crit");
+					}
 				}
+
 
 			}
 			AddSideString(colors::white, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
@@ -498,8 +529,13 @@ void Misc::Draw() {
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
 			AddSideString(colors::white, "CIAC: %i", ciac_s);
-			AddSideString(colors::white, "Last CIAC: %.2f", lastcheck);
-			AddSideString(colors::white, "Bucket: %.2f", *(float*)((uintptr_t)RAW_ENT(LOCAL_W) + 2612u));
+			if (TF2) AddSideString(colors::white, "Last CIAC: %.2f", lastcheck);
+			if (TF2) AddSideString(colors::white, "Bucket: %.2f", *(float*)((uintptr_t)RAW_ENT(LOCAL_W) + 2612u));
+			bool ciac = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
+			static bool ciacl = false;
+			if (ciac != ciacl && ciac) logging::Info("!!!");
+			ciacl = ciac;
+			if (TF2C) AddSideString(colors::white, "CAAC: %i", ciac);
 			//AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
 			//AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
 			//AddSideString(colors::white, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());

@@ -127,6 +127,10 @@ void CMenuWindow::AddElements() {
 	}));*/
 	if (TF) ADDCVAR(g_phAutoHeal->v_bEnabled);
 	if (TF) ADDCVAR(g_phAntiDisguise->v_bEnabled);
+	if (TF2C) {
+		ADDCVAR(g_phMisc->v_bTauntSlide);
+		ADDCVAR(g_phMisc->v_bCritHack);
+	}
 	ADDCVAR(g_phMisc->v_bAntiAFK);
 	ADDCVAR(g_Settings.bCleanScreenshots);
 	ADDCVAR(g_Settings.bHackEnabled);

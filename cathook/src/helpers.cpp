@@ -487,9 +487,14 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 	} else if (weapon->m_iClassID == g_pClassID->CTFRocketLauncher) {
 		rspeed = 1100.0f;
 	} else if (weapon->m_iClassID == g_pClassID->CTFGrenadeLauncher) {
-		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
-		// TODO Wrong grenade launcher gravity
-		rgrav = 0.5f;
+		if (TF2) {
+			rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
+			// TODO Wrong grenade launcher gravity
+			rgrav = 0.5f;
+		} else if (TF2C) {
+			rspeed = 1100.0f;
+			rgrav = 0.5f;
+		}
 	} else if (weapon->m_iClassID == g_pClassID->CTFCompoundBow) {
 		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
 		rgrav = vfunc<GetProjectileData*>(RAW_ENT(weapon), 528)(RAW_ENT(weapon));

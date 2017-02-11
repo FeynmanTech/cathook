@@ -19,6 +19,8 @@ public:
 	virtual void ProcessUserCmd(CUserCmd*) override;
 
 	CatVar* v_bEnabled;
+	CatVar* v_iPerfectJumpLimit;
+	CatVar* v_bImperfect;
 	CatVar* v_bAutoJump;
 	CatVar* v_iAutoJumpSpeed;
 	bool m_bFakeLagFix;
