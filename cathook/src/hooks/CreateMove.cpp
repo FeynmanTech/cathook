@@ -12,6 +12,24 @@
 #include "../common.h"
 #include "hookedmethods.h"
 
+float AngleDiff( float destAngle, float srcAngle )
+{
+	float delta;
+
+	delta = fmodf(destAngle - srcAngle, 360.0f);
+	if ( destAngle > srcAngle )
+	{
+		if ( delta >= 180 )
+			delta -= 360;
+	}
+	else
+	{
+		if ( delta <= -180 )
+			delta += 360;
+	}
+	return delta;
+}//TODO temporary
+
 bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
 
@@ -100,6 +118,27 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	if (g_pChatStack)
 		g_pChatStack->OnCreateMove();
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
+		/*if (g_Settings.bRollSpeedhack->GetBool()) {
+
+			Vector vecMove( cmd->forwardmove, 0.0f, 0.0f );
+			float flLength = vecMove.Length();
+			if( flLength > 0.0f && !(cmd->buttons & IN_ATTACK) )
+			{
+
+				//Vector nvm = -vecMove;
+				Vector angMoveReverse;
+				VectorAngles( vecMove, angMoveReverse );
+				cmd->forwardmove = -flLength;
+				cmd->sidemove = 0.0f; // Move only backwards, no sidemove
+				cmd->viewangles.y = AngleDiff( cmd->viewangles.y , angMoveReverse.y ) ;
+				logging::Info("yaw %.2f", cmd->viewangles.y);
+				cmd->viewangles.y += 180.0f;
+				if (cmd->viewangles.y > 180.0f) cmd->viewangles.y -= 360.0f;
+				cmd->viewangles.z = 89.0f; // OMFG SUPER 1337 SPEEDHAQ METHODS 8)
+				g_pLocalPlayer->bUseSilentAngles = true;
+			}
+		}*/
+
 		if (g_pLocalPlayer->bUseSilentAngles) {
 			Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 			float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
@@ -110,9 +149,10 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 			cmd->sidemove = sin(yaw) * speed;
 			ret = false;
 		}
+		if (cmd)
+				g_Settings.last_angles = cmd->viewangles;
 	}
-	if (cmd)
-		g_Settings.last_angles = cmd->viewangles;
+
 
 //	PROF_END("CreateMove");
 	return ret;

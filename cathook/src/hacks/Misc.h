@@ -31,6 +31,8 @@ public:
 	CatVar* v_bAntiAFK;
 	CatVar* v_bHookInspect;
 	CatVar* v_iFakeLag;
+	CatVar* v_bCritHack;
+	CatVar* v_bTauntSlide;
 	//ConVar* v_bDumpEventInfo;
 	ConCommand* c_DumpItemAttributes;
 	ConCommand* c_SayLine;
