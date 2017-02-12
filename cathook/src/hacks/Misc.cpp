@@ -626,6 +626,7 @@ void Misc::Draw() {
 			AddSideString(colors::white, "FrameCount: %i", interfaces::gvars->framecount);
 			float speed, gravity;
 			GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
+			AddSideString(colors::white, "ALT: %i", g_pLocalPlayer->bAttackLastTick);
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
 			AddSideString(colors::white, "CIAC: %i", *(bool*)(RAW_ENT(LOCAL_W) + 2380));

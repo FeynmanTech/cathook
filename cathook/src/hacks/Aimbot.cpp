@@ -298,6 +298,7 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 				}
 				if (charge >= v_fAutoShootHuntsmanCharge->GetFloat()) {
 					cmd->buttons &= ~IN_ATTACK;
+					g_phAntiAim->AddSafeTicks(3);
 				}
 				if (!(cmd->buttons & IN_ATTACK) && m_bSilentHuntsman) {
 					Aim(target_highest, cmd);

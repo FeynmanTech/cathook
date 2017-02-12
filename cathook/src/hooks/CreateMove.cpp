@@ -169,6 +169,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 
 //	PROF_END("CreateMove");
+	g_pLocalPlayer->bAttackLastTick = (cmd->buttons & IN_ATTACK);
 	return ret;
 
 	SEGV_END;
