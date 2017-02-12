@@ -26,6 +26,10 @@ AntiAim::AntiAim() {
 float yaw = -180;
 float pitch = -89;
 
+void AntiAim::AddSafeTicks(int ticks) {
+	m_iSafeTicks += ticks;
+}
+
 void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (cmd->buttons & IN_USE) {
@@ -36,8 +40,10 @@ void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 	}
 	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFLunchBox) return;
 	if (g_pLocalPlayer->bAttackLastTick) return;
+
 	if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee ||
 			GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_throwable) return;
+
 	float p = cmd->viewangles.x;
 	float y = cmd->viewangles.y;
 	switch (this->v_YawMode->GetInt()) {
@@ -65,6 +71,8 @@ void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 	Vector angl = Vector(p, y, 0);
 	if (!v_bNoClamping->GetBool()) fClampAngle(angl);
 	if (v_flRoll->GetBool()) angl.z = v_flRoll->GetFloat();
-	cmd->viewangles = angl;
-	g_pLocalPlayer->bUseSilentAngles = true;
+	if (!m_iSafeTicks) {
+		cmd->viewangles = angl;
+		g_pLocalPlayer->bUseSilentAngles = true;
+	} else m_iSafeTicks--;
 }

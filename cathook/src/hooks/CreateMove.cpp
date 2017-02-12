@@ -118,9 +118,20 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	if (g_pChatStack)
 		g_pChatStack->OnCreateMove();
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
-		/*if (g_Settings.bRollSpeedhack->GetBool()) {
-
-			Vector vecMove( cmd->forwardmove, 0.0f, 0.0f );
+		bool speedapplied = false;
+		if (g_Settings.kRollSpeedhack->GetBool() && g_pGUI->m_bPressedState[g_Settings.kRollSpeedhack->GetInt()] && !(cmd->buttons & IN_ATTACK)) {
+			float speed = cmd->forwardmove;
+			if (fabs(speed) > 0.0f) {
+				cmd->forwardmove = -speed;
+				cmd->sidemove = 0.0f;
+				cmd->viewangles.y = g_pLocalPlayer->v_OrigViewangles.y;
+				cmd->viewangles.y -= 180.0f;
+				if (cmd->viewangles.y < -180.0f) cmd->viewangles.y += 360.0f;
+				cmd->viewangles.z = 90.0f;
+				g_pLocalPlayer->bUseSilentAngles = true;
+				speedapplied = true;
+			}
+			/*Vector vecMove( cmd->forwardmove, 0.0f, 0.0f );
 			float flLength = vecMove.Length();
 			if( flLength > 0.0f && !(cmd->buttons & IN_ATTACK) )
 			{
@@ -136,21 +147,24 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 				if (cmd->viewangles.y > 180.0f) cmd->viewangles.y -= 360.0f;
 				cmd->viewangles.z = 89.0f; // OMFG SUPER 1337 SPEEDHAQ METHODS 8)
 				g_pLocalPlayer->bUseSilentAngles = true;
-			}
-		}*/
+			}*/
+		}
 
 		if (g_pLocalPlayer->bUseSilentAngles) {
-			Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
-			float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
-			Vector ang;
-			VectorAngles(vsilent, ang);
-			float yaw = DEG2RAD(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
-			cmd->forwardmove = cos(yaw) * speed;
-			cmd->sidemove = sin(yaw) * speed;
+			if (!speedapplied) {
+				Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
+				float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
+				Vector ang;
+				VectorAngles(vsilent, ang);
+				float yaw = DEG2RAD(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
+				cmd->forwardmove = cos(yaw) * speed;
+				cmd->sidemove = sin(yaw) * speed;
+			}
+
 			ret = false;
 		}
 		if (cmd)
-				g_Settings.last_angles = cmd->viewangles;
+			g_Settings.last_angles = cmd->viewangles;
 	}
 
 

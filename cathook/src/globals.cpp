@@ -43,7 +43,7 @@ void GlobalSettings::Init() {
 	this->bDebugLog = new CatVar(CV_SWITCH, "log", "1", "Debug Log", NULL, "Disable this if you don't need cathook messages in your console");
 	this->bThirdperson->m_pConVar->InstallChangeCallback(ThirdpersonCallback);
 	this->bFastOutline = new CatVar(CV_SWITCH, "fastoutline", "0", "Low quality outline", NULL, "Might increase performance when there is a lot of ESP text to draw");
-	//this->bRollSpeedhack = new CatVar(CV_SWITCH, "rollspeedhack", "0", "Roll Speedhack", NULL, "Roll speedhack - works in TF2C!!");
+	this->kRollSpeedhack = new CatVar(CV_KEY, "rollspeedhack", "0", "Roll Speedhack", NULL, "Roll speedhack key");
 	bInvalid = true;
 }
 

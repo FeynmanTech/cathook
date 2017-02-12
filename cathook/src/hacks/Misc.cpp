@@ -15,6 +15,9 @@
 #include <pwd.h>
 #include <fcntl.h>
 
+#include <link.h>
+#include "../sharedobj.h"
+
 #include "../hack.h"
 #include "../common.h"
 #include <checksum_md5.h>
@@ -123,6 +126,35 @@ void LockConCommand(const char* name, bool lock) {
 	}
 }
 
+void CC_SaveConVars(const CCommand& args) {
+	std::string filename("lastcfg");
+	if (args.ArgC() > 1) {
+		filename = std::string(args.Arg(1));
+	}
+	char* path = strfmt("%scfg/cat_%s.cfg", g_pszTFPath, filename.c_str());
+	logging::Info("Saving settings to %s", path);
+	FILE* file = fopen(path, "w");
+	if (!file) {
+		logging::Info("Couldn't open the file!");
+		return;
+	}
+	for (auto i : g_ConVars) {
+		if (i) {
+			if (strcmp(i->GetString(), i->GetDefault())) {
+				//logging::Info("Saving %s", i->GetName());
+				//logging::Info("Value: %s", i->GetString());
+				fprintf(file, "%s \"%s\"\n", i->GetName(), i->GetString());
+			}
+		}
+	}
+	fclose(file);
+}
+
+void CC_Unrestricted(const CCommand& args) {
+	logging::Info("executing '%s'", args.ArgS());
+	interfaces::engineClient->ClientCmd_Unrestricted(args.ArgS());
+}
+
 void LockConCommands(bool lock) {
 	LockConCommand("sv_cheats", lock);
 }
@@ -130,6 +162,15 @@ void LockConCommands(bool lock) {
 ConCommandBase* teamname = 0;
 
 void CC_SetName(const CCommand& args) {
+	if (args.ArgC() < 2) {
+		logging::Info("Set a name, silly");
+		return;
+	}
+	if (g_Settings.bInvalid) {
+		logging::Info("Only works ingame!");
+		return;
+	}
+
 	char* name = new char[32];
 	snprintf(name, 32, "%s", args.Arg(1));
 	if (args.ArgC() > 1 && atoi(args.Arg(2))) {
@@ -140,10 +181,12 @@ void CC_SetName(const CCommand& args) {
 	NET_SetConVar setname("name", (const char*)name);
 	//logging::Info("Created!");
 	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
-	setname.SetNetChannel(ch);
-	setname.SetReliable(false);
-	//logging::Info("Sending!");
-	ch->SendNetMsg(setname, false);
+	if (ch) {
+		setname.SetNetChannel(ch);
+		setname.SetReliable(false);
+		//logging::Info("Sending!");
+		ch->SendNetMsg(setname, false);
+	}
 	delete [] name;
 }
 
@@ -299,12 +342,12 @@ Misc::Misc() {
 	v_bFastCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fast crouch");
 	v_bFlashlightSpam = new CatVar(CV_SWITCH, "flashlight_spam", "0", "Flashlight Spam", NULL, "Quickly turns flashlight on and off");
 	v_iFakeLag = new CatVar(CV_INT, "fakelag", "0", "Fakelag", NULL, "# of packets jammed", true, 25.0f);
+	c_Unrestricted = CreateConCommand(CON_PREFIX "cmd", CC_Unrestricted, "Execute a ConCommand");
+	c_SaveSettings = CreateConCommand(CON_PREFIX "save", CC_SaveConVars, CON_PREFIX "save [file]\nSave settings to cfg/cat_[file].cfg, file is lastcfg by default\n");
 	//v_bDumpEventInfo = CreateConVar(CON_PREFIX "debug_event_info", "0", "Show event info");
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
-	if (TF2C) {
-		v_bTauntSlide = new CatVar(CV_SWITCH, "tauntslide", "0", "Taunt Slide", NULL, "Works only in TF2 Classic!");
-		v_bCritHack = new CatVar(CV_SWITCH, "crits", "0", "Crit Hack", NULL, "Works only in TF2 Classic!");
-	}
+	if (TF2C) v_bTauntSlide = new CatVar(CV_SWITCH, "tauntslide", "0", "Taunt Slide", NULL, "Works only in TF2 Classic!");
+	if (TF) v_bCritHack = new CatVar(CV_SWITCH, "crits", "0", "Crit Hack", NULL, "Works only in TF2 Classic!");
 	//v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "Debug Crits", NULL, "???");
 	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	if (TF2) c_Schema = CreateConCommand(CON_PREFIX "schema", CC_Misc_Schema, "Load item schema");
@@ -362,35 +405,95 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 		}
 	}
 */
-	if (v_bTauntSlide->GetBool())
+	if (TF2C && v_bTauntSlide->GetBool())
 		RemoveCondition(LOCAL_E, TFCond_Taunting);
-	if (TF2C && v_bCritHack->GetBool() && CE_GOOD(LOCAL_W)) {
-		static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 56 53 83 EC 10 8B 5D 08 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 59 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 4A A1 ? ? ? ? 8B 40 04 3B 83 A8 09 00 00 74 3A");
-		typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
-		CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
-		if (cmd->buttons & IN_ATTACK) {
-			int tries = 0;
-			RandomSeed(MD5_PseudoRandom(cmd->command_number) & 0x7fffffff);
-			CIACFn(RAW_ENT(LOCAL_W));
-			bool crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-			if (!crit) cmd->buttons &= ~IN_ATTACK;
-			/*while (!crit && tries < 50) {
-				tries++;
-				//crit = (vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1764 / 4, 0))(RAW_ENT(LOCAL_W));
-			}*/
+
+	static ConVar* criticals = interfaces::cvar->FindVar("tf_weapon_criticals");
+	if (CE_GOOD(LOCAL_W) && TF && v_bCritHack->GetBool() && criticals->GetBool()) {
+		IClientEntity* weapon = RAW_ENT(LOCAL_W);
+		if (TF2C) {
+			if (vfunc<bool(*)(IClientEntity*)>(weapon, 1824 / 4, 0)(weapon)) {
+				static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 56 53 83 EC 10 8B 5D 08 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 59 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 4A A1 ? ? ? ? 8B 40 04 3B 83 A8 09 00 00 74 3A");
+				typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
+				CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
+				if (cmd->buttons & IN_ATTACK) {
+					*(float*)((uintptr_t)weapon + 2468ul) = 0.0f;
+					int tries = 0;
+					static int lcmdn = 0;
+					bool crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
+					static int& seed = *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul);
+					bool cmds = false;
+					seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
+					RandomSeed(seed);
+					CIACFn(RAW_ENT(LOCAL_W));
+					crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
+					/*while (!crit && (tries < 200)) {
+						*(int*)(weapon + 2472) = 0;
+						seed = MD5_PseudoRandom(++lcmdn) & 0x7fffffff;
+						tries++;
+						RandomSeed(seed);
+						CIACFn(RAW_ENT(LOCAL_W));
+						crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
+						cmds = true;
+					}*/
+					if (!crit) cmd->buttons &= ~IN_ATTACK;
+					else {
+						/*logging::Info("Got crit at CMD # %i", lcmdn);
+						if (cmds) {
+							cmd->command_number = lcmdn;
+							cmd->random_seed = MD5_PseudoRandom(lcmdn) & 0x7fffffff;
+						}*/
+					}
+					//logging::Info("Seed: %i", seed);
+					/*while (!crit && tries < 50) {
+						tries++;
+						//crit = (vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1764 / 4, 0))(RAW_ENT(LOCAL_W));
+					}*/
+				}
+			}
+		} else if (TF2) {
+			if (vfunc<bool(*)(IClientEntity*)>(weapon, 1944 / 4, 0)(weapon)) {
+				static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 ? ? ? ? 8B 40 04");
+				typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
+				CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
+				if (cmd->buttons & IN_ATTACK) {
+					//*(float*)((uintptr_t)weapon + 2468ul) = 0.0f;
+					//bool crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2830ul);
+					*(float*)(weapon + 2612ul) = 1000.0f;
+					int md5seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
+					int rseed = md5seed;
+					int a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x1F6D4A8);
+					int b = vfunc<int(*)(IClientEntity*)>(RAW_ENT(LOCAL_E), 316 / 4, 0)(RAW_ENT(LOCAL_E));
+					int c = vfunc<int(*)(IClientEntity*)>(weapon, 316 / 4, 0)(weapon) << 8;
+					rseed = a ^ (b | c);
+					RandomSeed(rseed);
+					//static int tries = 0;
+					//if (tries > 20) tries = 0;
+					//for (int i = 0; i < tries; i++) RandomInt(0, 10);
+
+					CIACFn(weapon);
+					//logging::Info("%i", *(unsigned char*)(weapon + 2830));
+					//tries++;
+					unsigned char crit = *(unsigned char*)(weapon + 2830);
+					if (crit == 0) cmd->buttons &= ~IN_ATTACK;
+					else {
+						//logging::Info("Try: %i");
+					}
+				}
+			}
 		}
 	}
 
-	if (TF && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
+	/*f (TF && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
 		//static uintptr_t helper = gSignatures.GetClientSignature("55 89 E5 81 EC 88 00 00 00 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 31 FF 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 0F 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 75 14 89 F8 8B 5D F4 8B 75 F8 8B 7D FC 89 EC 5D C3");
 		/*if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
 			RandomSeed(cmd->random_seed);
 			ciac_s = vfunc<int(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 458, 0)(RAW_ENT(LOCAL_W));
 			if (ciac_s) cmd->buttons |= IN_ATTACK;
 			lastcheck = interfaces::gvars->curtime;
-		}*/
+		}
 		if (TF2) {
-			static uintptr_t critsig = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 14 C8 F6 01 8B 40 04 3B 83 30 0B 00 00 74 41 89 83 30 0B 00 00 A1 ? ? ? ? C6 83 0F 0B 00 00 00 83 78 30 05 74 59");
+			static uintptr_t critsig = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 ? ? ? ? 8B 40 04");
 			typedef void(*C_TFWeaponBase__CalcIsAttackCritical_t)(IClientEntity*);
 			static C_TFWeaponBase__CalcIsAttackCritical_t ciac = (C_TFWeaponBase__CalcIsAttackCritical_t)critsig;
 			if (interfaces::gvars->curtime - lastcheck >= 1.0f) {
@@ -407,11 +510,8 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 					AddCenterString(colors::red, "Crit!");
 				}
 			}
-		} else if (TF2C) {
-
-
 		}
-	}
+	}*/
 	g_Settings.bSendPackets->SetValue(true);
 	if (v_iFakeLag->GetInt()) {
 		static int fakelag = 0;
@@ -528,14 +628,11 @@ void Misc::Draw() {
 			GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
-			AddSideString(colors::white, "CIAC: %i", ciac_s);
+			AddSideString(colors::white, "CIAC: %i", *(bool*)(RAW_ENT(LOCAL_W) + 2380));
+			if (TF2) AddSideString(colors::white, "Melee: %i", vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1860 / 4, 0)(RAW_ENT(LOCAL_W)));
 			if (TF2) AddSideString(colors::white, "Last CIAC: %.2f", lastcheck);
 			if (TF2) AddSideString(colors::white, "Bucket: %.2f", *(float*)((uintptr_t)RAW_ENT(LOCAL_W) + 2612u));
-			bool ciac = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-			static bool ciacl = false;
-			if (ciac != ciacl && ciac) logging::Info("!!!");
-			ciacl = ciac;
-			if (TF2C) AddSideString(colors::white, "CAAC: %i", ciac);
+			//if (TF2C) AddSideString(colors::white, "Seed: %i", *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul));
 			//AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
 			//AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());
 			//AddSideString(colors::white, "IsThirdPerson: %i", interfaces::iinput->CAM_IsThirdPerson());

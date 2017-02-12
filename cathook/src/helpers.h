@@ -26,6 +26,7 @@ class Vector;
 #include "beforecheaders.h"
 #include <string>
 #include <sstream>
+#include <vector>
 #include "aftercheaders.h"
 
 #include "fixsdk.h"
@@ -36,6 +37,7 @@ class Vector;
 
 // TODO split this shit
 
+extern std::vector<ConVar*> g_ConVars;
 extern FILE* hConVarsFile;
 void BeginConVars();
 void EndConVars();

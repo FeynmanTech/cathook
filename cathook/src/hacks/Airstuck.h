@@ -15,6 +15,8 @@ public:
 	Airstuck();
 
 	virtual void ProcessUserCmd(CUserCmd*) override;
+	virtual void OnLevelInit() override;
+	virtual void OnLevelShutdown() override;
 
 	ConVar* v_bStuck;
 };
