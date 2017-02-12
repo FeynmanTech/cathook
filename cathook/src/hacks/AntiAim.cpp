@@ -21,13 +21,14 @@ AntiAim::AntiAim() {
 	this->v_YawMode = new CatVar(CV_ENUM, "aa_yaw_mode", "3", "Yaw mode", new CatEnum({ "KEEP", "STATIC", "RANDOM", "SPIN" }), "Yaw mode");
 	this->v_bNoClamping = new CatVar(CV_SWITCH, "aa_no_clamp", "0", "Don't clamp angles", NULL, "Use this with STATIC mode for unclamped manual angles");
 	this->v_flRoll = new CatVar(CV_FLOAT, "aa_roll", "0", "Roll", NULL, "Roll angle. ???", true, -180, 180);
+	AddSafeTicks(0);
 }
 
 float yaw = -180;
 float pitch = -89;
 
 void AntiAim::AddSafeTicks(int ticks) {
-	m_iSafeTicks += ticks;
+	m_iSafeTicks = ticks;
 }
 
 void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
@@ -35,14 +36,21 @@ void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 	if (cmd->buttons & IN_USE) {
 		return;
 	}
-	if (cmd->buttons & IN_ATTACK) {
+
+	if ((cmd->buttons & IN_ATTACK) && (LOCAL_W->m_iClassID != g_pClassID->CTFCompoundBow)) {
 		if (CanShoot()) return;
 	}
 	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFLunchBox) return;
-	if (g_pLocalPlayer->bAttackLastTick) return;
 
-	if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee ||
-			GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_throwable) return;
+	weaponmode mode = GetWeaponMode(g_pLocalPlayer->entity);
+	if (mode == weapon_melee || mode == weapon_throwable || (mode == weapon_projectile && (LOCAL_W->m_iClassID != g_pClassID->CTFCompoundBow))) {
+		if ((cmd->buttons & IN_ATTACK) || (cmd->buttons & IN_ATTACK2) || g_pLocalPlayer->bAttackLastTick) {
+			AddSafeTicks(4);
+		}
+	}
+	if ((LOCAL_W->m_iClassID == g_pClassID->CTFCompoundBow) && !(cmd->buttons & IN_ATTACK)) {
+		if (g_pLocalPlayer->bAttackLastTick) AddSafeTicks(4);
+	}
 
 	float p = cmd->viewangles.x;
 	float y = cmd->viewangles.y;
