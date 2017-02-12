@@ -34,6 +34,8 @@ public:
 	CatVar* v_bCritHack;
 	CatVar* v_bTauntSlide;
 	//ConVar* v_bDumpEventInfo;
+	ConCommand* c_SaveSettings;
+	ConCommand* c_Unrestricted;
 	ConCommand* c_DumpItemAttributes;
 	ConCommand* c_SayLine;
 	ConCommand* c_Shutdown;

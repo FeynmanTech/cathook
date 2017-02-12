@@ -32,7 +32,7 @@ bool SendNetMsg_hook(void* thisptr, INetMessage& msg, bool bForceReliable = fals
 	SEGV_BEGIN;
 
 	//logging::Info("Sending NetMsg! %i", msg.GetType());
-	if (g_phAirstuck->v_bStuck->GetBool() && g_Settings.bHackEnabled->GetBool()) {
+	if (g_phAirstuck->v_bStuck->GetBool() && g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid) {
 		switch (msg.GetType()) {
 		case net_NOP:
 		case net_SignonState:
@@ -133,6 +133,7 @@ bool DispatchUserMessage_hook(void* thisptr, int type, bf_read& buf) {
 
 void LevelInit_hook(void* thisptr, const char* newmap) {
 	((LevelInit_t*) hooks::hkClientMode->GetMethod(hooks::offLevelInit))(thisptr, newmap);
+	interfaces::engineClient->ExecuteClientCmd("exec cat_matchexec");
 	DRM_ENFORCE;
 	LEVEL_INIT(Aimbot);
 	LEVEL_INIT(Airstuck);

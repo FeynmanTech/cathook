@@ -145,6 +145,7 @@ void CMenuWindow::AddElements() {
 	ADDCVAR(g_Settings.flForceFOVZoomed);
 	ADDCVAR(g_Settings.flForceFOV);
 	ADDCVAR(g_Settings.sDisconnectMsg);
+	if (TF2C) ADDCVAR(g_Settings.kRollSpeedhack);
 	ADDCVAR(g_phMisc->v_bCleanChat);
 	if (TF2) {
 		CBaseButton* but = new CBaseButton("schema", tab, "Load Custom Schema", [this](CBaseButton*) {

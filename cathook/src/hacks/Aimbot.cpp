@@ -346,7 +346,9 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 			if (g_Settings.bIgnoreTaunting->GetBool() && HasCondition(entity, TFCond_Taunting)) return 1;
 			if (IsPlayerInvulnerable(entity)) return 4;
 			if (v_bRespectCloak->GetBool() && IsPlayerInvisible(entity)) return 6;
-			if (HasCondition(entity, TFCond_UberBulletResist)) return 10;
+			weaponmode mode = GetWeaponMode(LOCAL_E);
+			if (mode == weaponmode::weapon_hitscan || LOCAL_W->m_iClassID == g_pClassID->CTFCompoundBow)
+				if (HasCondition(entity, TFCond_UberBulletResist)) return 10;
 		}
 
 #if NO_DEVIGNORE != true

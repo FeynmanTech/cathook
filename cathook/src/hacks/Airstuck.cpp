@@ -33,3 +33,11 @@ void Airstuck::ProcessUserCmd(CUserCmd* cmd) {
 	}
 	return;
 }
+
+void Airstuck::OnLevelInit() {
+	v_bStuck->SetValue(false);
+}
+
+void Airstuck::OnLevelShutdown() {
+	v_bStuck->SetValue(false);
+}

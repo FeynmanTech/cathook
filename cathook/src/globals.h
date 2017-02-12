@@ -41,7 +41,7 @@ public:
 	CatVar* bDebugLog;
 	Vector last_angles;
 	CatVar* bFastOutline;
-	CatVar* bRollSpeedhack;
+	CatVar* kRollSpeedhack;
 	bool bInvalid;
 };
 

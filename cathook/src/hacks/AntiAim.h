@@ -16,6 +16,9 @@ public:
 
 	virtual void ProcessUserCmd(CUserCmd*) override;
 
+	void AddSafeTicks(int ticks);
+	int m_iSafeTicks;
+
 	CatVar* v_bEnabled;
 	CatVar* v_flSpinSpeed;
 	CatVar* v_flYaw;
