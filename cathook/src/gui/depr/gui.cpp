@@ -59,9 +59,9 @@ void GUI::Draw() {
 
 void GUI::UpdateKeys() {
 	for (int i = 0; i < ButtonCode_t::KEY_COUNT; i++) {
-		bool down = interfaces::input->IsButtonDown((ButtonCode_t)(KEY_FIRST + i));
+		bool down = input->IsButtonDown((ButtonCode_t)(KEY_FIRST + i));
 		bool changed = m_bPressedState[i] != down;
-		if (changed && down) m_iPressedFrame[i] = interfaces::gvars->framecount;
+		if (changed && down) m_iPressedFrame[i] = gvars->framecount;
 		m_bPressedState[i] = down;
 		if (m_bKeysInit) {
 			if (changed) {
@@ -74,8 +74,8 @@ void GUI::UpdateKeys() {
 }
 
 void GUI::UpdateMouse() {
-	m_nMouseX = interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X);
-	m_nMouseY = interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y);
+	m_nMouseX = input->GetAnalogValue(AnalogCode_t::MOUSE_X);
+	m_nMouseY = input->GetAnalogValue(AnalogCode_t::MOUSE_Y);
 }
 
 bool GUI::KeyEvent(ButtonCode_t key) {

@@ -39,13 +39,13 @@ Triggerbot::Triggerbot() {
 void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (g_pLocalPlayer->life_state) return;
-	/*IClientEntity* local = ENTITY(interfaces::engineClient->GetLocalPlayer());
+	/*IClientEntity* local = ENTITY(engineClient->GetLocalPlayer());
 	if (!local) return;
 	if (NET_BYTE(local, entityvars.iLifeState)) return;*/
 	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_hitscan) return;
 	if (v_bAmbassadorCharge->GetBool()) {
 		if (IsAmbassador(g_pLocalPlayer->weapon())) {
-			if ((interfaces::gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
+			if ((g_pGlobals->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
 				return;
 			}
 		}
@@ -66,7 +66,7 @@ void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 	forward.z = -sp;
 	forward = forward * 8192.0f + eye;
 	ray.Init(eye, forward);
-	interfaces::trace->TraceRay(ray, 0x4200400B, filter, enemy_trace);
+	g_ITrace->TraceRay(ray, 0x4200400B, filter, enemy_trace);
 
 	IClientEntity* raw_entity = (IClientEntity*)(enemy_trace->m_pEnt);
 	if (!raw_entity) return;
@@ -75,9 +75,9 @@ void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 
 	bool isPlayer = false;
 	switch (entity->m_Type) {
-	case EntityType::ENTITY_PLAYER:
+	case k_EEntityType::ENTITY_PLAYER:
 		isPlayer = true; break;
-	case EntityType::ENTITY_BUILDING:
+	case k_EEntityType::ENTITY_BUILDING:
 		if (!this->v_bBuildings->GetBool()) return;
 		break;
 	default:
@@ -119,7 +119,7 @@ void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 		!((g_pLocalPlayer->bZoomed) && CanHeadshot())) {
 		return;
 	}
-	//interfaces::debug->AddBoxOverlay(enemy_trace->endpos, Vector(-1.0f, -1.0f, -1.0f), Vector(1.0f, 1.0f, 1.0f), QAngle(0, 0, 0), 255, 0, 0, 255, 2.0f);
+	//debug->AddBoxOverlay(enemy_trace->endpos, Vector(-1.0f, -1.0f, -1.0f), Vector(1.0f, 1.0f, 1.0f), QAngle(0, 0, 0), 255, 0, 0, 255, 2.0f);
 	//IClientEntity* weapon;
 	CachedHitbox* hb = entity->m_pHitboxCache->GetHitbox(enemy_trace->hitbox);
 	//logging::Info("hitbox: %i 0x%08x", enemy_trace->hitbox, hb);
@@ -129,15 +129,15 @@ void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 			Vector siz = hb->max - hb->min;
 			Vector mns = hb->min + siz * 0.2f;
 			Vector mxs = hb->max - siz * 0.2f;
-			interfaces::debug->AddLineOverlay(enemy_trace->startpos, forward, 0, 0, 255, true, -1.0f);
+			g_IDebugOverlay->AddLineOverlay(enemy_trace->startpos, forward, 0, 0, 255, true, -1.0f);
 			if (LineIntersectsBox(mns, mxs, enemy_trace->startpos, forward)) {
-				interfaces::debug->AddBoxOverlay(mns, Vector(0, 0, 0), mxs - mns, QAngle(0, 0, 0), 0, 255, 0, 255, 1.0f);
-				interfaces::debug->AddLineOverlay(enemy_trace->startpos, forward, 255, 0, 0, true, 1.0f);
+				g_IDebugOverlay->AddBoxOverlay(mns, Vector(0, 0, 0), mxs - mns, QAngle(0, 0, 0), 0, 255, 0, 255, 1.0f);
+				g_IDebugOverlay->AddLineOverlay(enemy_trace->startpos, forward, 255, 0, 0, true, 1.0f);
 				//logging::Info("%.2f %.2f %.2f", hb->center.DistToSqr(enemy_trace->endpos), SQR(hb->min.DistToSqr(hb->min)), SQR(hb->min.DistToSqr(hb->min) * 0.9f));
 
 			} else {
-				interfaces::debug->AddBoxOverlay(hb->min, Vector(0, 0, 0), hb->max - hb->min, QAngle(0, 0, 0), 0, 255, 255, 255, -1.0f);
-				interfaces::debug->AddBoxOverlay(mns, Vector(0, 0, 0), mxs - mns, QAngle(0, 0, 0), 255, 255, 0, 255, 0.5f);
+				g_IDebugOverlay->AddBoxOverlay(hb->min, Vector(0, 0, 0), hb->max - hb->min, QAngle(0, 0, 0), 0, 255, 255, 255, -1.0f);
+				g_IDebugOverlay->AddBoxOverlay(mns, Vector(0, 0, 0), mxs - mns, QAngle(0, 0, 0), 255, 255, 0, 255, 0.5f);
 				return;
 			}
 		} else return;

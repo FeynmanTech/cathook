@@ -24,19 +24,19 @@ void CC_Achievement_Unlock(const CCommand& args) {
 }
 
 void AchievementHack::UnlockAll() {
-	for (int i = 0; i < interfaces::achievements->GetAchievementCount(); i++) {
-		interfaces::achievements->AwardAchievement(interfaces::achievements->GetAchievementByIndex(i)->GetAchievementID());
+	for (int i = 0; i < g_IAchievement->GetAchievementCount(); i++) {
+		g_IAchievement->AwardAchievement(g_IAchievement->GetAchievementByIndex(i)->GetAchievementID());
 	}
 }
 
 void AchievementHack::LockAll() {
-	interfaces::stats->RequestCurrentStats();
-	//interfaces::stats->ResetAllStats(true);
-	for (int i = 0; i < interfaces::achievements->GetAchievementCount(); i++) {
-		interfaces::stats->ClearAchievement(interfaces::achievements->GetAchievementByIndex(i)->GetName());
+	g_ISteamStats->RequestCurrentStats();
+	//stats->ResetAllStats(true);
+	for (int i = 0; i < g_IAchievement->GetAchievementCount(); i++) {
+		g_ISteamStats->ClearAchievement(g_IAchievement->GetAchievementByIndex(i)->GetName());
 	}
-	interfaces::stats->StoreStats();
-	interfaces::stats->RequestCurrentStats();
+	g_ISteamStats->StoreStats();
+	g_ISteamStats->RequestCurrentStats();
 }
 
 void CC_Achievement_Lock(const CCommand& args) {

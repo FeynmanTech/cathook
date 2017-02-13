@@ -182,7 +182,7 @@ k_EItemType ItemModelMapper::GetItemType(const CachedEntity* entity) {
 	for (const auto& it : map) {
 		if (it.first == model) return it.second;
 	}
-	std::string path(interfaces::model->GetModelName((const model_t*)model));
+	std::string path(g_IModelInfo->GetModelName((const model_t*)model));
 	bool set = false;
 	for (const auto& it : models) {
 		//logging::Info("comparing [%s] to [%s]", path.c_str(), it.first.c_str());

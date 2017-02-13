@@ -24,7 +24,7 @@ void ResetStrings() {
 	g_nStringsCenter = 0;
 }
 
-void AddSideString(int fg, const std::string& string) {
+void AddSideString(int fg, std::string string) {
 	g_pStringsSide[g_nStringsSide].m_nColor = fg;
 	g_pStringsSide[g_nStringsSide].m_string = string;
 	g_pStringsSide[g_nStringsSide].m_bColored = true;
@@ -185,7 +185,7 @@ int colors::Transparent(int base, float mod /*= 0.5f*/) {
 }
 
 int colors::RainbowCurrent() {
-	return colors::FromHSL(fabs(sin(interfaces::gvars->curtime / 2.0f)) * 360.0f, 0.85f, 0.9f);
+	return colors::FromHSL(fabs(sin(g_pGlobals->curtime / 2.0f)) * 360.0f, 0.85f, 0.9f);
 }
 
 int colors::FromHSL(float h, float s, float v) {
@@ -231,8 +231,8 @@ int colors::Health(int health, int max) {
 }
 
 void draw::DrawRect(int x, int y, int w, int h, int color) {
-	interfaces::surface->DrawSetColor(*reinterpret_cast<Color*>(&color));
-	interfaces::surface->DrawFilledRect(x, y, x + w, y + h);
+	g_ISurface->DrawSetColor(*reinterpret_cast<Color*>(&color));
+	g_ISurface->DrawFilledRect(x, y, x + w, y + h);
 }
 
 ESPStringCompound::ESPStringCompound() {
@@ -241,22 +241,22 @@ ESPStringCompound::ESPStringCompound() {
 }
 
 void draw::Initialize() {
-	fonts::ESP = interfaces::surface->CreateFont();
-	fonts::MENU = interfaces::surface->CreateFont();
-	fonts::MENU_BIG = interfaces::surface->CreateFont();
+	fonts::ESP = g_ISurface->CreateFont();
+	fonts::MENU = g_ISurface->CreateFont();
+	fonts::MENU_BIG = g_ISurface->CreateFont();
 
 	if (!draw::width || !draw::height) {
-		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
+		g_IEngine->GetScreenSize(draw::width, draw::height);
 	}
 
-	interfaces::surface->SetFontGlyphSet(fonts::ESP, "TF2 Build", fonts::ESP_HEIGHT, 0, 0, 0, 0x0); // or Ubuntu Mono Bold
-	interfaces::surface->SetFontGlyphSet(fonts::MENU, "Verdana", fonts::MENU_HEIGHT, 0, 0, 0, 0x0);
-	interfaces::surface->SetFontGlyphSet(fonts::MENU_BIG, "Verdana Bold", fonts::MENU_BIG_HEIGHT, 0, 0, 0, 0x0);
+	g_ISurface->SetFontGlyphSet(fonts::ESP, "TF2 Build", fonts::ESP_HEIGHT, 0, 0, 0, 0x0); // or Ubuntu Mono Bold
+	g_ISurface->SetFontGlyphSet(fonts::MENU, "Verdana", fonts::MENU_HEIGHT, 0, 0, 0, 0x0);
+	g_ISurface->SetFontGlyphSet(fonts::MENU_BIG, "Verdana Bold", fonts::MENU_BIG_HEIGHT, 0, 0, 0, 0x0);
 }
 
 void draw::DrawLine(int x, int y, int dx, int dy, int color) {
-	interfaces::surface->DrawSetColor(*reinterpret_cast<Color*>(&color));
-	interfaces::surface->DrawLine(x, y, x + dx, y + dy);
+	g_ISurface->DrawSetColor(*reinterpret_cast<Color*>(&color));
+	g_ISurface->DrawLine(x, y, x + dx, y + dy);
 }
 
 bool draw::EntityCenterToScreen(CachedEntity* entity, Vector& out) {
@@ -273,7 +273,7 @@ bool draw::EntityCenterToScreen(CachedEntity* entity, Vector& out) {
 }
 
 bool draw::WorldToScreen(Vector& origin, Vector& screen) {
-	VMatrix wts = interfaces::engineClient->WorldToScreenMatrix();
+	VMatrix wts = g_IEngine->WorldToScreenMatrix();
 	screen.z = 0;
 	float w = wts[3][0] * origin[0] + wts[3][1] * origin[1] + wts[3][2] * origin[2] + wts[3][3];
 	if (w > 0.001) {
@@ -286,14 +286,14 @@ bool draw::WorldToScreen(Vector& origin, Vector& screen) {
 }
 
 void draw::OutlineRect(int x, int y, int w, int h, int color) {
-	interfaces::surface->DrawSetColor(*reinterpret_cast<Color*>(&color));
-	interfaces::surface->DrawOutlinedRect(x, y, x + w, y + h);
+	g_ISurface->DrawSetColor(*reinterpret_cast<Color*>(&color));
+	g_ISurface->DrawOutlinedRect(x, y, x + w, y + h);
 }
 
 void draw::GetStringLength(unsigned long font, char* string, int& length, int& height) {
 	wchar_t buf[1024] = {'\0'};
 	mbstowcs(buf, string, strlen(string));
-	interfaces::surface->GetTextSize(font, buf, length, height);
+	g_ISurface->GetTextSize(font, buf, length, height);
 }
 
 void draw::String (unsigned long font, int x, int y, int color, int shadow, const char* text) {
@@ -315,7 +315,7 @@ void draw::String (unsigned long font, int x, int y, int color, int shadow, cons
 	}
 	char* col = new char[4];
 	*(int*)col = color;
-	interfaces::matsurface->DrawColoredText(font, x, y, col[0], col[1], col[2], col[3], "%s", text);
+	matsurface->DrawColoredText(font, x, y, col[0], col[1], col[2], col[3], "%s", text);
 	*/bool newlined = false;
 	for (int i = 0; i < strlen(text); i++) {
 		if (text[i] == '\n') {
@@ -366,10 +366,10 @@ void draw::WString(unsigned long font, int x, int y, int color, int shadow, cons
 			draw::WString(font, x - 1, y, black_t, false, text);
 		}
 	}
-	interfaces::surface->DrawSetTextPos(x, y);
-	interfaces::surface->DrawSetTextColor(*reinterpret_cast<Color*>(&color));
-	interfaces::surface->DrawSetTextFont(font);
-	interfaces::surface->DrawUnicodeString(text);
+	g_ISurface->DrawSetTextPos(x, y);
+	g_ISurface->DrawSetTextColor(*reinterpret_cast<Color*>(&color));
+	g_ISurface->DrawSetTextFont(font);
+	g_ISurface->DrawUnicodeString(text);
 }
 
 void draw::FString(unsigned long font, int x, int y, int color, int shadow, const char* text, ...) {

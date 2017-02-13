@@ -8,20 +8,29 @@
 #ifndef ENUMS_H_
 #define ENUMS_H_
 
-enum EntityType {
+enum k_EEntityType {
+	ENTITY_UNKNOWN = -1,
 	ENTITY_GENERIC,
 	ENTITY_PLAYER,
+	ENTITY_ITEM,
 	ENTITY_BUILDING,
 	ENTITY_PROJECTILE
 };
 
-enum k_EProjectile {
+enum k_ETFProjectile {
 	PROJ_UNKNOWN = -1,
 	PROJ_NONE,
 	PROJ_ARROW,
 	PROJ_STICKY,
 	PROJ_PIPE,
 	PROJ_ROCKET
+};
+
+enum k_ETFProjectileType {
+	PT_UNKNOWN = -1,
+	PT_NONE,
+	PT_GRENADE,
+	PT_ROCKET
 };
 
 enum k_EBuilding {

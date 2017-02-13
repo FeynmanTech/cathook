@@ -14,14 +14,14 @@
 #include "../sdk.h"
 
 void GUIVisibleCallback(IConVar* var, const char* pOldValue, float flOldValue) {
-	interfaces::input->SetCursorPosition(draw::width / 2, draw::height / 2);
-	interfaces::surface->SetCursor(vgui::CursorCode::dc_none);
-	interfaces::matsurface->SetCursorAlwaysVisible(false);
+	input->SetCursorPosition(draw::width / 2, draw::height / 2);
+	surface->SetCursor(vgui::CursorCode::dc_none);
+	matsurface->SetCursorAlwaysVisible(false);
 	if (g_pGUI->v_bGUIVisible) {
 		if (g_pGUI->v_bGUIVisible->GetBool()) {
-			interfaces::matsurface->UnlockCursor();
+			matsurface->UnlockCursor();
 		} else {
-			interfaces::matsurface->LockCursor();
+			matsurface->LockCursor();
 		}
 	}
 }
@@ -52,9 +52,9 @@ void CatGUI::ShowTooltip(std::string text) {
 void CatGUI::Update() {
 	m_bShowTooltip = false;
 	for (int i = 0; i < ButtonCode_t::BUTTON_CODE_COUNT; i++) {
-		bool down = interfaces::input->IsButtonDown((ButtonCode_t)(i));
+		bool down = input->IsButtonDown((ButtonCode_t)(i));
 		bool changed = m_bPressedState[i] != down;
-		if (changed && down) m_iPressedFrame[i] = interfaces::gvars->framecount;
+		if (changed && down) m_iPressedFrame[i] = gvars->framecount;
 		m_bPressedState[i] = down;
 		if (m_bKeysInit) {
 			if (changed) {
@@ -71,7 +71,7 @@ void CatGUI::Update() {
 				}
 			} else {
 				if (down) {
-					int frame = interfaces::gvars->framecount - m_iPressedFrame[i];
+					int frame = gvars->framecount - m_iPressedFrame[i];
 					bool shouldrepeat = false;
 					if (frame) {
 						if (frame > 150) {
@@ -89,8 +89,8 @@ void CatGUI::Update() {
 	}
 
 
-	m_iMouseX = interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_X);
-	m_iMouseY = interfaces::input->GetAnalogValue(AnalogCode_t::MOUSE_Y);
+	m_iMouseX = input->GetAnalogValue(AnalogCode_t::MOUSE_X);
+	m_iMouseY = input->GetAnalogValue(AnalogCode_t::MOUSE_Y);
 
 	if (!m_bKeysInit) m_bKeysInit = 1;
 	if (v_bGUIVisible->GetBool()) {

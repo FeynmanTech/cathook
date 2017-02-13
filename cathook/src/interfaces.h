@@ -8,6 +8,12 @@
 #ifndef INTERFACES_H_
 #define INTERFACES_H_
 
+#include "beforecheaders.h"
+#include <string>
+#include "aftercheaders.h"
+
+#include "sharedobj.h"
+
 namespace vgui {
 class ISurface;
 class IPanel;
@@ -37,34 +43,33 @@ class ISteamUserStats;
 class IStudioRender;
 class IVDebugOverlay;
 
-namespace interfaces {
+extern ISteamClient* g_ISteamClient;
+extern ISteamFriends* g_ISteamFriends;
+extern IVEngineClient013* g_IEngine;
+extern vgui::ISurface* g_ISurface;
+extern vgui::IPanel* g_IPanel;
+extern IClientEntityList* g_IEntityList;
+extern ICenterPrint* g_ICenterPrint;
+extern ICvar* g_ICVar;
+extern IGameEventManager2* g_IEventManager;
+extern IBaseClientDLL* g_IBaseClient;
+extern IEngineTrace* g_ITrace;
+extern IVModelInfoClient* g_IModelInfo;
+extern IInputSystem* g_IInputSystem;
+extern CGlobalVarsBase* g_pGlobals;
+extern IPrediction* g_IPrediction;
+extern IGameMovement* g_IGameMovement;
+extern IInput* g_IInput;
+extern IMatSystemSurface* g_pMatSystemSurface;
+extern ISteamUser* g_ISteamUser;
+extern IAchievementMgr* g_IAchievement;
+extern ISteamUserStats* g_ISteamStats;
+extern IStudioRender* g_IStudioRender;
+extern IVDebugOverlay* g_IDebugOverlay;
 
-extern ISteamClient* steamClient;
-extern ISteamFriends* steamFriends;
-extern IVEngineClient013* engineClient;
-extern vgui::ISurface* surface;
-extern vgui::IPanel* panel;
-extern IClientEntityList* entityList;
-extern ICenterPrint* centerPrint;
-extern ICvar* cvar;
-extern IGameEventManager2* eventManager;
-extern IBaseClientDLL* baseClient;
-extern IEngineTrace* trace;
-extern IVModelInfoClient* model;
-extern IInputSystem* input;
-extern CGlobalVarsBase* gvars;
-extern IPrediction* prediction;
-extern IGameMovement* gamemovement;
-extern IInput* iinput;
-extern IMatSystemSurface* matsurface;
-extern ISteamUser* user;
-extern IAchievementMgr* achievements;
-extern ISteamUserStats* stats;
-extern IStudioRender* render;
-extern IVDebugOverlay* debug;
+template<typename T>
+T BruteforceInterface(std::string name, sharedobj::SharedObject* object);
 
 void CreateInterfaces();
-
-}
 
 #endif /* INTERFACES_H_ */

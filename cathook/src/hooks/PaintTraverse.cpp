@@ -30,7 +30,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	if (g_Settings.bHackEnabled->GetBool() && panel_scope && g_Settings.bNoZoom->GetBool() && vp == panel_scope) call_default = false;
 	if (g_Settings.bHackEnabled->GetBool()) {
 		bool vis = g_pGUI->v_bGUIVisible->GetBool();
-		interfaces::surface->SetCursorAlwaysVisible(vis);
+		g_ISurface->SetCursorAlwaysVisible(vis);
 	}
 
 
@@ -41,9 +41,9 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
 	static bool autoexec_done = false;
 	if (!autoexec_done) {
-		interfaces::engineClient->ExecuteClientCmd("exec cat_autoexec");
-		interfaces::engineClient->ExecuteClientCmd("cat_killsay_reload");
-		interfaces::engineClient->ExecuteClientCmd("cat_spam_reload");
+		g_IEngine->ExecuteClientCmd("exec cat_autoexec");
+		g_IEngine->ExecuteClientCmd("cat_killsay_reload");
+		g_IEngine->ExecuteClientCmd("cat_spam_reload");
 		autoexec_done = true;
 	}
 #if NO_IPC != true
@@ -60,19 +60,19 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 
 		if (seg_g && seg_g->command_number > g_phFollowBot->last_command_global) {
 			logging::Info("Executing `%s`", seg_g->command_buffer);
-			if (g_phFollowBot->last_command_global) interfaces::engineClient->ExecuteClientCmd(seg_g->command_buffer);
+			if (g_phFollowBot->last_command_global) g_IEngine->ExecuteClientCmd(seg_g->command_buffer);
 			g_phFollowBot->last_command_global = seg_g->command_number;
 		}
 		if (seg_l && seg_l->command_number > g_phFollowBot->last_command_local) {
 			logging::Info("Executing `%s`", seg_l->command_buffer);
-			if (g_phFollowBot->last_command_local) interfaces::engineClient->ExecuteClientCmd(seg_l->command_buffer);
+			if (g_phFollowBot->last_command_local) g_IEngine->ExecuteClientCmd(seg_l->command_buffer);
 			g_phFollowBot->last_command_local = seg_l->command_number;
 		}
 	}
 #endif
 
 	if (!panel_top) {
-		const char* name = interfaces::panel->GetName(vp);
+		const char* name = g_IPanel->GetName(vp);
 		if (strlen(name) > 4) {
 			if (name[0] == 'M' && name[3] == 'S') {
 				panel_top = vp;
@@ -83,18 +83,18 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 		}
 	}
 	if (!panel_scope) {
-		if (!strcmp(interfaces::panel->GetName(vp), "HudScope")) {
+		if (!strcmp(g_IPanel->GetName(vp), "HudScope")) {
 			panel_scope = vp;
 		}
 	}
-	if (!interfaces::engineClient->IsInGame()) {
+	if (!g_IEngine->IsInGame()) {
 		g_Settings.bInvalid = true;
 	}
 
 	if (g_Settings.bNoVisuals->GetBool()) {
 		return;
 	}
-	if (g_Settings.bCleanScreenshots->GetBool() && interfaces::engineClient->IsTakingScreenshot()) return;
+	if (g_Settings.bCleanScreenshots->GetBool() && g_IEngine->IsTakingScreenshot()) return;
 
 	ResetStrings();
 

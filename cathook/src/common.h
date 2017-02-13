@@ -12,7 +12,7 @@
 #include <vector>
 #include "aftercheaders.h"
 
-/*#include "drawing.h"
+#include "drawing.h"
 #include "entitycache.h"
 #include "enums.h"
 #include "globals.h"
@@ -42,7 +42,7 @@
 
 #include "drm.h"
 
-#include "sdk.h"*/
+#include "sdk.h"
 
 #define TF2C (g_AppID == 243750)
 #define TF2  (g_AppID == 440)

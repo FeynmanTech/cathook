@@ -60,7 +60,7 @@ public:
 
 	void SaveDump()
 	{
-		ClientClass *pList = interfaces::baseClient->GetAllClasses();
+		ClientClass *pList = g_IBaseClient->GetAllClasses();
 		//logging::Info("iterating...");
 		while(pList)
 		{

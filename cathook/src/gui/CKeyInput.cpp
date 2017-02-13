@@ -35,7 +35,7 @@ void CKeyInput::Draw(int x, int y) {
 				key = "< CLICK >";
 			}
 		} else {
-			key = interfaces::input->ButtonCodeToString(Value());
+			key = g_IInputSystem->ButtonCodeToString(Value());
 		}
 	}
 	auto size = GetSize();

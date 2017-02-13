@@ -23,8 +23,8 @@ void Airstuck::ProcessUserCmd(CUserCmd* cmd) {
 		if (cmd->buttons & (IN_ATTACK | IN_ATTACK2)) {
 			return;
 		}
-		if (interfaces::gvars->tickcount % 60 == 0) {
-			INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+		if (g_pGlobals->tickcount % 60 == 0) {
+			INetChannel* ch = (INetChannel*)g_IEngine->GetNetChannelInfo();
 			NET_NOP packet;
 			packet.SetNetChannel(ch);
 			packet.SetReliable(false);

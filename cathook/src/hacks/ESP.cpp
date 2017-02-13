@@ -122,8 +122,8 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (!this->v_bBox->GetBool()) return;
 	if (CE_BAD(ent)) return;
-	if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
-		ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
+	if (!(this->v_bSeeLocal->GetBool() && g_IInput->CAM_IsThirdPerson()) &&
+		ent->m_IDX == g_IEngine->GetLocalPlayer()) return;
 	int fg = ent->m_ESPColorFG;
 	switch (ent->m_Type) {
 	case ENTITY_PLAYER: {
@@ -166,7 +166,7 @@ void ESP::CreateProcessors() {
 		[this](CachedEntity* entity) -> bool {
 			entity->AddESPString(format('#', entity->m_IDX, ' ', '[', entity->m_iClassID, ']', ' ', '"', entity->m_pClass->GetName()));
 			if (v_bModelName->GetBool())
-				entity->AddESPString(std::string(interfaces::model->GetModelName(RAW_ENT(entity)->GetModel())));
+				entity->AddESPString(std::string(g_IModelInfo->GetModelName(RAW_ENT(entity)->GetModel())));
 			return true;
 		}
 	));
@@ -332,11 +332,11 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 			//if (ent->m_iClassID == g_pClassID->)
 		}*/
 	/*} else if (ent->m_Type == ENTITY_PLAYER && ent->m_bAlivePlayer) {
-		if (!(this->v_bSeeLocal->GetBool() && interfaces::iinput->CAM_IsThirdPerson()) &&
-			ent->m_IDX == interfaces::engineClient->GetLocalPlayer()) return;
+		if (!(this->v_bSeeLocal->GetBool() && iinput->CAM_IsThirdPerson()) &&
+			ent->m_IDX == engineClient->GetLocalPlayer()) return;
 		int pclass = CE_INT(ent, netvar.iClass);
 		player_info_t info;
-		if (!interfaces::engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
+		if (!engineClient->GetPlayerInfo(ent->m_IDX, &info)) return;
 		powerup_type power = GetPowerupOnPlayer(ent);
 		// If target is enemy, always show powerups, if player is teammate, show powerups
 		// only if bTeammatePowerup or bTeammates is true

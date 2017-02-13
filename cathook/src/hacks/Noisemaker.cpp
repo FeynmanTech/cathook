@@ -22,7 +22,7 @@ void StackSafeCall(int a, int b, int c, int d, int e, int f) {
 	KeyValues* kv = new KeyValues("+use_action_slot_item_server");
 	kv->SetBool("+use_action_slot_item_server", true);
 	*(int*)(kv + 0x18) = 0;
-	SAFE_CALL(interfaces::engineClient->ServerCmdKeyValues(kv));
+	SAFE_CALL(engineClient->ServerCmdKeyValues(kv));
 	logging::Info("%i %i %i %i %i %i", a, b, c, d, e, f);*/
 }
 
@@ -45,9 +45,9 @@ void Noisemaker::ProcessUserCmd(CUserCmd*) {
 		//logging::Info("%s", kv->GetName());
 		//static KeyValues* kv = new KeyValues("use_action_slot_item_server");
 		//logging::Info("Sending!");
-		//interfaces::engineClient->ServerCmdKeyValues(kv);
+		//engineClient->ServerCmdKeyValues(kv);
 		//typedef void(Send)(unsigned, KeyValues*);
-		//logging::Info("Calling 0x%08x 0x%08x", interfaces::engineClient, kv);
+		//logging::Info("Calling 0x%08x 0x%08x", engineClient, kv);
 		//(*reinterpret_cast<Send*>(engine + 512u))(engine, kv);
 		//logging::Info("Sent!");
 	}

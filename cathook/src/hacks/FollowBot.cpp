@@ -47,10 +47,10 @@ public:
 	void FireGameEvent(IGameEvent* pEvent) {
 		if (!g_phFollowBot->v_bEnabled->GetBool()) return;
 		if (strcmp("player_calledformedic", pEvent->GetName())) return;
-		int id = interfaces::engineClient->GetPlayerForUserID(pEvent->GetInt("userid", -1));
+		int id = engineClient->GetPlayerForUserID(pEvent->GetInt("userid", -1));
 		logging::Info("%i called for medic");
 		player_info_s info;
-		interfaces::engineClient->GetPlayerInfo(id, &info);
+		engineClient->GetPlayerInfo(id, &info);
 		if (info.friendsID == g_phFollowBot->m_nOwnerID) {
 			g_phFollowBot->m_iShouldUbercharge = 1;
 		}
@@ -126,12 +126,12 @@ void FollowBot::Tick(CUserCmd* cmd) {
 	case botpackage::BOT_MEDIC: {
 		cmd->buttons |= IN_ATTACK;
 		if ((g_nTick % 100) == 0) {
-			interfaces::engineClient->ExecuteClientCmd("slot2");
+			engineClient->ExecuteClientCmd("slot2");
 			cmd->buttons &= ~IN_ATTACK;
 		}
 		if (this->m_iShouldUbercharge && this->m_iShouldUbercharge < 30) {
 			cmd->buttons |= IN_ATTACK2;
-			interfaces::engineClient->ExecuteClientCmd("voicemenu 2 1");
+			engineClient->ExecuteClientCmd("voicemenu 2 1");
 			this->m_iShouldUbercharge++;
 		} else {
 			this->m_iShouldUbercharge = 0;
@@ -177,18 +177,18 @@ void FollowBot::Tick(CUserCmd* cmd) {
 		static bool forward = false;
 		static bool jump = false;
 		if (!jump && CE_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity).IsZero(10.0f) && !g_pLocalPlayer->bZoomed) {
-			interfaces::engineClient->ExecuteClientCmd("+jump");
+			engineClient->ExecuteClientCmd("+jump");
 			jump = true;
 		} else if (jump) {
-			interfaces::engineClient->ExecuteClientCmd("-jump");
+			engineClient->ExecuteClientCmd("-jump");
 			jump = false;
 		}
 
 		if (forward && DistToSqr(owner_entity) < (60 * 60)) {
-			interfaces::engineClient->ExecuteClientCmd("-forward");
+			engineClient->ExecuteClientCmd("-forward");
 			forward = false;
 		} else if (!forward) {
-			interfaces::engineClient->ExecuteClientCmd("+forward");
+			engineClient->ExecuteClientCmd("+forward");
 			forward = true;
 		}
 	}
@@ -212,7 +212,7 @@ void FollowBot::ActuallyCreateMove(CUserCmd* cmd) {
 			g_pLocalPlayer->bUseSilentAngles = true;
 		}
 	}
-	interfaces::engineClient->SetViewAngles(angles);
+	engineClient->SetViewAngles(angles);
 }
 
 // TODO optimize, cache or something
@@ -380,7 +380,7 @@ FollowBot::FollowBot() {
 
 	cmd_Status = CreateConCommand(CON_PREFIX "bot_status", CC_BotStatus, "Status");
 	g_pListener = new MedicCallListener();
-	interfaces::eventManager->AddListener(g_pListener, "player_calledformedic", false);
+	eventManager->AddListener(g_pListener, "player_calledformedic", false);
 
 	logging::Info("Creating shared memory for bot");
 	m_pIPC = new ipcctl();
@@ -393,7 +393,7 @@ FollowBot::FollowBot() {
 }
 
 FollowBot::~FollowBot() {
-	interfaces::eventManager->RemoveListener(g_pListener);
+	eventManager->RemoveListener(g_pListener);
 	m_pIPC->Detach();
 }
 

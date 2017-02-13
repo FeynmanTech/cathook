@@ -7,54 +7,32 @@
 
 #include "common.h"
 
-EntityHitboxCache::EntityHitboxCache(CachedEntity* parent) {
-	m_CacheInternal = new CachedHitbox[CACHE_MAX_HITBOXES];
-	m_CacheValidationFlags = new bool[CACHE_MAX_HITBOXES];
-	m_VisCheck = new bool[CACHE_MAX_HITBOXES];
-	m_VisCheckValidationFlags = new bool[CACHE_MAX_HITBOXES];
-	InvalidateCache();
-	m_pParentEntity = parent;
+EntityHitboxCache::EntityHitboxCache(CachedEntity& entity) : parent(entity) {
+	MarkDirty();
 	m_bModelSet = false;
-	m_nNumHitboxes = 0;
 }
 
-int EntityHitboxCache::GetNumHitboxes() {
-	if (!m_bInit) Init();
-	if (!m_bSuccess) return 0;
+int EntityHitboxCache::HitboxCount() {
+	if (dirty) Init();
+	if (!success) return 0;
 	return m_nNumHitboxes;
 }
 
-EntityHitboxCache::~EntityHitboxCache() {
-	delete [] m_CacheInternal;
-	delete [] m_CacheValidationFlags;
-	delete [] m_VisCheck;
-	delete [] m_VisCheckValidationFlags;
-}
-
-void EntityHitboxCache::InvalidateCache() {
-	for (int i = 0; i < CACHE_MAX_HITBOXES; i++) {
-		m_CacheValidationFlags[i] = false;
-		m_VisCheckValidationFlags[i] = false;
-	}
-	m_bInit = false;
-	m_bSuccess = false;
-}
-
-void EntityHitboxCache::Update() {
-	SAFE_CALL(InvalidateCache());
-	if (CE_BAD(m_pParentEntity)) return;
+void EntityHitboxCache::MarkDirty() {
+	dirty = true;
 }
 
 void EntityHitboxCache::Init() {
-	m_bInit = true;
+	success = false;
+	dirty = false;
 	model_t* model = 0;
-	if (CE_BAD(m_pParentEntity)) return;
-	SAFE_CALL(model = (model_t*)RAW_ENT(m_pParentEntity)->GetModel());
+	if (parent.bad) return;
+	SAFE_CALL(model = (model_t*)parent.entptr->GetModel());
 	if (!model) return;
 	if (!m_bModelSet || model != m_pLastModel) {
-		studiohdr_t* shdr = interfaces::model->GetStudiomodel(model);
+		studiohdr_t* shdr = g_IModelInfo->GetStudiomodel(model);
 		if (!shdr) return;
-		mstudiohitboxset_t* set = shdr->pHitboxSet(CE_INT(m_pParentEntity, netvar.iHitboxSet));
+		mstudiohitboxset_t* set = shdr->pHitboxSet(parent.var<int>(netvar.iHitboxSet));
 		if (!dynamic_cast<mstudiohitboxset_t*>(set)) return;
 		m_pLastModel = model;
 		m_pHitboxSet = set;
@@ -65,35 +43,36 @@ void EntityHitboxCache::Init() {
 		if (m_nNumHitboxes > CACHE_MAX_HITBOXES) m_nNumHitboxes = CACHE_MAX_HITBOXES;
 		m_bModelSet = true;
 	}
-	m_bSuccess = true;
+	for (int i = 0; i < m_nNumHitboxes; i++) vdirty[i] = true;
+	success = true;
 }
 
 bool EntityHitboxCache::VisibilityCheck(int id) {
-	if (!m_bInit) Init();
-	if (id < 0 || id >= m_nNumHitboxes) return 0;
-	if (!m_bSuccess) return 0;
-	if (m_VisCheckValidationFlags[id]) return m_VisCheck[id];
+	if (dirty) Init();
+	if (!success) return false;
+	if (id < 0 || id >= m_nNumHitboxes) return false;
+	if (!vdirty[id]) return vcheck[id];
 	// TODO corners
-	CachedHitbox* hitbox = GetHitbox(id);
-	if (!hitbox) return 0;
-	SAFE_CALL(m_VisCheck[id] = (IsEntityVectorVisible(m_pParentEntity, hitbox->center)));
-	m_VisCheckValidationFlags[id] = true;
-	return m_VisCheck[id];
+	CachedHitbox& hitbox = GetHitbox(id);
+	vcheck[id] = IsEntityVectorVisible(parent, hitbox.center);
+	vdirty[id] = false;
+	return vcheck[id];
 }
 
-CachedHitbox* EntityHitboxCache::GetHitbox(int id) {
-	if (!m_bInit) Init();
-	if (id < 0 || id >= m_nNumHitboxes) return 0;
-	if (!m_bSuccess) return 0;
-	if (!m_CacheValidationFlags[id]) {
+CachedHitbox& EntityHitboxCache::GetHitbox(int id) {
+	if (dirty) Init();
+	if (!success) throw std::exception("GetHitbox: failure!");
+	if (id < 0 || id >= m_nNumHitboxes) throw std::out_of_range();
+	if (cdirty[id]) {
 		mstudiobbox_t* box = m_pHitboxSet->pHitbox(id);
 		if (!box) return 0;
-		if (box->bone < 0 || box->bone >= MAXSTUDIOBONES) return 0;
-		VectorTransform(box->bbmin, m_pParentEntity->GetBones()[box->bone], m_CacheInternal[id].min);
-		VectorTransform(box->bbmax, m_pParentEntity->GetBones()[box->bone], m_CacheInternal[id].max);
-		m_CacheInternal[id].bbox = box;
-		m_CacheInternal[id].center = (m_CacheInternal[id].min + m_CacheInternal[id].max) / 2;
-		m_CacheValidationFlags[id] = true;
+		if (box->bone < 0 || box->bone >= MAXSTUDIOBONES) return std::runtime_error("corrupt box");
+		CachedHitbox& newbox = &cache[id];
+		VectorTransform(box->bbmin, parent.GetBones()[box->bone], newbox.min);
+		VectorTransform(box->bbmax, parent.GetBones()[box->bone], newbox.max);
+		newbox.bbox = box;
+		newbox.center = (newbox.min + newbox.max) / 2;
+		cdirty[id] = false;
 	}
-	return &m_CacheInternal[id];
+	return &cache[id];
 }

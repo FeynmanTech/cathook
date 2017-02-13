@@ -16,7 +16,7 @@
 */
 void netvar_tree::init()
 {
-	const auto *client_class = interfaces::baseClient->GetAllClasses();
+	const auto *client_class = g_IBaseClient->GetAllClasses();
 	while(client_class != nullptr)
 	{
 		const auto class_info = std::make_shared<node>(0, nullptr);

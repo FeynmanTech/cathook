@@ -30,8 +30,8 @@ Vector SimpleLatencyPrediction(CachedEntity* ent, int hb) {
 	if (!ent) return Vector();
 	Vector result;
 	GetHitbox(ent, hb, result);
-	float latency = interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
-			interfaces::engineClient->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
+	float latency = g_IEngine->GetNetChannelInfo()->GetLatency(FLOW_OUTGOING) +
+			g_IEngine->GetNetChannelInfo()->GetLatency(FLOW_INCOMING);
 	result += CE_VECTOR(ent, netvar.vVelocity) * latency;
 	return result;
 }
@@ -102,6 +102,6 @@ float DistanceToGround(Vector origin) {
 	Vector endpos = origin;
 	endpos.z -= 8192;
 	ray.Init(origin, endpos);
-	interfaces::trace->TraceRay(ray, MASK_PLAYERSOLID, trace::g_pFilterNoPlayer, ground_trace);
+	g_ITrace->TraceRay(ray, MASK_PLAYERSOLID, trace::g_pFilterNoPlayer, ground_trace);
 	return 8192.0f * ground_trace->fraction;
 }

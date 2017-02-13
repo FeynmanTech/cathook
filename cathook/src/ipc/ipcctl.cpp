@@ -38,7 +38,7 @@ bool ipcctl::Init() {
 	mem->segments[client_id].initialized = true;
 	mem->segments[client_id].owner_pid = getpid();
 	mem->segments[client_id].command_number = 0;
-	memcpy(mem->segments[client_id].name, interfaces::steamFriends->GetPersonaName(), 32);
+	memcpy(mem->segments[client_id].name, g_ISteamFriends->GetPersonaName(), 32);
 	if (client_id == -1) return false;
 	broken = false;
 	return true;
@@ -91,7 +91,7 @@ ipc_client_seg* ipcctl::GetClientSegment(int client) {
 		mem->segments[client].initialized = true;
 		mem->segments[client].owner_pid = getpid();
 		mem->segments[client].command_number = 0;
-		memcpy(mem->segments[client].name, interfaces::steamFriends->GetPersonaName(), 32);
+		memcpy(mem->segments[client].name, g_ISteamFriends->GetPersonaName(), 32);
 		return 0;
 	}
 	mem->segments[client].last_access_time = time(0);

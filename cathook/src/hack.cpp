@@ -82,17 +82,17 @@ void hack::InitHacks() {
 ConCommand* hack::c_Cat = 0;
 
 void hack::CC_Cat(const CCommand& args) {
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "cathook");
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), " by ");
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "d4rkc4t\n");
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), "build: " CATHOOK_BUILD_NUMBER " \"" CATHOOK_BUILD_NAME "\"\n");
+	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "cathook");
+	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), " by ");
+	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "d4rkc4t\n");
+	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), "build: " CATHOOK_BUILD_NUMBER " \"" CATHOOK_BUILD_NAME "\"\n");
 #if _DEVELOPER
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "[DEVELOPER BUILD]\n");
+	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "[DEVELOPER BUILD]\n");
 #else
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build for user " __DRM_NAME " (Early Access)\n");
+	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build for user " __DRM_NAME " (Early Access)\n");
 #endif
 #ifdef __DRM_NOTES
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build notes: " __DRM_NOTES "\n");
+	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build notes: " __DRM_NOTES "\n");
 #endif
 }
 
@@ -111,11 +111,11 @@ void hack::Initialize() {
 	hwid::compute_result();
 	sharedobj::LoadAllSharedObjects();
 	g_pszTFPath = tf_path_from_maps();
-	interfaces::CreateInterfaces();
+	CreateInterfaces();
 	DRM_ENFORCE;
 	CDumper dumper;
 	dumper.SaveDump();
-	ClientClass* cc = interfaces::baseClient->GetAllClasses();
+	ClientClass* cc = g_IBaseClient->GetAllClasses();
 	FILE* cd = fopen("/tmp/cathook-classdump.txt", "w");
 	while (cc) {
 		fprintf(cd, "[%d] %s\n", cc->m_ClassID, cc->GetName());
@@ -162,17 +162,17 @@ void hack::Initialize() {
 	g_pPlayerResource = new TFPlayerResource();
 
 	hooks::hkPanel = new hooks::VMTHook();
-	hooks::hkPanel->Init(interfaces::panel, 0);
+	hooks::hkPanel->Init(g_IPanel, 0);
 	//hooks::hkPanel->HookMethod((void*)&hack::Hk_PaintTraverse, hooks::offPaintTraverse);
 	hooks::hkPanel->HookMethod((void*)PaintTraverse_hook, hooks::offPaintTraverse);
 	hooks::hkPanel->Apply();
 	hooks::hkClientMode = new hooks::VMTHook();
 	uintptr_t* clientMode = 0;
-	while(!(clientMode = **(uintptr_t***)((uintptr_t)((*(void***)interfaces::baseClient)[10]) + 1))) {
+	while(!(clientMode = **(uintptr_t***)((uintptr_t)((*(void***)g_IBaseClient)[10]) + 1))) {
 		sleep(1);
 	}
 	//hooks::hkMatSurface = new hooks::VMTHook();
-	//hooks::hkMatSurface->Init((void*)interfaces::matsurface, 0);
+	//hooks::hkMatSurface->Init((void*)matsurface, 0);
 	//hooks::hkMatSurface->HookMethod((void*)test_handleevent, 1);
 	hooks::hkClientMode->Init((void*)clientMode, 0);
 	//hooks::hkClientMode->HookMethod((void*)&hack::Hk_CreateMove, hooks::offCreateMove);
@@ -182,12 +182,12 @@ void hack::Initialize() {
 	hooks::hkClientMode->HookMethod((void*)LevelShutdown_hook, hooks::offLevelShutdown);
 	hooks::hkClientMode->Apply();
 	hooks::hkStudioRender = new hooks::VMTHook();
-	hooks::hkStudioRender->Init((void*)interfaces::render, 0);
+	hooks::hkStudioRender->Init((void*)g_IStudioRender, 0);
 	hooks::hkStudioRender->HookMethod((void*)BeginFrame_hook, hooks::offBeginFrame);
 	hooks::hkStudioRender->Apply();
 
 	hooks::hkClient = new hooks::VMTHook();
-	hooks::hkClient->Init((void*)interfaces::baseClient, 0);
+	hooks::hkClient->Init((void*)g_IBaseClient, 0);
 	hooks::hkClient->HookMethod((void*)FrameStageNotify_hook, hooks::offFrameStageNotify);
 	hooks::hkClient->HookMethod((void*)DispatchUserMessage_hook, hooks::offFrameStageNotify + 1);
 	hooks::hkClient->HookMethod((void*)IN_KeyEvent_hook, hooks::offKeyEvent);

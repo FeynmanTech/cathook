@@ -14,7 +14,8 @@
 #include <link.h>
 #include <dlfcn.h>
 
-const char* path_from_proc_maps(const char* name) {
+// TODO rewrite!
+const char* path_from_proc_maps(const std::string& name) {
 	FILE* proc_maps = fopen(strfmt("/proc/%i/maps", getpid()), "r");
 	if (!proc_maps) return (const char*)0;
 	char* buffer = new char[512];
@@ -29,7 +30,7 @@ const char* path_from_proc_maps(const char* name) {
 		if (!path_begin || !filename_begin) continue;
 		char* filename = buffer + filename_begin;
 		filename[strlen(filename) - 1] = '\0';
-		if (!strcmp(name, filename)) {
+		if (!strcmp(name.c_str(), filename)) {
 			return buffer + path_begin;
 		}
 	}
@@ -77,7 +78,7 @@ sharedobj::SharedObject* sharedobj::tier0 = 0;
 sharedobj::SharedObject* sharedobj::inputsystem = 0;
 sharedobj::SharedObject* sharedobj::studiorender = 0;
 
-sharedobj::SharedObject::SharedObject(const char* name, bool factory) {
+sharedobj::SharedObject::SharedObject(const std::string& name, bool factory) {
 	while (!(this->path = path_from_proc_maps(name))) {
 		sleep(1);
 	}
@@ -104,13 +105,8 @@ int* sharedobj::SharedObject::Pointer(int offset) {
 	}
 }
 
-void* sharedobj::SharedObject::CreateInterface(const char* name) {
-	int result;
-	void* interface = (void*)(fptr(name, &result));
-	if (result) {
-		logging::Info("Interface creation failed: %s from %s", name, basename(lmap->l_name));
-	}
-	return interface;
+void* sharedobj::SharedObject::CreateInterface(const std::string& name) {
+	return (void*)(fptr(name.c_str(), nullptr));;
 }
 
 void sharedobj::LoadAllSharedObjects() {

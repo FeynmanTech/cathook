@@ -47,16 +47,16 @@ const char* KillSay::ComposeKillSay(IGameEvent* event) {
 	int vid = event->GetInt("userid");
 	int kid = event->GetInt("attacker");
 	if (kid == vid) return 0;
-	if (interfaces::engineClient->GetPlayerForUserID(kid) != interfaces::engineClient->GetLocalPlayer()) return 0;
+	if (g_IEngine->GetPlayerForUserID(kid) != g_IEngine->GetLocalPlayer()) return 0;
 	char* msg = strfmt("%s", m_TextFile->GetLine(rand() % m_TextFile->GetLineCount()));
 	player_info_s info;
-	interfaces::engineClient->GetPlayerInfo(interfaces::engineClient->GetPlayerForUserID(vid), &info);
+	g_IEngine->GetPlayerInfo(g_IEngine->GetPlayerForUserID(vid), &info);
 	ReplaceString(msg, "%name%", info.name);
-	CachedEntity* ent = ENTITY(interfaces::engineClient->GetPlayerForUserID(vid));
+	CachedEntity* ent = ENTITY(g_IEngine->GetPlayerForUserID(vid));
 	int clz = g_pPlayerResource->GetClass(ent);
 	ReplaceString(msg, "%class%", (char*)tf_classes_killsay[clz]);
 	player_info_s infok;
-	interfaces::engineClient->GetPlayerInfo(interfaces::engineClient->GetPlayerForUserID(kid), &infok);
+	g_IEngine->GetPlayerInfo(g_IEngine->GetPlayerForUserID(kid), &infok);
 	ReplaceString(msg, "%killer%", (char*)infok.name);
 	ReplaceString(msg, "%team%", (char*)tf_teams_killsay[ent->m_iTeam - 2]);
 	ReplaceString(msg, "%myteam%", (char*)tf_teams_killsay[LOCAL_E->m_iTeam - 2]);
@@ -70,11 +70,11 @@ KillSay::KillSay() {
 	v_sFileName = new CatVar(CV_STRING, "killsay_file", "killsays.txt", "Killsay file (~/.cathook/)", NULL, "Killsay file name. Should be located in ~/.cathook folder.");
 	CreateConCommand("cat_killsay_reload", CC_KillSay_ReloadFile, "Reload KillSay");
 	m_TextFile = new TextFile(256, 1024);
-	interfaces::eventManager->AddListener(&m_Listener, "player_death", false);
+	g_IEventManager->AddListener(&m_Listener, "player_death", false);
 }
 
 KillSay::~KillSay() {
-	interfaces::eventManager->RemoveListener(&m_Listener);
+	g_IEventManager->RemoveListener(&m_Listener);
 }
 
 void KillSay::Reload() {

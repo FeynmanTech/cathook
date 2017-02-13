@@ -9,7 +9,7 @@
 #include "sdk.h"
 
 void LocalPlayer::Update() {
-	entity_idx = interfaces::engineClient->GetLocalPlayer();
+	entity_idx = g_IEngine->GetLocalPlayer();
 	entity = ENTITY(entity_idx);
 	if (CE_BAD(entity)) {
 		return;
@@ -24,7 +24,7 @@ void LocalPlayer::Update() {
 	this->bUseSilentAngles = false;
 	bZoomed = CE_INT(entity, netvar.iFOV) == 20; //!= NET_INT(entity, netvar.iDefaultFOV);
 	if (bZoomed) {
-		if (flZoomBegin == 0.0f) flZoomBegin = interfaces::gvars->curtime;
+		if (flZoomBegin == 0.0f) flZoomBegin = g_pGlobals->curtime;
 	} else {
 		flZoomBegin = 0.0f;
 	}

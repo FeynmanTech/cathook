@@ -33,14 +33,14 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		return ret;
 	}
 
-	if (!interfaces::engineClient->IsInGame()) {
+	if (!g_IEngine->IsInGame()) {
 		g_Settings.bInvalid = true;
 		return true;
 	}
 
 //	PROF_BEGIN();
 
-	INetChannel* ch = (INetChannel*)interfaces::engineClient->GetNetChannelInfo();
+	INetChannel* ch = (INetChannel*)g_IEngine->GetNetChannelInfo();
 	if (ch && !hooks::IsHooked((void*)((uintptr_t)ch))) {
 		hooks::hkNetChannel = new hooks::VMTHook();
 		hooks::hkNetChannel->Init(ch, 0);
@@ -53,10 +53,10 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	//if (!cmd) return ret;
 
 	bool time_replaced = false;
-	float curtime_old = interfaces::gvars->curtime;;
+	float curtime_old = g_pGlobals->curtime;;
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
-		float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * interfaces::gvars->interval_per_tick;
-		interfaces::gvars->curtime = servertime;
+		float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * g_pGlobals->interval_per_tick;
+		g_pGlobals->curtime = servertime;
 		time_replaced = true;
 	}
 	if (g_Settings.bInvalid) {
@@ -97,7 +97,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		SAFE_CALL(HACK_PROCESS_USERCMD(KillSay, cmd));
 		SAFE_CALL(HACK_PROCESS_USERCMD(Spam, cmd));
 //		PROF_END("Hacks processing");
-		if (time_replaced) interfaces::gvars->curtime = curtime_old;
+		if (time_replaced) g_pGlobals->curtime = curtime_old;
 	}
 	/*for (IHack* i_hack : hack::hacks) {
 		if (!i_hack->CreateMove(thisptr, inputSample, cmd)) {

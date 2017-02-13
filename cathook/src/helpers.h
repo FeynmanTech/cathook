@@ -42,7 +42,7 @@ extern FILE* hConVarsFile;
 void BeginConVars();
 void EndConVars();
 
-bool IsPlayerCritBoosted(CachedEntity* player);
+bool IsPlayerCritBoosted(CachedEntity* player); // TODO use CTFPlayerShared::IsCritBoosted()..
 bool IsPlayerInvulnerable(CachedEntity* player);
 bool IsPlayerInvisible(CachedEntity* player);
 

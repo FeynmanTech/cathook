@@ -52,7 +52,7 @@ bool AutoHeal::CanHeal(int idx) {
 	CachedEntity* ent = ENTITY(idx);
 	if (!ent) return false;
 	if (ent->m_Type != ENTITY_PLAYER) return false;
-	if (interfaces::engineClient->GetLocalPlayer() == idx) return false;
+	if (g_IEngine->GetLocalPlayer() == idx) return false;
 	if (!ent->m_bAlivePlayer) return false;
 	if (ent->m_bEnemy) return false;
 	if (ent->m_flDistance > 420) return false;
@@ -87,6 +87,6 @@ void AutoHeal::ProcessUserCmd(CUserCmd* cmd) {
 	GetHitbox(target, 7, out);
 	AimAt(g_pLocalPlayer->v_Eye, out, cmd);
 	if (v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
-	if (!m_iNewTarget && (interfaces::gvars->tickcount % 60)) cmd->buttons |= IN_ATTACK;
+	if (!m_iNewTarget && (g_pGlobals->tickcount % 60)) cmd->buttons |= IN_ATTACK;
 	return;
 }

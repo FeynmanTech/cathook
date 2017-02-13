@@ -24,8 +24,8 @@ Spam::Spam() {
 
 void Spam::ProcessUserCmd(CUserCmd*) {
 	if (!v_bSpam->GetBool()) return;
-	if (interfaces::gvars->curtime - m_fLastSpam < 0.8f) return;
-	if (interfaces::gvars->curtime < m_fLastSpam) m_fLastSpam = 0.0f;
+	if (g_pGlobals->curtime - m_fLastSpam < 0.8f) return;
+	if (g_pGlobals->curtime < m_fLastSpam) m_fLastSpam = 0.0f;
 	if (m_TextFile->GetLineCount() == 0) return;
 	if (m_iCurrentIndex >= m_TextFile->GetLineCount() || m_iCurrentIndex < 0) m_iCurrentIndex = 0;
 	char* spam = 0;
@@ -38,7 +38,7 @@ void Spam::ProcessUserCmd(CUserCmd*) {
 	g_pChatStack->Push(spam);
 	delete [] spam;
 	m_iCurrentIndex++;
-	m_fLastSpam = interfaces::gvars->curtime;
+	m_fLastSpam = g_pGlobals->curtime;
 	return;
 }
 

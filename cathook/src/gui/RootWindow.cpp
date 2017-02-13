@@ -77,7 +77,7 @@ void RootWindow::Setup() {
 	sl->Setup(10.0f, 150.0f);
 	sl->SetValue(13.37f);
 	sl->SetCallback([](CSlider* slider, float oldv, float newv) {
-		interfaces::cvar->FindVar(slider->Props()->GetString("cvar"))->SetValue(newv);
+		cvar->FindVar(slider->Props()->GetString("cvar"))->SetValue(newv);
 	});*/
 	/*sc1->AddChild(ccb1);
 //sc1->AddChild(new CTextLabel(sc1, "tl3", "wow"));

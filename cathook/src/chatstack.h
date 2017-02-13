@@ -11,16 +11,22 @@
 #define CHATSTACK_SIZE 32
 #define CHATSTACK_INTERVAL 0.8f
 
+#include "beforecheaders.h"
+#include <string>
+#include <stack>
+#include <functional>
+#include "aftercheaders.h"
+
 class ChatStack {
 public:
-	ChatStack();
-	~ChatStack();
+	typedef std::function<std::string(void)> MessageProviderFn_t;
+
 	void OnCreateMove();
 	void Reset();
-	void Push(const char* message);
-	const char* Pop();
-	int m_nStackDepth;
-	char* m_Buffer;
+
+	std::vector<MessageProviderFn_t> bottomProviders;
+	std::stack<std::string> stack;
+
 	float m_fLastSay;
 };
 
