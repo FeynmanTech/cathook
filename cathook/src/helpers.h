@@ -81,6 +81,9 @@ void ReplaceString(char* target, char* what, char* with_what);
 // TODO move that to weaponid.h
 bool IsAmbassador(CachedEntity* ent);
 
+template<typename... Args>
+std::string format(const Args&...);
+
 void Patch(void* address, void* patch, size_t length);
 
 void AimAt(Vector origin, Vector target, CUserCmd* cmd);

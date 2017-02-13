@@ -162,7 +162,7 @@ void ItemManager::RegisterSpecialMapping(ItemCheckerFn fn, k_EItemType type) {
 	special_map.emplace(fn, type);
 }
 
-k_EItemType ItemManager::GetItemType(CachedEntity* ent) {
+k_EItemType ItemManager::GetItemType(const CachedEntity* ent) {
 	for (const auto& it : specials) {
 		const auto type = it(ent);
 		if (type != ITEM_NONE) return type;
@@ -177,7 +177,7 @@ void ItemModelMapper::RegisterItem(std::string modelpath, k_EItemType type) {
 	models.emplace(modelpath, type);
 }
 
-k_EItemType ItemModelMapper::GetItemType(CachedEntity* entity) {
+k_EItemType ItemModelMapper::GetItemType(const CachedEntity* entity) {
 	const uintptr_t model = (uintptr_t)RAW_ENT(entity)->GetModel();
 	for (const auto& it : map) {
 		if (it.first == model) return it.second;

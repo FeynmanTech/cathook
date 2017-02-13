@@ -153,7 +153,7 @@ void LevelInit_hook(void* thisptr, const char* newmap) {
 	g_pChatStack->Reset();
 }
 
-bool CanInspect_hook(IClientEntity*) { return true; }
+bool CanInspect_hook(IClientEntity* ent) { logging::Info("caninspect? %s", ent->GetClientClass()->GetName()); return true; }
 
 void LevelShutdown_hook(void* thisptr) {
 	((LevelShutdown_t*) hooks::hkClientMode->GetMethod(hooks::offLevelShutdown))(thisptr);

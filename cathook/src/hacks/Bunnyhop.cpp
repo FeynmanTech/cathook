@@ -28,8 +28,12 @@ int iPerfectJumps = 0;
 void Bunnyhop::ProcessUserCmd(CUserCmd* cmd) {
 	m_bFakeLagFix = false;
 	if (!this->v_bEnabled->GetBool()) return;
-	if (HasCondition(g_pLocalPlayer->entity, TFCond_GrapplingHook)) return;
+
 	int flags = CE_INT(g_pLocalPlayer->entity, netvar.iFlags);
+	bool ground = (flags & (1 << 0));
+
+	if (HasCondition(g_pLocalPlayer->entity, TFCond_GrapplingHook)) return;
+
 
 	if (v_bAutoJump->GetBool()) {
 		Vector vel = CE_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity);
@@ -37,8 +41,6 @@ void Bunnyhop::ProcessUserCmd(CUserCmd* cmd) {
 			cmd->buttons |= IN_JUMP;
 		}
 	}
-
-	bool ground = (flags & (1 << 0));
 
 	if (!ground) {
 		if (v_bImperfect->GetBool()) {

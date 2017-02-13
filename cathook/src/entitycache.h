@@ -23,6 +23,7 @@ struct player_info_s;
 struct model_t;
 struct mstudiohitboxset_t;
 struct mstudiobbox_t;
+class ClientClass;
 
 #define MAX_STRINGS 16
 #define MAX_ENTITIES 2048
@@ -109,14 +110,27 @@ public:
 	~CachedEntity();
 
 	void Update(int idx);
-	void AddESPString(const char* string, ...);
+
+	// No longer friends with c-style strings.
+	// Now STL is my best friend.
+	void AddESPString(const std::string& string);
 	ESPStringCompound& GetESPString(int idx);
 
 	// Entity fields start here.
 
+	void ZeroFields();
+
 	EntityType m_Type;
 
+	k_EProjectile GetProjectileType() const;
+	k_EProjectile m_Projectile;
+	k_EBuilding GetBuildingType() const;
+	k_EBuilding m_Building;
+	k_EItemType GetItemType() const;
+	k_EItemType m_ItemType;
+
 	int m_iClassID;
+	ClientClass* m_pClass;
 	float m_flDistance;
 
 	bool m_bCritProjectile;
@@ -127,8 +141,6 @@ public:
 	bool IsVisible();
 
 	Vector m_vecOrigin;
-
-	k_EItemType m_ItemType;
 	int  m_iTeam;
 	bool m_bAlivePlayer;
 	bool m_bEnemy;

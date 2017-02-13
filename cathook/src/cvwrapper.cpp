@@ -34,18 +34,18 @@ std::string CatEnum::Name(int value) {
 	return "unknown";
 }
 
-int CatEnum::Maximum() {
+int CatEnum::Maximum() const {
 	return m_iMax;
 }
 
-int CatEnum::Minimum() {
+int CatEnum::Minimum() const {
 	return m_iMin;
 }
 
-bool CatVar::GetBool() { return m_pConVar->GetBool(); }
-int CatVar::GetInt() { return m_pConVar->GetInt(); }
-float CatVar::GetFloat() { return m_pConVar->GetFloat(); }
-const char* CatVar::GetString() { return m_pConVar->GetString(); }
+bool CatVar::GetBool() const { return m_pConVar->GetBool(); }
+int CatVar::GetInt() const { return m_pConVar->GetInt(); }
+float CatVar::GetFloat() const { return m_pConVar->GetFloat(); }
+const char* CatVar::GetString() const { return m_pConVar->GetString(); }
 
 void CatVar::SetValue(float value) {
 	m_pConVar->SetValue(value);

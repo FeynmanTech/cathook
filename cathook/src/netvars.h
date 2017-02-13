@@ -8,8 +8,6 @@
 #ifndef NETVARS_H_
 #define NETVARS_H_
 
-#include "logging.h"
-
 class IClientEntity;
 
 #define NET_VAR(entity, offset, type) \
@@ -28,19 +26,6 @@ class IClientEntity;
 	NET_VAR(entity, offset, Vector)
 
 typedef unsigned int offset_t;
-
-/*template<typename T>
-inline T GetVar(IClientEntity* ent, unsigned int offset) {
-	int nullv = 0;
-	if (ent == 0) return *(reinterpret_cast<T*>(&nullv));
-	//logging::Info("GetEntityValue 0x%08x, 0x%08x", ent, offset);
-	return *(reinterpret_cast<T*>((unsigned int)ent + offset));
-}
-
-template<typename T>
-void SetVar(IClientEntity* ent, unsigned int offset, T value) {
-	*(reinterpret_cast<T*>((unsigned int)ent + offset)) = value;
-}*/
 
 void InitNetVars();
 

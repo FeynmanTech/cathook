@@ -20,11 +20,9 @@ class IClientEntity;
 struct ESPStringCompound {
 	ESPStringCompound();
 	~ESPStringCompound();
-	char* m_String;
+	std::string m_string;
 	bool m_bColored;
 	int m_nColor;
-	//Color m_Color;
-	//Color m_Background;
 };
 
 namespace fonts {
@@ -67,8 +65,8 @@ int EntityF(CachedEntity* ent);
 
 void InitStrings();
 void ResetStrings();
-void AddCenterString(int fg, const char* fmt, ...);
-void AddSideString(int fg, const char* fmt, ...);
+void AddCenterString(int fg, const std::string& string);
+void AddSideString(int fg, const std::string& string);
 void DrawStrings();
 
 extern ESPStringCompound* g_pStringsSide;

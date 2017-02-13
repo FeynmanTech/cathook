@@ -35,8 +35,25 @@ const std::string tf2c_weapon_names[] = {
 	"PDA_ENGINEER", "BOTTLE_BROKEN", "TOOLBOX", "SYRINGE_PROJ",
 	"NAIL", "SYRINGE", "OVERHEALER" };
 
+const std::string powerup_names[] = {
+	"STRENGTH",
+	"RESISTANCE",
+	"VAMPIRE",
+	"REFLECT",
+	"HASTE",
+	"REGENERATION",
+	"PRECISION",
+	"AGILITY",
+	"KNOCKOUT",
+	"KING",
+	"PLAGUE",
+	"SUPERNOVA",
+	"CRITS"
+};
+
 enum k_EItemType {
-	ITEM_NONE = 0,
+	ITEM_UNKNOWN = -1,
+	ITEM_NONE,
 
 	ITEM_HEALTH_SMALL,
 	ITEM_HEALTH_MEDIUM,
@@ -154,7 +171,7 @@ typedef k_EItemType(*ItemSpecialMapperFn)(CachedEntity*);
 class ItemModelMapper {
 public:
 	void RegisterItem(std::string modelpath, k_EItemType type);
-	k_EItemType GetItemType(CachedEntity* entity);
+	k_EItemType GetItemType(const CachedEntity* entity);
 
 	std::map<std::string, k_EItemType> models;
 	std::map<uintptr_t, k_EItemType> map;
@@ -165,7 +182,7 @@ public:
 	ItemManager();
 	void RegisterModelMapping(std::string path, k_EItemType type);
 	void RegisterSpecialMapping(ItemCheckerFn fn, k_EItemType type);
-	k_EItemType GetItemType(CachedEntity* ent);
+	k_EItemType GetItemType(const CachedEntity* ent);
 
 	std::map<ItemCheckerFn, k_EItemType> special_map;
 	std::vector<ItemSpecialMapperFn> specials;

@@ -15,6 +15,23 @@ enum EntityType {
 	ENTITY_PROJECTILE
 };
 
+enum k_EProjectile {
+	PROJ_UNKNOWN = -1,
+	PROJ_NONE,
+	PROJ_ARROW,
+	PROJ_STICKY,
+	PROJ_PIPE,
+	PROJ_ROCKET
+};
+
+enum k_EBuilding {
+	BUILD_UNKNOWN = -1,
+	BUILD_NONE,
+	BUILD_SENTRYGUN,
+	BUILD_DISPENSER,
+	BUILD_TELEPORTER
+};
+
 enum powerup_type {
 	not_powerup = -1,
 	strength,

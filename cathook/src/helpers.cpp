@@ -659,9 +659,25 @@ bool CanHeadshot() {
 }
 
 bool CanShoot() {
+	if (CE_BAD(LOCAL_E) || CE_BAD(LOCAL_W)) return false;
 	float tickbase = (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick;
 	float nextattack = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack);
 	return nextattack <= tickbase;
+}
+
+void format_internal(std::stringstream& stream) {}
+
+template<typename T, typename... Targs>
+void format_internal(std::stringstream& stream, T value, Targs... args) {
+	stream << value;
+	format_internal(stream, args...);
+}
+
+template<typename... Args>
+std::string format(const Args&... args) {
+	std::stringstream stream;
+	format_internal(stream, args...);
+	return stream.str();
 }
 
 QAngle VectorToQAngle(Vector in) {
@@ -819,22 +835,6 @@ char* strfmt(const char* fmt, ...) {
 	va_end(list);
 	return buf;
 }
-
-const char* powerups[] = {
-	"STRENGTH",
-	"RESISTANCE",
-	"VAMPIRE",
-	"REFLECT",
-	"HASTE",
-	"REGENERATION",
-	"PRECISION",
-	"AGILITY",
-	"KNOCKOUT",
-	"KING",
-	"PLAGUE",
-	"SUPERNOVA",
-	"CRITS"
-};
 
 uint32 friends[256];
 uint32 rage[256];

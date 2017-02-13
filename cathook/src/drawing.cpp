@@ -24,22 +24,9 @@ void ResetStrings() {
 	g_nStringsCenter = 0;
 }
 
-void AddSideString(int fg, const char* fmt, ...) {
-	if (!g_pStringsSide) return;
-	if (g_pStringsSide[g_nStringsSide].m_String) {
-		delete g_pStringsSide[g_nStringsSide].m_String;
-	}
-	char* buffer = new char[1024]();
-	va_list list;
-	va_start(list, fmt);
-	vsprintf(buffer, fmt, list);
-	va_end(list);
-	if (g_nStringsSide >= 32) {
-		logging::Info("Can't attach more than %i strings to an entity", 32);
-		return;
-	}
+void AddSideString(int fg, const std::string& string) {
 	g_pStringsSide[g_nStringsSide].m_nColor = fg;
-	g_pStringsSide[g_nStringsSide].m_String = buffer;
+	g_pStringsSide[g_nStringsSide].m_string = string;
 	g_pStringsSide[g_nStringsSide].m_bColored = true;
 	g_nStringsSide++;
 }
@@ -48,12 +35,12 @@ void DrawStrings() {
 	int y = 8;
 	for (int i = 0; i < g_nStringsSide; i++) {
 		//draw::DrawString(8, y, g_pStringsSide[i].m_Color, g_pStringsSide[i].m_Background, false, g_pStringsSide[i].m_String);
-		draw::String(fonts::ESP, 8, y, g_pStringsSide[i].m_nColor, 2, g_pStringsSide[i].m_String);
+		draw::String(fonts::ESP, 8, y, g_pStringsSide[i].m_nColor, 2, g_pStringsSide[i].m_string);
 		y += 14;
 	}
 	y = draw::height / 2;
 	for (int i = 0; i < g_nStringsCenter; i++) {
-		draw::String(fonts::ESP, draw::width / 2, y, g_pStringsCenter[i].m_nColor, 2, g_pStringsCenter[i].m_String);
+		draw::String(fonts::ESP, draw::width / 2, y, g_pStringsCenter[i].m_nColor, 2, g_pStringsCenter[i].m_string);
 		y += 14;
 	}
 }
@@ -62,21 +49,9 @@ ESPStringCompound::~ESPStringCompound() {
 	//if (m_String) delete [] m_String;
 }
 
-void AddCenterString(int fg, const char* fmt, ...) {
-	if (g_pStringsCenter[g_nStringsCenter].m_String) {
-		delete g_pStringsCenter[g_nStringsCenter].m_String;
-	}
-	char* buffer = new char[1024]();
-	va_list list;
-	va_start(list, fmt);
-	vsprintf(buffer, fmt, list);
-	va_end(list);
-	if (g_nStringsCenter >= 32) {
-		logging::Info("Can't attach more than %i strings to an entity", 32);
-		return;
-	}
+void AddCenterString(int fg, const std::string& string) {
 	g_pStringsCenter[g_nStringsCenter].m_nColor = fg;
-	g_pStringsCenter[g_nStringsCenter].m_String = buffer;
+	g_pStringsCenter[g_nStringsCenter].m_string = string;
 	g_pStringsCenter[g_nStringsCenter].m_bColored = true;
 	g_nStringsCenter++;
 }
@@ -261,7 +236,6 @@ void draw::DrawRect(int x, int y, int w, int h, int color) {
 }
 
 ESPStringCompound::ESPStringCompound() {
-	m_String = nullptr;
 	m_bColored = false;
 	m_nColor = colors::white;
 }

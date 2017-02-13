@@ -11,8 +11,10 @@
 #include "hookedmethods.h"
 #include "../gui/GUI.h"
 #include "../segvcatch/segvcatch.h"
+#include "../profiler.h"
 
 void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
+
 #if DEBUG_SEGV == true
 	if (!segvcatch::handler_fpe || !segvcatch::handler_segv) {
 		segvcatch::init_segv();
@@ -33,6 +35,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 
 
 	if (call_default) SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
+	PROF_SECTION(PaintTraverse, "PaintTraverse");
 	if (vp == panel_top) draw_flag = true;
 	if (!g_Settings.bHackEnabled->GetBool()) return;
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.
@@ -136,11 +139,11 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 				int color = str.m_bColored ? str.m_nColor : ce->m_ESPColorFG;
 				//logging::Info("drawing [idx=%i][ns=%i] %s", i, ce->m_nESPStrings, str.m_String);
 				if (!ce->m_ESPOrigin.IsZero(1.0)) {
-					draw::String(fonts::ESP, ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, color, 2, str.m_String);
+					draw::String(fonts::ESP, ce->m_ESPOrigin.x, ce->m_ESPOrigin.y, color, 2, str.m_string);
 					ce->m_ESPOrigin.y += 12;
 				} else {
-					auto l = draw::GetStringLength(fonts::ESP, std::string(str.m_String));
-					draw::String(fonts::ESP, screen.x - l.first / 2, screen.y, color, 2, str.m_String);
+					auto l = draw::GetStringLength(fonts::ESP, std::string(str.m_string));
+					draw::String(fonts::ESP, screen.x - l.first / 2, screen.y, color, 2, str.m_string);
 					screen.y += 11;
 				}
 			}

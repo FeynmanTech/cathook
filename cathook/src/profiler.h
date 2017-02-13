@@ -8,23 +8,43 @@
 #ifndef PROFILER_H_
 #define PROFILER_H_
 
-#include <time.h>
+#include "beforecheaders.h"
+#include <chrono>
+#include <string>
+#include "aftercheaders.h"
 
-// TODO this whole profiler thing could be done a lot better..
+class ProfilerNode;
 
-#define ENABLE_PROFILER false
-#define PROFILER_OUTPUT_DEPTH 7
-#define MAX_PROFILER_SECTIONS 16
+class ProfilerSection {
+public:
+	ProfilerSection(std::string name);
 
-#if ENABLE_PROFILER == true
-#define PROF_BEGIN() PROFILER_BeginSection()
-#define PROF_END(X) PROFILER_EndSection(X)
+	void OnNodeDeath(ProfilerNode& node);
+
+	std::chrono::nanoseconds m_min;
+	std::chrono::nanoseconds m_max;
+	std::chrono::nanoseconds m_sum;
+	unsigned m_calls;
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_log;
+	std::string m_name;
+};
+
+class ProfilerNode {
+public:
+	ProfilerNode(ProfilerSection& section);
+	~ProfilerNode();
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
+	ProfilerSection& m_section;
+};
+
+#define ENABLE_PROFILER true
+#if ENABLE_PROFILER
+#define PROF_SECTION(id, name) \
+	static ProfilerSection __PROFILER__##id(name); \
+	ProfilerNode __PROFILER_NODE__##id(__PROFILER__##id);
 #else
-#define PROF_BEGIN(X)
-#define PROF_END(X)
+#define PROF_SECTION(x)
 #endif
-
-void PROFILER_BeginSection();
-void PROFILER_EndSection(char* name);
 
 #endif /* PROFILER_H_ */

@@ -12,10 +12,12 @@
 	g_ph##x = new x()
 
 #define HACK_PROCESS_USERCMD(x, y) \
-	g_ph##x->ProcessUserCmd(y)
+	{ PROF_SECTION(x, "CreateMove@" #x); \
+	g_ph##x->ProcessUserCmd(y); }
 
 #define HACK_DRAW(x) \
-	g_ph##x->Draw()
+	{ PROF_SECTION(x, "PaintTraverse@" #x); \
+	g_ph##x->Draw(); }
 
 #define LEVEL_INIT(x) \
 	g_ph##x->OnLevelInit()

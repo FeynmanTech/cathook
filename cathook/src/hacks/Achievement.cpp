@@ -6,7 +6,10 @@
  */
 
 #include "Achievement.h"
+
 #include "../common.h"
+#include "../helpers.h"
+
 #include "../sdk.h"
 
 DEFINE_HACK_SINGLETON(AchievementHack);

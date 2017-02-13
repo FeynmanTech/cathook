@@ -9,6 +9,8 @@
 #include "../common.h"
 #include "../sdk.h"
 
+#include "../hooks.h"
+
 void BeginFrame_hook(IStudioRender* _this) {
 	((BeginFrame_t*)hooks::hkStudioRender->GetMethod(hooks::offBeginFrame))(_this);
 }

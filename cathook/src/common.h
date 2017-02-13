@@ -10,9 +10,9 @@
 
 #include "beforecheaders.h"
 #include <vector>
-
 #include "aftercheaders.h"
-#include "drawing.h"
+
+/*#include "drawing.h"
 #include "entitycache.h"
 #include "enums.h"
 #include "globals.h"
@@ -42,7 +42,7 @@
 
 #include "drm.h"
 
-#include "sdk.h"
+#include "sdk.h"*/
 
 #define TF2C (g_AppID == 243750)
 #define TF2  (g_AppID == 440)
@@ -64,6 +64,10 @@
 #define SVDBG(...) logging::Info(__VA_ARGS__)
 #else
 #define SVDBG(...)
+#endif
+
+#ifndef PI
+#define PI 3.14159265358979323846f
 #endif
 
 #ifndef DEG2RAD
@@ -107,11 +111,5 @@
 #define SAFE_CALL(x) x
 
 #endif
-
-/*#define ADD_HACK(x) \
-	hack::AddHack(g_ph##x = new x());
-
-#define CREATE_MOVE(x) \
-	g_ph##x->CreateMove(thisptr, inputSample, cmd)*/
 
 #endif /* COMMON_H_ */

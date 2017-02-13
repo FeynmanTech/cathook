@@ -342,6 +342,7 @@ Misc::Misc() {
 	v_bFastCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fast crouch");
 	v_bFlashlightSpam = new CatVar(CV_SWITCH, "flashlight_spam", "0", "Flashlight Spam", NULL, "Quickly turns flashlight on and off");
 	v_iFakeLag = new CatVar(CV_INT, "fakelag", "0", "Fakelag", NULL, "# of packets jammed", true, 25.0f);
+	v_bSuppressCrits = new CatVar(CV_SWITCH, "suppresscrits", "0", "Suppress Crits", NULL, "Suppress non-forced random crits to save the bucket");
 	c_Unrestricted = CreateConCommand(CON_PREFIX "cmd", CC_Unrestricted, "Execute a ConCommand");
 	c_SaveSettings = CreateConCommand(CON_PREFIX "save", CC_SaveConVars, CON_PREFIX "save [file]\nSave settings to cfg/cat_[file].cfg, file is lastcfg by default\n");
 	//v_bDumpEventInfo = CreateConVar(CON_PREFIX "debug_event_info", "0", "Show event info");
@@ -352,6 +353,7 @@ Misc::Misc() {
 	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	if (TF2) c_Schema = CreateConCommand(CON_PREFIX "schema", CC_Misc_Schema, "Load item schema");
 	if (TF) v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "???", NULL, "???");
+	//if (TF2) v_bHookInspect = new CatVar(CV_SWITCH, "hook_inspect", "0", "Hook inspect (!)", NULL, "Can't be turned off! Use with caution!");
 	//if (TF2) v_bHookInspect = new CatVar(CV_SWITCH, "hook_inspect", "0", "Hook CanInspect", NULL, "Once enabled, can't be turned off. cathook can't be unloaded after enabling it");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }
@@ -398,90 +400,126 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 			uintptr_t* vtable = *(uintptr_t**)(RAW_ENT(LOCAL_W));
 			if (vtable[offCanInspect] != (uintptr_t)CanInspect_hook) {
 				uintptr_t patch = (uintptr_t)CanInspect_hook;
-				Patch((void*)((uintptr_t)vtable + offCanInspect * 4), &patch, 4);
+				logging::Info("0x%08x 0x%08x 0x%08x", CanInspect_hook, patch, &patch);
+				Patch((void*)((uintptr_t)vtable + (offCanInspect) * 4), &patch, 4);
 				//vtable[offCanInspect] = (uintptr_t*)CanInspect_hook;
 			}
 			//logging::Info("%i", vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), offCanInspect, 0)(RAW_ENT(LOCAL_W)));
 		}
-	}
-*/
+	}*/
+
 	if (TF2C && v_bTauntSlide->GetBool())
 		RemoveCondition(LOCAL_E, TFCond_Taunting);
 
+	bool crit = false;
+
 	static ConVar* criticals = interfaces::cvar->FindVar("tf_weapon_criticals");
-	if (CE_GOOD(LOCAL_W) && TF && v_bCritHack->GetBool() && criticals->GetBool()) {
+	if (CE_GOOD(LOCAL_W) && TF && criticals->GetBool()) {
 		IClientEntity* weapon = RAW_ENT(LOCAL_W);
 		if (TF2C) {
 			if (vfunc<bool(*)(IClientEntity*)>(weapon, 1824 / 4, 0)(weapon)) {
 				static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 56 53 83 EC 10 8B 5D 08 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 59 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 4A A1 ? ? ? ? 8B 40 04 3B 83 A8 09 00 00 74 3A");
 				typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
 				CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
-				if (cmd->buttons & IN_ATTACK) {
-					*(float*)((uintptr_t)weapon + 2468ul) = 0.0f;
-					int tries = 0;
-					static int lcmdn = 0;
-					bool crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-					static int& seed = *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul);
-					bool cmds = false;
-					seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
+				*(float*)((uintptr_t)weapon + 2468ul) = 0.0f;
+				int tries = 0;
+				static int lcmdn = 0;
+				crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
+				static int& seed = *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul);
+				bool cmds = false;
+				seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
+				RandomSeed(seed);
+				CIACFn(RAW_ENT(LOCAL_W));
+				crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
+				/*while (!crit && (tries < 200)) {
+					*(int*)(weapon + 2472) = 0;
+					seed = MD5_PseudoRandom(++lcmdn) & 0x7fffffff;
+					tries++;
 					RandomSeed(seed);
 					CIACFn(RAW_ENT(LOCAL_W));
 					crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-					/*while (!crit && (tries < 200)) {
-						*(int*)(weapon + 2472) = 0;
-						seed = MD5_PseudoRandom(++lcmdn) & 0x7fffffff;
-						tries++;
-						RandomSeed(seed);
-						CIACFn(RAW_ENT(LOCAL_W));
-						crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-						cmds = true;
-					}*/
-					if (!crit) cmd->buttons &= ~IN_ATTACK;
-					else {
-						/*logging::Info("Got crit at CMD # %i", lcmdn);
-						if (cmds) {
-							cmd->command_number = lcmdn;
-							cmd->random_seed = MD5_PseudoRandom(lcmdn) & 0x7fffffff;
-						}*/
-					}
-					//logging::Info("Seed: %i", seed);
-					/*while (!crit && tries < 50) {
-						tries++;
-						//crit = (vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1764 / 4, 0))(RAW_ENT(LOCAL_W));
-					}*/
-				}
+					cmds = true;
+				}*/
+				//logging::Info("Seed: %i", seed);
+				/*while (!crit && tries < 50) {
+					tries++;
+					//crit = (vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1764 / 4, 0))(RAW_ENT(LOCAL_W));
+				}*/
 			}
 		} else if (TF2) {
 			if (vfunc<bool(*)(IClientEntity*)>(weapon, 1944 / 4, 0)(weapon)) {
 				static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 ? ? ? ? 8B 40 04");
 				typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
 				CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
-				if (cmd->buttons & IN_ATTACK) {
 					//*(float*)((uintptr_t)weapon + 2468ul) = 0.0f;
 					//bool crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2830ul);
-					*(float*)(weapon + 2612ul) = 1000.0f;
+				if (cmd->command_number) {
+					int tries = 0;
+					static int cmdn = 0;
+					crit = false;
+					bool chc = false;
+					if (false) {
+						while (!crit && (tries < 4000)) {
+							cmdn++;
+							tries++;
+							int md5seed = MD5_PseudoRandom(cmdn) & 0x7fffffff;
+							int rseed = md5seed;//*(int*)(weapon + 52ul);
+							int& a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x1F6D4A8);
+							a = md5seed;
+							int c = LOCAL_W->m_IDX << 8;
+							int b = LOCAL_E->m_IDX;
+							rseed = rseed ^ (b | c);
+							*(float*)(weapon + 2856ul) = 0.0f;
+							RandomSeed(rseed);
+							crit = vfunc<bool(*)(IClientEntity*)>(weapon, 1836 / 4, 0)(weapon);
+						}
+					} else {
+						int md5seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
+						int rseed = md5seed;
+						int& a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x1F6D4A8);
+						a = md5seed;
+						int c = LOCAL_W->m_IDX << 8;
+						int b = LOCAL_E->m_IDX;
+						rseed = rseed ^ (b | c);
+						*(float*)(weapon + 2856ul) = 0.0f;
+						RandomSeed(rseed);
+						crit = vfunc<bool(*)(IClientEntity*)>(weapon, 1836 / 4, 0)(weapon);
+					}
+
+					//if (!crit) cmd->buttons &= ~IN_ATTACK;
+					//else {
+						/*logging::Info("found crit at cmd # %i # %i # %i", cmdn, cmd->command_number, tries);
+						if (chc) {
+							cmd->random_seed = MD5_PseudoRandom(cmdn) & 0x7fffffff;
+							cmd->command_number = cmdn;
+						}*/
+					//}
+					/*float bucket = *(float*)(weapon + 2612ul);
 					int md5seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
 					int rseed = md5seed;
-					int a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x1F6D4A8);
-					int b = vfunc<int(*)(IClientEntity*)>(RAW_ENT(LOCAL_E), 316 / 4, 0)(RAW_ENT(LOCAL_E));
-					int c = vfunc<int(*)(IClientEntity*)>(weapon, 316 / 4, 0)(weapon) << 8;
-					rseed = a ^ (b | c);
+					int& a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x1F6D4A8);
+					a = md5seed;
+					int c = LOCAL_W->m_IDX << 8;
+					int b = LOCAL_E->m_IDX;
+					rseed = rseed ^ (b | c);
+					*(float*)(weapon + 2856ul) = 0.0f;
 					RandomSeed(rseed);
-					//static int tries = 0;
-					//if (tries > 20) tries = 0;
-					//for (int i = 0; i < tries; i++) RandomInt(0, 10);
-
-					CIACFn(weapon);
-					//logging::Info("%i", *(unsigned char*)(weapon + 2830));
-					//tries++;
-					unsigned char crit = *(unsigned char*)(weapon + 2830);
-					if (crit == 0) cmd->buttons &= ~IN_ATTACK;
-					else {
-						//logging::Info("Try: %i");
-					}
+					bool cancrit = vfunc<bool(*)(IClientEntity*)>(weapon, 1836 / 4, 0)(weapon);
+					if (!cancrit) {
+						cmd->buttons &= ~IN_ATTACK;
+					}*/
 				}
 			}
 		}
+	}
+
+	if (v_bSuppressCrits->GetBool() && !v_bCritHack->GetBool()) {
+		if (crit) {
+			cmd->buttons &= ~IN_ATTACK;
+			//logging::Info("suppressing crit");
+		}
+	} else if (v_bCritHack->GetBool()) {
+		if (!crit) cmd->buttons &= ~IN_ATTACK;
 	}
 
 	/*f (TF && v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
@@ -586,7 +624,23 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 }
 
 void Misc::Draw() {
+	if (v_bCritHack->GetBool()) {
+		AddCenterString(colors::red, "FORCED CRITS: ON");
+	}
+	if (v_bDebugCrits->GetBool() && CE_GOOD(LOCAL_W)) {
+		if (TF2) {
+			if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465, 0)(RAW_ENT(LOCAL_W)))
+				AddCenterString(colors::white, "Random crits are disabled");
+			else {
+				if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465 + 21, 0)(RAW_ENT(LOCAL_W)))
+					AddCenterString(colors::white, "Weapon can't randomly crit");
+				else
+					AddCenterString(colors::white, "Weapon can randomly crit");
+			}
+			AddCenterString(colors::white, "Bucket: %.2f", *(float*)((uintptr_t)RAW_ENT(LOCAL_W) + 2612u));
+		}
 
+	}
 	if (!v_bDebugInfo->GetBool())return;
 	/*if (!interfaces::input->IsButtonDown(ButtonCode_t::KEY_F)) {
 		interfaces::baseClient->IN_ActivateMouse();
@@ -594,21 +648,9 @@ void Misc::Draw() {
 		interfaces::baseClient->IN_DeactivateMouse();
 	}*/
 
+
 		if (CE_GOOD(g_pLocalPlayer->weapon())) {
-			if (v_bDebugCrits->GetBool()) {
-				if (TF2) {
-					if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465, 0)(RAW_ENT(LOCAL_W)))
-						AddCenterString(colors::white, "Random crits are disabled");
-					else {
-						if (!vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 465 + 21, 0)(RAW_ENT(LOCAL_W)))
-							AddCenterString(colors::white, "Weapon can't randomly crit");
-						else
-							AddCenterString(colors::white, "Weapon can randomly crit");
-					}
-				}
 
-
-			}
 			AddSideString(colors::white, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
 			//AddSideString(colors::white, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
 			//AddSideString(colors::white, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * interfaces::gvars->interval_per_tick);
@@ -630,9 +672,24 @@ void Misc::Draw() {
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
 			AddSideString(colors::white, "CIAC: %i", *(bool*)(RAW_ENT(LOCAL_W) + 2380));
-			if (TF2) AddSideString(colors::white, "Melee: %i", vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1860 / 4, 0)(RAW_ENT(LOCAL_W)));
+			//if (TF2) AddSideString(colors::white, "Melee: %i", vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1860 / 4, 0)(RAW_ENT(LOCAL_W)));
 			if (TF2) AddSideString(colors::white, "Last CIAC: %.2f", lastcheck);
 			if (TF2) AddSideString(colors::white, "Bucket: %.2f", *(float*)((uintptr_t)RAW_ENT(LOCAL_W) + 2612u));
+
+			if (TF2) {
+				uintptr_t weapon = (uintptr_t)RAW_ENT(LOCAL_W);
+				uintptr_t owner = (uintptr_t)RAW_ENT(LOCAL_E);
+				AddSideString(colors::white, "v #+726 %i", vfunc<int(*)(uintptr_t)>((void*)owner, 736 / 4, 0)(owner));
+				AddSideString(colors::white, "v $+1944 %i", vfunc<int(*)(uintptr_t, int)>((void*)weapon, 1944 / 4, 0)(weapon, 0));
+				AddSideString(colors::white, "i $+2812 %i", *(int*)(weapon + 2812ul));
+				AddSideString(colors::white, "i $+2824 %i", *(int*)(weapon + 2824ul));
+				AddSideString(colors::white, "i $+2856 %i", *(int*)(weapon + 2856ul));
+				AddSideString(colors::white, "i $+2856 %i", *(int*)(weapon + 2616ul)); // shoot count
+				AddSideString(colors::white, "c $+? %hhu", *(unsigned char*)(*(int*)(weapon + 2824ul) + (*(int*)(weapon + 2812ul) << 6) + 1844));
+				AddSideString(colors::white, "c $+? %.2f", *(float*)(*(int*)(weapon + 2824ul) + (*(int*)(weapon + 2812ul) << 6) + 1804));
+				AddSideString(colors::white, "f $+2872 %.2f", *(float*)(weapon + 2872ul));
+				AddSideString(colors::white, "f $+2860 %.2f", *(float*)(weapon + 2860ul));
+			}
 			//if (TF2C) AddSideString(colors::white, "Seed: %i", *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul));
 			//AddSideString(colors::white, "IsZoomed: %i", g_pLocalPlayer->bZoomed);
 			//AddSideString(colors::white, "CanHeadshot: %i", CanHeadshot());

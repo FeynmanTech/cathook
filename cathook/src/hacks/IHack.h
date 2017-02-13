@@ -28,13 +28,7 @@ x* g_ph##x = 0;
 class IHack {
 public:
 	inline virtual ~IHack() {};
-	// Deprecated
-	/*
-	inline virtual void PaintTraverse(void*, unsigned int, bool, bool) {};
-	inline virtual bool CreateMove(void*, float, CUserCmd*) { return true; };
-	inline virtual void LevelInit(const char*) {};
-	inline virtual void LevelShutdown() {};
-	*/
+
 	inline virtual void Draw() {};
 	inline virtual void ProcessUserCmd(CUserCmd*) {};
 	inline virtual void OnLevelInit() {};

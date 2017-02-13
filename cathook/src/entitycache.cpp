@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "sdk.h"
+#include "profiler.h"
 
 #include <time.h>
 
@@ -74,8 +75,6 @@ void CachedEntity::Update(int idx) {
 	}*/
 	m_vecOrigin = origin;
 
-	m_ItemType = ITEM_NONE;
-
 	m_bGrenadeProjectile = false;
 	m_bBonesSetup = false;
 
@@ -112,7 +111,6 @@ void CachedEntity::Update(int idx) {
 			   m_iClassID == g_pClassID->CTFProjectile_Flare) {
 		m_Type = EntityType::ENTITY_PROJECTILE;
 	} else {
-		m_ItemType = g_ItemManager.GetItemType(this);
 		m_Type = EntityType::ENTITY_GENERIC;
 	}
 
@@ -183,6 +181,7 @@ void CachedEntity::Update(int idx) {
 }
 
 bool CachedEntity::IsVisible() {
+	PROF_SECTION(entityvischeck, "VisChecking");
 	long p_begin = gECP.CurrentTime();
 	if (m_bVisCheckComplete) return m_bAnyHitboxVisible;
 
@@ -213,33 +212,14 @@ bool CachedEntity::IsVisible() {
 	return false;
 }
 
-void CachedEntity::AddESPString(const char* fmt, ...) {
-	if (m_Strings[m_nESPStrings].m_String) {
-		delete m_Strings[m_nESPStrings].m_String;
-	}
+void CachedEntity::AddESPString(const std::string& string) {
 	m_Strings[m_nESPStrings].m_bColored = false;
-	char* buffer = new char[1024]();
-	va_list list;
-	va_start(list, fmt);
-	vsprintf(buffer, fmt, list);
-	va_end(list);
-	if (m_nESPStrings >= MAX_STRINGS) {
-		logging::Info("Can't attach more than %i strings to an entity", MAX_STRINGS);
-		return;
-	}
-	if (m_nESPStrings < 0) {
-		logging::Info("Invalid string count !!!");
-		return;
-	}
-	m_Strings[m_nESPStrings].m_String = buffer;
-	//logging::Info("String: %s", m_Strings[m_nESPStrings].m_String);
+	m_Strings[m_nESPStrings].m_string = string;
 	m_nESPStrings++;
 }
 
 ESPStringCompound& CachedEntity::GetESPString(int idx) {
-	//if (idx >= 0 && idx < m_nESPStrings) {
 	return m_Strings[idx];
-
 }
 
 matrix3x4_t* CachedEntity::GetBones() {
@@ -318,6 +298,48 @@ void EntityCacheProfiling::DoLog() {
 		logging::Info("[ECP] MAX: U:%lu | H:%lu | V:%lu", m_DataMax[ECPNodes::ECPN_UPDATE], m_DataMax[ECPNodes::ECPN_HITBOX_UPDATE], m_DataMax[ECPNodes::ECPN_UPDATE]);
 		m_nLastLog = time(0);
 	}
+}
+
+k_EItemType CachedEntity::GetItemType() const {
+	if (m_ItemType == ITEM_UNKNOWN) {
+		m_ItemType = g_ItemManager.GetItemType(this);
+	}
+	return m_ItemType;
+}
+
+k_EBuilding CachedEntity::GetBuildingType() const {
+	if (m_Building == BUILD_UNKNOWN) {
+		m_Building = BUILD_NONE;
+		int clazz = m_iClassID;
+		if (clazz == g_pClassID->CObjectDispenser)
+			m_Building = BUILD_DISPENSER;
+		else if (clazz == g_pClassID->CObjectSentrygun)
+			m_Building = BUILD_SENTRYGUN;
+		else if (clazz == g_pClassID->CObjectTeleporter)
+			m_Building = BUILD_TELEPORTER;
+	}
+	return m_Building;
+}
+
+// TODO add more types!
+k_EProjectile CachedEntity::GetProjectileType() const {
+	if (m_Projectile == PROJ_UNKNOWN) {
+		m_Projectile = PROJ_NONE;
+		int clazz = m_iClassID;
+		if (clazz == g_pClassID->CTFProjectile_Rocket ||
+			clazz == g_pClassID->CTFProjectile_SentryRocket) {
+			m_Projectile = PROJ_ROCKET;
+		} else if (clazz == g_pClassID->CTFProjectile_Arrow) {
+			m_Projectile = PROJ_ARROW;
+		} else if (clazz == g_pClassID->CTFGrenadePipebombProjectile) {
+			if (CE_INT(this, netvar.iPipeType) == 0) {
+				m_Projectile = PROJ_PIPE;
+			} else {
+				m_Projectile = PROJ_STICKY;
+			}
+		}
+	}
+	return m_Projectile;
 }
 
 CachedEntity* EntityCache::GetEntity(int idx) {

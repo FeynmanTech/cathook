@@ -10,8 +10,24 @@
 
 #include "IHack.h"
 
+#include "../beforecheaders.h"
+#include <functional>
+#include <vector>
+#include "../aftercheaders.h"
+
 class ConVar;
 class CachedEntity;
+
+class ESPEntityProcessor {
+public:
+	typedef std::function<bool(CachedEntity*)> ValidatorFn_t;
+	typedef std::function<bool(CachedEntity*)> ProcessorFn_t;
+
+	ESPEntityProcessor(ValidatorFn_t, ProcessorFn_t);
+
+	bool Validate(CachedEntity* ent);
+	bool Process(CachedEntity* ent);
+};
 
 class ESP : public IHack {
 public:
@@ -19,6 +35,10 @@ public:
 
 	virtual void ProcessUserCmd(CUserCmd*) override;
 	virtual void Draw() override;
+
+	void CreateProcessors();
+	void AddProcessor(ESPEntityProcessor processor);
+	std::vector<ESPEntityProcessor> m_processors;
 
 	void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax);
 	void ProcessEntity(CachedEntity* ent);

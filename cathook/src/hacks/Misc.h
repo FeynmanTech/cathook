@@ -32,6 +32,7 @@ public:
 	CatVar* v_bHookInspect;
 	CatVar* v_iFakeLag;
 	CatVar* v_bCritHack;
+	CatVar* v_bSuppressCrits;
 	CatVar* v_bTauntSlide;
 	//ConVar* v_bDumpEventInfo;
 	ConCommand* c_SaveSettings;
