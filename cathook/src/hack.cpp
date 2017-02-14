@@ -158,7 +158,7 @@ void hack::Initialize() {
 	gNetvars.init();
 	InitNetVars();
 
-	g_pLocalPlayer = new LocalPlayer();
+	g_LocalPlayer = new LocalPlayer();
 	g_pPlayerResource = new TFPlayerResource();
 
 	hooks::hkPanel = new hooks::VMTHook();

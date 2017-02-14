@@ -15,12 +15,12 @@ DEFINE_HACK_SINGLETON(AutoReflect);
 bool AutoReflect::ShouldReflect(CachedEntity* ent) {
 	if (CE_BAD(ent)) return false;
 	if (ent->m_Type != ENTITY_PROJECTILE) return false;
-	if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team) return false;
+	if (CE_INT(ent, netvar.iTeamNum) == g_LocalPlayer->team) return false;
 	// If projectile is already deflected, don't deflect it again.
 	if (CE_INT(ent, (ent->m_bGrenadeProjectile ?
 			/* NetVar for grenades */ netvar.Grenade_iDeflected :
 			/* For rockets */ netvar.Rocket_iDeflected))) return false;
-	if (ent->m_iClassID == g_pClassID->CTFGrenadePipebombProjectile) {
+	if (ent->clazz == g_pClassID->CTFGrenadePipebombProjectile) {
 		if (CE_INT(ent, netvar.iPipeType) == 1) {
 			if (!v_bReflectStickies->GetBool()) return false;
 		}
@@ -39,9 +39,9 @@ AutoReflect::AutoReflect() {
 // TODO
 void AutoReflect::ProcessUserCmd(CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return;
-	if (CE_BAD(g_pLocalPlayer->weapon()) || CE_BAD(g_pLocalPlayer->entity)) return;
-	if (g_pLocalPlayer->life_state) return;
-	if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFFlameThrower) return;
+	if (CE_BAD(g_LocalPlayer->weapon()) || CE_BAD(g_LocalPlayer->entity)) return;
+	if (g_LocalPlayer->life_state) return;
+	if (g_LocalPlayer->weapon()->clazz != g_pClassID->CTFFlameThrower) return;
 	if (v_bDisableWhenAttacking->GetBool() && (cmd->buttons & IN_ATTACK)) return;
 
 	CachedEntity* closest = 0;
@@ -51,7 +51,7 @@ void AutoReflect::ProcessUserCmd(CUserCmd* cmd) {
 		if (CE_BAD(ent)) continue;
 		if (!ShouldReflect(ent)) continue;
 		//if (ent->Var<Vector>(eoffsets.vVelocity).IsZero(1.0f)) continue;
-		float dist = ent->m_vecOrigin.DistToSqr(g_pLocalPlayer->v_Origin);
+		float dist = ent->m_vecOrigin.DistToSqr(g_LocalPlayer->v_Origin);
 		if (dist < closest_dist || !closest) {
 			closest = ent;
 			closest_dist = dist;
@@ -60,12 +60,12 @@ void AutoReflect::ProcessUserCmd(CUserCmd* cmd) {
 	if (CE_BAD(closest)) return;
 	if (closest_dist == 0 || closest_dist > SQR(v_iReflectDistance->GetInt())) return;
 
-	Vector tr = (closest->m_vecOrigin - g_pLocalPlayer->v_Eye);
+	Vector tr = (closest->m_vecOrigin - g_LocalPlayer->v_Eye);
 	Vector angles;
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);
 	cmd->viewangles = angles;
-	g_pLocalPlayer->bUseSilentAngles = true;
+	g_LocalPlayer->bUseSilentAngles = true;
 	cmd->buttons |= IN_ATTACK2;
 	return;
 }

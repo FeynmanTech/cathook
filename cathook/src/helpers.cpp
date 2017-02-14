@@ -33,6 +33,7 @@ void BeginConVars() {
 }
 
 void EndConVars() {
+	InitPromisedCatVars();
 	if (hConVarsFile) {
 		fprintf(hConVarsFile, "\nexec cat_autoexec\n");
 		fprintf(hConVarsFile, "cat_killsay_reload\ncat_spam_reload\n");
@@ -41,26 +42,12 @@ void EndConVars() {
 	ConVar_Register();
 }
 
-// StackOverflow copypasta xddd
-void ReplaceString(char* target, char* what, char* with_what) {
-	char buffer[1024] = { 0 };
-	char *insert_point = &buffer[0];
-	const char *tmp = target;
-	size_t needle_len = strlen(what);
-	size_t repl_len = strlen(with_what);
-	while (1) {
-		const char *p = strstr(tmp, what);
-		if (p == NULL) {
-			strcpy(insert_point, tmp);
-			break;
-		}
-		memcpy(insert_point, tmp, p - tmp);
-		insert_point += p - tmp;
-		memcpy(insert_point, with_what, repl_len);
-		insert_point += repl_len;
-		tmp = p + needle_len;
+void ReplaceString(std::string& input, const std::string& what, const std::string& with_what) {
+	size_t index = input.find(what);
+	while (index != std::string::npos) {
+		input.replace(index, what.size(), with_what);
+		index = input.find(what, index + with_what.size());
 	}
-	strcpy(target, buffer);
 }
 
 bool IsPlayerInvulnerable(CachedEntity* player) {
@@ -84,7 +71,6 @@ ConVar* CreateConVar(std::string name, std::string value, std::string help) {
 	strncpy(valuec, value.c_str(), 255);
 	char* helpc = new char[256];
 	strncpy(helpc, help.c_str(), 255);
-	//logging::Info("Creating ConVar: %s %s %s", namec, valuec, helpc);
 	ConVar* ret = new ConVar((const char*)namec, (const char*)valuec, 0, (const char*)helpc);
 	if (hConVarsFile)
 		fprintf(hConVarsFile, "%s %s\n", name.c_str(), value.c_str());
@@ -101,9 +87,9 @@ ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, con
 
 const char* GetBuildingName(CachedEntity* ent) {
 	if (!ent) return "[NULL]";
-	if (ent->m_iClassID == g_pClassID->CObjectSentrygun) return "Sentry";
-	if (ent->m_iClassID == g_pClassID->CObjectDispenser) return "Dispenser";
-	if (ent->m_iClassID == g_pClassID->CObjectTeleporter) return "Teleporter";
+	if (ent->clazz == g_pClassID->CObjectSentrygun) return "Sentry";
+	if (ent->clazz == g_pClassID->CObjectDispenser) return "Dispenser";
+	if (ent->clazz == g_pClassID->CObjectTeleporter) return "Teleporter";
 	return "[NULL]";
 }
 
@@ -164,14 +150,6 @@ void VectorTransform (const float *in1, const matrix3x4_t& in2, float *out)
 	out[0] = (in1[0] * in2[0][0] + in1[1] * in2[0][1] + in1[2] * in2[0][2]) + in2[0][3];
 	out[1] = (in1[0] * in2[1][0] + in1[1] * in2[1][1] + in1[2] * in2[1][2]) + in2[1][3];
 	out[2] = (in1[0] * in2[2][0] + in1[1] * in2[2][1] + in1[2] * in2[2][2]) + in2[2][3];
-}
-
-bool GetHitbox(CachedEntity* entity, int hb, Vector& out) {
-	if (CE_BAD(entity)) return false;
-	CachedHitbox* box = entity->m_pHitboxCache->GetHitbox(hb);
-	if (!box) out = entity->m_vecOrigin;
-	else out = box->center;
-	return true;
 }
 
 void VectorAngles(Vector &forward, Vector &angles) {
@@ -304,7 +282,7 @@ float RandFloatRange(float min, float max)
 
 bool IsEntityVisible(CachedEntity* entity, int hb) {
 	if (g_Settings.bInvalid) return false;
-	if (entity == g_pLocalPlayer->entity) return true;
+	if (entity == g_LocalPlayer->entity) return true;
 	Vector hit;
 	if (hb == -1) {
 		return IsEntityVectorVisible(entity, entity->m_vecOrigin);
@@ -316,13 +294,13 @@ bool IsEntityVisible(CachedEntity* entity, int hb) {
 
 bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos) {
 	if (g_Settings.bInvalid) return false;
-	if (entity == g_pLocalPlayer->entity) return true;
-	if (CE_BAD(g_pLocalPlayer->entity)) return false;
+	if (entity == g_LocalPlayer->entity) return true;
+	if (CE_BAD(g_LocalPlayer->entity)) return false;
 	if (CE_BAD(entity)) return false;
  	trace_t trace_object;
 	Ray_t ray;
-	trace::g_pFilterDefault->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
-	ray.Init(g_pLocalPlayer->v_Eye, endpos);
+	trace::g_pFilterDefault->SetSelf(RAW_ENT(g_LocalPlayer->entity));
+	ray.Init(g_LocalPlayer->v_Eye, endpos);
 	g_ITrace->TraceRay(ray, MASK_SHOT_HULL, trace::g_pFilterDefault, &trace_object);
 	//logging::Info("%.2f expected %s got %s", trace_object.fraction, RAW_ENT(entity)->GetClientClass()->GetName(), trace_object.m_pEnt ? ((IClientEntity*)trace_object.m_pEnt)->GetClientClass()->GetName() : "NULL");
 	return (trace_object.fraction >= 0.99f || (((IClientEntity*)trace_object.m_pEnt)) == RAW_ENT(entity));
@@ -330,9 +308,9 @@ bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos) {
 
 Vector GetBuildingPosition(CachedEntity* ent) {
 	Vector res = ent->m_vecOrigin;
-	if (ent->m_iClassID == g_pClassID->CObjectDispenser) res.z += 30;
-	if (ent->m_iClassID == g_pClassID->CObjectTeleporter) res.z += 8;
-	if (ent->m_iClassID == g_pClassID->CObjectSentrygun) {
+	if (ent->clazz == g_pClassID->CObjectDispenser) res.z += 30;
+	if (ent->clazz == g_pClassID->CObjectTeleporter) res.z += 8;
+	if (ent->clazz == g_pClassID->CObjectSentrygun) {
 		switch (CE_INT(ent, netvar.iUpgradeLevel)) {
 		case 1:
 			res.z += 30;
@@ -398,26 +376,26 @@ void fClampAngle(Vector& qaAng) {
 
 float DistToSqr(CachedEntity* entity) {
 	if (CE_BAD(entity)) return 0.0f;
-	return g_pLocalPlayer->v_Origin.DistToSqr(entity->m_vecOrigin);
+	return g_LocalPlayer->v_Origin.DistToSqr(entity->m_vecOrigin);
 }
 
 bool IsMeleeWeapon(CachedEntity* ent) {
 
-	if (ent->m_iClassID == g_pClassID->CTFBat ||
-		ent->m_iClassID == g_pClassID->CTFBat_Fish ||
-		ent->m_iClassID == g_pClassID->CTFBat_Giftwrap ||
-		ent->m_iClassID == g_pClassID->CTFBat_Wood ||
-		ent->m_iClassID == g_pClassID->CTFShovel ||
-		ent->m_iClassID == g_pClassID->CTFKatana ||
-		ent->m_iClassID == g_pClassID->CTFFireAxe ||
-		ent->m_iClassID == g_pClassID->CTFBottle ||
-		ent->m_iClassID == g_pClassID->CTFSword ||
-		ent->m_iClassID == g_pClassID->CTFFists ||
-		ent->m_iClassID == g_pClassID->CTFWrench ||
-		ent->m_iClassID == g_pClassID->CTFRobotArm ||
-		ent->m_iClassID == g_pClassID->CTFKnife ||
-		ent->m_iClassID == g_pClassID->CTFBonesaw ||
-		ent->m_iClassID == g_pClassID->CTFClub) {
+	if (ent->clazz == g_pClassID->CTFBat ||
+		ent->clazz == g_pClassID->CTFBat_Fish ||
+		ent->clazz == g_pClassID->CTFBat_Giftwrap ||
+		ent->clazz == g_pClassID->CTFBat_Wood ||
+		ent->clazz == g_pClassID->CTFShovel ||
+		ent->clazz == g_pClassID->CTFKatana ||
+		ent->clazz == g_pClassID->CTFFireAxe ||
+		ent->clazz == g_pClassID->CTFBottle ||
+		ent->clazz == g_pClassID->CTFSword ||
+		ent->clazz == g_pClassID->CTFFists ||
+		ent->clazz == g_pClassID->CTFWrench ||
+		ent->clazz == g_pClassID->CTFRobotArm ||
+		ent->clazz == g_pClassID->CTFKnife ||
+		ent->clazz == g_pClassID->CTFBonesaw ||
+		ent->clazz == g_pClassID->CTFClub) {
 		return true;
 	}
 	return false;
@@ -446,28 +424,28 @@ weaponmode GetWeaponMode(CachedEntity* player) {
 	CachedEntity* weapon = (ENTITY(weapon_handle & 0xFFF));
 	if (CE_BAD(weapon)) return weaponmode::weapon_invalid;
 	if (IsMeleeWeapon(weapon)) return weaponmode::weapon_melee;
-	if (weapon->m_iClassID == g_pClassID->CTFLunchBox ||
-		weapon->m_iClassID == g_pClassID->CTFLunchBox_Drink ||
-		weapon->m_iClassID == g_pClassID->CTFBuffItem) {
+	if (weapon->clazz == g_pClassID->CTFLunchBox ||
+		weapon->clazz == g_pClassID->CTFLunchBox_Drink ||
+		weapon->clazz == g_pClassID->CTFBuffItem) {
 		return weaponmode::weapon_consumable;
-	} else if ( weapon->m_iClassID == g_pClassID->CTFRocketLauncher_DirectHit ||
-				weapon->m_iClassID == g_pClassID->CTFRocketLauncher ||
-				weapon->m_iClassID == g_pClassID->CTFGrenadeLauncher ||
-				weapon->m_iClassID == g_pClassID->CTFCompoundBow ||
-				weapon->m_iClassID == g_pClassID->CTFBat_Wood ||
-				weapon->m_iClassID == g_pClassID->CTFBat_Giftwrap ||
-				weapon->m_iClassID == g_pClassID->CTFFlareGun ||
-				weapon->m_iClassID == g_pClassID->CTFFlareGun_Revenge ||
-				weapon->m_iClassID == g_pClassID->CTFSyringeGun) {
+	} else if ( weapon->clazz == g_pClassID->CTFRocketLauncher_DirectHit ||
+				weapon->clazz == g_pClassID->CTFRocketLauncher ||
+				weapon->clazz == g_pClassID->CTFGrenadeLauncher ||
+				weapon->clazz == g_pClassID->CTFCompoundBow ||
+				weapon->clazz == g_pClassID->CTFBat_Wood ||
+				weapon->clazz == g_pClassID->CTFBat_Giftwrap ||
+				weapon->clazz == g_pClassID->CTFFlareGun ||
+				weapon->clazz == g_pClassID->CTFFlareGun_Revenge ||
+				weapon->clazz == g_pClassID->CTFSyringeGun) {
 		return weaponmode::weapon_projectile;
-	} else if (weapon->m_iClassID == g_pClassID->CTFJar ||
-			   weapon->m_iClassID == g_pClassID->CTFJarMilk) {
+	} else if (weapon->clazz == g_pClassID->CTFJar ||
+			   weapon->clazz == g_pClassID->CTFJarMilk) {
 		return weaponmode::weapon_throwable;
-	} else if (weapon->m_iClassID == g_pClassID->CTFWeaponPDA_Engineer_Build ||
-			   weapon->m_iClassID == g_pClassID->CTFWeaponPDA_Engineer_Destroy ||
-			   weapon->m_iClassID == g_pClassID->CTFWeaponPDA_Spy) {
+	} else if (weapon->clazz == g_pClassID->CTFWeaponPDA_Engineer_Build ||
+			   weapon->clazz == g_pClassID->CTFWeaponPDA_Engineer_Destroy ||
+			   weapon->clazz == g_pClassID->CTFWeaponPDA_Spy) {
 		return weaponmode::weapon_pda;
-	} else if (weapon->m_iClassID == g_pClassID->CWeaponMedigun) {
+	} else if (weapon->clazz == g_pClassID->CWeaponMedigun) {
 		return weaponmode::weapon_medigun;
 	}
 	return weaponmode::weapon_hitscan;
@@ -490,11 +468,11 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 	float rgrav = 0.0f;
 	typedef float(GetProjectileData)(IClientEntity*);
 
-	if (weapon->m_iClassID == g_pClassID->CTFRocketLauncher_DirectHit) {
+	if (weapon->clazz == g_pClassID->CTFRocketLauncher_DirectHit) {
 		rspeed = 1980.0f;
-	} else if (weapon->m_iClassID == g_pClassID->CTFRocketLauncher) {
+	} else if (weapon->clazz == g_pClassID->CTFRocketLauncher) {
 		rspeed = 1100.0f;
-	} else if (weapon->m_iClassID == g_pClassID->CTFGrenadeLauncher) {
+	} else if (weapon->clazz == g_pClassID->CTFGrenadeLauncher) {
 		if (TF2) {
 			rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
 			// TODO Wrong grenade launcher gravity
@@ -503,16 +481,16 @@ bool GetProjectileData(CachedEntity* weapon, float& speed, float& gravity) {
 			rspeed = 1100.0f;
 			rgrav = 0.5f;
 		}
-	} else if (weapon->m_iClassID == g_pClassID->CTFCompoundBow) {
+	} else if (weapon->clazz == g_pClassID->CTFCompoundBow) {
 		rspeed = vfunc<GetProjectileData*>(RAW_ENT(weapon), 527)(RAW_ENT(weapon));
 		rgrav = vfunc<GetProjectileData*>(RAW_ENT(weapon), 528)(RAW_ENT(weapon));
-	} else if (weapon->m_iClassID == g_pClassID->CTFBat_Wood) {
+	} else if (weapon->clazz == g_pClassID->CTFBat_Wood) {
 		rspeed = 3000.0f;
 		rgrav = 0.5f;
-	} else if (weapon->m_iClassID == g_pClassID->CTFFlareGun) {
+	} else if (weapon->clazz == g_pClassID->CTFFlareGun) {
 		rspeed = 2000.0f;
 		rgrav = 0.25f;
-	} else if (weapon->m_iClassID == g_pClassID->CTFSyringeGun) {
+	} else if (weapon->clazz == g_pClassID->CTFSyringeGun) {
 		rgrav = 0.2f;
 		rspeed = 990.0f;
 	}
@@ -556,7 +534,7 @@ bool IsVectorVisible(Vector origin, Vector target) {
 	}
 	trace_t trace_visible;
 	Ray_t ray;
-	vec_filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
+	vec_filter->SetSelf(RAW_ENT(g_LocalPlayer->entity));
 	ray.Init(origin, target);
 	g_ITrace->TraceRay(ray, MASK_SHOT_HULL, vec_filter, &trace_visible);
 	float dist2 = origin.DistToSqr(trace_visible.endpos);
@@ -612,7 +590,7 @@ bool IsSentryBuster(CachedEntity* entity) {
 
 bool IsAmbassador(CachedEntity* entity) {
 	if (!TF2) return false;
-	if (entity->m_iClassID != g_pClassID->CTFRevolver) return false;
+	if (entity->clazz != g_pClassID->CTFRevolver) return false;
 	int defidx = CE_INT(entity, netvar.iItemDefinitionIndex);
 	return (defidx == 61 || defidx == 1006);
 }
@@ -655,13 +633,13 @@ float GetFov(Vector angle, Vector src, Vector dst)
 }
 
 bool CanHeadshot() {
-	return (g_pLocalPlayer->flZoomBegin > 0.0f && (g_pGlobals->curtime - g_pLocalPlayer->flZoomBegin > 0.2f));
+	return (g_LocalPlayer->flZoomBegin > 0.0f && (g_pGlobals->curtime - g_LocalPlayer->flZoomBegin > 0.2f));
 }
 
 bool CanShoot() {
 	if (CE_BAD(LOCAL_E) || CE_BAD(LOCAL_W)) return false;
-	float tickbase = (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * g_pGlobals->interval_per_tick;
-	float nextattack = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack);
+	float tickbase = (float)(CE_INT(g_LocalPlayer->entity, netvar.nTickBase)) * g_pGlobals->interval_per_tick;
+	float nextattack = CE_FLOAT(g_LocalPlayer->weapon(), netvar.flNextPrimaryAttack);
 	return nextattack <= tickbase;
 }
 
@@ -699,7 +677,7 @@ void AimAt(Vector origin, Vector target, CUserCmd* cmd) {
 void AimAtHitbox(CachedEntity* ent, int hitbox, CUserCmd* cmd) {
 	Vector r = ent->m_vecOrigin;
 	GetHitbox(ent, hitbox, r);
-	AimAt(g_pLocalPlayer->v_Eye, r, cmd);
+	AimAt(g_LocalPlayer->v_Eye, r, cmd);
 }
 
 bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
@@ -708,14 +686,14 @@ bool IsEntityVisiblePenetration(CachedEntity* entity, int hb) {
 	}
 	trace_t trace_visible;
 	Ray_t ray;
-	trace::g_pFilterPenetration->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
+	trace::g_pFilterPenetration->SetSelf(RAW_ENT(g_LocalPlayer->entity));
 	trace::g_pFilterPenetration->Reset();
 	Vector hit;
 	int ret = GetHitbox(entity, hb, hit);
 	if (ret) {
 		return false;
 	}
-	ray.Init(g_pLocalPlayer->v_Origin + g_pLocalPlayer->v_ViewOffset, hit);
+	ray.Init(g_LocalPlayer->v_Origin + g_LocalPlayer->v_ViewOffset, hit);
 	g_ITrace->TraceRay(ray, MASK_SHOT_HULL, trace::g_pFilterPenetration, &trace_visible);
 	bool s = false;
 	if (trace_visible.m_pEnt) {

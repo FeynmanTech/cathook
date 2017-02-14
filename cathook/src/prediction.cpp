@@ -57,7 +57,7 @@ Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravit
 	float dtg = DistanceToGround(ent);
 	Vector vel = ent->m_vecVelocity;
 	// TODO ProjAim
-	float medianTime = g_pLocalPlayer->v_Eye.DistTo(result) / speed;
+	float medianTime = g_LocalPlayer->v_Eye.DistTo(result) / speed;
 	float range = 1.5f;
 	float currenttime = medianTime - range;
 	if (currenttime <= 0.0f) currenttime = 0.01f;
@@ -72,7 +72,7 @@ Vector ProjectilePrediction(CachedEntity* ent, int hb, float speed, float gravit
 			curpos.z -= currenttime * currenttime * 400 * entgmod;
 			if (curpos.z < result.z - dtg) curpos.z = result.z - dtg;
 		}
-		float rockettime = g_pLocalPlayer->v_Eye.DistTo(curpos) / speed;
+		float rockettime = g_LocalPlayer->v_Eye.DistTo(curpos) / speed;
 		if (fabs(rockettime - currenttime) < mindelta) {
 			besttime = currenttime;
 			bestpos = curpos;

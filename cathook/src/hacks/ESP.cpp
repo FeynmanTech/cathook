@@ -25,7 +25,7 @@ const char* classes[] = {
 };
 
 void ESP::Draw() {
-	if (CE_BAD(g_pLocalPlayer->entity)) return;
+	if (CE_BAD(g_LocalPlayer->entity)) return;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		ProcessEntityPT(ENTITY(i));
 	}
@@ -75,7 +75,7 @@ ESP::ESP() {
 
 void ESP::DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (CE_BAD(ent)) return;
-	bool cloak = ent->m_iClassID == g_pClassID->C_Player && IsPlayerInvisible(ent);
+	bool cloak = ent->clazz == g_pClassID->C_Player && IsPlayerInvisible(ent);
 	Vector min, max;
 	RAW_ENT(ent)->GetRenderBounds(min, max);
 	Vector origin = RAW_ENT(ent)->GetAbsOrigin();
@@ -128,7 +128,7 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	switch (ent->m_Type) {
 	case ENTITY_PLAYER: {
 		bool cloak = IsPlayerInvisible(ent);
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent)) {
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_LocalPlayer->team && !GetRelation(ent)) {
 			if (cloak) return;
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
@@ -141,12 +141,12 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	break;
 	}
 	case ENTITY_BUILDING: {
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
+		if (v_bLegit->GetBool() && ent->m_iTeam != g_LocalPlayer->team) {
 			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
 			}
 		}
-		if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
+		if (CE_INT(ent, netvar.iTeamNum) == g_LocalPlayer->team && !v_bTeammates->GetBool()) break;
 		DrawBox(ent, fg, 1.0f, 0.0f, true, CE_INT(ent, netvar.iBuildingHealth), CE_INT(ent, netvar.iBuildingMaxHealth));
 	break;
 	}
@@ -164,7 +164,7 @@ void ESP::CreateProcessors() {
 			return v_bEntityESP->GetBool();
 		},
 		[this](CachedEntity* entity) -> bool {
-			entity->AddESPString(format('#', entity->m_IDX, ' ', '[', entity->m_iClassID, ']', ' ', '"', entity->m_pClass->GetName()));
+			entity->AddESPString(format('#', entity->m_IDX, ' ', '[', entity->clazz, ']', ' ', '"', entity->m_pClass->GetName()));
 			if (v_bModelName->GetBool())
 				entity->AddESPString(std::string(g_IModelInfo->GetModelName(RAW_ENT(entity)->GetModel())));
 			return true;
@@ -272,7 +272,7 @@ void ESP::CreateProcessors() {
 	// TF2 Entity Processors
 	AddProcessor(ESPEntityProcessor(
 		[this](CachedEntity* entity) -> bool {
-			return (entity->m_iClassID == g_pClassID->CTFTankBoss && v_bShowTank->GetBool());
+			return (entity->clazz == g_pClassID->CTFTankBoss && v_bShowTank->GetBool());
 		},
 		[this](CachedEntity* entity) -> bool {
 			entity->AddESPString("[: TANK :]");
@@ -281,7 +281,7 @@ void ESP::CreateProcessors() {
 	));
 	AddProcessor(ESPEntityProcessor(
 		[this](CachedEntity* entity) {
-			if (!v_bShowMoney->GetBool() || entity->m_iClassID != g_pClassID->CCurrencyPack) return false;
+			if (!v_bShowMoney->GetBool() || entity->clazz != g_pClassID->CCurrencyPack) return false;
 			if (CE_BYTE(entity, netvar.bDistributed)) {
 				return v_bShowRedMoney->GetBool();
 			} else return true;
@@ -395,7 +395,7 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 }
 
 void ESP::ProcessUserCmd(CUserCmd*) {
-	if (CE_BAD(g_pLocalPlayer->entity)) return;
+	if (CE_BAD(g_LocalPlayer->entity)) return;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_GOOD(ent)) { ProcessEntity(ent); }

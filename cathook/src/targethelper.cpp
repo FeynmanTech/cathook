@@ -21,8 +21,8 @@ int GetScoreForEntity(CachedEntity* entity) {
 	if (!entity) return 0;
 	// TODO
 	if (entity->m_Type == ENTITY_BUILDING) {
-		if (entity->m_iClassID == g_pClassID->CObjectSentrygun) {
-			float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin).Length();
+		if (entity->clazz == g_pClassID->CObjectSentrygun) {
+			float distance = (g_LocalPlayer->v_Origin - entity->m_vecOrigin).Length();
 			// TODO
 			int total = 1;
 			if (distance != 0) {
@@ -35,7 +35,7 @@ int GetScoreForEntity(CachedEntity* entity) {
 	}
 	int clazz = CE_INT(entity, netvar.iClass);
 	int health = CE_INT(entity, netvar.iHealth);
-	float distance = (g_pLocalPlayer->v_Origin - entity->m_vecOrigin).Length();
+	float distance = (g_LocalPlayer->v_Origin - entity->m_vecOrigin).Length();
 	bool zoomed = HasCondition(entity, TFCond_Zoomed);
 	bool pbullet = HasCondition(entity, TFCond_SmallBulletResist);
 	bool special = false;

@@ -71,16 +71,16 @@ void FrameStageNotify_hook(void* thisptr, int stage) {
 	// TODO hack FSN hook
 	if (TF && g_Settings.bHackEnabled->GetBool() && !g_Settings.bInvalid && stage == FRAME_RENDER_START) {
 		SVDBG("FSN %i", __LINE__);
-		if (g_Settings.bThirdperson->GetBool() && !g_pLocalPlayer->life_state && CE_GOOD(g_pLocalPlayer->entity)) {
+		if (g_Settings.bThirdperson->GetBool() && !g_LocalPlayer->life_state && CE_GOOD(g_LocalPlayer->entity)) {
 			SVDBG("FSN %i", __LINE__);
-			CE_INT(g_pLocalPlayer->entity, netvar.nForceTauntCam) = 1;
+			CE_INT(g_LocalPlayer->entity, netvar.nForceTauntCam) = 1;
 		}
 		SVDBG("FSN %i", __LINE__);
 		if (stage == 5 && g_Settings.bShowAntiAim->GetBool() && g_IInput->CAM_IsThirdPerson()) {
 			SVDBG("FSN %i", __LINE__);
-			if (CE_GOOD(g_pLocalPlayer->entity)) {
-				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 4) = g_Settings.last_angles.x;
-				CE_FLOAT(g_pLocalPlayer->entity, netvar.deadflag + 8) = g_Settings.last_angles.y;
+			if (CE_GOOD(g_LocalPlayer->entity)) {
+				CE_FLOAT(g_LocalPlayer->entity, netvar.deadflag + 4) = g_Settings.last_angles.x;
+				CE_FLOAT(g_LocalPlayer->entity, netvar.deadflag + 8) = g_Settings.last_angles.y;
 			}
 			SVDBG("FSN %i", __LINE__);
 		}
@@ -95,7 +95,7 @@ void OverrideView_hook(void* thisptr, CViewSetup* setup) {
 	((OverrideView_t*)hooks::hkClientMode->GetMethod(hooks::offOverrideView))(thisptr, setup);
 	if (!g_Settings.bHackEnabled->GetBool()) return;
 	if (g_Settings.flForceFOV && g_Settings.flForceFOVZoomed && g_Settings.bZoomedFOV) {
-		bool zoomed = g_pLocalPlayer->bZoomed;
+		bool zoomed = g_LocalPlayer->bZoomed;
 		if (g_Settings.bZoomedFOV->GetBool() && zoomed) {
 			if (g_Settings.flForceFOVZoomed->GetBool()) {
 				setup->fov = g_Settings.flForceFOVZoomed->GetFloat();

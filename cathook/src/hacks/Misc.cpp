@@ -253,10 +253,10 @@ void CC_Misc_Disconnect_VAC(const CCommand& args) {
 }
 
 void CC_DumpAttribs(const CCommand& args) {
-	if (CE_GOOD(g_pLocalPlayer->weapon())) {
+	if (CE_GOOD(g_LocalPlayer->weapon())) {
 		for (int i = 0; i < 15; i++) {
-			logging::Info("%i %f", CE_INT(g_pLocalPlayer->weapon(), netvar.AttributeList + i * 12),
-					CE_FLOAT(g_pLocalPlayer->weapon(), netvar.AttributeList + i * 12 + 4));
+			logging::Info("%i %f", CE_INT(g_LocalPlayer->weapon(), netvar.AttributeList + i * 12),
+					CE_FLOAT(g_LocalPlayer->weapon(), netvar.AttributeList + i * 12 + 4));
 		}
 	}
 }
@@ -649,26 +649,26 @@ void Misc::Draw() {
 	}*/
 
 
-		if (CE_GOOD(g_pLocalPlayer->weapon())) {
+		if (CE_GOOD(g_LocalPlayer->weapon())) {
 
-			AddSideString(colors::white, "Weapon: %s [%i]", RAW_ENT(g_pLocalPlayer->weapon())->GetClientClass()->GetName(), g_pLocalPlayer->weapon()->m_iClassID);
+			AddSideString(colors::white, "Weapon: %s [%i]", RAW_ENT(g_LocalPlayer->weapon())->GetClientClass()->GetName(), g_LocalPlayer->weapon()->clazz);
 			//AddSideString(colors::white, "flNextPrimaryAttack: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flNextPrimaryAttack));
 			//AddSideString(colors::white, "nTickBase: %f", (float)(CE_INT(g_pLocalPlayer->entity, netvar.nTickBase)) * gvars->interval_per_tick);
 			AddSideString(colors::white, "CanShoot: %i", CanShoot());
 			//AddSideString(colors::white, "Damage: %f", CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage));
-			if (TF2) AddSideString(colors::white, "DefIndex: %i", CE_INT(g_pLocalPlayer->weapon(), netvar.iItemDefinitionIndex));
+			if (TF2) AddSideString(colors::white, "DefIndex: %i", CE_INT(g_LocalPlayer->weapon(), netvar.iItemDefinitionIndex));
 			//AddSideString(colors::white, "GlobalVars: 0x%08x", gvars);
 			//AddSideString(colors::white, "realtime: %f", gvars->realtime);
 			//AddSideString(colors::white, "interval_per_tick: %f", gvars->interval_per_tick);
 			//if (TF2) AddSideString(colors::white, "ambassador_can_headshot: %i", (gvars->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) > 0.95);
-			AddSideString(colors::white, "WeaponMode: %i", GetWeaponMode(g_pLocalPlayer->entity));
-			AddSideString(colors::white, "ToGround: %f", DistanceToGround(g_pLocalPlayer->v_Origin));
-			AddSideString(colors::white, "ServerTime: %f", CE_FLOAT(g_pLocalPlayer->entity, netvar.nTickBase) * g_pGlobals->interval_per_tick);
+			AddSideString(colors::white, "WeaponMode: %i", GetWeaponMode(g_LocalPlayer->entity));
+			AddSideString(colors::white, "ToGround: %f", DistanceToGround(g_LocalPlayer->v_Origin));
+			AddSideString(colors::white, "ServerTime: %f", CE_FLOAT(g_LocalPlayer->entity, netvar.nTickBase) * g_pGlobals->interval_per_tick);
 			AddSideString(colors::white, "CurTime: %f", g_pGlobals->curtime);
 			AddSideString(colors::white, "FrameCount: %i", g_pGlobals->framecount);
 			float speed, gravity;
-			GetProjectileData(g_pLocalPlayer->weapon(), speed, gravity);
-			AddSideString(colors::white, "ALT: %i", g_pLocalPlayer->bAttackLastTick);
+			GetProjectileData(g_LocalPlayer->weapon(), speed, gravity);
+			AddSideString(colors::white, "ALT: %i", g_LocalPlayer->bAttackLastTick);
 			AddSideString(colors::white, "Speed: %f", speed);
 			AddSideString(colors::white, "Gravity: %f", gravity);
 			AddSideString(colors::white, "CIAC: %i", *(bool*)(RAW_ENT(LOCAL_W) + 2380));

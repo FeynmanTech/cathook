@@ -8,19 +8,14 @@
 #ifndef HACKS_SPYALERT_H_
 #define HACKS_SPYALERT_H_
 
-#include "IHack.h"
+namespace hacks { namespace tf { namespace spyalert {
 
-class SpyAlert : public IHack {
-public:
-	SpyAlert();
+extern CatVar enabled;
+extern CatVar warning_distance;
+extern CatVar backstab_distance;
 
-	virtual void Draw() override;
+void DrawEntity(CachedEntity& entity);
 
-	CatVar* v_bEnabled;
-	CatVar* v_flWarningDistance;
-	CatVar* v_flBackstabDistance;
-};
-
-DECLARE_HACK_SINGLETON(SpyAlert);
+}}}
 
 #endif /* HACKS_SPYALERT_H_ */

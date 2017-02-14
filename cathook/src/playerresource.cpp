@@ -11,7 +11,7 @@ void TFPlayerResource::Update() {
 	m_pEntity = 0;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
-		if (CE_GOOD(ent) && ent->m_iClassID == (TF ? g_pClassID->CTFPlayerResource : g_pClassID->CPlayerResource)) {
+		if (CE_GOOD(ent) && ent->clazz == (TF ? g_pClassID->CTFPlayerResource : g_pClassID->CPlayerResource)) {
 			m_pEntity = ent;
 		}
 	}

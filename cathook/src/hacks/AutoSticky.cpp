@@ -34,16 +34,16 @@ bool AutoSticky::ShouldDetonate(CachedEntity* bomb) {
 
 void AutoSticky::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
-	if (CE_BAD(g_pLocalPlayer->entity)) return;
-	if (CE_BAD(g_pLocalPlayer->weapon())) return;
-	if (g_pLocalPlayer->life_state) return;
-	if (g_pLocalPlayer->clazz != tf_demoman) return;
+	if (CE_BAD(g_LocalPlayer->entity)) return;
+	if (CE_BAD(g_LocalPlayer->weapon())) return;
+	if (g_LocalPlayer->life_state) return;
+	if (g_LocalPlayer->clazz != tf_demoman) return;
 	for (int i = 0; i < HIGHEST_ENTITY; i++) {
 		CachedEntity* ent = ENTITY(i);
 		if (CE_BAD(ent)) continue;
-		if (ent->m_iClassID != g_pClassID->CTFGrenadePipebombProjectile) continue;
+		if (ent->clazz != g_pClassID->CTFGrenadePipebombProjectile) continue;
 		if (CE_INT(ent, netvar.iPipeType) != 1) continue;
-		if ((CE_INT(ent, netvar.hThrower) & 0xFFF) != g_pLocalPlayer->entity->m_IDX) continue;
+		if ((CE_INT(ent, netvar.hThrower) & 0xFFF) != g_LocalPlayer->entity->m_IDX) continue;
 		if (ShouldDetonate(ent)) {
 			cmd->buttons |= IN_ATTACK2;
 		}

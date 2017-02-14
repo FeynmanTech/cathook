@@ -20,12 +20,12 @@ AutoStrafe::AutoStrafe() {
 void AutoStrafe::ProcessUserCmd(CUserCmd* cmd) {
 	if (!v_bEnabled->GetBool()) return;
 	bool sw = false;
-	if (CE_GOOD(g_pLocalPlayer->entity) && !g_pLocalPlayer->life_state) {
+	if (CE_GOOD(g_LocalPlayer->entity) && !g_LocalPlayer->life_state) {
 		// TODO FL_ONGROUND
-		if (CE_INT(g_pLocalPlayer->entity, netvar.iFlags) & (1 << 0)) return;
+		if (CE_INT(g_LocalPlayer->entity, netvar.iFlags) & (1 << 0)) return;
 		cmd->sidemove += (sw) ? -30.0f : 30.0f;
 		cmd->viewangles.y += sw ? -15.0f : 15.0f;
-		g_pLocalPlayer->bUseSilentAngles = true;
+		g_LocalPlayer->bUseSilentAngles = true;
 		sw = !sw;
 	}
 	return;

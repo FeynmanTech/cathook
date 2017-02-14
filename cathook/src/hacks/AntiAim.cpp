@@ -37,19 +37,19 @@ void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 		return;
 	}
 
-	if ((cmd->buttons & IN_ATTACK) && (LOCAL_W->m_iClassID != g_pClassID->CTFCompoundBow)) {
+	if ((cmd->buttons & IN_ATTACK) && (LOCAL_W->clazz != g_pClassID->CTFCompoundBow)) {
 		if (CanShoot()) return;
 	}
-	if ((cmd->buttons & IN_ATTACK2) && g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFLunchBox) return;
+	if ((cmd->buttons & IN_ATTACK2) && g_LocalPlayer->weapon()->clazz == g_pClassID->CTFLunchBox) return;
 
-	weaponmode mode = GetWeaponMode(g_pLocalPlayer->entity);
-	if (mode == weapon_melee || mode == weapon_throwable || (mode == weapon_projectile && (LOCAL_W->m_iClassID != g_pClassID->CTFCompoundBow))) {
-		if ((cmd->buttons & IN_ATTACK) || (cmd->buttons & IN_ATTACK2) || g_pLocalPlayer->bAttackLastTick) {
+	weaponmode mode = GetWeaponMode(g_LocalPlayer->entity);
+	if (mode == weapon_melee || mode == weapon_throwable || (mode == weapon_projectile && (LOCAL_W->clazz != g_pClassID->CTFCompoundBow))) {
+		if ((cmd->buttons & IN_ATTACK) || (cmd->buttons & IN_ATTACK2) || g_LocalPlayer->bAttackLastTick) {
 			AddSafeTicks(4);
 		}
 	}
-	if ((LOCAL_W->m_iClassID == g_pClassID->CTFCompoundBow) && !(cmd->buttons & IN_ATTACK)) {
-		if (g_pLocalPlayer->bAttackLastTick) AddSafeTicks(4);
+	if ((LOCAL_W->clazz == g_pClassID->CTFCompoundBow) && !(cmd->buttons & IN_ATTACK)) {
+		if (g_LocalPlayer->bAttackLastTick) AddSafeTicks(4);
 	}
 
 	float p = cmd->viewangles.x;
@@ -81,6 +81,6 @@ void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 	if (v_flRoll->GetBool()) angl.z = v_flRoll->GetFloat();
 	if (!m_iSafeTicks) {
 		cmd->viewangles = angl;
-		g_pLocalPlayer->bUseSilentAngles = true;
+		g_LocalPlayer->bUseSilentAngles = true;
 	} else m_iSafeTicks--;
 }

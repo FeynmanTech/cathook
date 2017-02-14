@@ -28,22 +28,6 @@ class ClientClass;
 
 #define MAX_ENTITIES 2048
 
-#define CE_VAR(entity, offset, type) \
-	NET_VAR(entity->entptr, offset, type)
-
-#define CE_INT(entity, offset) CE_VAR(entity, offset, int)
-#define CE_FLOAT(entity, offset) CE_VAR(entity, offset, float)
-#define CE_BYTE(entity, offset) CE_VAR(entity, offset, unsigned char)
-#define CE_VECTOR(entity, offset) CE_VAR(entity, offset, Vector)
-
-#define IDX_GOOD(idx) (idx >= 0 && idx < HIGHEST_ENTITY && idx < MAX_ENTITIES)
-#define IDX_BAD(idx) !IDX_GOOD(idx)
-
-#define HIGHEST_ENTITY gEntityCache.m_nMax
-#define ENTITY(idx) gEntityCache.GetEntity(idx)
-
-
-
 class EntityCache {
 public:
 	EntityCache();

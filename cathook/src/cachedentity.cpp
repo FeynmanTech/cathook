@@ -13,7 +13,7 @@
 
 const CachedEntityData CachedEntityData::zero = {
 	ENTITY_UNKNOWN, PROJ_UNKNOWN, BUILD_UNKNOWN, ITEM_UNKNOWN,
-	-1, false, -1, -1, -1, -1.0f, Vector(0)
+	-1, false, -1, -1, -1, -1.0f, false, { 0 }
 };
 
 k_EItemType CachedEntity::Item() {
@@ -26,7 +26,7 @@ k_EItemType CachedEntity::Item() {
 k_EBuilding CachedEntity::Building() {
 	if (data.building == BUILD_UNKNOWN) {
 		data.building = BUILD_NONE;
-		int clazz = m_iClassID;
+		int clazz = clazz;
 		if (clazz == g_pClassID->CObjectDispenser)
 			data.building = BUILD_DISPENSER;
 		else if (clazz == g_pClassID->CObjectSentrygun)
@@ -41,7 +41,7 @@ k_EBuilding CachedEntity::Building() {
 k_ETFProjectile CachedEntity::Projectile() {
 	if (data.projectile == PROJ_UNKNOWN) {
 		data.projectile = PROJ_NONE;
-		int clazz = m_iClassID;
+		int clazz = clazz;
 		if (clazz == g_pClassID->CTFProjectile_Rocket ||
 			clazz == g_pClassID->CTFProjectile_SentryRocket) {
 			data.projectile = PROJ_ROCKET;
@@ -61,7 +61,7 @@ k_ETFProjectile CachedEntity::Projectile() {
 
 void CachedEntity::Zero() {
 	string_count = 0;
-	m_iClassID = -1;
+	clazz = -1;
 	m_pClass = nullptr;
 	m_bVisCheckComplete = false;
 	bones_setup = false;
@@ -83,6 +83,60 @@ matrix3x4_t (&CachedEntity::GetBones())[MAXSTUDIOBONES] {
 		bones_setup = entptr->SetupBones(&bones[0], MAXSTUDIOBONES, 0x100, 0); // gvars->curtime
 	}
 	return &bones;
+}
+
+int CachedEntity::Team() {
+	if (data.team == -1) {
+		data.team = var<int>(netvar.iTeamNum);
+		data.enemy = data.team != g_LocalPlayer.entity->Team();
+	}
+	return data.team;
+}
+
+int CachedEntity::Class() {
+	if (data.clazz == -1) {
+		data.clazz = g_pPlayerResource->GetClass(this);
+	}
+	return data.clazz;
+}
+
+int CachedEntity::Health() {
+	if (data.health == -1) {
+		data.health = vfunc<int(IClientEntity*)>(entptr, 152, 0)(entptr);
+	}
+	return data.health;
+}
+
+int CachedEntity::MaxHealth() {
+	if (data.health_max == -1) {
+		data.health_max = vfunc<int(IClientEntity*)>(entptr, 153, 0)(entptr);
+	}
+	return data.health_max;
+}
+
+float CachedEntity::Distance() {
+	if (data.distance == -1.0f) {
+		data.distance = g_LocalPlayer.v_Eye.DistTo(Origin());
+	}
+	return data.distance;
+}
+
+bool CachedEntity::Enemy() {
+	if (data.team == -1) {
+		Team();
+	}
+	return data.enemy;
+}
+
+const Vector& CachedEntity::Origin() {
+	return entptr->GetAbsOrigin();
+}
+
+player_info_s& CachedEntity::GetPlayerInfo() {
+	if (!data.has_playerinfo) {
+		g_IEngine->GetPlayerInfo(m_IDX, &data.info);
+	}
+	return &data.info;
 }
 
 template<typename T>
@@ -124,7 +178,7 @@ void CachedEntity::Update() {
 	if (!entptr) {
 		return;
 	}
-	m_iClassID = entptr->GetClientClass()->m_ClassID;
+	clazz = entptr->GetClientClass()->m_ClassID;
 	bad = false;
 	//Vector origin = m_pEntity->GetAbsOrigin();
 	//if (TF2 && EstimateAbsVelocity) EstimateAbsVelocity(m_pEntity, m_vecVelocity);

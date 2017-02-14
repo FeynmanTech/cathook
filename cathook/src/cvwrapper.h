@@ -13,6 +13,7 @@ class ConVar;
 #include "beforecheaders.h"
 #include <string>
 #include <vector>
+#include <stack>
 #include "aftercheaders.h"
 
 //#define CREATE_CV(type, name, defaults, description) \
@@ -30,36 +31,34 @@ enum CatVar_t {
 	CV_KEY
 };
 
-class ICatEnum {
-public:
-	inline virtual ~ICatEnum() {}
-	virtual std::string Name(int value) = 0;
-	virtual int Minimum() const = 0;
-	virtual int Maximum() const = 0;
-};
-
-class CatEnum : public ICatEnum {
+class CatEnum {
 public:
 	CatEnum(std::vector<std::string> values, int min = 0);
-	virtual std::string Name(int value);
-	virtual int Maximum() const;
-	virtual int Minimum() const;
+	std::string Name(int value);
+	int Maximum() const;
+	int Minimum() const;
 	std::vector<std::string> m_values;
 	int m_iMin;
 	int m_iMax;
 	int m_iLength;
 };
 
+extern std::stack<CatVar*> g_PromisedCatVars;
+void InitPromisedCatVars();
+
 class CatVar {
 public:
-	CatVar(CatVar_t type, std::string name, std::string value, std::string help, ICatEnum* enum_type = 0, std::string long_description = "no description", bool hasminmax = false, float max = 1.0f, float min = 0.0f);
-	//inline CatVar(ConVar* var, CatVar_t type, std::string desc = "") { m_fStep = 1; m_fStep = 0.5f; m_pConVar = var; m_Type = type; SetDescription(desc); }
-	//inline CatVar(ConVar* var, ICatEnum* catenum, std::string desc = "") { m_pConVar = var; m_Type = CatVar_t::CV_ENUM; m_EnumType = catenum; SetDescription(desc); }
+	CatVar(CatVar_t type, std::string name, std::string value, std::string help, CatEnum* enum_type = 0, std::string long_description = "no description", bool hasminmax = false, float max = 1.0f, float min = 0.0f);
+	void BindConVar(ConVar* cvar);
 	inline CatVar_t GetType() const { return m_Type; }
-	inline ICatEnum* GetEnum() const { return m_EnumType; }
+	inline CatEnum* GetEnum() const { return m_EnumType; }
 	inline ConVar* GetConVar() const { return m_pConVar; }
 	inline void SetDescription(std::string description) { m_strDescription = description; }
-	inline std::string& Description() { return m_strDescription; }
+	inline const std::string& Description() const { return m_strDescription; };
+
+	explicit operator bool() const;
+	explicit operator int() const;
+	explicit operator float() const;
 
 	bool GetBool() const;
 	int GetInt() const;
@@ -79,8 +78,12 @@ public:
 	float m_flMinValue;
 	float m_fStep;
 
+	std::string name;
+	std::string defaults;
+	std::string helpstring;
+
 	std::string m_strDescription;
-	ICatEnum* m_EnumType;
+	CatEnum* m_EnumType;
 	CatVar_t m_Type;
 	ConVar* m_pConVar;
 };

@@ -10,14 +10,41 @@
 #include "common.h"
 #include "sdk.h"
 
-CatVar::CatVar(CatVar_t type, std::string name, std::string value, std::string help, ICatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
+std::stack<CatVar*> g_PromisedCatVars;
+void InitPromisedCatVars() {
+	while (g_PromisedCatVars.size()) {
+		auto var = g_PromisedCatVars.top();
+		g_PromisedCatVars.pop();
+		var->BindConVar(CreateConVar(var->name, var->defaults, var->helpstring));
+	}
+}
+
+inline explicit CatVar::operator bool() const {
+	return !!m_pConVar->GetInt();
+}
+
+inline explicit CatVar::operator int() const {
+	return m_pConVar->GetInt();
+}
+
+inline explicit CatVar::operator float() const {
+	return m_pConVar->GetFloat();
+}
+
+CatVar::CatVar(CatVar_t type, std::string name, std::string value, std::string help, CatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
+	this->name = name;
+	this->defaults = value;
+	this->helpstring = help;
+
 	m_Type = type;
-	m_pConVar = CreateConVar(CON_PREFIX + name, value, help);
+	m_pConVar = nullptr;
 	m_EnumType = enum_type;
 	m_flMinValue = minv;
 	m_flMaxValue = maxv;
 	m_bHasMinmax = hasminmax;
 	SetDescription(long_description);
+
+	g_PromisedCatVars.push(this);
 }
 
 CatEnum::CatEnum(std::vector<std::string> values, int min) {
@@ -42,10 +69,10 @@ int CatEnum::Minimum() const {
 	return m_iMin;
 }
 
-bool CatVar::GetBool() const { return m_pConVar->GetBool(); }
-int CatVar::GetInt() const { return m_pConVar->GetInt(); }
-float CatVar::GetFloat() const { return m_pConVar->GetFloat(); }
-const char* CatVar::GetString() const { return m_pConVar->GetString(); }
+inline bool CatVar::GetBool() const { return m_pConVar->GetBool(); }
+inline int CatVar::GetInt() const { return m_pConVar->GetInt(); }
+inline float CatVar::GetFloat() const { return m_pConVar->GetFloat(); }
+inline const char* CatVar::GetString() const { return m_pConVar->GetString(); }
 
 void CatVar::SetValue(float value) {
 	m_pConVar->SetValue(value);

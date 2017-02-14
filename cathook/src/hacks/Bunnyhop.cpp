@@ -29,14 +29,14 @@ void Bunnyhop::ProcessUserCmd(CUserCmd* cmd) {
 	m_bFakeLagFix = false;
 	if (!this->v_bEnabled->GetBool()) return;
 
-	int flags = CE_INT(g_pLocalPlayer->entity, netvar.iFlags);
+	int flags = CE_INT(g_LocalPlayer->entity, netvar.iFlags);
 	bool ground = (flags & (1 << 0));
 
-	if (HasCondition(g_pLocalPlayer->entity, TFCond_GrapplingHook)) return;
+	if (HasCondition(g_LocalPlayer->entity, TFCond_GrapplingHook)) return;
 
 
 	if (v_bAutoJump->GetBool()) {
-		Vector vel = CE_VECTOR(g_pLocalPlayer->entity, netvar.vVelocity);
+		Vector vel = CE_VECTOR(g_LocalPlayer->entity, netvar.vVelocity);
 		if ((vel.x * vel.x + vel.y * vel.y) > SQR(v_iAutoJumpSpeed->GetInt())) {
 			cmd->buttons |= IN_JUMP;
 		}
@@ -44,7 +44,7 @@ void Bunnyhop::ProcessUserCmd(CUserCmd* cmd) {
 
 	if (!ground) {
 		if (v_bImperfect->GetBool()) {
-			if (g_pLocalPlayer->clazz != tf_scout) {
+			if (g_LocalPlayer->clazz != tf_scout) {
 				if (rand() % 3) cmd->buttons &= ~IN_JUMP;
 				else cmd->buttons |= IN_JUMP;
 			}

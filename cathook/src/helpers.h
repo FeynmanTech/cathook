@@ -40,6 +40,10 @@ class Vector;
 extern std::vector<ConVar*> g_ConVars;
 extern FILE* hConVarsFile;
 void BeginConVars();
+
+// Shouldn't be called directly!!!
+ConVar* CreateConVar(std::string name, std::string value, std::string help);
+ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, const char* help);
 void EndConVars();
 
 bool IsPlayerCritBoosted(CachedEntity* player); // TODO use CTFPlayerShared::IsCritBoosted()..
@@ -50,14 +54,10 @@ const char* GetBuildingName(CachedEntity* ent);
 Vector GetBuildingPosition(CachedEntity* ent);
 bool IsBuildingVisible(CachedEntity* ent);
 
-ConVar* CreateConVar(std::string name, std::string value, std::string help);
-ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, const char* help);
-
 powerup_type GetPowerupOnPlayer(CachedEntity* player);
 // GetHitbox() is being called really frequently.
 // It's better if it won't create a new object each time it gets called.
 // So it returns a success state, and the values are stored in out reference.
-bool GetHitbox(CachedEntity* entity, int hb, Vector& out);
 weaponmode GetWeaponMode(CachedEntity* player);
 
 void FixMovement(CUserCmd& cmd, Vector& viewangles);

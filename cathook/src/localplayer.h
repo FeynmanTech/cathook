@@ -16,16 +16,13 @@ class CachedEntity;
 class LocalPlayer {
 public:
 	void Update();
-	int team;
-	int health;
+	bool bad;
 	int flags;
-	char life_state;
-	int clazz;
+	bool dead;
 	bool bZoomed;
 	float flZoomBegin;
 
 	Vector v_ViewOffset;
-	Vector v_Origin;
 	Vector v_Eye;
 	int entity_idx;
 	CachedEntity* entity;
@@ -39,6 +36,6 @@ public:
 #define LOCAL_E g_pLocalPlayer->entity
 #define LOCAL_W g_pLocalPlayer->weapon()
 
-extern LocalPlayer* g_pLocalPlayer;
+extern LocalPlayer g_LocalPlayer;
 
 #endif /* LOCALPLAYER_H_ */

@@ -111,7 +111,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 #endif
 		AddSideString(colors::green, "alpha build " CATHOOK_BUILD_NUMBER " \"" CATHOOK_BUILD_NAME "\"");
 	}
-	if (CE_GOOD(g_pLocalPlayer->entity) && !g_Settings.bInvalid) {
+	if (CE_GOOD(g_LocalPlayer->entity) && !g_Settings.bInvalid) {
 		//SAFE_CALL(PAINT_TRAVERSE(AutoStrafe));
 		//SAFE_CALL(PAINT_TRAVERSE(AntiAim));
 		if (TF) SAFE_CALL(HACK_DRAW(AntiDisguise));

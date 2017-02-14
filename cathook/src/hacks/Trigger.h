@@ -17,8 +17,7 @@ public:
 	Triggerbot();
 	~Triggerbot();
 
-	virtual void ProcessUserCmd(CUserCmd*) override;
-	virtual void Draw() override;
+	HACK_OVERRIDES_PROCESSUSERCMD;
 
 	CatVar* v_bEnabled;
 	CatVar* v_bRespectCloak;

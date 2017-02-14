@@ -65,8 +65,8 @@ int EntityF(CachedEntity* ent);
 
 void InitStrings();
 void ResetStrings();
-void AddCenterString(int fg, const std::string& string);
-void AddSideString(int fg, const std::string& string);
+void AddCenterString(int fg, const std::string string);
+void AddSideString(int fg, const std::string string);
 void DrawStrings();
 
 extern ESPStringCompound* g_pStringsSide;

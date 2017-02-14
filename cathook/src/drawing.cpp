@@ -24,7 +24,7 @@ void ResetStrings() {
 	g_nStringsCenter = 0;
 }
 
-void AddSideString(int fg, std::string string) {
+void AddSideString(int fg, const std::string string) {
 	g_pStringsSide[g_nStringsSide].m_nColor = fg;
 	g_pStringsSide[g_nStringsSide].m_string = string;
 	g_pStringsSide[g_nStringsSide].m_bColored = true;
@@ -49,7 +49,7 @@ ESPStringCompound::~ESPStringCompound() {
 	//if (m_String) delete [] m_String;
 }
 
-void AddCenterString(int fg, const std::string& string) {
+void AddCenterString(int fg, const std::string string) {
 	g_pStringsCenter[g_nStringsCenter].m_nColor = fg;
 	g_pStringsCenter[g_nStringsCenter].m_string = string;
 	g_pStringsCenter[g_nStringsCenter].m_bColored = true;
@@ -132,7 +132,7 @@ int colors::EntityF(CachedEntity* ent) {
 		}
 	}
 
-	if (ent->m_iClassID == g_pClassID->CCurrencyPack) {
+	if (ent->clazz == g_pClassID->CCurrencyPack) {
 		if (CE_BYTE(ent, netvar.bDistributed))
 			result = red;
 		else

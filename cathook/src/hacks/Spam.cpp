@@ -28,15 +28,14 @@ void Spam::ProcessUserCmd(CUserCmd*) {
 	if (g_pGlobals->curtime < m_fLastSpam) m_fLastSpam = 0.0f;
 	if (m_TextFile->GetLineCount() == 0) return;
 	if (m_iCurrentIndex >= m_TextFile->GetLineCount() || m_iCurrentIndex < 0) m_iCurrentIndex = 0;
-	char* spam = 0;
+	std::string& spam = "";
 	if (v_bSpamNewlines->GetBool()) {
-		spam = strfmt("\n\n\n\n\n\n\n\n\n\n\n\n\n%s", m_TextFile->GetLine(m_iCurrentIndex));
+		spam = format("\n\n\n\n\n\n\n\n\n\n\n\n\n", m_TextFile->GetLine(m_iCurrentIndex));
 	} else {
-		spam = strfmt("%s", m_TextFile->GetLine(m_iCurrentIndex));
+		spam = format(m_TextFile->GetLine(m_iCurrentIndex));
 	}
 	ReplaceString(spam, "\\n", "\n");
-	g_pChatStack->Push(spam);
-	delete [] spam;
+	g_pChatStack->stack.push(spam);
 	m_iCurrentIndex++;
 	m_fLastSpam = g_pGlobals->curtime;
 	return;

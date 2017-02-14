@@ -8,19 +8,17 @@
 #ifndef TEXTFILE_H_
 #define TEXTFILE_H_
 
+#include "beforecheaders.h"
+#include <string>
+#include "aftercheaders.h"
+
 class TextFile {
 public:
-	TextFile(unsigned length, unsigned lines);
-	~TextFile();
-	void LoadFile(const char* name);
-	unsigned GetLineCount();
-	const char* GetLine(unsigned line);
+	void Load(std::string filename);
+	size_t LineCount() const;
+	const std::string& Line(size_t id) const;
 
-	unsigned m_nLength;
-	unsigned m_nLines;
-	unsigned m_nCount;
-	const char* m_pszFilename;
-	char* m_Buffer;
+	std::vector<std::string> lines;
 };
 
 #endif /* TEXTFILE_H_ */

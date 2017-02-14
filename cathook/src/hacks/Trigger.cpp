@@ -38,21 +38,17 @@ Triggerbot::Triggerbot() {
 
 void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
-	if (g_pLocalPlayer->life_state) return;
-	/*IClientEntity* local = ENTITY(engineClient->GetLocalPlayer());
-	if (!local) return;
-	if (NET_BYTE(local, entityvars.iLifeState)) return;*/
-	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_hitscan) return;
+	if (GetWeaponMode(g_LocalPlayer->entity) != weapon_hitscan) return;
 	if (v_bAmbassadorCharge->GetBool()) {
-		if (IsAmbassador(g_pLocalPlayer->weapon())) {
-			if ((g_pGlobals->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
+		if (IsAmbassador(g_LocalPlayer->weapon())) {
+			if ((g_pGlobals->curtime - CE_FLOAT(g_LocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
 				return;
 			}
 		}
 	}
 	Ray_t ray;
-	filter->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
-	eye = g_pLocalPlayer->v_Eye;
+	filter->SetSelf(RAW_ENT(g_LocalPlayer->entity));
+	eye = g_LocalPlayer->v_Eye;
 	Vector forward;
 	float sp, sy, cp, cy;
 	sy = sinf(DEG2RAD(cmd->viewangles[1])); // yaw
@@ -85,7 +81,7 @@ void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 	};
 
 	Vector enemy_pos = entity->m_vecOrigin;
-	Vector my_pos = g_pLocalPlayer->entity->m_vecOrigin;
+	Vector my_pos = g_LocalPlayer->entity->m_vecOrigin;
 	if (v_iMaxRange->GetInt() > 0) {
 		if (entity->m_flDistance > v_iMaxRange->GetInt()) return;
 	}
@@ -101,22 +97,22 @@ void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {
 		(IsPlayerInvisible(entity))) return;
 	int health = CE_INT(entity, netvar.iHealth);
 	bool bodyshot = false;
-	if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
+	if (g_LocalPlayer->clazz == tf_class::tf_sniper) {
 		// If sniper..
 		if (health <= 50 && this->v_bFinishingHit->GetBool()) {
 			bodyshot = true;
 		}
 		// If we need charge...
 		if (!bodyshot && this->v_bBodyshot->GetBool()) {
-			float bdmg = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargedDamage);
+			float bdmg = CE_FLOAT(g_LocalPlayer->weapon(), netvar.flChargedDamage);
 			if (CanHeadshot() && (bdmg) >= health) {
 				bodyshot = true;
 			}
 		}
 
 	}
-	if (!bodyshot && (g_pLocalPlayer->clazz == tf_class::tf_sniper) && this->v_bZoomedOnly->GetBool() &&
-		!((g_pLocalPlayer->bZoomed) && CanHeadshot())) {
+	if (!bodyshot && (g_LocalPlayer->clazz == tf_class::tf_sniper) && this->v_bZoomedOnly->GetBool() &&
+		!((g_LocalPlayer->bZoomed) && CanHeadshot())) {
 		return;
 	}
 	//debug->AddBoxOverlay(enemy_trace->endpos, Vector(-1.0f, -1.0f, -1.0f), Vector(1.0f, 1.0f, 1.0f), QAngle(0, 0, 0), 255, 0, 0, 255, 2.0f);
@@ -152,7 +148,3 @@ Triggerbot::~Triggerbot() {
 	delete filter;
 	delete enemy_trace;
 }
-
-void Triggerbot::Draw() {
-
-};

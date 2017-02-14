@@ -126,9 +126,9 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 	}
 	if (this->v_bActiveOnlyWhenCanShoot->GetBool()) {
 		// Miniguns should shoot and aim continiously. TODO smg
-		if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFMinigun) {
+		if (g_LocalPlayer->weapon()->clazz != g_pClassID->CTFMinigun) {
 			// Melees are weird, they should aim continiously like miniguns too.
-			if (GetWeaponMode(g_pLocalPlayer->entity) != weaponmode::weapon_melee) {
+			if (GetWeaponMode(g_LocalPlayer->entity) != weaponmode::weapon_melee) {
 				// Finally, CanShoot() check.
 				if (!CanShoot()) return false;
 			}
@@ -137,8 +137,8 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 	if (this->v_bEnabledAttacking->GetBool() && !(cmd->buttons & IN_ATTACK)) {
 		return false;
 	}
-	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFMinigun) {
-		if (!HasCondition(g_pLocalPlayer->entity, TFCond_Slowed)) {
+	if (g_LocalPlayer->weapon()->clazz == g_pClassID->CTFMinigun) {
+		if (!HasCondition(g_LocalPlayer->entity, TFCond_Slowed)) {
 			return false;
 		}
 		if (!(cmd->buttons & IN_ATTACK2)) {
@@ -150,15 +150,15 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 		}
 	}
 
-	if (IsAmbassador(g_pLocalPlayer->weapon())) { // TODO AmbassadorCanHeadshot()
-		if ((g_pGlobals->curtime - CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
+	if (IsAmbassador(g_LocalPlayer->weapon())) { // TODO AmbassadorCanHeadshot()
+		if ((g_pGlobals->curtime - CE_FLOAT(g_LocalPlayer->weapon(), netvar.flLastFireTime)) <= 1.0) {
 			return false;
 		}
 	}
-	if (g_pLocalPlayer->bZoomed) {
+	if (g_LocalPlayer->bZoomed) {
 		// TODO IsSniperRifle()
-		if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFSniperRifle ||
-			g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFSniperRifleDecap) {
+		if (g_LocalPlayer->weapon()->clazz == g_pClassID->CTFSniperRifle ||
+			g_LocalPlayer->weapon()->clazz == g_pClassID->CTFSniperRifleDecap) {
 			if (!CanHeadshot()) return false;
 		}
 	}
@@ -167,13 +167,13 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 
 void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
-	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return;
-	if (g_pLocalPlayer->life_state) return;
+	if (CE_BAD(g_LocalPlayer->entity) || CE_BAD(g_LocalPlayer->weapon())) return;
+	if (g_LocalPlayer->life_state) return;
 	//this->m_iLastTarget = -1;
 
-	if (HasCondition(g_pLocalPlayer->entity, TFCond_Taunting)) return;
+	if (HasCondition(g_LocalPlayer->entity, TFCond_Taunting)) return;
 
-	switch (GetWeaponMode(g_pLocalPlayer->entity)) {
+	switch (GetWeaponMode(g_LocalPlayer->entity)) {
 	case weapon_medigun:
 	case weapon_pda:
 	case weapon_consumable:
@@ -184,7 +184,7 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 		if (!v_bProjectileAimbot->GetBool()) return;
 	};
 
-	if (HasCondition(g_pLocalPlayer->entity, TFCond_Cloaked)) return; // TODO other kinds of cloak
+	if (HasCondition(g_LocalPlayer->entity, TFCond_Cloaked)) return; // TODO other kinds of cloak
 	// TODO m_bFeignDeathReady no aim
 
 	if(cmd->buttons & IN_USE) return;
@@ -197,14 +197,14 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 
 	m_iPreferredHitbox = this->v_eHitbox->GetInt();
 	if (this->v_bAutoHitbox->GetBool()) {
-		int ci = g_pLocalPlayer->weapon()->m_iClassID;
+		int ci = g_LocalPlayer->weapon()->clazz;
 		if (ci == g_pClassID->CTFSniperRifle ||
 			ci == g_pClassID->CTFSniperRifleDecap) {
 			m_bHeadOnly = CanHeadshot();
 		} else if (ci == g_pClassID->CTFCompoundBow) {
 			m_bHeadOnly = true;
 		} else if (ci == g_pClassID->CTFRevolver) {
-			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon());
+			m_bHeadOnly = IsAmbassador(g_LocalPlayer->weapon());
 		} else if (ci == g_pClassID->CTFRocketLauncher ||
 				ci == g_pClassID->CTFRocketLauncher_AirStrike ||
 				ci == g_pClassID->CTFRocketLauncher_DirectHit ||
@@ -215,9 +215,9 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 		}
 	}
 
-	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFGrapplingHook) return;
+	if (g_LocalPlayer->weapon()->clazz == g_pClassID->CTFGrapplingHook) return;
 
-	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
+	m_bProjectileMode = (GetProjectileData(g_LocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
 	if (v_fOverrideProjSpeed->GetBool())
 		m_flProjSpeed = v_fOverrideProjSpeed->GetFloat();
 	if (v_fOverrideProjGravity->GetBool())
@@ -231,14 +231,14 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 		if (CE_BAD(ent)) continue;
 		int tg = ShouldTarget(ent);
 		if (!tg) {
-			if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee || this->v_ePriorityMode->GetInt() == 2) {
+			if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_melee || this->v_ePriorityMode->GetInt() == 2) {
 				Vector result;
 				if (ent->m_Type == ENTITY_BUILDING) {
 					result = GetBuildingPosition(ent);
 				} else {
 					GetHitbox(ent, BestHitbox(ent, m_iPreferredHitbox), result);
 				}
-				float scr = 4096.0f - result.DistTo(g_pLocalPlayer->v_Eye);
+				float scr = 4096.0f - result.DistTo(g_LocalPlayer->v_Eye);
 				if (scr > target_highest_score) {
 					target_highest_score = scr;
 					target_highest = ent;
@@ -259,7 +259,7 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 					} else {
 						GetHitbox(ent, BestHitbox(ent, m_iPreferredHitbox), result);
 					}
-					float scr = 360.0f - GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, result);
+					float scr = 360.0f - GetFov(g_LocalPlayer->v_OrigViewangles, g_LocalPlayer->v_Eye, result);
 					if (scr > target_highest_score) {
 						target_highest_score = scr;
 						target_highest = ent;
@@ -288,8 +288,8 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 		target_highest->m_ESPColorFG = colors::pink;
 		if (ShouldAim(cmd)) {
 			this->m_iLastTarget = target_highest->m_IDX;
-			if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFCompoundBow) { // There is no Huntsman in TF2C.
-				float begincharge = CE_FLOAT(g_pLocalPlayer->weapon(), netvar.flChargeBeginTime);
+			if (g_LocalPlayer->weapon()->clazz == g_pClassID->CTFCompoundBow) { // There is no Huntsman in TF2C.
+				float begincharge = CE_FLOAT(g_LocalPlayer->weapon(), netvar.flChargeBeginTime);
 				float charge = 0;
 				if (begincharge != 0) {
 					charge = g_pGlobals->curtime - begincharge;
@@ -307,17 +307,17 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 			} else {
 				Aim(target_highest, cmd);
 			}
-			if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFMinigun)
+			if (g_LocalPlayer->weapon()->clazz == g_pClassID->CTFMinigun)
 				m_nMinigunFixTicks = 40;
 		}
 	}
-	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFMinigun &&
+	if (g_LocalPlayer->weapon()->clazz == g_pClassID->CTFMinigun &&
 			target_highest == 0 &&
 			IDX_GOOD(m_iLastTarget) &&
 			m_nMinigunFixTicks && ShouldAim(cmd)) {
 		Aim(ENTITY(m_iLastTarget), cmd);
 	}
-	if (this->v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
+	if (this->v_bSilent->GetBool()) g_LocalPlayer->bUseSilentAngles = true;
 	return;
 }
 
@@ -327,8 +327,8 @@ int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 	int flags = CE_INT(target, netvar.iFlags);
 	bool ground = (flags & (1 << 0));
 	if (!ground) {
-		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_projectile) {
-			if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFCompoundBow) {
+		if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_projectile) {
+			if (g_LocalPlayer->weapon()->clazz != g_pClassID->CTFCompoundBow) {
 				preferred = hitbox_t::spine_3;
 			}
 		}
@@ -348,7 +348,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 			if (IsPlayerInvulnerable(entity)) return 4;
 			if (v_bRespectCloak->GetBool() && IsPlayerInvisible(entity)) return 6;
 			weaponmode mode = GetWeaponMode(LOCAL_E);
-			if (mode == weaponmode::weapon_hitscan || LOCAL_W->m_iClassID == g_pClassID->CTFCompoundBow)
+			if (mode == weaponmode::weapon_hitscan || LOCAL_W->clazz == g_pClassID->CTFCompoundBow)
 				if (HasCondition(entity, TFCond_UberBulletResist)) return 10;
 		}
 
@@ -361,7 +361,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 		if (v_iMaxRange->GetInt() > 0) {
 			if (entity->m_flDistance > v_iMaxRange->GetInt()) return 8;
 		}
-		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
+		if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_melee) {
 			if (entity->m_flDistance > 95) return 9;
 		}
 		if (GetRelation(entity) == relation::FRIEND) return 11;
@@ -378,7 +378,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 			} else {
 				if (!GetHitbox(entity, hitbox, resultAim)) return 15;
 			}
-			if (!IsVectorVisible(g_pLocalPlayer->v_Eye, resultAim)) return 16;
+			if (!IsVectorVisible(g_LocalPlayer->v_Eye, resultAim)) return 16;
 		} else {
 			/*if (v_bMachinaPenetration->GetBool()) {
 				if (!GetHitbox(entity, hitbox, resultAim)) return false;
@@ -388,16 +388,16 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 				if (!IsEntityVisible(entity, hitbox)) return 18;
 			}
 		}
-		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return 25;
+		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_LocalPlayer->v_OrigViewangles, g_LocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return 25;
 		return false;
 	} else if (entity->m_Type == ENTITY_BUILDING) {
 		if (!v_bAimBuildings->GetBool()) return 19;
 		int team = CE_INT(entity, netvar.iTeamNum);
-		if (team == g_pLocalPlayer->team) return 20;
+		if (team == g_LocalPlayer->team) return 20;
 		if (v_iMaxRange->GetInt() > 0) {
 			if (entity->m_flDistance > v_iMaxRange->GetInt()) return 21;
 		}
-		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_melee) {
+		if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_melee) {
 			if (entity->m_flDistance > 95) return 22;
 		}
 		Vector resultAim;
@@ -413,7 +413,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 			if (!IsBuildingVisible(entity)) return 24;
 		}
 		//logging::Info("IsFOV?");
-		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return 25;
+		if (v_fFOV->GetFloat() > 0.0f && (GetFov(g_LocalPlayer->v_OrigViewangles, g_LocalPlayer->v_Eye, resultAim) > v_fFOV->GetFloat())) return 25;
 		//logging::Info("Tru");
 		return 0;
 	} else {
@@ -448,7 +448,7 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 		hit = ProjectilePrediction(entity, hitbox, m_flProjSpeed, m_flProjGravity, PlayerGravityMod(entity));
 	}
 	//logging::Info("ayyming!");
-	Vector tr = (hit - g_pLocalPlayer->v_Eye);
+	Vector tr = (hit - g_LocalPlayer->v_Eye);
 	fVectorAngles(tr, angles);
 	bool smoothed = false;
 	/*if (this->v_bSmooth->GetBool()) {
@@ -462,15 +462,15 @@ bool Aimbot::Aim(CachedEntity* entity, CUserCmd* cmd) {
 	fClampAngle(angles);
 	cmd->viewangles = angles;
 	if (this->v_bSilent->GetBool()) {
-		g_pLocalPlayer->bUseSilentAngles = true;
+		g_LocalPlayer->bUseSilentAngles = true;
 	}
 	if (this->v_bAutoShoot->GetBool()) {
-		if (g_pLocalPlayer->clazz == tf_class::tf_sniper) {
-			if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFSniperRifle || g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFSniperRifleDecap) {
+		if (g_LocalPlayer->clazz == tf_class::tf_sniper) {
+			if (g_LocalPlayer->weapon()->clazz == g_pClassID->CTFSniperRifle || g_LocalPlayer->weapon()->clazz == g_pClassID->CTFSniperRifleDecap) {
 				if (v_bZoomedOnly->GetBool() && !CanHeadshot()) return true;
 			}
 		}
-		if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFCompoundBow) {
+		if (g_LocalPlayer->weapon()->clazz != g_pClassID->CTFCompoundBow) {
 			cmd->buttons |= IN_ATTACK;
 		}
 	}

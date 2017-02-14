@@ -54,8 +54,8 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 	bool time_replaced = false;
 	float curtime_old = g_pGlobals->curtime;;
-	if (CE_GOOD(g_pLocalPlayer->entity)) {
-		float servertime = (float)CE_INT(g_pLocalPlayer->entity, netvar.nTickBase) * g_pGlobals->interval_per_tick;
+	if (CE_GOOD(g_LocalPlayer->entity)) {
+		float servertime = (float)CE_INT(g_LocalPlayer->entity, netvar.nTickBase) * g_pGlobals->interval_per_tick;
 		g_pGlobals->curtime = servertime;
 		time_replaced = true;
 	}
@@ -70,14 +70,14 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 //	PROF_END("Entity Cache updating");
 	SAFE_CALL(g_pPlayerResource->Update());
-	SAFE_CALL(g_pLocalPlayer->Update());
+	SAFE_CALL(g_LocalPlayer->Update());
 	g_Settings.bInvalid = false;
-	if (CE_GOOD(g_pLocalPlayer->entity)) {
-			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
+	if (CE_GOOD(g_LocalPlayer->entity)) {
+			g_LocalPlayer->v_OrigViewangles = cmd->viewangles;
 //		PROF_BEGIN();
 		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
 		SAFE_CALL(HACK_PROCESS_USERCMD(ESP, cmd));
-		if (!g_pLocalPlayer->life_state) {
+		if (!g_LocalPlayer->life_state) {
 			//if (TF2) SAFE_CALL(HACK_PROCESS_USERCMD(Noisemaker, cmd));
 			SAFE_CALL(HACK_PROCESS_USERCMD(Bunnyhop, cmd));
 			SAFE_CALL(HACK_PROCESS_USERCMD(AutoStrafe, cmd));
@@ -107,7 +107,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	g_Settings.bInvalid = false;
 	if (g_pChatStack)
 		g_pChatStack->OnCreateMove();
-	if (CE_GOOD(g_pLocalPlayer->entity)) {
+	if (CE_GOOD(g_LocalPlayer->entity)) {
 		bool speedapplied = false;
 		if (g_Settings.kRollSpeedhack->GetBool() && g_pGUI->m_bPressedState[g_Settings.kRollSpeedhack->GetInt()]) {
 			if (!(cmd->buttons & IN_ATTACK) || !CanShoot()) {
@@ -115,11 +115,11 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 				if (fabs(speed) > 0.0f) {
 					cmd->forwardmove = -speed;
 					cmd->sidemove = 0.0f;
-					cmd->viewangles.y = g_pLocalPlayer->v_OrigViewangles.y;
+					cmd->viewangles.y = g_LocalPlayer->v_OrigViewangles.y;
 					cmd->viewangles.y -= 180.0f;
 					if (cmd->viewangles.y < -180.0f) cmd->viewangles.y += 360.0f;
 					cmd->viewangles.z = 90.0f;
-					g_pLocalPlayer->bUseSilentAngles = true;
+					g_LocalPlayer->bUseSilentAngles = true;
 					speedapplied = true;
 				}
 			}
@@ -142,13 +142,13 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 			}*/
 		}
 
-		if (g_pLocalPlayer->bUseSilentAngles) {
+		if (g_LocalPlayer->bUseSilentAngles) {
 			if (!speedapplied) {
 				Vector vsilent(cmd->forwardmove, cmd->sidemove, cmd->upmove);
 				float speed = sqrt(vsilent.x * vsilent.x + vsilent.y * vsilent.y);
 				Vector ang;
 				VectorAngles(vsilent, ang);
-				float yaw = DEG2RAD(ang.y - g_pLocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
+				float yaw = DEG2RAD(ang.y - g_LocalPlayer->v_OrigViewangles.y + cmd->viewangles.y);
 				cmd->forwardmove = cos(yaw) * speed;
 				cmd->sidemove = sin(yaw) * speed;
 			}
@@ -161,7 +161,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 
 //	PROF_END("CreateMove");
-	g_pLocalPlayer->bAttackLastTick = (cmd->buttons & IN_ATTACK);
+	g_LocalPlayer->bAttackLastTick = (cmd->buttons & IN_ATTACK);
 	return ret;
 
 	SEGV_END;

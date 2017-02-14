@@ -6,20 +6,13 @@
  */
 
 #include "textfile.h"
-#include "common.h"
+
+#include "beforecheaders.h"
+#include <fstream>
+#include "aftercheaders.h"
 
 #include <pwd.h>
 #include <stdio.h>
-
-TextFile::TextFile(unsigned length, unsigned lines) {
-	m_nCount = lines;
-	m_nLength = length;
-	m_Buffer = new char[length * lines];
-}
-
-TextFile::~TextFile() {
-	delete [] m_Buffer;
-}
 
 void TextFile::LoadFile(const char* name) {
 	uid_t uid = geteuid();
@@ -28,30 +21,21 @@ void TextFile::LoadFile(const char* name) {
 		logging::Info("can't get the username!");
 		return;
 	}
-	char* filename = strfmt("/home/%s/.cathook/%s", pw->pw_name, name);
-	FILE* file = fopen(filename, "r");
-	if (!file) {
+	std::string filename = format("/home/", pw->pw_name, "/.cathook/", name);
+	std::ifstream file(filename, std::ios::in);
+	if (file.bad()) {
 		logging::Info("Could not open the file: %s", filename);
-		delete filename;
 		return;
 	}
-	delete filename;
-	char* buffer = new char[m_nLength];
-	for (m_nCount = 0; m_nCount < m_nLines; m_nCount++) {
-		if(fgets(buffer, m_nLength - 1, file)) {
-			if (buffer[strlen(buffer) - 1] == '\n')
-				buffer[strlen(buffer) - 1] = '\0';
-			strncpy(&m_Buffer[m_nCount * m_nLength], buffer, m_nLength - 1);
-		} else break;
+	for (std::string line; std::getline(file, line);) {
+		lines.push_back(line);
 	}
-	delete [] buffer;
 }
 
-const char* TextFile::GetLine(unsigned line) {
-	if (line < 0 || line >= m_nCount) return 0;
-	return (const char*)&m_Buffer[line * m_nLength];
+size_t TextFile::LineCount() const {
+	return lines.size();
 }
 
-unsigned TextFile::GetLineCount() {
-	return m_nCount;
+const std::string& TextFile::Line(size_t id) const {
+	return lines.at(id);
 }

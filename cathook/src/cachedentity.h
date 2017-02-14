@@ -35,7 +35,7 @@ struct CachedEntityData {
 
 	float distance;
 
-	Vector origin;
+	bool has_playerinfo;
 	player_info_s info;
 
 	static const CachedEntityData zero;
@@ -74,15 +74,15 @@ public:
 	k_EBuilding Building();
 	k_EItemType Item();
 	int Team();
+	bool Enemy();
 	int Class();
 	int Health();
 	int MaxHealth();
 	float Distance();
-	float DistanceSqr();
-	Vector& Origin();
+	const Vector& Origin();
 	player_info_s& GetPlayerInfo();
 
-	int m_iClassID;
+	int clazz;
 	ClientClass* m_pClass;
 
 	bool m_bAnyHitboxVisible;

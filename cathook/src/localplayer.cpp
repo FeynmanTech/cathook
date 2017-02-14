@@ -9,20 +9,17 @@
 #include "sdk.h"
 
 void LocalPlayer::Update() {
+	bad = true;
 	entity_idx = g_IEngine->GetLocalPlayer();
-	entity = ENTITY(entity_idx);
-	if (CE_BAD(entity)) {
+	entity = gEntityCache.Entity(entity_idx);
+	if (entity->bad) {
 		return;
 	}
-	team = CE_INT(entity, netvar.iTeamNum);
-	life_state = CE_BYTE(entity, netvar.iLifeState);
-	v_ViewOffset = CE_VECTOR(entity, netvar.vViewOffset);
-	v_Origin = entity->m_vecOrigin;
-	v_Eye = v_Origin + v_ViewOffset;
-	clazz = CE_INT(entity, netvar.iClass);
-	health = CE_INT(entity, netvar.iHealth);
+	dead = entity->var<unsigned char>(netvar.iLifeState);
+	v_ViewOffset = entity->var<Vector>(netvar.vViewOffset);
+	v_Eye = entity->Origin() + v_ViewOffset;
 	this->bUseSilentAngles = false;
-	bZoomed = CE_INT(entity, netvar.iFOV) == 20; //!= NET_INT(entity, netvar.iDefaultFOV);
+	bZoomed = entity->var<int>(netvar.iFOV) == 20;
 	if (bZoomed) {
 		if (flZoomBegin == 0.0f) flZoomBegin = g_pGlobals->curtime;
 	} else {
@@ -30,12 +27,12 @@ void LocalPlayer::Update() {
 	}
 }
 
+// When calling any functions always assume that local player is not bad.
 CachedEntity* LocalPlayer::weapon() {
-	if (CE_BAD(entity)) return 0;
-	int handle = CE_INT(entity, netvar.hActiveWeapon);
+	int handle = entity->var<int>(netvar.hActiveWeapon);
 	int eid = handle & 0xFFF;
-	if (IDX_BAD(eid)) return 0;
-	return ENTITY(eid);
+	if (eid < 0 || eid > gEntityCache.max) return 0;
+	return gEntityCache.Entity(eid);
 }
 
-LocalPlayer* g_pLocalPlayer = 0;
+LocalPlayer g_LocalPlayer;

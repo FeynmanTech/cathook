@@ -70,9 +70,9 @@ AutoHeal::AutoHeal() {
 
 void AutoHeal::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
-	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return;
-	if (g_pLocalPlayer->life_state) return;
-	if (GetWeaponMode(g_pLocalPlayer->entity) != weapon_medigun) return;
+	if (CE_BAD(g_LocalPlayer->entity) || CE_BAD(g_LocalPlayer->weapon())) return;
+	if (g_LocalPlayer->life_state) return;
+	if (GetWeaponMode(g_LocalPlayer->entity) != weapon_medigun) return;
 	int old_target = m_iCurrentHealingTarget;
 	m_iCurrentHealingTarget = GetBestHealingTarget();
 	if (m_iNewTarget > 0 && m_iNewTarget < 10) m_iNewTarget++;
@@ -85,8 +85,8 @@ void AutoHeal::ProcessUserCmd(CUserCmd* cmd) {
 	CachedEntity* target = ENTITY(m_iCurrentHealingTarget);
 	Vector out;
 	GetHitbox(target, 7, out);
-	AimAt(g_pLocalPlayer->v_Eye, out, cmd);
-	if (v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
+	AimAt(g_LocalPlayer->v_Eye, out, cmd);
+	if (v_bSilent->GetBool()) g_LocalPlayer->bUseSilentAngles = true;
 	if (!m_iNewTarget && (g_pGlobals->tickcount % 60)) cmd->buttons |= IN_ATTACK;
 	return;
 }
