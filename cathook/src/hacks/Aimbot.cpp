@@ -128,7 +128,7 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 		// Miniguns should shoot and aim continiously. TODO smg
 		if (g_LocalPlayer->weapon()->clazz != g_pClassID->CTFMinigun) {
 			// Melees are weird, they should aim continiously like miniguns too.
-			if (GetWeaponMode(g_LocalPlayer->entity) != weaponmode::weapon_melee) {
+			if (GetWeaponMode(g_LocalPlayer->entity) != k_EWeaponmode::weapon_melee) {
 				// Finally, CanShoot() check.
 				if (!CanShoot()) return false;
 			}
@@ -231,7 +231,7 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 		if (CE_BAD(ent)) continue;
 		int tg = ShouldTarget(ent);
 		if (!tg) {
-			if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_melee || this->v_ePriorityMode->GetInt() == 2) {
+			if (GetWeaponMode(g_LocalPlayer->entity) == k_EWeaponmode::weapon_melee || this->v_ePriorityMode->GetInt() == 2) {
 				Vector result;
 				if (ent->m_Type == ENTITY_BUILDING) {
 					result = GetBuildingPosition(ent);
@@ -327,7 +327,7 @@ int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 	int flags = CE_INT(target, netvar.iFlags);
 	bool ground = (flags & (1 << 0));
 	if (!ground) {
-		if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_projectile) {
+		if (GetWeaponMode(g_LocalPlayer->entity) == k_EWeaponmode::weapon_projectile) {
 			if (g_LocalPlayer->weapon()->clazz != g_pClassID->CTFCompoundBow) {
 				preferred = hitbox_t::spine_3;
 			}
@@ -347,8 +347,8 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 			if (g_Settings.bIgnoreTaunting->GetBool() && HasCondition(entity, TFCond_Taunting)) return 1;
 			if (IsPlayerInvulnerable(entity)) return 4;
 			if (v_bRespectCloak->GetBool() && IsPlayerInvisible(entity)) return 6;
-			weaponmode mode = GetWeaponMode(LOCAL_E);
-			if (mode == weaponmode::weapon_hitscan || LOCAL_W->clazz == g_pClassID->CTFCompoundBow)
+			k_EWeaponmode mode = GetWeaponMode(LOCAL_E);
+			if (mode == k_EWeaponmode::weapon_hitscan || LOCAL_W->clazz == g_pClassID->CTFCompoundBow)
 				if (HasCondition(entity, TFCond_UberBulletResist)) return 10;
 		}
 
@@ -361,7 +361,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 		if (v_iMaxRange->GetInt() > 0) {
 			if (entity->m_flDistance > v_iMaxRange->GetInt()) return 8;
 		}
-		if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_melee) {
+		if (GetWeaponMode(g_LocalPlayer->entity) == k_EWeaponmode::weapon_melee) {
 			if (entity->m_flDistance > 95) return 9;
 		}
 		if (GetRelation(entity) == relation::FRIEND) return 11;
@@ -397,7 +397,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 		if (v_iMaxRange->GetInt() > 0) {
 			if (entity->m_flDistance > v_iMaxRange->GetInt()) return 21;
 		}
-		if (GetWeaponMode(g_LocalPlayer->entity) == weaponmode::weapon_melee) {
+		if (GetWeaponMode(g_LocalPlayer->entity) == k_EWeaponmode::weapon_melee) {
 			if (entity->m_flDistance > 95) return 22;
 		}
 		Vector resultAim;

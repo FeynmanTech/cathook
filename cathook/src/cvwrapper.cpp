@@ -10,6 +10,7 @@
 #include "common.h"
 #include "sdk.h"
 
+std::stack<CatCommand*> g_PromisedCatCommands;
 std::stack<CatVar*> g_PromisedCatVars;
 void InitPromisedCatVars() {
 	while (g_PromisedCatVars.size()) {
@@ -17,6 +18,24 @@ void InitPromisedCatVars() {
 		g_PromisedCatVars.pop();
 		var->BindConVar(CreateConVar(var->name, var->defaults, var->helpstring));
 	}
+	while (g_PromisedCatCommands.size()) {
+		auto cmd = g_PromisedCatCommands.top();
+		g_PromisedCatCommands.pop();
+		if (cmd->callback)
+			cmd->BindCommand(CreateConCommand(cmd->name, cmd->callback, cmd->help));
+		else if (cmd->callback_void)
+			cmd->BindCommand(CreateConCommand(cmd->name, cmd->callback, cmd->help));
+	}
+}
+
+CatCommand::CatCommand(std::string name, std::string help, FnCommandCallback_t callback) :
+		name(name), help(help), callback(callback), callback_void(nullptr) {
+	g_PromisedCatCommands.push(this);
+}
+
+CatCommand::CatCommand(std::string name, std::string help, FnCommandCallbackVoid_t callback) :
+		name(name), help(help), callback_void(callback), callback(nullptr) {
+	g_PromisedCatCommands.push(this);
 }
 
 inline explicit CatVar::operator bool() const {

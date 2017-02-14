@@ -19,6 +19,8 @@ class Vector;
 
 #define PI 3.14159265358979323846f
 #define RADPI 57.295779513082f
+
+#define HU2M(x) ((int)((distance) / 64.0f * 1.22f))
 //#define DEG2RAD(x) (float)(x) * (float)(PI / 180.0f)
 
 #include "enums.h"
@@ -29,7 +31,6 @@ class Vector;
 #include <vector>
 #include "aftercheaders.h"
 
-#include "fixsdk.h"
 #include <tier1/convar.h>
 #include <inputsystem/ButtonCode.h>
 
@@ -42,8 +43,8 @@ extern FILE* hConVarsFile;
 void BeginConVars();
 
 // Shouldn't be called directly!!!
-ConVar* CreateConVar(std::string name, std::string value, std::string help);
-ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, const char* help);
+ConVar* CreateConVar(const std::string& name, const std::string& value, const std::string& help);
+ConCommand* CreateConCommand(const std::string& name, FnCommandCallback_t callback, const std::string& help);
 void EndConVars();
 
 bool IsPlayerCritBoosted(CachedEntity* player); // TODO use CTFPlayerShared::IsCritBoosted()..
@@ -58,7 +59,7 @@ powerup_type GetPowerupOnPlayer(CachedEntity* player);
 // GetHitbox() is being called really frequently.
 // It's better if it won't create a new object each time it gets called.
 // So it returns a success state, and the values are stored in out reference.
-weaponmode GetWeaponMode(CachedEntity* player);
+k_EWeaponmode GetWeaponMode(CachedEntity* player);
 
 void FixMovement(CUserCmd& cmd, Vector& viewangles);
 void VectorAngles(Vector &forward, Vector &angles);

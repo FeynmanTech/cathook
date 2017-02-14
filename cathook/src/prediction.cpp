@@ -24,8 +24,6 @@
 #include "netvars.h"
 #include "trace.h"
 
-// TODO there is a Vector() object created each call.
-
 Vector SimpleLatencyPrediction(CachedEntity* ent, int hb) {
 	if (!ent) return Vector();
 	Vector result;

@@ -8,13 +8,16 @@
 #ifndef CVWRAPPER_H_
 #define CVWRAPPER_H_
 
-class ConVar;
+class CatVar;
+class CatCommand;
 
 #include "beforecheaders.h"
 #include <string>
 #include <vector>
 #include <stack>
 #include "aftercheaders.h"
+
+#include <tier1/convar.h>
 
 //#define CREATE_CV(type, name, defaults, description) \
 //	new CatVar(CreateConVar(CON_PREFIX name, defaults, description), type);
@@ -43,8 +46,25 @@ public:
 	int m_iLength;
 };
 
+extern std::stack<CatCommand*> g_PromisedCatCommands;
 extern std::stack<CatVar*> g_PromisedCatVars;
 void InitPromisedCatVars();
+
+class CatCommand {
+public:
+	CatCommand(std::string name, std::string help, FnCommandCallback_t callback);
+	CatCommand(std::string name, std::string help, FnCommandCallbackVoid_t callback);
+
+	inline void BindCommand(ConCommand* cmd) {
+		this->cmd = cmd;
+	}
+
+	std::string name;
+	std::string help;
+	FnCommandCallback_t callback;
+	FnCommandCallbackVoid_t callback_void;
+	ConCommand* cmd;
+};
 
 class CatVar {
 public:

@@ -64,7 +64,7 @@ bool IsPlayerCritBoosted(CachedEntity* player) {
 		 || HasCondition(player, TFCond_CritRuneTemp) || HasCondition(player, TFCond_HalloweenCritCandy));
 }
 
-ConVar* CreateConVar(std::string name, std::string value, std::string help) {
+ConVar* CreateConVar(const std::string& name, const std::string& value, const std::string& help) {
 	char* namec = new char[256];
 	strncpy(namec, name.c_str(), 255);
 	char* valuec = new char[256];
@@ -79,7 +79,7 @@ ConVar* CreateConVar(std::string name, std::string value, std::string help) {
 	return ret;
 }
 
-ConCommand* CreateConCommand(const char* name, FnCommandCallback_t callback, const char* help) {
+ConCommand* CreateConCommand(const std::string& name, FnCommandCallback_t callback, const std::string& help) {
 	ConCommand* ret = new ConCommand(name, callback, help);
 	g_ICVar->RegisterConCommand(ret);
 	return ret;
@@ -414,20 +414,20 @@ bool IsProjectileCrit(CachedEntity* ent) {
 	return CE_BYTE(ent, netvar.Rocket_bCritical);
 }
 
-weaponmode GetWeaponMode(CachedEntity* player) {
+k_EWeaponmode GetWeaponMode(CachedEntity* player) {
 	if (CE_BAD(player)) return weapon_invalid;
 	int weapon_handle = CE_INT(player, netvar.hActiveWeapon);
 	if (IDX_BAD((weapon_handle & 0xFFF))) {
 		//logging::Info("IDX_BAD: %i", weapon_handle & 0xFFF);
-		return weaponmode::weapon_invalid;
+		return k_EWeaponmode::weapon_invalid;
 	}
 	CachedEntity* weapon = (ENTITY(weapon_handle & 0xFFF));
-	if (CE_BAD(weapon)) return weaponmode::weapon_invalid;
-	if (IsMeleeWeapon(weapon)) return weaponmode::weapon_melee;
+	if (CE_BAD(weapon)) return k_EWeaponmode::weapon_invalid;
+	if (IsMeleeWeapon(weapon)) return k_EWeaponmode::weapon_melee;
 	if (weapon->clazz == g_pClassID->CTFLunchBox ||
 		weapon->clazz == g_pClassID->CTFLunchBox_Drink ||
 		weapon->clazz == g_pClassID->CTFBuffItem) {
-		return weaponmode::weapon_consumable;
+		return k_EWeaponmode::weapon_consumable;
 	} else if ( weapon->clazz == g_pClassID->CTFRocketLauncher_DirectHit ||
 				weapon->clazz == g_pClassID->CTFRocketLauncher ||
 				weapon->clazz == g_pClassID->CTFGrenadeLauncher ||
@@ -437,18 +437,18 @@ weaponmode GetWeaponMode(CachedEntity* player) {
 				weapon->clazz == g_pClassID->CTFFlareGun ||
 				weapon->clazz == g_pClassID->CTFFlareGun_Revenge ||
 				weapon->clazz == g_pClassID->CTFSyringeGun) {
-		return weaponmode::weapon_projectile;
+		return k_EWeaponmode::weapon_projectile;
 	} else if (weapon->clazz == g_pClassID->CTFJar ||
 			   weapon->clazz == g_pClassID->CTFJarMilk) {
-		return weaponmode::weapon_throwable;
+		return k_EWeaponmode::weapon_throwable;
 	} else if (weapon->clazz == g_pClassID->CTFWeaponPDA_Engineer_Build ||
 			   weapon->clazz == g_pClassID->CTFWeaponPDA_Engineer_Destroy ||
 			   weapon->clazz == g_pClassID->CTFWeaponPDA_Spy) {
-		return weaponmode::weapon_pda;
+		return k_EWeaponmode::weapon_pda;
 	} else if (weapon->clazz == g_pClassID->CWeaponMedigun) {
-		return weaponmode::weapon_medigun;
+		return k_EWeaponmode::weapon_medigun;
 	}
-	return weaponmode::weapon_hitscan;
+	return k_EWeaponmode::weapon_hitscan;
 }
 
 bool LineIntersectsBox(Vector& bmin, Vector& bmax, Vector& lmin, Vector& lmax) {

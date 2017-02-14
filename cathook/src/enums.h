@@ -84,7 +84,7 @@ enum tf_class {
 	tf_engineer
 };
 
-enum weaponmode {
+enum k_EWeaponmode {
 	weapon_invalid = -1,
 	weapon_hitscan = 0,
 	weapon_projectile,

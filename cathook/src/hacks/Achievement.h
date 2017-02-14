@@ -8,22 +8,14 @@
 #ifndef HACKS_ACHIEVEMENT_H_
 #define HACKS_ACHIEVEMENT_H_
 
-#include "IHack.h"
+namespace hacks { namespace tf2 { namespace achievement {
 
-class AchievementHack : public IHack {
-public:
-	AchievementHack();
+void UnlockEverything();
+void LockEverything();
 
-	void UnlockAll();
-	void LockAll();
+extern CatCommand unlock;
+extern CatCommand lock;
 
-	ConCommand* c_Unlock;
-	ConCommand* c_Lock;
-};
-
-void CC_Achievement_Unlock(const CCommand& args);
-void CC_Achievement_Lock(const CCommand& args);
-
-DECLARE_HACK_SINGLETON(AchievementHack);
+}}}
 
 #endif /* HACKS_ACHIEVEMENT_H_ */

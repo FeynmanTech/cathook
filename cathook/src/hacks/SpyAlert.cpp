@@ -23,10 +23,10 @@ void DrawEntity(CachedEntity& entity) {
 	if (entity.Class() != tf_class::tf_spy) return;
 	if (!entity.Enemy()) return;
 	float distance = entity.Distance();
-	if (distance < this->v_flBackstabDistance->GetFloat()) {
-		AddCenterString(colors::red, format("Backstab warning! ", (int)(distance / 64 * 1.22f), 'm'));
-	} else if (distance < this->v_flWarningDistance->GetFloat()) {
-		AddCenterString(colors::yellow, format("Incoming spy! ", (int)(distance / 64 * 1.22f), 'm'));
+	if (distance < backstab_distance) {
+		AddCenterString(colors::red, format("Backstab warning! ", HU2M(distance), 'm'));
+	} else if (distance < warning_distance) {
+		AddCenterString(colors::yellow, format("Incoming spy! ", HU2M(distance), 'm'));
 	}
 }
 

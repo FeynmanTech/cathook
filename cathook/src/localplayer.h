@@ -22,6 +22,8 @@ public:
 	bool bZoomed;
 	float flZoomBegin;
 
+	k_EWeaponmode weaponmode();
+	k_EWeaponmode m_weaponmode;
 	Vector v_ViewOffset;
 	Vector v_Eye;
 	int entity_idx;

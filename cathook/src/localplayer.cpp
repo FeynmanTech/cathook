@@ -8,6 +8,13 @@
 #include "common.h"
 #include "sdk.h"
 
+k_EWeaponmode LocalPlayer::weaponmode() {
+	if (m_weaponmode == weapon_invalid) {
+		m_weaponmode = GetWeaponMode(entity);
+	}
+	return m_weaponmode;
+}
+
 void LocalPlayer::Update() {
 	bad = true;
 	entity_idx = g_IEngine->GetLocalPlayer();

@@ -42,7 +42,7 @@ void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 	}
 	if ((cmd->buttons & IN_ATTACK2) && g_LocalPlayer->weapon()->clazz == g_pClassID->CTFLunchBox) return;
 
-	weaponmode mode = GetWeaponMode(g_LocalPlayer->entity);
+	k_EWeaponmode mode = GetWeaponMode(g_LocalPlayer->entity);
 	if (mode == weapon_melee || mode == weapon_throwable || (mode == weapon_projectile && (LOCAL_W->clazz != g_pClassID->CTFCompoundBow))) {
 		if ((cmd->buttons & IN_ATTACK) || (cmd->buttons & IN_ATTACK2) || g_LocalPlayer->bAttackLastTick) {
 			AddSafeTicks(4);

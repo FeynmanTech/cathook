@@ -8,30 +8,22 @@
 #ifndef HTRIGGER_H_
 #define HTRIGGER_H_
 
-#include "IHack.h"
+namespace hacks { namespace shared { namespace triggerbot {
 
-class CatVar;
+extern CatVar enabled;
+extern CatVar hitbox;
+extern CatVar respect_cloak;
+extern CatVar zoomed_only;
+extern CatVar bodyshot;
+extern CatVar finishing;
+extern CatVar range;
+extern CatVar buildings;
+extern CatVar vaccinator;
+extern CatVar ambassador;
+extern CatVar accuracy;
 
-class Triggerbot : public IHack {
-public:
-	Triggerbot();
-	~Triggerbot();
+void ProcessUserCmd(CUserCmd* cmd);
 
-	HACK_OVERRIDES_PROCESSUSERCMD;
-
-	CatVar* v_bEnabled;
-	CatVar* v_bRespectCloak;
-	CatVar* v_bZoomedOnly;
-	CatVar* v_iHitbox;
-	CatVar* v_bBodyshot;
-	CatVar* v_bFinishingHit;
-	CatVar* v_iMaxRange;
-	CatVar* v_bBuildings;
-	CatVar* v_bIgnoreVaccinator;
-	CatVar* v_bAmbassadorCharge;
-	CatVar* v_bImproveAccuracy;
-};
-
-DECLARE_HACK_SINGLETON(Triggerbot);
+}}}
 
 #endif /* HTRIGGER_H_ */
