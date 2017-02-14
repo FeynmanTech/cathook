@@ -21,9 +21,11 @@ class ChatStack {
 public:
 	typedef std::function<std::string(void)> MessageProviderFn_t;
 
+	void AddProvider(MessageProviderFn_t provider);
 	void OnCreateMove();
 	void Reset();
 
+	size_t provider_index;
 	std::vector<MessageProviderFn_t> bottomProviders;
 	std::stack<std::string> stack;
 

@@ -9,12 +9,26 @@
 #include "common.h"
 #include "sdk.h"
 
+void ChatStack::AddProvider(MessageProviderFn_t provider) {
+	bottomProviders.push_back(provider);
+}
+
 void ChatStack::OnCreateMove() {
-	if (stack.size() == 0) return;
 	if (m_fLastSay > g_pGlobals->curtime) m_fLastSay = 0;
 	if (g_pGlobals->curtime - CHATSTACK_INTERVAL <= m_fLastSay) return;
-	g_IEngine->ServerCmd(format("say \"", stack.top(), '"').c_str());
-	stack.pop();
+	std::string message;
+	if (stack.size() == 0) {
+		if (bottomProviders.size()) {
+			message = bottomProviders[provider_index]();
+			provider_index++;
+			if (provider_index >= bottomProviders.size()) provider_index = 0;
+		}
+	} else {
+		message = stack.top();
+		stack.pop();
+	}
+	if (message.size())
+		g_IEngine->ServerCmd(format("say \"", message, '"').c_str());
 	m_fLastSay = g_pGlobals->curtime;
 }
 

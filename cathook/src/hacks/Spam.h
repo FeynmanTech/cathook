@@ -8,6 +8,22 @@
 #ifndef HACKS_SPAM_H_
 #define HACKS_SPAM_H_
 
+#include "../textfile.h"
+
+namespace hacks { namespace shared { namespace spam {
+
+extern CatVar enabled;
+extern CatVar filename;
+extern CatVar newlines;
+extern CatCommand reload;
+
+extern TextFile file;
+extern size_t index;
+void ProcessUserCmd(CUserCmd*);
+void Reset();
+
+}}}
+
 #include "IHack.h"
 
 #define SPAM_MAX_AMOUNT 64
