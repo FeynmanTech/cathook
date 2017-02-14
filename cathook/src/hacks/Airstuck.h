@@ -8,19 +8,17 @@
 #ifndef HACKS_AIRSTUCK_H_
 #define HACKS_AIRSTUCK_H_
 
-#include "IHack.h"
+namespace hacks { namespace shared { namespace airstuck {
 
-class Airstuck : public IHack {
-public:
-	Airstuck();
+extern CatVar stuck;
+extern CatVar stuck_key;
 
-	virtual void ProcessUserCmd(CUserCmd*) override;
-	virtual void OnLevelInit() override;
-	virtual void OnLevelShutdown() override;
+extern bool is_stuck;
 
-	ConVar* v_bStuck;
-};
+void SendNOP();
+void ProcessUserCmd(CUserCmd*);
+void Reset();
 
-DECLARE_HACK_SINGLETON(Airstuck);
+}}}
 
 #endif /* HACKS_AIRSTUCK_H_ */

@@ -10,21 +10,17 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(AntiDisguise);
+namespace hacks { namespace tf2 { namespace antidisguise {
 
-AntiDisguise::AntiDisguise() {
-	v_bEnabled = new CatVar(CV_SWITCH, "antidisguise", "0", "Remove spy disguise", 0, "Remove disguise from all spies");
-}
+CatVar enabled(CV_SWITCH, "antidisguise", "0", "Remove spy disguise", 0, "Remove disguise from all spies");
 
-void AntiDisguise::Draw() {
-	if (!v_bEnabled->GetBool()) return;
-	for (int i = 0; i < 64 && i < HIGHEST_ENTITY; i++) {
-		CachedEntity* ent = ENTITY(i);
-		if (CE_BAD(ent)) continue;
-		if (ent->m_Type == ENTITY_PLAYER) {
-			if (CE_INT(ent, netvar.iClass) == tf_class::tf_spy) {
-				RemoveCondition(ent, TFCond_Disguised);
-			}
+void ProcessEntity(CachedEntity& entity) {
+	if (entity.m_IDX > 32) return;
+	if (entity.Type() == ENTITY_PLAYER) {
+		if (entity.Class() == tf_spy) {
+			RemoveCondition(&entity, TFCond_Disguised);
 		}
 	}
 }
+
+}}}

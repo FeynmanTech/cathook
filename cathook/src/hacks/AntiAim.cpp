@@ -10,77 +10,86 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(AntiAim);
+namespace hacks { namespace shared { namespace antiaim {
 
-AntiAim::AntiAim() {
-	this->v_bEnabled = new CatVar(CV_SWITCH, "aa_enabled", "0", "Enable AntiAim", NULL, "Master AntiAim switch");
-	this->v_flPitch = new CatVar(CV_FLOAT, "aa_pitch", "-89.0", "Pitch", NULL, "Static pitch (up/down)", true, 89.0, -89.0);
-	this->v_flYaw = new CatVar(CV_FLOAT, "aa_yaw", "0.0", "Yaw", NULL, "Static yaw (left/right)", true, 360.0);
-	this->v_flSpinSpeed = new CatVar(CV_FLOAT, "aa_spin", "10.0", "Spin speed", NULL, "Spin speed (in deg/sec)");
-	this->v_PitchMode = new CatVar(CV_ENUM, "aa_pitch_mode", "1", "Pitch mode", new CatEnum({ "KEEP", "STATIC", "RANDOM" }), "Pitch mode");
-	this->v_YawMode = new CatVar(CV_ENUM, "aa_yaw_mode", "3", "Yaw mode", new CatEnum({ "KEEP", "STATIC", "RANDOM", "SPIN" }), "Yaw mode");
-	this->v_bNoClamping = new CatVar(CV_SWITCH, "aa_no_clamp", "0", "Don't clamp angles", NULL, "Use this with STATIC mode for unclamped manual angles");
-	this->v_flRoll = new CatVar(CV_FLOAT, "aa_roll", "0", "Roll", NULL, "Roll angle. ???", true, -180, 180);
-	AddSafeTicks(0);
+CatVar enabled(CV_SWITCH, "aa_enabled", "0", "Anti-Aim", NULL, "Master AntiAim switch");
+CatVar yaw(CV_FLOAT, "aa_yaw", "0.0", "Yaw", NULL, "Static yaw (left/right)", true, 360.0);
+CatVar pitch(CV_FLOAT, "aa_pitch", "-89.0", "Pitch", NULL, "Static pitch (up/down)", true, 89.0, -89.0);
+CatVar yaw_mode(CV_ENUM, "aa_yaw_mode", "3", "Yaw mode", new CatEnum({ "KEEP", "STATIC", "RANDOM", "SPIN" }), "Yaw mode");
+CatVar pitch_mode(CV_ENUM, "aa_pitch_mode", "1", "Pitch mode", new CatEnum({ "KEEP", "STATIC", "RANDOM" }), "Pitch mode");
+CatVar roll(CV_FLOAT, "aa_roll", "0", "Roll", NULL, "Roll angle (viewangles.z)", true, -180, 180);
+CatVar no_clamping(CV_SWITCH, "aa_no_clamp", "0", "Don't clamp angles", NULL, "Use this with STATIC mode for unclamped manual angles");
+CatVar spin(CV_FLOAT, "aa_spin", "10.0", "Spin speed", NULL, "Spin speed (degrees/second)");
+CatVar lisp(CV_SWITCH, "aa_lisp", "0", "Lisp angles", NULL, "Big numbers");
+
+int safe_space = 0;
+
+void SetSafeSpace(int safespace) {
+	if (safespace > safe_space) safe_space = safespace;
 }
 
-float yaw = -180;
-float pitch = -89;
-
-void AntiAim::AddSafeTicks(int ticks) {
-	m_iSafeTicks = ticks;
-}
-
-void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return;
-	if (cmd->buttons & IN_USE) {
-		return;
-	}
-
-	if ((cmd->buttons & IN_ATTACK) && (LOCAL_W->clazz != g_pClassID->CTFCompoundBow)) {
-		if (CanShoot()) return;
-	}
-	if ((cmd->buttons & IN_ATTACK2) && g_LocalPlayer->weapon()->clazz == g_pClassID->CTFLunchBox) return;
-
-	k_EWeaponmode mode = GetWeaponMode(g_LocalPlayer->entity);
-	if (mode == weapon_melee || mode == weapon_throwable || (mode == weapon_projectile && (LOCAL_W->clazz != g_pClassID->CTFCompoundBow))) {
-		if ((cmd->buttons & IN_ATTACK) || (cmd->buttons & IN_ATTACK2) || g_LocalPlayer->bAttackLastTick) {
-			AddSafeTicks(4);
+bool ShouldAA(CUserCmd* cmd) {
+	if (!enabled) return false;
+	if (cmd->buttons & IN_USE) return false;
+	if (cmd->buttons & IN_ATTACK) {
+		if (!(TF2 && g_LocalPlayer.weapon()->clazz == g_pClassID->CTFCompoundBow)) {
+			if (CanShoot()) return false;
 		}
 	}
-	if ((LOCAL_W->clazz == g_pClassID->CTFCompoundBow) && !(cmd->buttons & IN_ATTACK)) {
-		if (g_LocalPlayer->bAttackLastTick) AddSafeTicks(4);
+	if ((cmd->buttons & IN_ATTACK2) && g_LocalPlayer.weapon()->clazz == g_pClassID->CTFLunchBox) return false;
+	switch (GetWeaponMode(g_LocalPlayer.entity)) {
+	case weapon_projectile:
+		if (g_LocalPlayer.weapon()->clazz == g_pClassID->CTFCompoundBow) {
+			if (!(cmd->buttons & IN_ATTACK)) {
+				if (g_LocalPlayer.bAttackLastTick) SetSafeSpace(4);
+			}
+			break;
+		}
+		/* no break */
+	case weapon_melee:
+	case weapon_throwable:
+		if ((cmd->buttons & (IN_ATTACK | IN_ATTACK2)) || g_LocalPlayer.bAttackLastTick) {
+			SetSafeSpace(4);
+			return false;
+		}
 	}
+	if (safe_space) {
+		safe_space--;
+		if (safe_space < 0) safe_space = 0;
+		return false;
+	}
+	return true;
+}
 
-	float p = cmd->viewangles.x;
-	float y = cmd->viewangles.y;
-	switch (this->v_YawMode->GetInt()) {
+void ProcessUserCmd(CUserCmd* cmd) {
+	if (!ShouldAA(cmd)) return;
+	float& p = cmd->viewangles.x;
+	float& y = cmd->viewangles.y;
+	switch (yaw_mode) {
 	case 1: // FIXED
-		y = this->v_flYaw->GetFloat();
+		y = yaw;
 		break;
 	case 2: // RANDOM
 		y = RandFloatRange(-180.0f, 180.0f);
 		break;
 	case 3: // SPIN
-		yaw += v_flSpinSpeed->GetFloat();
+		yaw += spin;
 		if (yaw > 180) yaw = -180;
 		y = yaw;
 		break;
 	}
-	switch (this->v_PitchMode->GetInt()) {
+	switch (pitch_mode) {
 	case 1:
-		p = this->v_flPitch->GetFloat();
+		p = pitch;
 		break;
 	case 2:
 		p = RandFloatRange(-89.0f, 89.0f);
 		break;
 	}
 
-	Vector angl = Vector(p, y, 0);
-	if (!v_bNoClamping->GetBool()) fClampAngle(angl);
-	if (v_flRoll->GetBool()) angl.z = v_flRoll->GetFloat();
-	if (!m_iSafeTicks) {
-		cmd->viewangles = angl;
-		g_LocalPlayer->bUseSilentAngles = true;
-	} else m_iSafeTicks--;
+	if (!no_clamping) fClampAngle(angl);
+	if (roll) cmd->viewangles.z = roll;
+	g_LocalPlayer.bUseSilentAngles = true;
 }
+
+}}}

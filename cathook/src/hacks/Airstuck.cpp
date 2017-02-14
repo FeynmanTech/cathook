@@ -12,32 +12,35 @@
 
 #include "../netmessage.h"
 
-DEFINE_HACK_SINGLETON(Airstuck);
+namespace hacks { namespace shared { namespace airstuck {
 
-Airstuck::Airstuck() {
-	v_bStuck = CreateConVar(CON_PREFIX "airstuck", "0", "Airstuck (BindToggle that to a key!)");
+bool is_stuck = false;
+
+CatVar stuck(CV_SWITCH, "airstuck", "0", "AirStuck enabled");
+CatVar stuck_key(CV_KEY, "airstuck_key", "0", "AirStuck key");
+
+void SendNOP() {
+	INetChannel* channel = (INetChannel*)g_IEngine->GetNetChannelInfo();
+	if (channel) {
+		NET_NOP nop;
+		nop.SetNetChannel(channel);
+		nop.SetReliable(false);
+		channel->SendNetMsg(nop);
+	}
 }
 
-void Airstuck::ProcessUserCmd(CUserCmd* cmd) {
-	if (v_bStuck->GetBool()) {
-		if (cmd->buttons & (IN_ATTACK | IN_ATTACK2)) {
-			return;
-		}
+void ProcessUserCmd(CUserCmd* cmd) {
+	is_stuck = stuck && g_IInputSystem->IsButtonDown((ButtonCode_t)stuck_key); // TODO this might fail? cast stuff.
+	if (cmd->buttons & (IN_ATTACK | IN_ATTACK2)) is_stuck = false;
+	if (is_stuck) {
 		if (g_pGlobals->tickcount % 60 == 0) {
-			INetChannel* ch = (INetChannel*)g_IEngine->GetNetChannelInfo();
-			NET_NOP packet;
-			packet.SetNetChannel(ch);
-			packet.SetReliable(false);
-			ch->SendNetMsg(packet);
+			SendNOP();
 		}
 	}
-	return;
 }
 
-void Airstuck::OnLevelInit() {
-	v_bStuck->SetValue(false);
+void Reset() {
+	is_stuck = false;
 }
 
-void Airstuck::OnLevelShutdown() {
-	v_bStuck->SetValue(false);
-}
+}}}

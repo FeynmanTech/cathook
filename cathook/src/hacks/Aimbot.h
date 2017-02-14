@@ -8,21 +8,70 @@
 #ifndef HAIMBOT_H_
 #define HAIMBOT_H_
 
-#include "IHack.h"
 #include "../enums.h"
 
 class ConVar;
 class IClientEntity;
 class Vector;
 
-struct AimKeyMode_t {
-	enum {
-		DISABLED,
-		PRESS_TO_ENABLE,
-		PRESS_TO_DISABLE,
-		PRESS_TO_TOGGLE
-	};
+namespace hacks { namespace shared { namespace aimbot {
+
+enum class aimkey_mode {
+	DISABLED,
+	PRESS_TO_ENABLE,
+	PRESS_TO_DISABLE,
+	PRESS_TO_TOGGLE
 };
+
+enum class hitbox_mode {
+	STATIC,
+	HEADONLY,
+	AUTOHEAD,
+	AUTOBODY,
+	CLOSEST
+};
+
+/*
+ * TODO smooth aimbot, autoshoot charge, autoshoot range
+ */
+
+CatVar aimkey;
+CatVar aimkey_mode;
+CatVar enabled;
+CatVar fov;
+CatVar hitbox;
+CatVar auto_hitbox;
+CatVar delay;
+CatVar lerp;
+CatVar autoshoot;
+CatVar silent;
+CatVar zoomed_only;
+CatVar teammates;
+CatVar huntsman_charge;
+CatVar range;
+CatVar autoshoot_range; // TODO IMPLEMENT
+CatVar respect_cloak;
+CatVar attack_only;
+CatVar projectile;
+CatVar projectile_speed;
+CatVar projectile_gravity; // TODO IMPLEMENT
+CatVar buildings;
+CatVar canshoot;
+CatVar priority;
+CatVar projectile_visibility;
+CatVar projectile_fov;
+
+struct data_s {
+	data_s();
+	bool projectile;
+	float proj_speed;
+	float proj_gravity;
+	int last_target_idx;
+	bool aimkey_switch;
+	int minigun_spinup;
+};
+
+}}}
 
 class Aimbot : public IHack {
 public:
@@ -39,7 +88,6 @@ public:
 	bool m_bProjectileMode;
 	float m_flProjSpeed;
 	float m_flProjGravity;
-	bool m_bProjArc;
 	bool m_bSilentHuntsman;
 	//Vector m_vPredictedProjTarget;
 
@@ -49,44 +97,6 @@ public:
 	bool m_bAimKeySwitch;
 	int m_nMinigunFixTicks;
 	bool m_bHeadOnly;
-
-	CatVar* v_kAimKey;
-	CatVar* v_eAimKeyMode;
-	//CatVar* v_bSmooth;
-	//CatVar* v_fSmoothValue;
-	//CatVar* v_bDebug;
-	CatVar* v_bEnabled;
-	CatVar* v_fFOV;
-	CatVar* v_eHitbox;
-	CatVar* v_bAutoHitbox;
-	CatVar* v_iSeenDelay;
-	CatVar* v_bInterpolation;
-	CatVar* v_bAutoShoot;
-	CatVar* v_bSilent;
-	CatVar* v_bZoomedOnly;
-	CatVar* v_bAimAtTeammates;
-	//CatVar* v_iAutoShootCharge;
-	CatVar* v_fAutoShootHuntsmanCharge;
-	CatVar* v_iMaxRange;
-	CatVar* v_iMaxAutoshootRange; // TODO IMPLEMENT
-	CatVar* v_bRespectCloak;
-	//CatVar* v_bCharge;
-	CatVar* v_bEnabledAttacking;
-	//CatVar* v_bTriggerMode;
-	CatVar* v_bProjectileAimbot;
-	CatVar* v_fOverrideProjSpeed;
-	CatVar* v_fOverrideProjGravity; // TODO IMPLEMENT
-	//CatVar* v_bMachinaPenetration;
-	CatVar* v_bAimBuildings;
-	CatVar* v_bActiveOnlyWhenCanShoot;
-	//CatVar* v_fSmoothAutoshootTreshold;
-	//CatVar* v_fSmoothRandomness;
-	CatVar* v_ePriorityMode;
-	CatVar* v_bProjPredVisibility;
-	CatVar* v_bProjPredFOV;
-	CatVar* v_bAdvancedSapperAim;
 };
-
-DECLARE_HACK_SINGLETON(Aimbot);
 
 #endif /* HAIMBOT_H_ */

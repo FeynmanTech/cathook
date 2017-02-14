@@ -8,17 +8,12 @@
 #ifndef HACKS_ANTIDISGUISE_H_
 #define HACKS_ANTIDISGUISE_H_
 
-#include "IHack.h"
+namespace hacks { namespace tf2 { namespace antidisguise {
 
-class AntiDisguise : public IHack {
-public:
-	AntiDisguise();
+extern CatVar enabled;
 
-	virtual void Draw() override;
+void ProcessEntity(CachedEntity& entity);
 
-	CatVar* v_bEnabled;
-};
-
-DECLARE_HACK_SINGLETON(AntiDisguise);
+}}}
 
 #endif /* HACKS_ANTIDISGUISE_H_ */
