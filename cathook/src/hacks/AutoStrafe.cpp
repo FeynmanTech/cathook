@@ -10,7 +10,7 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(AutoStrafe);
+/*DEFINE_HACK_SINGLETON(AutoStrafe);
 
 AutoStrafe::AutoStrafe() {
 	v_bEnabled = new CatVar(CV_SWITCH, "autostrafe", "0", "Enable AutoStrafe", NULL, "AutoStrafe switch. Doesn't work.");
@@ -29,4 +29,4 @@ void AutoStrafe::ProcessUserCmd(CUserCmd* cmd) {
 		sw = !sw;
 	}
 	return;
-}
+}*/

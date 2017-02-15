@@ -8,24 +8,17 @@
 #ifndef HBUNNYHOP_H_
 #define HBUNNYHOP_H_
 
-#include "IHack.h"
+namespace hacks { namespace shared { namespace bunnyhop {
 
-class ConVar;
+extern CatVar enabled;
+extern CatVar perfect_jumps;
+extern CatVar imperfect;
+extern CatVar autojump;
+extern CatVar autojump_speed;
+extern bool jumping;
 
-class Bunnyhop : public IHack {
-public:
-	Bunnyhop();
+void ProcessUserCmd(CUserCmd*);
 
-	virtual void ProcessUserCmd(CUserCmd*) override;
-
-	CatVar* v_bEnabled;
-	CatVar* v_iPerfectJumpLimit;
-	CatVar* v_bImperfect;
-	CatVar* v_bAutoJump;
-	CatVar* v_iAutoJumpSpeed;
-	bool m_bFakeLagFix;
-};
-
-DECLARE_HACK_SINGLETON(Bunnyhop);
+}}}
 
 #endif /* HBUNNYHOP_H_ */

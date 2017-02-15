@@ -8,7 +8,7 @@
 #ifndef HACKS_AUTOSTRAFE_H_
 #define HACKS_AUTOSTRAFE_H_
 
-#include "IHack.h"
+/*#include "IHack.h"
 
 class AutoStrafe : public IHack {
 public:
@@ -19,6 +19,6 @@ public:
 	CatVar* v_bEnabled;
 };
 
-DECLARE_HACK_SINGLETON(AutoStrafe);
+DECLARE_HACK_SINGLETON(AutoStrafe);*/
 
 #endif /* HACKS_AUTOSTRAFE_H_ */

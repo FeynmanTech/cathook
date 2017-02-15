@@ -10,68 +10,53 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(ESP);
+const std::string tf_class_names_temporary[] = {
+	"Scout", "Sniper",
+	"Soldier", "Demoman",
+	"Medic", "Heavy",
+	"Pyro", "Spy",
+	"Engineer", "Mercenary" };
 
-const char* classes[] = {
-	"Scout",
-	"Sniper",
-	"Soldier",
-	"Demoman",
-	"Medic",
-	"Heavy",
-	"Pyro",
-	"Spy",
-	"Engineer"
-};
+namespace hacks { namespace shared { namespace esp {
 
-void ESP::Draw() {
-	if (CE_BAD(g_LocalPlayer->entity)) return;
-	for (int i = 0; i < HIGHEST_ENTITY; i++) {
-		ProcessEntityPT(ENTITY(i));
-	}
-}
+CatEnum projectile_enum({ "OFF", "ALL", "CRIT" });
 
-ESP::ESP() {
-	this->v_bSeeLocal = new CatVar(CV_SWITCH, "esp_local", "1", "ESP Local Player", NULL, "Shows local player ESP in thirdperson");
-	this->v_bEnabled = new CatVar(CV_SWITCH, "esp_enabled", "0", "ESP", NULL, "Master ESP switch");
-	this->v_bEntityESP = new CatVar(CV_SWITCH, "esp_entity", "0", "Entity ESP", NULL, "Show entity info (debug)");
-	this->v_bTeammates = new CatVar(CV_SWITCH, "esp_teammates", "0", "ESP Teammates", NULL, "Teammate ESP");
-	this->v_bItemESP = new CatVar(CV_SWITCH, "esp_item", "1", "Item ESP", NULL, "Master Item ESP switch (health packs, etc.)");
-	this->v_bTeammatePowerup = new CatVar(CV_SWITCH, "esp_powerup_team", "1", "Teammate powerups", NULL, "Show Mannpower powerups on your teammates");
-	this->v_bShowEntityID = new CatVar(CV_SWITCH, "esp_entity_id", "1", "Entity ID", NULL, "Used with Entity ESP. Shows entityID");
-	this->v_bShowDistance = new CatVar(CV_SWITCH, "esp_distance", "1", "Distance ESP", NULL, "Show distance to target");
-	this->v_bBox = new CatVar(CV_SWITCH, "esp_box", "1", "Box", NULL, "Draw 2D box with healthbar. fancy.");
-	this->v_bShowFriendID = new CatVar(CV_SWITCH, "esp_friendid", "0", "Show FriendID", NULL, "Show SteamID");
-	this->v_bShowFriends = new CatVar(CV_SWITCH, "esp_friends", "1", "Show friends", NULL, "Always show friends");
-	this->v_bVisCheck = new CatVar(CV_SWITCH, "esp_vischeck", "1", "VisCheck", NULL, "ESP visibility check - makes enemy info behind walls darker, disable this if you get FPS drops");
-	this->v_bLegit = new CatVar(CV_SWITCH, "esp_legit", "0", "Legit Mode", NULL, "Don't show invisible enemies");
-	this->v_iLegitSeenTicks = new CatVar(CV_INT, "esp_legit_seenticks", "150", "Legit delay", NULL, "Delay after enemy gone behind a wall where you can still see them", true, 200.0);
-	v_bShowDroppedWeapons = new CatVar(CV_SWITCH, "esp_item_weapons", "0", "Dropped weapons", NULL, "Show dropped weapons");
-	v_bShowAmmoPacks = new CatVar(CV_SWITCH, "esp_item_ammo", "0", "Ammo packs", NULL, "Show ammo packs");
-	v_bShowHealthPacks = new CatVar(CV_SWITCH, "esp_item_health", "1", "Health packs", NULL, "Show health packs");
-	v_bShowPowerups = new CatVar(CV_SWITCH, "esp_item_powerups", "1", "Powerups", NULL, "Show powerups");
-	this->v_bShowTank = new CatVar(CV_SWITCH, "esp_show_tank", "1", "Show tank", NULL, "Show tank");
-	v_bShowHealthNumbers = new CatVar(CV_SWITCH, "esp_health_num", "1", "Health numbers", NULL, "Show health in numbers");
-	v_bShowMoney = new CatVar(CV_SWITCH, "esp_money", "1", "MvM money", NULL, "Show MvM money");
-	v_bShowRedMoney = new CatVar(CV_SWITCH, "esp_money_red", "1", "Red MvM money", NULL, "Show/Hide red MvM money");
-	CatEnum* proj = new CatEnum({ "OFF", "ALL", "CRIT" });
-	this->v_iShowRockets = new CatVar(CV_ENUM, "esp_proj_rockets", "1", "Rockets", proj, "Rockets");
-	this->v_iShowArrows = new CatVar(CV_ENUM, "esp_proj_arrows", "1", "Arrows", proj, "Arrows");
-	this->v_iShowStickies = new CatVar(CV_ENUM, "esp_proj_stickies", "1", "Stickies", proj, "Stickybombs");
-	this->v_iShowPipes = new CatVar(CV_ENUM, "esp_proj_pipes", "1", "Pipes", proj, "Pipebombs");
-	this->v_bOnlyEnemyProjectiles = new CatVar(CV_SWITCH, "esp_proj_enemy", "1", "Only enemy projectiles", NULL, "Don't show friendly projectiles");
-	this->v_bProjectileESP = new CatVar(CV_SWITCH, "esp_proj", "1", "Projectile ESP", NULL, "Projectile ESP");
-	v_bShowName = new CatVar(CV_SWITCH, "esp_name", "1", "Name ESP", NULL, "Show name");
-	v_bShowClass = new CatVar(CV_SWITCH, "esp_class", "1", "Class ESP", NULL, "Show class");
-	v_bShowConditions = new CatVar(CV_SWITCH, "esp_conds", "1", "Conditions ESP", NULL, "Show conditions");
-	this->v_bBuildingESP = new CatVar(CV_SWITCH, "esp_buildings", "1", "Building ESP", NULL, "Show buildings");
-	this->v_bShowWeaponSpawners = new CatVar(CV_SWITCH, "esp_weapon_spawners", "1", "Show weapon spawners", NULL, "TF2C deathmatch weapon spawners");
-	v_bShowAdrenaline = new CatVar(CV_SWITCH, "esp_item_adrenaline", "0", "Show Adrenaline", NULL, "TF2C adrenaline pills");
+CatVar local(CV_SWITCH, "esp_local", "1", "ESP Local Player", NULL, "Shows local player ESP in thirdperson");
+CatVar buildings(CV_SWITCH, "esp_buildings", "1", "Building ESP", NULL, "Show buildings");
+CatVar enabled(CV_SWITCH, "esp_enabled", "0", "ESP", NULL, "Master ESP switch");
+CatVar entity_info(CV_SWITCH, "esp_entity", "0", "Entity ESP", NULL, "Show entity info (debug)");
+CatVar teammates(CV_SWITCH, "esp_teammates", "0", "ESP Teammates", NULL, "Teammate ESP");
+CatVar item(CV_SWITCH, "esp_item", "1", "Item ESP", NULL, "Master Item ESP switch (health packs, etc.)");
+CatVar item_weapons(CV_SWITCH, "esp_item_weapons", "0", "Dropped weapons", NULL, "Show dropped weapons");
+CatVar item_ammo(CV_SWITCH, "esp_item_ammo", "0", "Ammo packs", NULL, "Show ammo packs");
+CatVar item_health(CV_SWITCH, "esp_item_health", "1", "Health packs", NULL, "Show health packs");
+CatVar item_powerup(CV_SWITCH, "esp_item_powerups", "1", "Powerups", NULL, "Show powerups");
+CatVar item_money(CV_SWITCH, "esp_money", "1", "MvM money", NULL, "Show MvM money");
+CatVar item_money_red(CV_SWITCH, "esp_money_red", "1", "Red MvM money", NULL, "Show/Hide red MvM money");
+CatVar teammate_powerups(CV_SWITCH, "esp_powerup_team", "1", "Teammate powerups", NULL, "Show Mannpower powerups on your teammates");
+CatVar entity_id(CV_SWITCH, "esp_entity_id", "1", "Entity ID", NULL, "Used with Entity ESP. Shows entityID");
+CatVar tank(CV_SWITCH, "esp_show_tank", "1", "Show tank", NULL, "Show tank");
+CatVar box(CV_SWITCH, "esp_box", "1", "Box", NULL, "Draw 2D box with healthbar. fancy.");
+CatVar show_distance(CV_SWITCH, "esp_distance", "1", "Distance ESP", NULL, "Show distance to target");
+CatVar show_friendid(CV_SWITCH, "esp_friendid", "0", "Show FriendID", NULL, "Show SteamID");
+CatVar show_name(CV_SWITCH, "esp_name", "1", "Name ESP", NULL, "Show name");
+CatVar show_class(CV_SWITCH, "esp_class", "1", "Class ESP", NULL, "Show class");
+CatVar show_conds(CV_SWITCH, "esp_conds", "1", "Conditions ESP", NULL, "Show conditions");
+CatVar vischeck(CV_SWITCH, "esp_vischeck", "1", "VisCheck", NULL, "ESP visibility check - makes enemy info behind walls darker, disable this if you get FPS drops");
+CatVar legit(CV_SWITCH, "esp_legit", "0", "Legit Mode (!)", NULL, "WARNING: Uses visibility checks! Can result in framerate drops. - Don't show invisible enemies");
+CatVar show_health(CV_SWITCH, "esp_health_num", "1", "Health numbers", NULL, "Show health in numbers");
+CatVar legit_ticks(CV_INT, "esp_legit_seenticks", "150", "Legit delay", NULL, "Delay after enemy gone behind a wall where you can still see them", true, 200.0);
+CatVar proj_rockets(CV_ENUM, "esp_proj_rockets", "1", "Rockets", projectile_enum, "Rockets");
+CatVar proj_arrows(CV_ENUM, "esp_proj_arrows", "1", "Arrows", projectile_enum, "Arrows");
+CatVar proj_pipes(CV_ENUM, "esp_proj_pipes", "1", "Pipes", projectile_enum, "Pipebombs");
+CatVar proj_stickies(CV_ENUM, "esp_proj_stickies", "1", "Stickies", projectile_enum, "Stickybombs");
+CatVar proj_enemy(CV_SWITCH, "esp_proj_enemy", "1", "Only enemy projectiles", NULL, "Don't show friendly projectiles");
+CatVar projectile(CV_SWITCH, "esp_proj", "1", "Projectile ESP", NULL, "Projectile ESP");
+CatVar model_name(CV_SWITCH, "esp_model_name", "0", "Model name ESP", NULL, "Model name esp (DEBUG ONLY)");
+CatVar item_dmweapons(CV_SWITCH, "esp_weapon_spawners", "1", "Show weapon spawners", NULL, "TF2C deathmatch weapon spawners");
+CatVar item_adrenaline(CV_SWITCH, "esp_item_adrenaline", "0", "Show Adrenaline", NULL, "TF2C adrenaline pills");
 
-	v_bModelName = new CatVar(CV_SWITCH, "esp_model_name", "0", "Model name ESP", NULL, "Model name esp (DEBUG ONLY)");
-}
-
-#define ESP_HEIGHT 14
+}}}
 
 void ESP::DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	if (CE_BAD(ent)) return;

@@ -10,42 +10,43 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(Bunnyhop);
+namespace hacks { namespace shared { namespace bunnyhop {
 
-Bunnyhop::Bunnyhop() {
-	this->v_bEnabled = new CatVar(CV_SWITCH, "bhop_enabled", "0", "Enable", NULL, "Enable Bunnyhop");
-	this->v_iPerfectJumpLimit = new CatVar(CV_SWITCH, "bhop_pjumps", "0", "Perfect Jump Limit", NULL, "Bunny Hop perfect jump limit. 0 = Disabled");
-	this->v_bAutoJump = new CatVar(CV_SWITCH, "bhop_autojump", "0", "AutoJump", NULL, "Autojump if you reach certain speed");
-	this->v_iAutoJumpSpeed = new CatVar(CV_INT, "bhop_autojump_speed", "300", "AutoJump speed", NULL, "Minimum autojump speed");
-	this->v_bImperfect = new CatVar(CV_INT, "bhop_imperfect", "0", "Miss bhop jumps randomly", NULL, "To avoid auto bans");
-}
+CatVar enabled(CV_SWITCH, "bhop_enabled", "0", "Bunnyhop", NULL, "Enable Bunnyhop");
+CatVar perfect_jumps(CV_SWITCH, "bhop_pjumps", "0", "Perfect Jump Limit", NULL, "Bunny Hop perfect jump limit. 0 = Disabled");
+CatVar imperfect(CV_INT, "bhop_imperfect", "0", "Miss bhop jumps randomly", NULL, "To avoid auto bans");
+CatVar autojump(CV_SWITCH, "bhop_autojump", "0", "AutoJump", NULL, "Autojump if you reach certain speed");
+CatVar autojump_speed(CV_INT, "bhop_autojump_speed", "300", "AutoJump speed", NULL, "Minimum autojump speed");
 
-bool bDoubleJumpFix = false;
-int iTicksFlying = 0;
-int iTicksLastJump = 0;
-int iPerfectJumps = 0;
+bool jumping = false;
 
-void Bunnyhop::ProcessUserCmd(CUserCmd* cmd) {
-	m_bFakeLagFix = false;
-	if (!this->v_bEnabled->GetBool()) return;
+bool disabled = false;
+int jump_ticks = 0;
+int fly_ticks = 0;
+int pjumps = 0;
 
-	int flags = CE_INT(g_LocalPlayer->entity, netvar.iFlags);
-	bool ground = (flags & (1 << 0));
+void ProcessUserCmd(CUserCmd* cmd) {
+	jumping = false;
+	if (!enabled) return;
 
-	if (HasCondition(g_LocalPlayer->entity, TFCond_GrapplingHook)) return;
+	int flags = g_LocalPlayer.entity->var<int>(netvar.iFlags);
+	bool ground = (flags & FL_ONGROUND);
 
+	if (HasCondition(g_LocalPlayer.entity, TFCond_GrapplingHook)) return;
 
-	if (v_bAutoJump->GetBool()) {
-		Vector vel = CE_VECTOR(g_LocalPlayer->entity, netvar.vVelocity);
-		if ((vel.x * vel.x + vel.y * vel.y) > SQR(v_iAutoJumpSpeed->GetInt())) {
+	if (autojump) {
+		Vector vel = g_LocalPlayer.entity->var<Vector>(netvar.vVelocity);
+		if ((vel.x * vel.x + vel.y * vel.y) > SQR((int)autojump_speed)) {
 			cmd->buttons |= IN_JUMP;
 		}
 	}
 
 	if (!ground) {
-		if (v_bImperfect->GetBool()) {
-			if (g_LocalPlayer->clazz != tf_scout) {
-				if (rand() % 3) cmd->buttons &= ~IN_JUMP;
+		if (imperfect) {
+			static bool ip_switch = false;
+			if (g_LocalPlayer.entity->Class() != tf_scout) {
+				if (rand() % 20) ip_switch = !ip_switch;
+				if (ip_switch) cmd->buttons &= ~IN_JUMP;
 				else cmd->buttons |= IN_JUMP;
 			}
 		}
@@ -54,23 +55,28 @@ void Bunnyhop::ProcessUserCmd(CUserCmd* cmd) {
 	bool jump = (cmd->buttons & IN_JUMP);
 
 	if (ground) {
-		iTicksFlying = 0;
+		fly_ticks = 0;
 	} else {
-		iTicksFlying++;
+		fly_ticks++;
 	}
 
+	if (jump) disabled = false;
+	if (disabled) return;
+
 	if (ground && jump) {
-		if (v_iPerfectJumpLimit->GetBool() && iPerfectJumps > v_iPerfectJumpLimit->GetInt()) {
-			iPerfectJumps = 0;
-			cmd->buttons &= ~IN_JUMP;
+		if (perfect_jumps && pjumps > perfect_jumps) {
+			pjumps = 0;
+			disabled = true;
 		}
-		m_bFakeLagFix = true;
-		if (v_iPerfectJumpLimit->GetBool()) iPerfectJumps++;
+		jumping = true;
+		if (perfect_jumps) pjumps++;
 	}
 
 	if (!ground && jump) {
-		if (iTicksLastJump++ >= 20) cmd->buttons = cmd->buttons &~ IN_JUMP;
+		if (jump_ticks >= 20) cmd->buttons = cmd->buttons &~ IN_JUMP;
 	}
-	if (!jump) iTicksLastJump = 0;
+	if (!jump) jump_ticks = 0;
 	return;
 }
+
+}}}
