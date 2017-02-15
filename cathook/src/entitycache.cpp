@@ -57,7 +57,7 @@ void CachedEntity::Update(int idx) {
 	m_iClassID = m_pEntity->GetClientClass()->m_ClassID;
 
 	Vector origin = m_pEntity->GetAbsOrigin();
-	if (TF2 && EstimateAbsVelocity) EstimateAbsVelocity(m_pEntity, m_vecVelocity);
+	//if (TF2 && EstimateAbsVelocity) EstimateAbsVelocity(m_pEntity, m_vecVelocity);
 	/*if ((interfaces::gvars->realtime - m_fLastUpdate) >= 0.05f) {
 		//if (interfaces::gvars->tickcount - m_nLastTick > 1) {
 			//logging::Info("Running %i ticks behind!", interfaces::gvars->tickcount - m_nLastTick);
