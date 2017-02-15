@@ -8,21 +8,23 @@
 #ifndef HACKS_AUTOREFLECT_H_
 #define HACKS_AUTOREFLECT_H_
 
-#include "IHack.h"
+namespace hacks { namespace tf { namespace autoreflect {
 
-class AutoReflect : public IHack {
-public:
-	AutoReflect();
+extern CatVar enabled;
+extern CatVar distance;
+extern CatVar idle_only;
+extern CatVar reflect_stickies;
 
-	virtual void ProcessUserCmd(CUserCmd*) override;
+extern float closest_distance;
+extern CachedEntity* closest_entity;
 
-	bool ShouldReflect(CachedEntity* ent);
-	CatVar* v_bEnabled;
-	CatVar* v_bDisableWhenAttacking;
-	CatVar* v_bReflectStickies;
-	CatVar* v_iReflectDistance;
-};
+void Reset();
+void DoReflects(CUserCmd*);
+void ProcessEntity(CUserCmd*, CachedEntity&);
 
-DECLARE_HACK_SINGLETON(AutoReflect);
+bool ShouldReflectEntity(CachedEntity&);
+bool ShouldReflect(CUserCmd* cmd);
+
+}}}
 
 #endif /* HACKS_AUTOREFLECT_H_ */

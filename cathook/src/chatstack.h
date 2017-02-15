@@ -17,21 +17,19 @@
 #include <functional>
 #include "aftercheaders.h"
 
-class ChatStack {
-public:
-	typedef std::function<std::string(void)> MessageProviderFn_t;
+namespace chat_stack {
 
-	void AddProvider(MessageProviderFn_t provider);
-	void OnCreateMove();
-	void Reset();
+typedef std::function<std::string(void)> MessageProviderFn_t;
 
-	size_t provider_index;
-	std::vector<MessageProviderFn_t> bottomProviders;
-	std::stack<std::string> stack;
+void AddProvider(MessageProviderFn_t provider);
+void OnCreateMove();
+void Reset();
 
-	float m_fLastSay;
+extern size_t provider_index;
+extern std::vector<MessageProviderFn_t> bottom_providers;
+extern std::stack<std::string> stack;
+extern float last_say;
+
 };
-
-extern ChatStack* g_pChatStack;
 
 #endif /* CHATSTACK_H_ */

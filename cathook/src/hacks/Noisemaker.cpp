@@ -11,7 +11,7 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(Noisemaker);
+/*DEFINE_HACK_SINGLETON(Noisemaker);
 
 Noisemaker::Noisemaker() {
 	v_bEnabled = new CatVar(CV_SWITCH, "noisemaker", "0", "Noisemaker spam", NULL, "Spams noisemakers really fast");
@@ -24,7 +24,7 @@ void StackSafeCall(int a, int b, int c, int d, int e, int f) {
 	*(int*)(kv + 0x18) = 0;
 	SAFE_CALL(engineClient->ServerCmdKeyValues(kv));
 	logging::Info("%i %i %i %i %i %i", a, b, c, d, e, f);*/
-}
+/*}
 
 void Noisemaker::ProcessUserCmd(CUserCmd*) {
 	static uintptr_t sig = gSignatures.GetClientSignature("8B 06 89 34 24 FF 90 DC 02 00 00 84 C0 74 E2 8B 06 89 34 24 FF 90 D4 01 00 00 83 F8 01 7E D2 C7 04 24 20 00 00 00 E8 ? ? ? ? C7 44 24 04 ? ? ? ? 89 C6 89 04 24 E8 ? ? ? ? A1 ? ? ? ? 8B 10 89 04 24 89 74 24 04 FF 92 00 02 00 00");
@@ -52,5 +52,5 @@ void Noisemaker::ProcessUserCmd(CUserCmd*) {
 		//logging::Info("Sent!");
 	}
 	return;
-}
+}*/
 

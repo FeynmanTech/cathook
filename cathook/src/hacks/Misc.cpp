@@ -425,7 +425,7 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 				int tries = 0;
 				static int lcmdn = 0;
 				crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-				static int& seed = *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul);
+				static int& seed = *(int*)(sharedobj::client->lmap->l_addr + 0x01F8B228);
 				bool cmds = false;
 				seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
 				RandomSeed(seed);

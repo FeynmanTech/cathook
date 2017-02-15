@@ -12,7 +12,7 @@ namespace hacks { namespace tf2 { namespace antidisguise {
 
 extern CatVar enabled;
 
-void ProcessEntity(CachedEntity& entity);
+void ProcessEntity(CUserCmd*, CachedEntity& entity);
 
 }}}
 

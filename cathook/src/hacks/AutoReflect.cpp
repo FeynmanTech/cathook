@@ -10,62 +10,56 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(AutoReflect);
+namespace hacks { namespace tf { namespace autoreflect {
 
-bool AutoReflect::ShouldReflect(CachedEntity* ent) {
-	if (CE_BAD(ent)) return false;
-	if (ent->m_Type != ENTITY_PROJECTILE) return false;
-	if (CE_INT(ent, netvar.iTeamNum) == g_LocalPlayer->team) return false;
-	// If projectile is already deflected, don't deflect it again.
-	if (CE_INT(ent, (ent->m_bGrenadeProjectile ?
-			/* NetVar for grenades */ netvar.Grenade_iDeflected :
-			/* For rockets */ netvar.Rocket_iDeflected))) return false;
-	if (ent->clazz == g_pClassID->CTFGrenadePipebombProjectile) {
-		if (CE_INT(ent, netvar.iPipeType) == 1) {
-			if (!v_bReflectStickies->GetBool()) return false;
-		}
-	}
-	return true;
+CatVar enabled(CV_SWITCH, "reflect_enabled", "0", "AutoReflect", NULL, "Automatically aim and reflect incoming projectiles");
+CatVar distance(CV_FLOAT, "reflect_distance", "200", "Reflect distance", NULL, "Maximum distance between you and projectile");
+CatVar idle_only(CV_SWITCH, "reflect_idle_only", "0", "Idle only", NULL, "Don't autoreflect if you are attacking");
+CatVar reflect_stickies(CV_SWITCH, "reflect_stickies", "0", "Reflect Stickies", NULL, "Enable this if you want to reflect stickybombs");
+
+float closest_distance = -1.0f;
+CachedEntity* closest_entity = nullptr;
+
+void Reset() {
+	closest_distance = -1.0f;
+	closest_entity = nullptr;
 }
 
-// Hack Methods
-
-AutoReflect::AutoReflect() {
-	v_bEnabled = new CatVar(CV_SWITCH, "reflect_enabled", "0", "Enable", NULL, "Master AutoReflect switch");
-	v_iReflectDistance = new CatVar(CV_INT, "reflect_distance", "200", "Distance", NULL, "Maximum distance to reflect at", true, 300.0f);
-	v_bDisableWhenAttacking = new CatVar(CV_SWITCH, "reflect_only_idle", "0", "Only when not shooting", NULL, "Don't AutoReflect if you're holding M1");
-	v_bReflectStickies = new CatVar(CV_SWITCH, "reflect_stickybombs", "0", "Reflect stickies", NULL, "Reflect Stickybombs");
-}
-// TODO
-void AutoReflect::ProcessUserCmd(CUserCmd* cmd) {
-	if (!v_bEnabled->GetBool()) return;
-	if (CE_BAD(g_LocalPlayer->weapon()) || CE_BAD(g_LocalPlayer->entity)) return;
-	if (g_LocalPlayer->life_state) return;
-	if (g_LocalPlayer->weapon()->clazz != g_pClassID->CTFFlameThrower) return;
-	if (v_bDisableWhenAttacking->GetBool() && (cmd->buttons & IN_ATTACK)) return;
-
-	CachedEntity* closest = 0;
-	float closest_dist = 0.0f;
-	for (int i = 0; i < HIGHEST_ENTITY; i++) {
-		CachedEntity* ent = ENTITY(i);
-		if (CE_BAD(ent)) continue;
-		if (!ShouldReflect(ent)) continue;
-		//if (ent->Var<Vector>(eoffsets.vVelocity).IsZero(1.0f)) continue;
-		float dist = ent->m_vecOrigin.DistToSqr(g_LocalPlayer->v_Origin);
-		if (dist < closest_dist || !closest) {
-			closest = ent;
-			closest_dist = dist;
-		}
-	}
-	if (CE_BAD(closest)) return;
-	if (closest_dist == 0 || closest_dist > SQR(v_iReflectDistance->GetInt())) return;
-
-	Vector tr = (closest->m_vecOrigin - g_LocalPlayer->v_Eye);
+void DoReflects(CUserCmd* cmd) {
+	if (!closest_entity) return;
+	if (closest_distance > distance) return;
+	Vector tr = (closest_entity->Origin() - g_LocalPlayer.v_Eye);
 	Vector angles;
 	fVectorAngles(tr, angles);
 	fClampAngle(angles);
 	cmd->viewangles = angles;
-	g_LocalPlayer->bUseSilentAngles = true;
+	g_LocalPlayer.bUseSilentAngles = true;
 	cmd->buttons |= IN_ATTACK2;
-	return;
 }
+
+void ProcessEntity(CUserCmd* cmd, CachedEntity& entity) {
+	if (!ShouldReflect(cmd)) return;
+	if (!ShouldReflectEntity(entity)) return;
+	float distance = entity.Distance();
+	if (closest_distance == -1.0f || distance < closest_distance) {
+		closest_distance = distance;
+		closest_entity = entity;
+	}
+}
+
+bool ShouldReflectEntity(CachedEntity& entity) {
+	if (entity.Type() != ENTITY_PROJECTILE) return false;
+	if (!entity.Enemy()) return false; // TODO teammate reflect
+	if (!reflect_stickies && entity.Projectile() == PROJ_STICKY) return false;
+	// TODO iDeflected
+	return true;
+}
+
+bool ShouldReflect(CUserCmd* cmd) {
+	if (!enabled) return false;
+	if (g_LocalPlayer.weapon()->clazz != g_pClassID->CTFFlameThrower) return false;
+	if (idle_only && (cmd->buttons & IN_ATTACK)) return false;
+	return true;
+}
+
+}}}

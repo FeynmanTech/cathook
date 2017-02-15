@@ -9,19 +9,21 @@
 #include "common.h"
 #include "sdk.h"
 
-void ChatStack::AddProvider(MessageProviderFn_t provider) {
-	bottomProviders.push_back(provider);
+namespace chat_stack {
+
+void AddProvider(MessageProviderFn_t provider) {
+	bottom_providers.push_back(provider);
 }
 
-void ChatStack::OnCreateMove() {
-	if (m_fLastSay > g_pGlobals->curtime) m_fLastSay = 0;
-	if (g_pGlobals->curtime - CHATSTACK_INTERVAL <= m_fLastSay) return;
+void OnCreateMove() {
+	if (last_say > g_pGlobals->curtime) last_say = 0;
+	if (g_pGlobals->curtime - CHATSTACK_INTERVAL <= last_say) return;
 	std::string message;
 	if (stack.size() == 0) {
-		if (bottomProviders.size()) {
-			message = bottomProviders[provider_index]();
+		if (bottom_providers.size()) {
+			message = bottom_providers[provider_index]();
 			provider_index++;
-			if (provider_index >= bottomProviders.size()) provider_index = 0;
+			if (provider_index >= bottom_providers.size()) provider_index = 0;
 		}
 	} else {
 		message = stack.top();
@@ -29,12 +31,17 @@ void ChatStack::OnCreateMove() {
 	}
 	if (message.size())
 		g_IEngine->ServerCmd(format("say \"", message, '"').c_str());
-	m_fLastSay = g_pGlobals->curtime;
+	last_say = g_pGlobals->curtime;
 }
 
-void ChatStack::Reset() {
+void Reset() {
 	while (!stack.empty) stack.pop();
-	m_fLastSay = 0.0f;
+	last_say = 0.0f;
 }
 
-ChatStack* g_pChatStack = 0;
+size_t provider_index = 0;
+std::vector<MessageProviderFn_t> bottom_providers;
+std::stack<std::string> stack;
+float last_say = 0.0f;
+
+}

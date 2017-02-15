@@ -54,7 +54,7 @@
 #ifndef CATHOOK_BUILD_NUMBER
 #define CATHOOK_BUILD_NUMBER "LATEST"
 #endif
-#define CATHOOK_BUILD_NAME "Butterscotch Pie"
+#define CATHOOK_BUILD_NAME "Fortune Ticket"
 
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"
