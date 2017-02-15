@@ -33,6 +33,7 @@ public:
 	CatVar* v_iFakeLag;
 	CatVar* v_bCritHack;
 	CatVar* v_bTauntSlide;
+	CatVar* v_bSuppressCrits;
 	//ConVar* v_bDumpEventInfo;
 	ConCommand* c_SaveSettings;
 	ConCommand* c_Unrestricted;
