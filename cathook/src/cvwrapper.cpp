@@ -50,6 +50,10 @@ inline explicit CatVar::operator float() const {
 	return m_pConVar->GetFloat();
 }
 
+inline explicit CatVar::operator std::string() const {
+	return std::string(m_pConVar->GetString());
+}
+
 CatVar::CatVar(CatVar_t type, std::string name, std::string value, std::string help, CatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
 	this->name = name;
 	this->defaults = value;

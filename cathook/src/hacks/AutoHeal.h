@@ -8,23 +8,17 @@
 #ifndef HACKS_AUTOHEAL_H_
 #define HACKS_AUTOHEAL_H_
 
-#include "IHack.h"
+namespace hacks { namespace tf { namespace autoheal {
 
-class AutoHeal : public IHack {
-public:
-	AutoHeal();
+extern CatVar enabled;
 
-	virtual void ProcessUserCmd(CUserCmd*) override;
+bool CanHeal(CachedEntity& entity);
+int HealingPriority(CachedEntity& entity);
 
-	int GetBestHealingTarget();
-	int GetHealingPriority(int idx);
-	bool CanHeal(int idx);
-	int m_iCurrentHealingTarget;
-	int m_iNewTarget;
-	CatVar* v_bEnabled;
-	CatVar* v_bSilent;
-};
+void Reset();
+void ProcessEntity(CUserCmd*, CachedEntity& entity);
+void DoHealing();
 
-DECLARE_HACK_SINGLETON(AutoHeal);
+}}}
 
 #endif /* HACKS_AUTOHEAL_H_ */

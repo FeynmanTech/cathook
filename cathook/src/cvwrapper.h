@@ -79,6 +79,7 @@ public:
 	explicit operator bool() const;
 	explicit operator int() const;
 	explicit operator float() const;
+	explicit operator std::string() const;
 
 	bool GetBool() const;
 	int GetInt() const;

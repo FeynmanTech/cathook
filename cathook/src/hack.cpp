@@ -34,7 +34,6 @@
 #include "hooks.h"
 #include "hwid.h"
 #include "netmessage.h"
-#include "targeting/ITargetSystem.h"
 #include "profiler.h"
 #include "gui/GUI.h"
 //#include "gui/controls.h"
@@ -57,28 +56,6 @@
 
 bool hack::shutdown = false;
 
-void hack::InitHacks() {
-	ADD_HACK(AutoStrafe);
-	ADD_HACK(AntiAim);
-	if (TF) ADD_HACK(AntiDisguise);
-	if (TF) ADD_HACK(AutoReflect);
-	//ADD_HACK(FollowBot);
-	ADD_HACK(Misc);
-	ADD_HACK(Aimbot);
-	ADD_HACK(Bunnyhop);
-	ADD_HACK(ESP);
-	ADD_HACK(Triggerbot);
-	if (TF) ADD_HACK(AutoSticky);
-	ADD_HACK(Airstuck);
-	if (TF) ADD_HACK(AutoHeal);
-	if (TF) ADD_HACK(SpyAlert);
-	if (TF2) ADD_HACK(Glow);
-	ADD_HACK(KillSay);
-	ADD_HACK(Spam);
-	if (TF) ADD_HACK(AchievementHack);
-	if (TF2) ADD_HACK(Noisemaker);
-}
-
 ConCommand* hack::c_Cat = 0;
 
 void hack::CC_Cat(const CCommand& args) {
@@ -94,11 +71,6 @@ void hack::CC_Cat(const CCommand& args) {
 #ifdef __DRM_NOTES
 	g_ICVar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "Build notes: " __DRM_NOTES "\n");
 #endif
-}
-
-typedef bool(handlevent_t)(IMatSystemSurface* thisptr, const InputEvent_t& event);
-bool test_handleevent(IMatSystemSurface* thisptr, const InputEvent_t& event) {
-
 }
 
 void hack::Initialize() {
@@ -145,7 +117,6 @@ void hack::Initialize() {
 	}
 	BeginConVars();
 	hack::c_Cat = CreateConCommand(CON_NAME, &hack::CC_Cat, "Info");
-	hack::InitHacks();
 	g_Settings.Init();
 #if ENTITY_CACHE_PROFILER == true
 	if (!g_vEntityCacheProfiling) {
@@ -181,10 +152,10 @@ void hack::Initialize() {
 	hooks::hkClientMode->HookMethod((void*)LevelInit_hook, hooks::offLevelInit);
 	hooks::hkClientMode->HookMethod((void*)LevelShutdown_hook, hooks::offLevelShutdown);
 	hooks::hkClientMode->Apply();
-	hooks::hkStudioRender = new hooks::VMTHook();
-	hooks::hkStudioRender->Init((void*)g_IStudioRender, 0);
-	hooks::hkStudioRender->HookMethod((void*)BeginFrame_hook, hooks::offBeginFrame);
-	hooks::hkStudioRender->Apply();
+	//hooks::hkStudioRender = new hooks::VMTHook();
+	//hooks::hkStudioRender->Init((void*)g_IStudioRender, 0);
+	//hooks::hkStudioRender->HookMethod((void*)BeginFrame_hook, hooks::offBeginFrame);
+	//hooks::hkStudioRender->Apply();
 
 	hooks::hkClient = new hooks::VMTHook();
 	hooks::hkClient->Init((void*)g_IBaseClient, 0);
@@ -194,7 +165,7 @@ void hack::Initialize() {
 	hooks::hkClient->Apply();
 	if (TF2) g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
 	InitStrings();
-	g_pChatStack = new ChatStack();
+	//g_pChatStack = new ChatStack();
 }
 
 void hack::Think() {
@@ -212,23 +183,4 @@ void hack::Shutdown() {
 	if (hooks::hkNetChannel) hooks::hkNetChannel->Kill();
 	if (hooks::hkStudioRender) hooks::hkStudioRender->Kill();
 	ConVar_Unregister();
-	DELETE_HACK(AutoStrafe);
-	DELETE_HACK(AntiAim);
-	if (TF) DELETE_HACK(AntiDisguise);
-	if (TF) DELETE_HACK(AutoReflect);
-	//DELETE_HACK(FollowBot);
-	DELETE_HACK(Misc);
-	DELETE_HACK(Aimbot);
-	DELETE_HACK(Bunnyhop);
-	DELETE_HACK(ESP);
-	DELETE_HACK(Triggerbot);
-	if (TF) DELETE_HACK(AutoSticky);
-	DELETE_HACK(Airstuck);
-	if (TF) DELETE_HACK(AutoHeal);
-	DELETE_HACK(SpyAlert);
-	if (TF) DELETE_HACK(Glow);
-	DELETE_HACK(KillSay);
-	if (TF) DELETE_HACK(AchievementHack);
-	if (TF2) DELETE_HACK(Noisemaker);
-	DELETE_HACK(Spam);
 }

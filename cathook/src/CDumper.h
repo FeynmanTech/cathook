@@ -8,11 +8,14 @@
 #ifndef CDUMPER_H_
 #define CDUMPER_H_
 
-#include <cstring>
-#include <fstream>
 
 #include "logging.h"
-#include "fixsdk.h"
+
+#include "beforecheaders.h"
+#include <string>
+#include <fstream>
+#include "aftercheaders.h"
+
 #include <dt_common.h>
 #include <client_class.h>
 

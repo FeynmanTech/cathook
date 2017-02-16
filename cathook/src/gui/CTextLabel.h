@@ -10,9 +10,6 @@
 
 #include "CBaseWidget.h"
 
-#include "../fixsdk.h"
-#include "Color.h"
-
 class CTextLabel : public CBaseWidget {
 public:
 	CTextLabel(std::string name = "unnamed", IWidget* parent = nullptr, std::string text = "", bool centered = false);

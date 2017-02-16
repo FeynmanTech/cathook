@@ -8,8 +8,6 @@
 #ifndef HACKS_GLOW_H_
 #define HACKS_GLOW_H_
 
-#include "IHack.h"
-
 class Glow : public IHack {
 public:
 	Glow();

@@ -4,7 +4,7 @@
 #include "../logging.h"
 #include <memory>
 
-#include "../fixsdk.h"
+#include "../aftercheaders.h"
 #include <dt_recv.h>
 #include <client_class.h>
 #include <cdll_int.h>

@@ -8,7 +8,6 @@
 #ifndef HPYROBOT_H_
 #define HPYROBOT_H_
 
-#include "IHack.h"
 /*
 class ipcctl;
 class IClientEntity;

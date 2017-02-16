@@ -8,7 +8,6 @@
 #ifndef NETMESSAGE_H_
 #define NETMESSAGE_H_
 
-#include "fixsdk.h"
 #include <bitbuf.h>
 #include <utlvector.h>
 #include <inetchannel.h>

@@ -8,7 +8,7 @@
 #ifndef SDK_H_
 #define SDK_H_
 
-#include "fixsdk.h"
+#include "aftercheaders.h"
 
 #define private public
 #define protected public

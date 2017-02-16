@@ -10,9 +10,15 @@
 #include "../sdk.h"
 #include <pwd.h>
 
-DEFINE_HACK_SINGLETON(KillSay);
+#include "beforecheaders.h"
+#include <cstring>
+#include "aftercheaders.h"
 
-const char* tf_classes_killsay[] = {
+// TODO deathmatch stuff..
+
+namespace hacks { namespace shared { namespace killsay {
+
+const std::string classes[] = {
 	"class",
 	"scout",
 	"sniper",
@@ -25,10 +31,28 @@ const char* tf_classes_killsay[] = {
 	"engineer"
 };
 
-const char* tf_teams_killsay[] = {
+const std::string teams[] = {
 	"RED",
 	"BLU"
 };
+
+DeathListener listener;
+TextFile killsays;
+
+void DeathListener::FireGameEvent(IGameEvent* event) {
+	if (!enabled) return;
+	std::string message = ComposeMessage(event);
+	if (message.size()) chat_stack::stack.push(message);
+}
+
+CatVar enabled(CV_SWITCH, "killsay", "0", "KillSay", NULL, "Enable KillSay");
+CatVar filename(CV_STRING, "killsay_file", "killsays.txt", "Killsay file (~/.cathook/)", NULL, "Killsay file name. Should be located in ~/.cathook folder.");
+CatVar compatability;
+CatCommand reload("cat_killsay_reload", []() {
+	killsays.Load(filename);
+}, "Reload KillSay");
+
+}}}
 
 void KillSayEventListener::FireGameEvent(IGameEvent* event) {
 	if (!g_phKillSay->v_bEnabled->GetBool()) return;
@@ -66,9 +90,9 @@ const char* KillSay::ComposeKillSay(IGameEvent* event) {
 }
 
 KillSay::KillSay() {
-	v_bEnabled = new CatVar(CV_SWITCH, "killsay", "0", "KillSay", NULL, "Enable KillSay");
-	v_sFileName = new CatVar(CV_STRING, "killsay_file", "killsays.txt", "Killsay file (~/.cathook/)", NULL, "Killsay file name. Should be located in ~/.cathook folder.");
-	CreateConCommand("cat_killsay_reload", CC_KillSay_ReloadFile, "Reload KillSay");
+	v_bEnabled = new CatVar;
+	v_sFileName = new CatVar;
+	CreateConCommand;
 	m_TextFile = new TextFile(256, 1024);
 	g_IEventManager->AddListener(&m_Listener, "player_death", false);
 }

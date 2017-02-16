@@ -70,13 +70,29 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 
 //	PROF_END("Entity Cache updating");
 	SAFE_CALL(g_pPlayerResource->Update());
-	SAFE_CALL(g_LocalPlayer->Update());
+	SAFE_CALL(g_LocalPlayer.Update());
 	g_Settings.bInvalid = false;
+	if (!g_LocalPlayer.bad) {
+		hacks::shared::bunnyhop::ProcessUserCmd(cmd);
+		for (int i = 0; i < gEntityCache.max; i++) {
+			CachedEntity& entity = gEntityCache.Entity(i);
+			hacks::tf::autoreflect::Reset();
+			if (!entity.bad) {
+				//hacks::shared::aimbot::ProcessEntity(cmd, entity);
+				//hacks::tf::autoheal::ProcessEntity(entity);
+				hacks::tf::autoreflect::ProcessEntity(cmd, entity);
+				hacks::shared::esp::ProcessEntity(cmd, entity);
+			}
+		}
+		hacks::tf::autoreflect::DoReflects(cmd);
+	}
+	g_LocalPlayer->v_OrigViewangles = cmd->viewangles;
+
+	if (!g_LocalPlayer.bad && !g_LocalPlayer.weapon()->bad)
 	if (CE_GOOD(g_LocalPlayer->entity)) {
-			g_LocalPlayer->v_OrigViewangles = cmd->viewangles;
+
 //		PROF_BEGIN();
 		//RunEnginePrediction(g_pLocalPlayer->entity, cmd);
-		SAFE_CALL(HACK_PROCESS_USERCMD(ESP, cmd));
 		if (!g_LocalPlayer->life_state) {
 			//if (TF2) SAFE_CALL(HACK_PROCESS_USERCMD(Noisemaker, cmd));
 			SAFE_CALL(HACK_PROCESS_USERCMD(Bunnyhop, cmd));

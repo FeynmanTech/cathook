@@ -17,7 +17,6 @@ class CatVar;
 #include <string>
 #include "../aftercheaders.h"
 
-#include "../fixsdk.h"
 #include "../inputsystem/ButtonCode.h"
 
 class CTooltip;

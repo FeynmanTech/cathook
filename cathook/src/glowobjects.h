@@ -11,7 +11,6 @@
 #define END_OF_FREE_LIST -1
 #define ENTRY_IN_USE -2
 
-#include "fixsdk.h"
 #include <tier1/utlvector.h>
 #include <mathlib/vector.h>
 #include <basehandle.h>

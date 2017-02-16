@@ -8,34 +8,26 @@
 #ifndef HACKS_KILLSAY_H_
 #define HACKS_KILLSAY_H_
 
-#include "IHack.h"
-
-#include "../fixsdk.h"
 #include <igameevents.h>
 
-class TextFile;
+namespace hacks { namespace shared { namespace killsay {
 
-class KillSayEventListener : public IGameEventListener2 {
+class DeathListener : public IGameEventListener2 {
+public:
 	virtual void FireGameEvent(IGameEvent* event);
 };
 
-class KillSay : public IHack {
-public:
-	KillSay();
-	~KillSay();
-	const char* ComposeKillSay(IGameEvent* evt);
-	void Reload();
+std::string ComposeMessage(IGameEvent* event);
 
-	CatVar* v_bEnabled;
-	CatVar* v_sFileName;
+extern CatVar enabled;
+extern CatVar filename;
+extern CatVar compatability;
+extern CatCommand reload;
 
-	TextFile* m_TextFile;
-	KillSayEventListener m_Listener;
-};
+extern DeathListener listener;
+extern TextFile killsays;
 
-//void CC_PushKillsayDBG(const CCommand& args);
-void CC_KillSay_ReloadFile(const CCommand& args);
+}}}
 
-DECLARE_HACK_SINGLETON(KillSay);
 
 #endif /* HACKS_KILLSAY_H_ */

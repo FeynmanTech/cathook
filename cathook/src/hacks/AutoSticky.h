@@ -8,23 +8,20 @@
 #ifndef HACKS_AUTOSTICKY_H_
 #define HACKS_AUTOSTICKY_H_
 
-#include "IHack.h"
+namespace hacks { namespace tf { namespace autosticky {
 
-class CachedEntity;
+extern CatVar enabled;
+extern CatVar buildings;
+extern CatVar distance;
 
-class AutoSticky : public IHack {
-public:
-	AutoSticky();
+extern std::vector<CachedEntity*> targets;
+extern std::vector<CachedEntity*> bombs;
+bool IsATarget(CachedEntity& entity);
+bool IsABomb(CachedEntity& entity);
+void Reset();
+void ProcessEntity(CUserCmd* cmd, CachedEntity& entity);
+void CalculateAndDetonate(CUserCmd* cmd);
 
-	virtual void ProcessUserCmd(CUserCmd*) override;
-
-	bool ShouldDetonate(CachedEntity* bomb);
-	CatVar* v_bEnabled;
-	CatVar* v_bBuildings;
-	CatVar* v_bScottish;
-	CatVar* v_flDetonateDistance;
-};
-
-DECLARE_HACK_SINGLETON(AutoSticky);
+}}}
 
 #endif /* HACKS_AUTOSTICKY_H_ */
