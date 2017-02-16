@@ -71,10 +71,10 @@ void OldCondSet(CachedEntity* ent, condition cond, bool state) {
 
 condition_data_s FromOldNetvars(CachedEntity* ent) {
 	condition_data_s result;
-	result.cond_0 = CE_INT(ent, netvar.iCond);
-	result.cond_1 = CE_INT(ent, netvar.iCond1);
-	result.cond_2 = CE_INT(ent, netvar.iCond2);
-	result.cond_3 = CE_INT(ent, netvar.iCond3);
+	result.cond_0 = ent->var<int>(netvar.iCond);
+	result.cond_1 = ent->var<int>(netvar.iCond1);
+	result.cond_2 = ent->var<int>(netvar.iCond2);
+	result.cond_3 = ent->var<int>(netvar.iCond3);
 	return result;
 }
 

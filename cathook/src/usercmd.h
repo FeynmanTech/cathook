@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 
-#include "fixsdk.h"
 #include <mathlib/vector.h>
 
 class CUserCmd {

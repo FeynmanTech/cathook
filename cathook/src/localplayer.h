@@ -8,7 +8,6 @@
 #ifndef LOCALPLAYER_H_
 #define LOCALPLAYER_H_
 
-#include "fixsdk.h"
 #include <mathlib/vector.h>
 
 class CachedEntity;

@@ -56,18 +56,13 @@ CatVar model_name(CV_SWITCH, "esp_model_name", "0", "Model name ESP", NULL, "Mod
 CatVar item_dmweapons(CV_SWITCH, "esp_weapon_spawners", "1", "Show weapon spawners", NULL, "TF2C deathmatch weapon spawners");
 CatVar item_adrenaline(CV_SWITCH, "esp_item_adrenaline", "0", "Show Adrenaline", NULL, "TF2C adrenaline pills");
 
-}}}
-
-void ESP::DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
-	if (CE_BAD(ent)) return;
+void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	bool cloak = ent->clazz == g_pClassID->C_Player && IsPlayerInvisible(ent);
 	Vector min, max;
-	RAW_ENT(ent)->GetRenderBounds(min, max);
-	Vector origin = RAW_ENT(ent)->GetAbsOrigin();
+	ent->entptr->GetRenderBounds(min, max);
+	Vector origin = ent->Origin();
 	Vector so;
 	draw::WorldToScreen(origin, so);
-	//if (!a) return;
-	//logging::Info("%f %f", so.x, so.y);
 	Vector omin, omax;
 	omin = origin + Vector(0, 0, min.z);
 	omax = origin + Vector(0, 0, max.z + addHeight);
@@ -76,20 +71,12 @@ void ESP::DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight
 	a = a && draw::WorldToScreen(omax, smax);
 	if (!a) return;
 	float height = abs(smax.y - smin.y);
-	//logging::Info("height: %f", height);
 	float width = height / widthFactor;
-	//bool a = draw::WorldToScreen(omin, smin);
-	//a = a && draw::WorldToScreen(omax, smax);
-	//if (!a) return;
-	//draw::DrawString(min(smin.x, smax.x), min(smin.y, smax.y), clr, false, "min");
-	//draw::DrawString(max(smin.x, smax.x), max(smin.y, smax.y), clr, false, "max");
-	//draw::DrawString((int)so.x, (int)so.y, draw::white, false, "origin");
 	ent->m_ESPOrigin.x = so.x + width / 2 + 1;
 	ent->m_ESPOrigin.y = so.y - height;
 	unsigned char alpha = clr >> 24;
 	float trf = (float)((float)alpha / 255.0f);
 	int border = cloak ? colors::Create(160, 160, 160, alpha) : colors::Transparent(colors::black, trf);
-
 	draw::OutlineRect(so.x - width / 2 - 1, so.y - 1 - height, width + 2, height + 2, border);
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
 	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, border);
@@ -99,9 +86,154 @@ void ESP::DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight
 		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, border);
 		draw::DrawRect(so.x - width / 2 - 6, so.y - hbh, 5, hbh, hp);
 	}
-	//draw::OutlineRect(min(smin.x, smax.x) - 1, min(smin.y, smax.y) - 1, max(smin.x, smax.x), max(smin.y, smax.y), draw::black);
-	//draw::OutlineRect(min(smin.x, smax.x), min(smin.y, smax.y), max(smin.x, smax.x), max(smin.y, smax.y), clr);
 }
+
+void ProcessEntity(CUserCmd*, CachedEntity&) {
+
+}
+
+void DrawProcessEntity(CachedEntity&) {
+	if (!enabled) return;
+	if (!box) return;
+}
+
+void CreateProcessors() {
+	processors.push_back(entityprocessor_t(
+		[this](CachedEntity*) -> bool {
+			return entity_info;
+		},
+		[this](CachedEntity* entity) -> void {
+			entity->AddESPString(format('#', entity->m_IDX, ' ', '[', entity->clazz, ']', ' ', '"', entity->m_pClass->GetName()));
+			if (model_name)
+				entity->AddESPString(std::string(g_IModelInfo->GetModelName(entity->entptr->GetModel())));
+		}
+	));
+	processors.push_back(entityprocessor_t(
+		[this](CachedEntity* entity) -> bool {
+			return entity->Item() != ITEM_NONE;
+		},
+		[this](CachedEntity* entity) -> void {
+			k_EItemType type = entity->Item();
+			if (item_health && type >= ITEM_HEALTH_SMALL && type <= ITEM_HEALTH_LARGE) {
+				switch (type) {
+				case ITEM_HEALTH_SMALL:
+					entity->AddESPString("[+]"); break;
+				case ITEM_HEALTH_MEDIUM:
+					entity->AddESPString("[++]"); break;
+				case ITEM_HEALTH_LARGE:
+					entity->AddESPString("[+++]"); break;
+				}
+			} else if (item_ammo && type >= ITEM_AMMO_SMALL && type <= ITEM_AMMO_LARGE) {
+				switch (type) {
+				case ITEM_AMMO_SMALL:
+					entity->AddESPString("{i}"); break;
+				case ITEM_AMMO_MEDIUM:
+					entity->AddESPString("{ii}"); break;
+				case ITEM_AMMO_LARGE:
+					entity->AddESPString("{iii}"); break;
+				}
+			} else if (item_adrenaline && type == ITEM_TF2C_PILL) {
+				entity->AddESPString("[A]");
+			} else if (item_powerup && type >= ITEM_POWERUP_FIRST && type <= ITEM_POWERUP_LAST) {
+				entity->AddESPString(format(powerup_names[type - ITEM_POWERUP_FIRST], " POWERUP"));
+			} else if (item_dmweapons && type >= ITEM_TF2C_W_FIRST && type <= ITEM_TF2C_W_LAST) {
+				entity->AddESPString(format(tf2c_weapon_names[type - ITEM_TF2C_W_FIRST], " SPAWNER"));
+				if (entity->var<bool>(netvar.bRespawning))
+					entity->AddESPString("-- RESPAWNING --");
+			} else if (item_powerup && type == ITEM_HL_BATTERY) {
+				entity->AddESPString("[Z]");
+			}
+		}
+	));
+	// TF entity processors
+	processors.push_back(entityprocessor_t(
+		[this](CachedEntity* entity) -> bool {
+			if (!projectile) return false;
+			if (entity->Type() != ENTITY_PROJECTILE) return false;
+			if (!entity->Enemy()) {
+				if (!teammates) return false;
+				else if (proj_enemy) return false;
+			}
+			// TODO!!!
+			bool critical = 0;
+			CatVar* checker = 0;
+			switch (entity->GetProjectileType()) {
+			case PROJ_ARROW:
+				checker = v_iShowArrows; break;
+			case PROJ_PIPE:
+				checker = v_iShowPipes; break;
+			case PROJ_ROCKET:
+				checker = v_iShowRockets; break;
+			case PROJ_STICKY:
+				checker = v_iShowStickies; break;
+			}
+			if (checker) {
+				int mode = checker->GetInt();
+				return (mode == 1 || (mode == 2 && critical));
+			} else return false;
+		},
+		[this](CachedEntity* entity) -> bool {
+			switch (entity->GetProjectileType()) {
+			case PROJ_ARROW:
+				entity->AddESPString("[ >>----> ]"); break;
+			case PROJ_PIPE:
+				entity->AddESPString("[ (=|=) ]"); break;
+			case PROJ_STICKY:
+				entity->AddESPString("[ {*S*} ]"); break;
+			case PROJ_ROCKET:
+				entity->AddESPString("[ ====> ]"); break;
+			}
+			return true;
+		}
+	));
+	processors.push_back(entityprocessor_t(
+		[this](CachedEntity* entity) -> bool {
+			return (v_bBuildingESP->GetBool() && entity->GetBuildingType() != BUILD_NONE);
+		},
+		[this](CachedEntity* entity) -> bool {
+			if (v_bShowClass->GetBool()) { // TODO show building type...
+				switch (entity->GetBuildingType()) {
+				case BUILD_SENTRYGUN:
+					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " SENTRY"));
+					break;
+				case BUILD_DISPENSER:
+					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " DISPENSER"));
+					break;
+				case BUILD_TELEPORTER:
+					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " TELEPORTER"));
+					break;
+				}
+			}
+			if (v_bShowHealthNumbers->GetBool()) entity->AddESPString(format(entity->m_iHealth, '/', entity->m_iMaxHealth, " HP"));
+		}
+	));
+	// TF2 Entity Processors
+	processors.push_back(entityprocessor_t(
+		[this](CachedEntity* entity) -> bool {
+			return (entity->clazz == g_pClassID->CTFTankBoss && v_bShowTank->GetBool());
+		},
+		[this](CachedEntity* entity) -> bool {
+			entity->AddESPString("[: TANK :]");
+			return true;
+		}
+	));
+	processors.push_back(entityprocessor_t(
+		[this](CachedEntity* entity) {
+			if (!v_bShowMoney->GetBool() || entity->clazz != g_pClassID->CCurrencyPack) return false;
+			if (CE_BYTE(entity, netvar.bDistributed)) {
+				return v_bShowRedMoney->GetBool();
+			} else return true;
+		},
+		[this](CachedEntity* entity) {
+			entity->AddESPString("$$$");
+			return true;
+		}
+	));
+}
+
+}}}
+
+
 
 void ESP::ProcessEntityPT(CachedEntity* ent) {
 	if (!this->v_bEnabled->GetBool()) return;
@@ -138,144 +270,9 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	}
 }
 
-void ESP::AddProcessor(ESPEntityProcessor processor) {
-	m_processors.push_back(processor);
-}
-
 void ESP::CreateProcessors() {
 	// Common entity processors.
-	AddProcessor(ESPEntityProcessor(
-		[this](CachedEntity*) -> bool {
-			return v_bEntityESP->GetBool();
-		},
-		[this](CachedEntity* entity) -> bool {
-			entity->AddESPString(format('#', entity->m_IDX, ' ', '[', entity->clazz, ']', ' ', '"', entity->m_pClass->GetName()));
-			if (v_bModelName->GetBool())
-				entity->AddESPString(std::string(g_IModelInfo->GetModelName(RAW_ENT(entity)->GetModel())));
-			return true;
-		}
-	));
-	AddProcessor(ESPEntityProcessor(
-		[this](CachedEntity* entity) -> bool {
-			return entity->GetItemType() != ITEM_NONE;
-		},
-		[this](CachedEntity* entity) -> bool {
-			k_EItemType type = entity->GetItemType();
-			if (v_bShowHealthPacks->GetBool() && type >= ITEM_HEALTH_SMALL && type <= ITEM_HEALTH_LARGE) {
-				switch (type) {
-				case ITEM_HEALTH_SMALL:
-					entity->AddESPString("[+]"); break;
-				case ITEM_HEALTH_MEDIUM:
-					entity->AddESPString("[++]"); break;
-				case ITEM_HEALTH_LARGE:
-					entity->AddESPString("[+++]"); break;
-				}
-			} else if (v_bShowAmmoPacks->GetBool() && type >= ITEM_AMMO_SMALL && type <= ITEM_AMMO_LARGE) {
-				switch (type) {
-				case ITEM_AMMO_SMALL:
-					entity->AddESPString("{i}"); break;
-				case ITEM_AMMO_MEDIUM:
-					entity->AddESPString("{ii}"); break;
-				case ITEM_AMMO_LARGE:
-					entity->AddESPString("{iii}"); break;
-				}
-			} else if (v_bShowAdrenaline->GetBool() && type == ITEM_TF2C_PILL) {
-				entity->AddESPString("[A]");
-			} else if (v_bShowPowerups->GetBool() && type >= ITEM_POWERUP_FIRST && type <= ITEM_POWERUP_LAST) {
-				entity->AddESPString(format(powerup_names[type - ITEM_POWERUP_FIRST], " POWERUP"));
-			} else if (v_bShowWeaponSpawners->GetBool() && type >= ITEM_TF2C_W_FIRST && type <= ITEM_TF2C_W_LAST) {
-				entity->AddESPString(format(tf2c_weapon_names[type - ITEM_TF2C_W_FIRST], " SPAWNER"));
-				if (CE_BYTE(entity, netvar.bRespawning))
-					entity->AddESPString("-- RESPAWNING --");
-			} else if (v_bShowPowerups->GetBool() && type == ITEM_HL_BATTERY) {
-				entity->AddESPString("[Z]");
-			} else return false;
-			return true;
-		}
-	));
-	// TF entity processors
-	AddProcessor(ESPEntityProcessor(
-		[this](CachedEntity* entity) -> bool {
-			if (entity->m_Type != ENTITY_PROJECTILE) return false;
-			if (!v_bProjectileESP->GetBool()) return false;
-			if (!entity->m_bEnemy) {
-				if (!v_bTeammates->GetBool()) return false;
-				else if (v_bOnlyEnemyProjectiles->GetBool()) return false;
-			}
-			bool critical = entity->m_bCritProjectile;
-			CatVar* checker = 0;
-			switch (entity->GetProjectileType()) {
-			case PROJ_ARROW:
-				checker = v_iShowArrows; break;
-			case PROJ_PIPE:
-				checker = v_iShowPipes; break;
-			case PROJ_ROCKET:
-				checker = v_iShowRockets; break;
-			case PROJ_STICKY:
-				checker = v_iShowStickies; break;
-			}
-			if (checker) {
-				int mode = checker->GetInt();
-				return (mode == 1 || (mode == 2 && critical));
-			} else return false;
-		},
-		[this](CachedEntity* entity) -> bool {
-			switch (entity->GetProjectileType()) {
-			case PROJ_ARROW:
-				entity->AddESPString("[ >>----> ]"); break;
-			case PROJ_PIPE:
-				entity->AddESPString("[ (=|=) ]"); break;
-			case PROJ_STICKY:
-				entity->AddESPString("[ {*S*} ]"); break;
-			case PROJ_ROCKET:
-				entity->AddESPString("[ ====> ]"); break;
-			}
-			return true;
-		}
-	));
-	AddProcessor(ESPEntityProcessor(
-		[this](CachedEntity* entity) -> bool {
-			return (v_bBuildingESP->GetBool() && entity->GetBuildingType() != BUILD_NONE);
-		},
-		[this](CachedEntity* entity) -> bool {
-			if (v_bShowClass->GetBool()) { // TODO show building type...
-				switch (entity->GetBuildingType()) {
-				case BUILD_SENTRYGUN:
-					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " SENTRY"));
-					break;
-				case BUILD_DISPENSER:
-					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " DISPENSER"));
-					break;
-				case BUILD_TELEPORTER:
-					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " TELEPORTER"));
-					break;
-				}
-			}
-			if (v_bShowHealthNumbers->GetBool()) entity->AddESPString(format(entity->m_iHealth, '/', entity->m_iMaxHealth, " HP"));
-		}
-	));
-	// TF2 Entity Processors
-	AddProcessor(ESPEntityProcessor(
-		[this](CachedEntity* entity) -> bool {
-			return (entity->clazz == g_pClassID->CTFTankBoss && v_bShowTank->GetBool());
-		},
-		[this](CachedEntity* entity) -> bool {
-			entity->AddESPString("[: TANK :]");
-			return true;
-		}
-	));
-	AddProcessor(ESPEntityProcessor(
-		[this](CachedEntity* entity) {
-			if (!v_bShowMoney->GetBool() || entity->clazz != g_pClassID->CCurrencyPack) return false;
-			if (CE_BYTE(entity, netvar.bDistributed)) {
-				return v_bShowRedMoney->GetBool();
-			} else return true;
-		},
-		[this](CachedEntity* entity) {
-			entity->AddESPString("$$$");
-			return true;
-		}
-	));
+
 
 }
 

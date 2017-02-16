@@ -21,7 +21,6 @@
 #include "localplayer.h"
 #include "logging.h"
 #include "playerresource.h"
-#include "relations.h"
 #include "usercmd.h"
 #include "trace.h"
 #include "cvwrapper.h"

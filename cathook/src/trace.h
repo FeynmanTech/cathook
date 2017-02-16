@@ -8,7 +8,6 @@
 #ifndef TRACE_H_
 #define TRACE_H_
 
-#include "fixsdk.h"
 #include <engine/IEngineTrace.h>
 
 // This file is a mess. I need to fix it. TODO

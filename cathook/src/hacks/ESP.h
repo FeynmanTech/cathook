@@ -15,7 +15,7 @@
 
 namespace hacks { namespace shared { namespace esp {
 
-typedef std::pair<std::function<bool(CachedEntity&)>, std::function<bool(CachedEntity&)>> entityprocessor_t;
+typedef std::pair<std::function<bool(CachedEntity&)>, std::function<void(CachedEntity&)>> entityprocessor_t;
 
 void ProcessEntity(CUserCmd*, CachedEntity&);
 void DrawProcessEntity(CachedEntity&);

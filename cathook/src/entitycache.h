@@ -10,7 +10,6 @@
 
 #include "enums.h"
 #include "itemtypes.h"
-#include "fixsdk.h"
 #include <mathlib/vector.h>
 #include <mathlib/mathlib.h>
 #include <cdll_int.h>
