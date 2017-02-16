@@ -292,12 +292,14 @@ void CC_DumpConds(const CCommand& args) {
 }
 
 void Schema_Reload() {
-	static uintptr_t InitSchema_s = gSignatures.GetClientSignature("89 44 24 04 89 34 24 74 7B E8 FE DC FB FF 88 45 C7 80 7D C7 00 74 7B 8B 76 0C 39 F3 0F 85 BA 00 00 00 8B 5D D4 83 EB 01 8D 34 9D 00 00 00 00 EB 15 8D 76 00") - 0x54;
+	static uintptr_t InitSchema_s = gSignatures.GetClientSignature("55 89 E5 57 56 53 83 EC 4C 0F B6 7D 14 C7 04 ? ? ? ? 01 8B 5D 18 8B 75 0C 89 5C 24 04 E8 ? ? ? ? 89 F8 C7 45 C8 00 00 00 00 8D 7D C8 84 C0 8B 45 10 C7 45 CC");
 	typedef void(*InitSchema_t)(void*, void*, CUtlBuffer& buffer, bool byte, unsigned version);
 	static InitSchema_t InitSchema = (InitSchema_t)InitSchema_s;
 	static uintptr_t GetItemSchema_s = gSignatures.GetClientSignature("55 89 E5 83 EC 18 89 5D F8 8B 1D ? ? ? ? 89 7D FC 85 DB 74 12 89 D8 8B 7D FC 8B 5D F8 89 EC 5D C3 8D B6 00 00 00 00 C7 04 24 A8 06 00 00 E8 ? ? ? ? B9 AA 01 00 00 89 C3 31 C0 89 DF");
 	typedef void*(*GetItemSchema_t)(void);
 	static GetItemSchema_t GetItemSchema = (GetItemSchema_t)GetItemSchema_s;//(*(uintptr_t*)GetItemSchema_s + GetItemSchema_s + 4);
+
+	logging::Info("0x%08x 0x%08x", InitSchema, GetItemSchema);
 	void* itemschema = (GetItemSchema() + 4);
 	void* data;
 	passwd* pwd = getpwuid(getuid());
@@ -313,6 +315,7 @@ void Schema_Reload() {
 	fread(&buffer, sizeof(char), len, file);
 	fclose(file);
 	CUtlBuffer buf(&buffer, 4 * 1000 * 1000, 9);
+	logging::Info("0x%08x 0x%08x", InitSchema, GetItemSchema);
 	InitSchema(0, itemschema, buf, false, 0xDEADCA7);
 }
 
