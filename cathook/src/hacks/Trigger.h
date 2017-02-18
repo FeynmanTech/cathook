@@ -24,6 +24,6 @@ extern CatVar accuracy;
 
 void ProcessUserCmd(CUserCmd* cmd);
 
-}
+}}}
 
 #endif /* HTRIGGER_H_ */

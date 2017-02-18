@@ -102,7 +102,7 @@ void CreateProcessors() {
 		[this](CachedEntity*) -> bool {
 			return entity_info;
 		},
-		[this](CachedEntity* entity) -> void {
+		[this](CachedEntity* entity) {
 			entity->AddESPString(format('#', entity->m_IDX, ' ', '[', entity->clazz, ']', ' ', '"', entity->m_pClass->GetName()));
 			if (model_name)
 				entity->AddESPString(std::string(g_IModelInfo->GetModelName(entity->entptr->GetModel())));
@@ -112,7 +112,7 @@ void CreateProcessors() {
 		[this](CachedEntity* entity) -> bool {
 			return entity->Item() != ITEM_NONE;
 		},
-		[this](CachedEntity* entity) -> void {
+		[this](CachedEntity* entity) {
 			k_EItemType type = entity->Item();
 			if (item_health && type >= ITEM_HEALTH_SMALL && type <= ITEM_HEALTH_LARGE) {
 				switch (type) {
@@ -157,23 +157,23 @@ void CreateProcessors() {
 			// TODO!!!
 			bool critical = 0;
 			CatVar* checker = 0;
-			switch (entity->GetProjectileType()) {
+			switch (entity->Projectile()) {
 			case PROJ_ARROW:
-				checker = v_iShowArrows; break;
+				checker = &proj_arrows; break;
 			case PROJ_PIPE:
-				checker = v_iShowPipes; break;
+				checker = &proj_pipes; break;
 			case PROJ_ROCKET:
-				checker = v_iShowRockets; break;
+				checker = &proj_rockets; break;
 			case PROJ_STICKY:
-				checker = v_iShowStickies; break;
+				checker = &proj_stickies; break;
 			}
 			if (checker) {
 				int mode = checker->GetInt();
 				return (mode == 1 || (mode == 2 && critical));
 			} else return false;
 		},
-		[this](CachedEntity* entity) -> bool {
-			switch (entity->GetProjectileType()) {
+		[this](CachedEntity* entity) {
+			switch (entity->Projectile()) {
 			case PROJ_ARROW:
 				entity->AddESPString("[ >>----> ]"); break;
 			case PROJ_PIPE:
@@ -183,50 +183,47 @@ void CreateProcessors() {
 			case PROJ_ROCKET:
 				entity->AddESPString("[ ====> ]"); break;
 			}
-			return true;
 		}
 	));
 	processors.push_back(entityprocessor_t(
 		[this](CachedEntity* entity) -> bool {
-			return (v_bBuildingESP->GetBool() && entity->GetBuildingType() != BUILD_NONE);
+			return (buildings && entity->Building() != BUILD_NONE);
 		},
-		[this](CachedEntity* entity) -> bool {
-			if (v_bShowClass->GetBool()) { // TODO show building type...
-				switch (entity->GetBuildingType()) {
+		[this](CachedEntity* entity) {
+			if (show_class) { // TODO show building type...
+				switch (entity->Building()) {
 				case BUILD_SENTRYGUN:
-					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " SENTRY"));
+					entity->AddESPString(format("LV ", entity->var<int>(netvar.iUpgradeLevel), " SENTRY"));
 					break;
 				case BUILD_DISPENSER:
-					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " DISPENSER"));
+					entity->AddESPString(format("LV ", entity->var<int>(netvar.iUpgradeLevel), " DISPENSER"));
 					break;
 				case BUILD_TELEPORTER:
-					entity->AddESPString(format("LV ", CE_INT(entity, netvar.iUpgradeLevel), " TELEPORTER"));
+					entity->AddESPString(format("LV ", entity->var<int>(netvar.iUpgradeLevel), " TELEPORTER"));
 					break;
 				}
 			}
-			if (v_bShowHealthNumbers->GetBool()) entity->AddESPString(format(entity->m_iHealth, '/', entity->m_iMaxHealth, " HP"));
+			if (show_health) entity->AddESPString(format(entity->Health(), '/', entity->MaxHealth(), " HP"));
 		}
 	));
 	// TF2 Entity Processors
 	processors.push_back(entityprocessor_t(
 		[this](CachedEntity* entity) -> bool {
-			return (entity->clazz == g_pClassID->CTFTankBoss && v_bShowTank->GetBool());
+			return (entity->clazz == g_pClassID->CTFTankBoss && tank);
 		},
-		[this](CachedEntity* entity) -> bool {
+		[this](CachedEntity* entity) {
 			entity->AddESPString("[: TANK :]");
-			return true;
 		}
 	));
 	processors.push_back(entityprocessor_t(
 		[this](CachedEntity* entity) {
-			if (!v_bShowMoney->GetBool() || entity->clazz != g_pClassID->CCurrencyPack) return false;
-			if (CE_BYTE(entity, netvar.bDistributed)) {
-				return v_bShowRedMoney->GetBool();
+			if (!item_money || entity->clazz != g_pClassID->CCurrencyPack) return false;
+			if (entity->var<bool>(netvar.bDistributed)) {
+				return item_money_red;
 			} else return true;
 		},
 		[this](CachedEntity* entity) {
 			entity->AddESPString("$$$");
-			return true;
 		}
 	));
 }

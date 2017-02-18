@@ -16,9 +16,7 @@
 
 #include "entityhitboxcache.h"
 
-#include <cdll_int.h>
-#include <mathlib/mathlib.h>
-#include <studio.h>
+#include "sdk.h"
 
 struct CachedEntityData {
 

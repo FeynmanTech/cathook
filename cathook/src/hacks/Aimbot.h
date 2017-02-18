@@ -16,14 +16,14 @@ class Vector;
 
 namespace hacks { namespace shared { namespace aimbot {
 
-enum class aimkey_mode {
+enum class k_EAimkeyMode {
 	DISABLED,
 	PRESS_TO_ENABLE,
 	PRESS_TO_DISABLE,
 	PRESS_TO_TOGGLE
 };
 
-enum class hitbox_mode {
+enum class k_EHitboxMode {
 	STATIC,
 	HEADONLY,
 	AUTOHEAD,
@@ -31,49 +31,42 @@ enum class hitbox_mode {
 	CLOSEST
 };
 
+void ProcessUserCmd(CUserCmd* cmd);
+void ProcessEntity(CUserCmd* cmd, CachedEntity& entity);
+
 /*
  * TODO smooth aimbot, autoshoot charge, autoshoot range
  */
 
-CatVar aimkey;
-CatVar aimkey_mode;
-CatVar enabled;
-CatVar fov;
-CatVar hitbox;
-CatVar auto_hitbox;
-CatVar delay;
-CatVar lerp;
-CatVar autoshoot;
-CatVar silent;
-CatVar zoomed_only;
-CatVar teammates;
-CatVar huntsman_charge;
-CatVar range;
-CatVar autoshoot_range; // TODO IMPLEMENT
-CatVar respect_cloak;
-CatVar attack_only;
-CatVar projectile;
-CatVar projectile_speed;
-CatVar projectile_gravity; // TODO IMPLEMENT
-CatVar buildings;
-CatVar canshoot;
-CatVar priority;
-CatVar projectile_visibility;
-CatVar projectile_fov;
-
-struct data_s {
-	data_s();
-	bool projectile;
-	float proj_speed;
-	float proj_gravity;
-	int last_target_idx;
-	bool aimkey_switch;
-	int minigun_spinup;
-};
+extern CatVar aimkey;
+extern CatVar aimkey_mode;
+extern CatVar enabled;
+extern CatVar fov;
+extern CatVar hitbox;
+extern CatVar auto_hitbox;
+extern CatVar delay;
+extern CatVar lerp;
+extern CatVar autoshoot;
+extern CatVar silent;
+extern CatVar zoomed_only;
+extern CatVar teammates;
+extern CatVar huntsman_charge;
+extern CatVar range;
+extern CatVar autoshoot_range; // TODO IMPLEMENT
+extern CatVar respect_cloak;
+extern CatVar attack_only;
+extern CatVar projectile;
+extern CatVar projectile_speed;
+extern CatVar projectile_gravity; // TODO IMPLEMENT
+extern CatVar buildings;
+extern CatVar canshoot;
+extern CatVar priority;
+extern CatVar projectile_visibility;
+extern CatVar projectile_fov;
 
 }}}
 
-class Aimbot : public IHack {
+/*class Aimbot : public IHack {
 public:
 	Aimbot();
 
@@ -97,6 +90,6 @@ public:
 	bool m_bAimKeySwitch;
 	int m_nMinigunFixTicks;
 	bool m_bHeadOnly;
-};
+};*/
 
 #endif /* HAIMBOT_H_ */
