@@ -26,6 +26,82 @@
 #include "../netmessage.h"
 #include "../copypasted/CSignature.h"
 
+
+namespace hacks { namespace shared { namespace misc {
+
+CatCommand setname("name", [](const CCommand& args) {
+	if (args.ArgC() < 2) {
+		logging::Info("Set a name, silly");
+		return;
+	}
+	if (g_Settings.bInvalid) {
+		logging::Info("Only works ingame!");
+		return;
+	}
+	char* name = new char[32];
+	snprintf(name, 32, "%s", args.Arg(1));
+	if (args.ArgC() > 1 && atoi(args.Arg(2))) {
+		for (int i = 0; i < strlen(name); i++) {
+			if (name[i] == '^') name[i] = '\n';
+		}
+	}
+	NET_SetConVar setname("name", (const char*)name);
+	//logging::Info("Created!");
+	INetChannel* ch = (INetChannel*)g_IEngine->GetNetChannelInfo();
+	if (ch) {
+		setname.SetNetChannel(ch);
+		setname.SetReliable(false);
+		//logging::Info("Sending!");
+		ch->SendNetMsg(setname, false);
+	}
+	delete [] name;
+}, "Change name");
+CatCommand save("save", [](const CCommand& args) {
+	std::string filename("lastcfg");
+	if (args.ArgC() > 1) {
+		filename = std::string(args.Arg(1));
+	}
+	char* path = strfmt("%scfg/cat_%s.cfg", g_pszTFPath, filename.c_str());
+	logging::Info("Saving settings to %s", path);
+	FILE* file = fopen(path, "w");
+	if (!file) {
+		logging::Info("Couldn't open the file!");
+		return;
+	}
+	for (auto i : g_ConVars) {
+		if (i) {
+			if (strcmp(i->GetString(), i->GetDefault())) {
+				//logging::Info("Saving %s", i->GetName());
+				//logging::Info("Value: %s", i->GetString());
+				fprintf(file, "%s \"%s\"\n", i->GetName(), i->GetString());
+			}
+		}
+	}
+	fclose(file);
+}, "Save settings");
+CatCommand say_lines;
+CatCommand disconnect;
+CatCommand disconnect_vac;
+
+CatVar remove_unprintables(CV_SWITCH, "clean_chat", "0", "Clean chat", NULL, "Remove unprintable characters from messages");
+CatVar flashlight_spam(CV_SWITCH, "flashlight", "0", "Flashlight spam", NULL, "HL2DM flashlight spam");
+CatVar minigun_jump(CV_SWITCH, "minigun_jump", "0", "Minigun jump", NULL, "Works only in TF2 classic");
+CatVar anti_afk(CV_SWITCH, "no_afk", "0", "No AFK", NULL, "Enable this if you don't want to get kicked for afk'ing when going afk");
+CatVar fakelag(CV_INT, "fakelag", "0", "Fakelag", NULL, "Fakelag (Bugged)", true, 25.0f);
+CatVar tauntslide(CV_SWITCH, "tauntslide", "0", "Taunt Slide", NULL, "TF2C taunt slide");
+CatVar debug_info(CV_SWITCH, "debug_info", "0", "Debug info", NULL, "Show debug info");
+CatVar force_fov(CV_FLOAT, "fov", "0", "FOV", NULL, "FOV override", true, 180.0f);
+CatVar force_fov_zoomed(CV_FLOAT, "fov_zoomed", "0", "Zoomed FOV", NULL, "FOV override (when zoomed)", true, 180.0f);;
+CatVar fov_zoomed_override(CV_SWITCH, "fov_zoomed_apply", "0", "Enable Zoomed FOV", NULL, "If you enable this, cat_fov_zoomed will be used when you are zoomed in");
+CatVar no_zoom(CV_SWITCH, "no_zoom", "0", "No zoom", NULL, "Remove black scope");
+CatVar show_angles(CV_SWITCH, "thirdperson_angles", "0", "Thirdperson AA", NULL, "Shows real angles in thirdperson");
+CatVar roll_speedhack(CV_KEY, "speedhack_roll", "0", "Speedhack (TF2C)", NULL, "Roll speedhack key");
+CatVar clean_screenshots(CV_SWITCH, "clean_screenshots", "0", "Clean screenshots", NULL, "Don't draw visuals if the screenshot key is pressed");
+CatVar thirdperson(CV_SWITCH, "thirdperson", "0", "Thirdperson", NULL, "Enable thirdperson view");
+CatVar disconnect_msg(CV_STRING, "disconnect_msg", "", "Disconnect reason", NULL, "Set your own disconnect reason");
+
+}}}
+
 DEFINE_HACK_SINGLETON(Misc);
 
 void CC_SayLines(const CCommand& args) {
@@ -127,32 +203,7 @@ void LockConCommand(const char* name, bool lock) {
 }
 
 void CC_SaveConVars(const CCommand& args) {
-	std::string filename("lastcfg");
-	if (args.ArgC() > 1) {
-		filename = std::string(args.Arg(1));
-	}
-	char* path = strfmt("%scfg/cat_%s.cfg", g_pszTFPath, filename.c_str());
-	logging::Info("Saving settings to %s", path);
-	FILE* file = fopen(path, "w");
-	if (!file) {
-		logging::Info("Couldn't open the file!");
-		return;
-	}
-	for (auto i : g_ConVars) {
-		if (i) {
-			if (strcmp(i->GetString(), i->GetDefault())) {
-				//logging::Info("Saving %s", i->GetName());
-				//logging::Info("Value: %s", i->GetString());
-				fprintf(file, "%s \"%s\"\n", i->GetName(), i->GetString());
-			}
-		}
-	}
-	fclose(file);
-}
 
-void CC_Unrestricted(const CCommand& args) {
-	logging::Info("executing '%s'", args.ArgS());
-	g_IEngine->ClientCmd_Unrestricted(args.ArgS());
 }
 
 void LockConCommands(bool lock) {
@@ -162,32 +213,7 @@ void LockConCommands(bool lock) {
 ConCommandBase* teamname = 0;
 
 void CC_SetName(const CCommand& args) {
-	if (args.ArgC() < 2) {
-		logging::Info("Set a name, silly");
-		return;
-	}
-	if (g_Settings.bInvalid) {
-		logging::Info("Only works ingame!");
-		return;
-	}
 
-	char* name = new char[32];
-	snprintf(name, 32, "%s", args.Arg(1));
-	if (args.ArgC() > 1 && atoi(args.Arg(2))) {
-		for (int i = 0; i < strlen(name); i++) {
-			if (name[i] == '^') name[i] = '\n';
-		}
-	}
-	NET_SetConVar setname("name", (const char*)name);
-	//logging::Info("Created!");
-	INetChannel* ch = (INetChannel*)g_IEngine->GetNetChannelInfo();
-	if (ch) {
-		setname.SetNetChannel(ch);
-		setname.SetReliable(false);
-		//logging::Info("Sending!");
-		ch->SendNetMsg(setname, false);
-	}
-	delete [] name;
 }
 
 void CC_Lockee(const CCommand& args) {

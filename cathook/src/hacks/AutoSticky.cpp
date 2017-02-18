@@ -10,43 +10,55 @@
 #include "../common.h"
 #include "../sdk.h"
 
-DEFINE_HACK_SINGLETON(AutoSticky);
+namespace hacks { namespace tf { namespace autosticky {
 
-// TODO scottish cyclops
-AutoSticky::AutoSticky() {
-	this->v_flDetonateDistance = new CatVar(CV_INT, "sticky_distance", "200", "Distance", NULL, "Maximum distance to detonate");
-	this->v_bBuildings = new CatVar(CV_SWITCH, "sticky_buildings", "1", "Detonate buildings", NULL, "Stickies react at buildings");
-	this->v_bEnabled = new CatVar(CV_SWITCH, "sticky_enabled", "0", "Enable", NULL, "Master AutoSticky switch");
-	this->v_bScottish = new CatVar(CV_SWITCH, "sticky_scottish", "0", "Scottish", NULL, "Scottish Resistance mode - NOT YET IMPLEMENTED");
+CatVar enabled(CV_SWITCH, "sticky_enabled", "0", "AutoSticky", NULL, "Automatically detonate sticky bombs if they are near enemy players/buildings");
+CatVar buildings(CV_SWITCH, "sticky_buildings", "1", "Detonate buildings", NULL, "Stickies react at buildings");
+CatVar distance(CV_INT, "sticky_distance", "200", "Distance", NULL, "Maximum distance to detonate");
+
+std::vector<CachedEntity*> targets;
+std::vector<CachedEntity*> bombs;
+
+bool IsATarget(CachedEntity& entity) {
+	if (entity.Type() != ENTITY_PLAYER) return false;
+	if (entity.var<bool>(netvar.iLifeState)) return false;
+	if (!entity.Enemy()) return false;
+	if (IsPlayerInvulnerable(&entity)) return false;
+	return true;
 }
 
-bool AutoSticky::ShouldDetonate(CachedEntity* bomb) {
-	for (int i = 0; i < HIGHEST_ENTITY; i++) {
-		CachedEntity* ent = ENTITY(i);
-		if (CE_BAD(ent)) continue;
-		if (ent->m_Type != ENTITY_PLAYER && (ent->m_Type != ENTITY_BUILDING || !this->v_bBuildings->GetBool())) continue;
-		if (ent->m_iTeam == CE_INT(bomb, netvar.iTeamNum)) continue;
-		if (ent->m_vecOrigin.DistToSqr(bomb->m_vecOrigin) > SQR(this->v_flDetonateDistance->GetFloat())) continue;
-		return true;
-	}
-	return false;
+bool IsABomb(CachedEntity& entity) {
+	if (entity.Projectile() != PROJ_STICKY) return false;
+	if (entity.var<int>(netvar.hThrower) & 0xFFF != g_LocalPlayer.entity->m_IDX) return false;
+	return true;
 }
 
-void AutoSticky::ProcessUserCmd(CUserCmd* cmd) {
-	if (!this->v_bEnabled->GetBool()) return;
-	if (CE_BAD(g_LocalPlayer->entity)) return;
-	if (CE_BAD(g_LocalPlayer->weapon())) return;
-	if (g_LocalPlayer->life_state) return;
-	if (g_LocalPlayer->clazz != tf_demoman) return;
-	for (int i = 0; i < HIGHEST_ENTITY; i++) {
-		CachedEntity* ent = ENTITY(i);
-		if (CE_BAD(ent)) continue;
-		if (ent->clazz != g_pClassID->CTFGrenadePipebombProjectile) continue;
-		if (CE_INT(ent, netvar.iPipeType) != 1) continue;
-		if ((CE_INT(ent, netvar.hThrower) & 0xFFF) != g_LocalPlayer->entity->m_IDX) continue;
-		if (ShouldDetonate(ent)) {
-			cmd->buttons |= IN_ATTACK2;
+void Reset() {
+	targets.clear();
+	bombs.clear();
+}
+
+void ProcessEntity(CUserCmd* cmd, CachedEntity& entity) {
+	if (!enabled) return;
+	if (IsATarget(entity)) targets.push_back(&entity);
+	if (IsABomb(entity)) bombs.push_back(&entity);
+}
+
+void CalculateAndDetonate(CUserCmd* cmd) {
+	if (g_LocalPlayer.entity->Class() != tf_demoman) return;
+	bool detonate = false;
+	for (auto sticky : bombs) {
+		for (auto target : targets) {
+			if (sticky->Origin().DistToSqr(target->Origin()) < SQR((float)distance)) {
+				detonate = true;
+			}
+			if (detonate) break;
 		}
+		if (detonate) break;
 	}
-	return;
+	if (detonate) {
+		cmd->buttons |= IN_ATTACK2;
+	}
 }
+
+}}}

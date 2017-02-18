@@ -14,8 +14,6 @@ extern CatVar enabled;
 extern CatVar buildings;
 extern CatVar distance;
 
-extern std::vector<CachedEntity*> targets;
-extern std::vector<CachedEntity*> bombs;
 bool IsATarget(CachedEntity& entity);
 bool IsABomb(CachedEntity& entity);
 void Reset();

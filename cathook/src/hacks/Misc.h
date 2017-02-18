@@ -8,11 +8,35 @@
 #ifndef HACKS_MISC_H_
 #define HACKS_MISC_H_
 
+namespace hacks { namespace shared { namespace misc {
 
-class ConVar;
-class ConCommand;
+extern CatCommand setname;
+extern CatCommand save;
+extern CatCommand say_lines;
+extern CatCommand disconnect;
+extern CatCommand disconnect_vac;
 
-class Misc : public IHack {
+extern CatVar remove_unprintables;
+extern CatVar flashlight_spam;
+extern CatVar minigun_jump;
+extern CatVar anti_afk;
+extern CatVar fakelag;
+extern CatVar tauntslide;
+extern CatVar debug_info;
+extern CatVar force_fov;
+extern CatVar force_fov_zoomed;
+extern CatVar fov_zoomed_override;
+extern CatVar no_zoom;
+extern CatVar show_angles;
+extern CatVar no_visuals;
+extern CatVar roll_speedhack;
+extern CatVar clean_screenshots;
+extern CatVar thirdperson;
+extern CatVar disconnect_msg;
+
+}}}
+
+/*class Misc : public IHack {
 public:
 	Misc();
 
@@ -53,11 +77,6 @@ public:
 	ConCommand* c_DisconnectVAC;
 
 	CatVar* v_bCleanChat;
-};
-
-void Schema_Reload();
-void CC_Misc_Disconnect_VAC();
-
-DECLARE_HACK_SINGLETON(Misc);
+};*/
 
 #endif /* HACKS_MISC_H_ */
