@@ -13,7 +13,7 @@
 
 const CachedEntityData CachedEntityData::zero = {
 	ENTITY_UNKNOWN, PROJ_UNKNOWN, BUILD_UNKNOWN, ITEM_UNKNOWN,
-	-1, false, -1, -1, -1, -1.0f, false, { 0 }
+	-1, false, -1, -1, -1, -1.0f, false, { 0 }, false
 };
 
 k_EItemType CachedEntity::Item() {

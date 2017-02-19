@@ -45,66 +45,39 @@ void DeathListener::FireGameEvent(IGameEvent* event) {
 	if (message.size()) chat_stack::stack.push(message);
 }
 
-CatVar enabled(CV_SWITCH, "killsay", "0", "KillSay", NULL, "Enable KillSay");
-CatVar filename(CV_STRING, "killsay_file", "killsays.txt", "Killsay file (~/.cathook/)", NULL, "Killsay file name. Should be located in ~/.cathook folder.");
-CatVar compatability;
-CatCommand reload("cat_killsay_reload", []() {
-	killsays.Load(filename);
-}, "Reload KillSay");
-
-}}}
-
-void KillSayEventListener::FireGameEvent(IGameEvent* event) {
-	if (!g_phKillSay->v_bEnabled->GetBool()) return;
-	SEGV_BEGIN;
-	const char* msg = g_phKillSay->ComposeKillSay(event);
-	if (msg) {
-		g_pChatStack->Push(msg);
-		delete msg;
-	}
-	SEGV_END;
+DeathListener::~DeathListener() {
+	g_IEventManager->RemoveListener(this);
 }
 
-const char* KillSay::ComposeKillSay(IGameEvent* event) {
-	if (m_TextFile->GetLineCount() == 0) return 0;
+std::string ComposeMessage(IGameEvent* event) {
+	if (killsays.LineCount() == 0) return 0;
 	if (!event) return 0;
 	int vid = event->GetInt("userid");
 	int kid = event->GetInt("attacker");
 	if (kid == vid) return 0;
 	if (g_IEngine->GetPlayerForUserID(kid) != g_IEngine->GetLocalPlayer()) return 0;
-	char* msg = strfmt("%s", m_TextFile->GetLine(rand() % m_TextFile->GetLineCount()));
+	std::string message = killsays.Line((rand() % killsays.LineCount()));
 	player_info_s info;
 	g_IEngine->GetPlayerInfo(g_IEngine->GetPlayerForUserID(vid), &info);
-	ReplaceString(msg, "%name%", info.name);
-	CachedEntity* ent = ENTITY(g_IEngine->GetPlayerForUserID(vid));
-	int clz = g_pPlayerResource->GetClass(ent);
-	ReplaceString(msg, "%class%", (char*)tf_classes_killsay[clz]);
+	ReplaceString(message, "%name%", info.name);
+	CachedEntity& ent = gEntityCache.Entity(g_IEngine->GetPlayerForUserID(vid));
+	int clz = ent.Class();
+	ReplaceString(message, "%class%", (char*)classes[clz]);
 	player_info_s infok;
 	g_IEngine->GetPlayerInfo(g_IEngine->GetPlayerForUserID(kid), &infok);
-	ReplaceString(msg, "%killer%", (char*)infok.name);
-	ReplaceString(msg, "%team%", (char*)tf_teams_killsay[ent->m_iTeam - 2]);
-	ReplaceString(msg, "%myteam%", (char*)tf_teams_killsay[LOCAL_E->m_iTeam - 2]);
-	ReplaceString(msg, "%myclass%", (char*)tf_classes_killsay[g_pPlayerResource->GetClass(LOCAL_E)]);
-	ReplaceString(msg, "\\n", "\n");
-	return msg;
+	ReplaceString(message, "%killer%", (char*)infok.name);
+	ReplaceString(message, "%team%", (char*)teams[ent.Team() - 2]);
+	ReplaceString(message, "%myteam%", (char*)teams[g_LocalPlayer.entity->Team() - 2]);
+	ReplaceString(message, "%myclass%", (char*)classes[g_LocalPlayer.entity->Class()]);
+	ReplaceString(message, "\\n", "\n");
+	return message;
 }
 
-KillSay::KillSay() {
-	v_bEnabled = new CatVar;
-	v_sFileName = new CatVar;
-	CreateConCommand;
-	m_TextFile = new TextFile(256, 1024);
-	g_IEventManager->AddListener(&m_Listener, "player_death", false);
-}
+CatVar enabled(CV_SWITCH, "killsay", "0", "KillSay", NULL, "Enable KillSay");
+CatVar filename(CV_STRING, "killsay_file", "killsays.txt", "Killsay file (~/.cathook/)", NULL, "Killsay file name. Should be located in ~/.cathook folder.");
+CatVar compatability;
+CatCommand reload("cat_killsay_reload", []() {
+	killsays.Load((std::string)filename);
+}, "Reload KillSay");
 
-KillSay::~KillSay() {
-	g_IEventManager->RemoveListener(&m_Listener);
-}
-
-void KillSay::Reload() {
-	m_TextFile->LoadFile(v_sFileName->m_pConVar->GetString());
-}
-
-void CC_KillSay_ReloadFile(const CCommand& args) {
-	SAFE_CALL(g_phKillSay->Reload());
-}
+}}}

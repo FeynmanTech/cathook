@@ -8,7 +8,7 @@
 #include "Glow.h"
 #include "../common.h"
 #include "../sdk.h"
-
+/*
 DEFINE_HACK_SINGLETON(Glow);
 
 Glow::Glow() {
@@ -34,4 +34,4 @@ void Glow::OnLevelInit() {
 
 void Glow::OnLevelShutdown() {
 	m_bEnabledOnce = false;
-}
+}*/

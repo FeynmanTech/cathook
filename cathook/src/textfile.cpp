@@ -27,6 +27,7 @@ void TextFile::LoadFile(const char* name) {
 		logging::Info("Could not open the file: %s", filename);
 		return;
 	}
+	lines.clear();
 	for (std::string line; std::getline(file, line);) {
 		lines.push_back(line);
 	}

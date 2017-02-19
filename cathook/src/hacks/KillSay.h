@@ -15,6 +15,7 @@ namespace hacks { namespace shared { namespace killsay {
 class DeathListener : public IGameEventListener2 {
 public:
 	virtual void FireGameEvent(IGameEvent* event);
+	~DeathListener();
 };
 
 std::string ComposeMessage(IGameEvent* event);

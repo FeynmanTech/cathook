@@ -17,9 +17,6 @@ extern CatVar filename;
 extern CatVar newlines;
 extern CatCommand reload;
 
-extern TextFile file;
-extern size_t index;
-
 void ProcessUserCmd(CUserCmd*);
 void Reset();
 

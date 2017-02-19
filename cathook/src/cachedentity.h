@@ -35,6 +35,7 @@ struct CachedEntityData {
 
 	bool has_playerinfo;
 	player_info_s info;
+	bool esp_enabled;
 
 	static const CachedEntityData zero;
 };

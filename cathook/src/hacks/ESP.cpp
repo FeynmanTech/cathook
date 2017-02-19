@@ -42,10 +42,10 @@ CatVar show_friendid(CV_SWITCH, "esp_friendid", "0", "Show FriendID", NULL, "Sho
 CatVar show_name(CV_SWITCH, "esp_name", "1", "Name ESP", NULL, "Show name");
 CatVar show_class(CV_SWITCH, "esp_class", "1", "Class ESP", NULL, "Show class");
 CatVar show_conds(CV_SWITCH, "esp_conds", "1", "Conditions ESP", NULL, "Show conditions");
-CatVar vischeck(CV_SWITCH, "esp_vischeck", "1", "VisCheck", NULL, "ESP visibility check - makes enemy info behind walls darker, disable this if you get FPS drops");
+CatVar vischeck(CV_SWITCH, "esp_vischeck", "1", "VisCheck (!)", NULL, "WARNING: Uses visibility checks! Can result in framerate drops. - makes esp behind walls darker");
 CatVar legit(CV_SWITCH, "esp_legit", "0", "Legit Mode (!)", NULL, "WARNING: Uses visibility checks! Can result in framerate drops. - Don't show invisible enemies");
 CatVar show_health(CV_SWITCH, "esp_health_num", "1", "Health numbers", NULL, "Show health in numbers");
-CatVar legit_ticks(CV_INT, "esp_legit_seenticks", "150", "Legit delay", NULL, "Delay after enemy gone behind a wall where you can still see them", true, 200.0);
+//CatVar legit_ticks(CV_INT, "esp_legit_seenticks", "150", "Legit delay", NULL, "Delay after enemy gone behind a wall where you can still see them", true, 200.0);
 CatVar proj_rockets(CV_ENUM, "esp_proj_rockets", "1", "Rockets", projectile_enum, "Rockets");
 CatVar proj_arrows(CV_ENUM, "esp_proj_arrows", "1", "Arrows", projectile_enum, "Arrows");
 CatVar proj_pipes(CV_ENUM, "esp_proj_pipes", "1", "Pipes", projectile_enum, "Pipebombs");
@@ -55,6 +55,7 @@ CatVar projectile(CV_SWITCH, "esp_proj", "1", "Projectile ESP", NULL, "Projectil
 CatVar model_name(CV_SWITCH, "esp_model_name", "0", "Model name ESP", NULL, "Model name esp (DEBUG ONLY)");
 CatVar item_dmweapons(CV_SWITCH, "esp_weapon_spawners", "1", "Show weapon spawners", NULL, "TF2C deathmatch weapon spawners");
 CatVar item_adrenaline(CV_SWITCH, "esp_item_adrenaline", "0", "Show Adrenaline", NULL, "TF2C adrenaline pills");
+CatVar show_powerups(CV_SWITCH, "esp_powerups", "1", "Show active powerups", NULL, "Shows powerups on players");
 
 void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
 	bool cloak = ent->clazz == g_pClassID->C_Player && IsPlayerInvisible(ent);
@@ -88,13 +89,30 @@ void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, boo
 	}
 }
 
-void ProcessEntity(CUserCmd*, CachedEntity&) {
-
+void ProcessEntity(CUserCmd*, CachedEntity& entity) {
+	if (!enabled) return;
+	for (auto i : processors) {
+		if (i.first(entity)) {
+			i.second(entity);
+			entity.data.esp_enabled = true;
+		}
+	}
+	if (entity.data.esp_enabled) {
+		if (show_distance) {
+			entity.AddESPString(format(HU2M(entity.Distance()), " M"));
+		}
+	}
 }
 
-void DrawProcessEntity(CachedEntity&) {
+void DrawProcessEntity(CachedEntity& entity) {
 	if (!enabled) return;
 	if (!box) return;
+	if (!entity.data.esp_enabled) return;
+	switch (entity.Type()) {
+	case ENTITY_PLAYER: {
+
+	}
+	}
 }
 
 void CreateProcessors() {
@@ -106,6 +124,58 @@ void CreateProcessors() {
 			entity->AddESPString(format('#', entity->m_IDX, ' ', '[', entity->clazz, ']', ' ', '"', entity->m_pClass->GetName()));
 			if (model_name)
 				entity->AddESPString(std::string(g_IModelInfo->GetModelName(entity->entptr->GetModel())));
+		}
+	));
+	processors.push_back(entityprocessor_t(
+		[this](CachedEntity* entity) -> bool {
+			if (entity->Type() != ENTITY_PLAYER) return false;
+			if (!teammates && !entity->Enemy()) return false;
+			if (entity->var<bool>(netvar.iLifeState)) return false;
+			if (entity->m_IDX == g_IEngine->GetLocalPlayer() && (!g_IInput->CAM_IsThirdPerson() || !local)) return false;
+			if (legit && entity->Enemy() && (IsPlayerInvisible(entity) || !entity->IsVisible())) return false;
+			return true;
+		},
+		[this](CachedEntity* entity) {
+			powerup_type power = GetPowerupOnPlayer(entity);
+			// If target is enemy, always show powerups, if player is teammate, show powerups
+			// only if bTeammatePowerup or bTeammates is true
+			if (power >= 0 && show_powerups) {
+				entity->AddESPString(format("HAS ", powerups[power]));
+			}
+			player_info_s& info = entity->GetPlayerInfo();
+			if (show_name)
+				entity->AddESPString(info.name);
+			if (show_friendid)
+				entity->AddESPString(format(info.friendsID));
+			if (show_class) {
+				if (entity->Class() > 0 && entity->Class() <= 10)
+					entity->AddESPString(tf_class_names_temporary[entity->Class() - 1]);
+			}
+			if (show_health) {
+				entity->AddESPString(format(entity->Health(), '/', entity->MaxHealth(), " HP"));
+				ESPStringCompound& string = entity->GetESPString(entity->string_count - 1);
+				string.m_bColored = true;
+				string.m_nColor = colors::Health(entity->Health(), entity->MaxHealth());
+				if (vischeck && !entity->IsVisible())
+					string.m_nColor = colors::Transparent(string.m_nColor);
+			}
+			if (TF && show_conds) {
+				if (IsPlayerInvisible(ent)) {
+					entity->AddESPString("INVISIBLE");
+				}
+				if (IsPlayerInvulnerable(ent)) {
+					entity->AddESPString("INVULNERABLE");
+				}
+				if (HasCondition(entity, TFCond_UberBulletResist)) {
+					entity->AddESPString("VACCINATOR ACTIVE");
+				}
+				if (HasCondition(entity, TFCond_SmallBulletResist)) {
+					entity->AddESPString("VACCINATOR PASSIVE");
+				}
+				if (IsPlayerCritBoosted(entity)) {
+					entity->AddESPString("CRIT BOOSTED");
+				}
+			}
 		}
 	));
 	processors.push_back(entityprocessor_t(
@@ -267,24 +337,15 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	}
 }
 
-void ESP::CreateProcessors() {
-	// Common entity processors.
+//void ESP::ProcessEntity(CachedEntity* ent) {
+//	if (!enabled) return;
 
-
-}
-
-void ESP::ProcessEntity(CachedEntity* ent) {
-	if (!this->v_bEnabled->GetBool()) return;
-	if (CE_BAD(ent)) return;
-
-	ent->m_ESPColorFG = colors::EntityF(ent);
-
-	for (auto i : m_processors) {
-		if (i.Validate(ent))
+	/*for (auto i : m_processors) {
+		if (i.first(ent))
 			i.Process(ent);
-	}
+	}*/
 
-	if (HL2DM) {
+//	if (HL2DM) {
 		/*if (v_bItemESP->GetBool() && v_bShowDroppedWeapons->GetBool()) {
 			if (CE_BYTE(ent, netvar.hOwner) == (unsigned char)-1) {
 				int a = ent->m_nESPStrings;
@@ -370,8 +431,8 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		}
 		return;
 	}*/
-	}
-}
+	//}
+//}
 
 void ESP::ProcessUserCmd(CUserCmd*) {
 	if (CE_BAD(g_LocalPlayer->entity)) return;

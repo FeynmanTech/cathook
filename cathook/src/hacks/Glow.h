@@ -7,7 +7,7 @@
 
 #ifndef HACKS_GLOW_H_
 #define HACKS_GLOW_H_
-
+/*
 class Glow : public IHack {
 public:
 	Glow();
@@ -21,5 +21,5 @@ public:
 };
 
 DECLARE_HACK_SINGLETON(Glow);
-
+*/
 #endif /* HACKS_GLOW_H_ */
