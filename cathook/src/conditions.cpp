@@ -48,23 +48,23 @@ void CondBitSet(condition_data_s data, condition cond, bool state) {
 void OldCondSet(CachedEntity* ent, condition cond, bool state) {
 	if (state) {
 		if (cond > 32 * 3) {
-			CE_INT(ent, netvar.iCond3) |= (1 << (cond % 32));
+			ent->var<int>(netvar.iCond3) |= (1 << (cond % 32));
 		} else	if (cond > 32 * 2) {
-			CE_INT(ent, netvar.iCond2) |= (1 << (cond % 32));
+			ent->var<int>(netvar.iCond2) |= (1 << (cond % 32));
 		} else if (cond > 32 * 1) {
-			CE_INT(ent, netvar.iCond1) |= (1 << (cond % 32));
+			ent->var<int>(netvar.iCond1) |= (1 << (cond % 32));
 		} else {
-			CE_INT(ent, netvar.iCond) |= (1 << (cond));
+			ent->var<int>(netvar.iCond) |= (1 << (cond));
 		}
 	} else {
 		if (cond > 32 * 3) {
-			CE_INT(ent, netvar.iCond3) &= ~(1 << (cond % 32));
+			ent->var<int>(netvar.iCond3) &= ~(1 << (cond % 32));
 		} else	if (cond > 32 * 2) {
-			CE_INT(ent, netvar.iCond2) &= ~(1 << (cond % 32));
+			ent->var<int>(netvar.iCond2) &= ~(1 << (cond % 32));
 		} else if (cond > 32 * 1) {
-			CE_INT(ent, netvar.iCond1) &= ~(1 << (cond % 32));
+			ent->var<int>(netvar.iCond1) &= ~(1 << (cond % 32));
 		} else {
-			CE_INT(ent, netvar.iCond) &= ~(1 << (cond));
+			ent->var<int>(netvar.iCond) &= ~(1 << (cond));
 		}
 	}
 }
@@ -80,18 +80,18 @@ condition_data_s FromOldNetvars(CachedEntity* ent) {
 
 bool HasCondition(CachedEntity* ent, condition cond) {
 	if (!TF) return false;
-	if (TF2) return BitCheck(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond) || BitCheck(FromOldNetvars(ent), cond);
+	if (TF2) return BitCheck(ent->var<condition_data_s>(netvar._condition_bits), cond) || BitCheck(FromOldNetvars(ent), cond);
 	return BitCheck(FromOldNetvars(ent), cond);
 }
 
 void AddCondition(CachedEntity* ent, condition cond) {
 	if (!TF) return;
-	if (TF2) CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, true);
+	if (TF2) CondBitSet(ent->var<condition_data_s>(netvar._condition_bits), cond, true);
 	OldCondSet(ent, cond, true);
 }
 
 void RemoveCondition(CachedEntity* ent, condition cond) {
 	if (!TF) return;
-	if (TF2) CondBitSet(CE_VAR(ent, netvar._condition_bits, condition_data_s), cond, false);
+	if (TF2) CondBitSet(ent->var<condition_data_s>(netvar._condition_bits), cond, false);
 	OldCondSet(ent, cond, false);
 }

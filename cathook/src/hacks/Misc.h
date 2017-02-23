@@ -10,9 +10,13 @@
 
 namespace hacks { namespace shared { namespace misc {
 
+void SetName(std::string name);
 extern CatCommand setname;
+void Save(std::string file);
 extern CatCommand save;
+void SayLines(std::string message);
 extern CatCommand say_lines;
+void Disconnect(std::string reason);
 extern CatCommand disconnect;
 extern CatCommand disconnect_vac;
 

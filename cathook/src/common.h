@@ -58,13 +58,6 @@
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"
 
-#define SUPER_VERBOSE_DEBUG false
-#if SUPER_VERBOSE_DEBUG == true
-#define SVDBG(...) logging::Info(__VA_ARGS__)
-#else
-#define SVDBG(...)
-#endif
-
 #ifndef PI
 #define PI 3.14159265358979323846f
 #endif
@@ -73,13 +66,12 @@
 #define DEG2RAD(x) (float)(x) * (PI / 180.0f)
 #endif
 
-#define NO_DEVIGNORE false
-#if _DEVELOPER == true || __DRM_ENABLED == false
+#if _DEVELOPER == true
 #define DEBUG_SEGV true
 #else
 #define DEBUG_SEGV false
 #endif
-#define NO_IPC true
+
 #define STR(c) #c
 
 #if DEBUG_SEGV == true

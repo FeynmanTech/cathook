@@ -366,6 +366,7 @@ void ClassIDTF2::Init() {
 	CBaseGrenade = 9;
 	CBaseCombatWeapon = 5;
 	CVoteController = 331;
+
 	C_Player = CTFPlayer;
 }
 

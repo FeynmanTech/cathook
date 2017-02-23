@@ -29,6 +29,8 @@
 
 namespace hacks { namespace shared { namespace misc {
 
+
+
 CatCommand setname("name", [](const CCommand& args) {
 	if (args.ArgC() < 2) {
 		logging::Info("Set a name, silly");

@@ -595,11 +595,10 @@ bool IsAmbassador(CachedEntity* entity) {
 	return (defidx == 61 || defidx == 1006);
 }
 
-// F1 c&p
 Vector CalcAngle(Vector src, Vector dst) {
 	Vector AimAngles;
 	Vector delta = src - dst;
-	float hyp = sqrtf((delta.x * delta.x) + (delta.y * delta.y)); //SUPER SECRET IMPROVEMENT CODE NAME DONUT STEEL
+	float hyp = sqrtf((delta.x * delta.x) + (delta.y * delta.y));
 	AimAngles.x = atanf(delta.z / hyp) * RADPI;
 	AimAngles.y = atanf(delta.y / delta.x) * RADPI;
 	AimAngles.z = 0.0f;

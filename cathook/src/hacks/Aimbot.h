@@ -33,6 +33,7 @@ enum class k_EHitboxMode {
 
 void ProcessUserCmd(CUserCmd* cmd);
 void ProcessEntity(CUserCmd* cmd, CachedEntity& entity);
+void DoAiming(CUserCmd* cmd);
 
 /*
  * TODO smooth aimbot, autoshoot charge, autoshoot range
@@ -44,21 +45,18 @@ extern CatVar enabled;
 extern CatVar fov;
 extern CatVar hitbox;
 extern CatVar auto_hitbox;
-extern CatVar delay;
+//extern CatVar delay;
 extern CatVar lerp;
 extern CatVar autoshoot;
 extern CatVar silent;
 extern CatVar zoomed_only;
-extern CatVar teammates;
 extern CatVar huntsman_charge;
 extern CatVar range;
 extern CatVar autoshoot_range; // TODO IMPLEMENT
-extern CatVar respect_cloak;
 extern CatVar attack_only;
 extern CatVar projectile;
 extern CatVar projectile_speed;
 extern CatVar projectile_gravity; // TODO IMPLEMENT
-extern CatVar buildings;
 extern CatVar canshoot;
 extern CatVar priority;
 extern CatVar projectile_visibility;

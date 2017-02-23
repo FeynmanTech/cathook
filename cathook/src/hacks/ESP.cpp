@@ -57,7 +57,7 @@ CatVar item_dmweapons(CV_SWITCH, "esp_weapon_spawners", "1", "Show weapon spawne
 CatVar item_adrenaline(CV_SWITCH, "esp_item_adrenaline", "0", "Show Adrenaline", NULL, "TF2C adrenaline pills");
 CatVar show_powerups(CV_SWITCH, "esp_powerups", "1", "Show active powerups", NULL, "Shows powerups on players");
 
-void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, bool healthbar, int health, int healthmax) {
+void DrawBox(CachedEntity* ent, float widthFactor, float addHeight, bool healthbar) {
 	bool cloak = ent->clazz == g_pClassID->C_Player && IsPlayerInvisible(ent);
 	Vector min, max;
 	ent->entptr->GetRenderBounds(min, max);
@@ -75,6 +75,7 @@ void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, boo
 	float width = height / widthFactor;
 	ent->m_ESPOrigin.x = so.x + width / 2 + 1;
 	ent->m_ESPOrigin.y = so.y - height;
+	int clr = ent->ESPcolor;
 	unsigned char alpha = clr >> 24;
 	float trf = (float)((float)alpha / 255.0f);
 	int border = cloak ? colors::Create(160, 160, 160, alpha) : colors::Transparent(colors::black, trf);
@@ -82,6 +83,8 @@ void DrawBox(CachedEntity* ent, int clr, float widthFactor, float addHeight, boo
 	draw::OutlineRect(so.x - width / 2, so.y - height, width, height, clr);
 	draw::OutlineRect(so.x - width / 2 + 1, so.y + 1 - height, width - 2, height - 2, border);
 	if (healthbar) {
+		int health = ent->Health();
+		int healthmax = ent->MaxHealth();
 		int hp = colors::Transparent(colors::Health(health, healthmax), trf);
 		int hbh = (height) * min((float)health / (float)healthmax, 1.0f);
 		draw::DrawRect(so.x - width / 2 - 7, so.y - 1 - height, 6, height + 2, border);
@@ -109,9 +112,12 @@ void DrawProcessEntity(CachedEntity& entity) {
 	if (!box) return;
 	if (!entity.data.esp_enabled) return;
 	switch (entity.Type()) {
-	case ENTITY_PLAYER: {
-
-	}
+	case ENTITY_PLAYER:
+		DrawBox(&entity, 2.8f, -13.5f, true);
+		break;
+	case ENTITY_BUILDING:
+		DrawBox(&entity, 1.2f, -2.0f, true);
+		break;
 	}
 }
 
@@ -300,43 +306,6 @@ void CreateProcessors() {
 
 }}}
 
-
-
-void ESP::ProcessEntityPT(CachedEntity* ent) {
-	if (!this->v_bEnabled->GetBool()) return;
-	if (!this->v_bBox->GetBool()) return;
-	if (CE_BAD(ent)) return;
-	if (!(this->v_bSeeLocal->GetBool() && g_IInput->CAM_IsThirdPerson()) &&
-		ent->m_IDX == g_IEngine->GetLocalPlayer()) return;
-	int fg = ent->m_ESPColorFG;
-	switch (ent->m_Type) {
-	case ENTITY_PLAYER: {
-		bool cloak = IsPlayerInvisible(ent);
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_LocalPlayer->team && !GetRelation(ent)) {
-			if (cloak) return;
-			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
-				return;
-			}
-		}
-		if (!ent->m_bEnemy && !v_bTeammates->GetBool() && !GetRelation(ent)) break;
-		if (!ent->m_bAlivePlayer) break;
-
-		DrawBox(ent, fg, 3.0f, -15.0f, true, CE_INT(ent, netvar.iHealth), ent->m_iMaxHealth);
-	break;
-	}
-	case ENTITY_BUILDING: {
-		if (v_bLegit->GetBool() && ent->m_iTeam != g_LocalPlayer->team) {
-			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
-				return;
-			}
-		}
-		if (CE_INT(ent, netvar.iTeamNum) == g_LocalPlayer->team && !v_bTeammates->GetBool()) break;
-		DrawBox(ent, fg, 1.0f, 0.0f, true, CE_INT(ent, netvar.iBuildingHealth), CE_INT(ent, netvar.iBuildingMaxHealth));
-	break;
-	}
-	}
-}
-
 //void ESP::ProcessEntity(CachedEntity* ent) {
 //	if (!enabled) return;
 
@@ -433,11 +402,3 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	}*/
 	//}
 //}
-
-void ESP::ProcessUserCmd(CUserCmd*) {
-	if (CE_BAD(g_LocalPlayer->entity)) return;
-	for (int i = 0; i < HIGHEST_ENTITY; i++) {
-		CachedEntity* ent = ENTITY(i);
-		if (CE_GOOD(ent)) { ProcessEntity(ent); }
-	}
-};
