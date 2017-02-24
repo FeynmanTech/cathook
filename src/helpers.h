@@ -32,9 +32,7 @@ void SetCVarInterface(ICvar* iface);
 #include <vector>
 #include "aftercheaders.h"
 
-#include "fixsdk.h"
-#include <tier1/convar.h>
-#include <inputsystem/ButtonCode.h>
+#include "sdk.h"
 
 //typedef void ( *FnCommandCallback_t )( const CCommand &command );
 

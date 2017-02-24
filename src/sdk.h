@@ -51,7 +51,4 @@
 #include "sdk/in_buttons.h"
 #include "sdk/iinput.h"
 
-#undef private
-#undef protected
-
 #endif /* SDK_H_ */

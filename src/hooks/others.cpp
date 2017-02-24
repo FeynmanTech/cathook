@@ -8,7 +8,6 @@
 #include "../common.h"
 #include "../netmessage.h"
 #include "../hack.h"
-#include "../hwid.h"
 #include "hookedmethods.h"
 
 bool CanPacket_hook(void* thisptr) {
@@ -134,7 +133,6 @@ bool DispatchUserMessage_hook(void* thisptr, int type, bf_read& buf) {
 void LevelInit_hook(void* thisptr, const char* newmap) {
 	((LevelInit_t*) hooks::hkClientMode->GetMethod(hooks::offLevelInit))(thisptr, newmap);
 	interfaces::engineClient->ExecuteClientCmd("exec cat_matchexec");
-	DRM_ENFORCE;
 	LEVEL_INIT(Aimbot);
 	LEVEL_INIT(Airstuck);
 	LEVEL_INIT(AntiAim);

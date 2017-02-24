@@ -32,7 +32,6 @@
 #include "common.h"
 #include "sharedobj.h"
 #include "hooks.h"
-#include "hwid.h"
 #include "netmessage.h"
 #include "targeting/ITargetSystem.h"
 #include "profiler.h"
@@ -105,14 +104,9 @@ void hack::Initialize() {
 	logging::Initialize();
 	srand(time(0));
 	prctl(PR_SET_DUMPABLE,0,42,42,42);
-	hwid::unpack_strings();
-	hwid::read_hwid_fstab();
-	hwid::read_hwid_machineid();
-	hwid::compute_result();
 	sharedobj::LoadAllSharedObjects();
 	g_pszTFPath = tf_path_from_maps();
 	interfaces::CreateInterfaces();
-	DRM_ENFORCE;
 	CDumper dumper;
 	dumper.SaveDump();
 	ClientClass* cc = interfaces::baseClient->GetAllClasses();

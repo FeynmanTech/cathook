@@ -40,8 +40,6 @@
 #include "hacks/hacklist.h"
 #include "glowobjects.h"
 
-#include "drm.h"
-
 #include "sdk.h"
 
 #define TF2C (g_AppID == 243750)

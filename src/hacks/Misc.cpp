@@ -20,8 +20,8 @@
 
 #include "../hack.h"
 #include "../common.h"
-#include <checksum_md5.h>
 #include "../sdk.h"
+#include <checksum_md5.h>
 #include "../hooks/hookedmethods.h"
 #include "../netmessage.h"
 #include "../copypasted/CSignature.h"
