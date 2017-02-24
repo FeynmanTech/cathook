@@ -42,9 +42,7 @@ void TICallback(CTextInput* thisptr, std::string olds, std::string news) {
 	}
 }
 
-RootWindow::RootWindow() : CBaseWindow("root") {
-
-}
+RootWindow::RootWindow() : CBaseWindow("root") {}
 
 void RootWindow::Setup() {
 	g_pGUI->m_pTooltip = new CTooltip();
@@ -142,8 +140,4 @@ void RootWindow::Setup() {
 	wgt->AddChild(td);
 	td->SetPositionMode(INLINE);
 	this->AddChild(wgt);*/
-}
-
-RootWindow::~RootWindow() {
-
 }

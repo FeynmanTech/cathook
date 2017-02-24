@@ -1,8 +1,8 @@
 CC=g++
 CFLAGS=-std=gnu++11 -D_POSIX=1 -DRAD_TELEMETRY_DISABLED -DLINUX=1 -D_LINUX=1 -DPOSIX=1 -DGNUC=1 -DNO_MALLOC_OVERRIDE -O3 -w -c -shared -Wall -Wno-unknown-pragmas -fmessage-length=0 -m32 -fvisibility=hidden -fPIC
 SDKFOLDER=source-sdk-2013/mp/src
-CFLAGS+=-D__DRM_HWID_0='$(HWID_0)' -D__DRM_HWID_1='$(HWID_1)' -D__DRM_HWID_2='$(HWID_2)' -D__DRM_HWID_3='$(HWID_3)' -D__DRM_NAME='"$(DRM_NAME)"' -D__DRM_EXPIRES='$(DRM_EXPIRES)' -DCATHOOK_BUILD_NUMBER='"$(COUNTER)"'
-CINCLUDES=-I$(SDKFOLDER)/public -I$(SDKFOLDER)/mathlib -I$(SDKFOLDER)/common -I$(SDKFOLDER)/public/tier1 -I$(SDKFOLDER)/public/tier0
+CFLAGS+=-D_DEVELOPER
+CINCLUDES=-I$(SDKFOLDER)/public -I$(SDKFOLDER)/mathlib -I$(SDKFOLDER)/common -I$(SDKFOLDER)/public/tier1 -I$(SDKFOLDER)/public/tier0 -I$(SDKFOLDER)
 LDFLAGS=-m32 -fno-gnu-unique -D_GLIBCXX_USE_CXX11_ABI=0 -shared
 LDLIBS=-Bstatic -lvstdlib -lstdc++ -lc -ltier0
 OBJ_DIR := obj
@@ -24,7 +24,7 @@ OBJECTS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(patsubst %.cpp,%.o,$(SOURCES))
 
 .PHONY: clean directories
 
-all: directories cathook
+all: clean directories cathook
 
 directories:
 	mkdir -p bin

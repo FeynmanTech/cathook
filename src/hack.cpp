@@ -120,7 +120,6 @@ void hack::Initialize() {
 	else if (TF2C) g_pClassID = new ClassIDTF2C();
 	else if (HL2DM) g_pClassID = new ClassIDHL2DM();
 	g_pClassID->Init();
-
 	draw::Initialize();
 	colors::Init();
 	if (TF2) {
@@ -141,20 +140,13 @@ void hack::Initialize() {
 	hack::c_Cat = CreateConCommand(CON_NAME, &hack::CC_Cat, "Info");
 	hack::InitHacks();
 	g_Settings.Init();
-#if ENTITY_CACHE_PROFILER == true
-	if (!g_vEntityCacheProfiling) {
-		g_vEntityCacheProfiling = CREATE_CV(CV_SWITCH, "entity_cache_profiling", "0", "Entity cache profiling");
-	}
-#endif
 	g_pGUI = new CatGUI();
 	g_pGUI->Setup();
 	EndConVars();
 	gNetvars.init();
 	InitNetVars();
-
 	g_pLocalPlayer = new LocalPlayer();
 	g_pPlayerResource = new TFPlayerResource();
-
 	hooks::hkPanel = new hooks::VMTHook();
 	hooks::hkPanel->Init(interfaces::panel, 0);
 	//hooks::hkPanel->HookMethod((void*)&hack::Hk_PaintTraverse, hooks::offPaintTraverse);
@@ -179,7 +171,6 @@ void hack::Initialize() {
 	hooks::hkStudioRender->Init((void*)interfaces::render, 0);
 	hooks::hkStudioRender->HookMethod((void*)BeginFrame_hook, hooks::offBeginFrame);
 	hooks::hkStudioRender->Apply();
-
 	hooks::hkClient = new hooks::VMTHook();
 	hooks::hkClient->Init((void*)interfaces::baseClient, 0);
 	hooks::hkClient->HookMethod((void*)FrameStageNotify_hook, hooks::offFrameStageNotify);
@@ -188,6 +179,7 @@ void hack::Initialize() {
 	hooks::hkClient->Apply();
 	if (TF2) g_GlowObjectManager = *reinterpret_cast<CGlowObjectManager**>(gSignatures.GetClientSignature("C1 E0 05 03 05") + 5);
 	InitStrings();
+	logging::Info("Init done.");
 	g_pChatStack = new ChatStack();
 }
 

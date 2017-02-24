@@ -48,6 +48,7 @@ static bool s_bRegistered = false;
 
 void SetCVarInterface(ICvar* iface) {
 	g_pCVar = iface;
+	logging::Info("Set interface to 0x%08x", iface);
 }
 
 class CDefaultAccessor : public IConCommandBaseAccessor

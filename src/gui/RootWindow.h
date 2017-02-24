@@ -13,7 +13,6 @@
 class RootWindow : public CBaseWindow {
 public:
 	RootWindow();
-	~RootWindow();
 
 	void Setup();
 
