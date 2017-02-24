@@ -20,16 +20,16 @@ fi
 echo Running instances: ${arr[@]}
 echo Attaching to ${arr[$1]}
 
-if grep -q $(realpath libcathook.so) /proc/${arr[$1]}/maps; then
+if grep -q $(realpath bin/libcathook.so) /proc/${arr[$1]}/maps; then
   echo already loaded
   exit
 fi
 
-echo loading $(realpath libcathook.so) to ${arr[$1]}
+echo loading $(realpath bin/libcathook.so) to ${arr[$1]}
 gdb -n -q -batch \
   -ex "attach ${arr[$1]}" \
   -ex "set \$dlopen = (void*(*)(char*, int)) dlopen" \
-  -ex "call \$dlopen(\"$(realpath libcathook.so)\", 1)" \
+  -ex "call \$dlopen(\"$(realpath bin/libcathook.so)\", 1)" \
   -ex "call dlerror()" \
   -ex 'print (char *) $2' \
   -ex "detach" \
