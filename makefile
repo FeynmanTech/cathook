@@ -1,10 +1,9 @@
 CC=g++
-CFLAGS=-std=gnu++11 -D_POSIX=1 -DRAD_TELEMETRY_DISABLED -DLINUX=1 -D_LINUX=1 -DPOSIX=1 -DGNUC=1 -DNO_MALLOC_OVERRIDE -O3 -w -c -shared -Wall -Wno-unknown-pragmas -fmessage-length=0 -m32 -fvisibility=hidden -fPIC
-SDKFOLDER=source-sdk-2013/mp/src
-CFLAGS+=-D_DEVELOPER
+CFLAGS=-std=gnu++11 -D_POSIX=1 -DRAD_TELEMETRY_DISABLED -DLINUX=1 -D_LINUX=1 -DPOSIX=1 -DGNUC=1 -D_DEVELOPER=1 -DNO_MALLOC_OVERRIDE -O0 -g3 -ggdb -w -c -shared -Wall -Wno-unknown-pragmas -fmessage-length=0 -m32 -fvisibility=hidden -fPIC
+SDKFOLDER=$(realpath source-sdk-2013/mp/src)
 CINCLUDES=-I$(SDKFOLDER)/public -I$(SDKFOLDER)/mathlib -I$(SDKFOLDER)/common -I$(SDKFOLDER)/public/tier1 -I$(SDKFOLDER)/public/tier0 -I$(SDKFOLDER)
-LDFLAGS=-m32 -fno-gnu-unique -D_GLIBCXX_USE_CXX11_ABI=0 -shared
-LDLIBS=-Bstatic -lvstdlib -lstdc++ -lc -ltier0
+LDFLAGS=-m32 -fno-gnu-unique -D_GLIBCXX_USE_CXX11_ABI=0 -shared -L$(realpath lib)
+LDLIBS=-lvstdlib -l:libstdc++.so.6 -l:libc.so.6 -ltier0
 OBJ_DIR := obj
 BIN_DIR := bin
 SRC_DIR := src
@@ -20,11 +19,9 @@ SOURCES += $(wildcard $(SRC_DIR)/segvcatch/*.cpp)
 SOURCES += $(wildcard $(SRC_DIR)/targeting/*.cpp)
 OBJECTS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(patsubst %.cpp,%.o,$(SOURCES)))
 
-
-
 .PHONY: clean directories
 
-all: clean directories cathook
+all: directories cathook
 
 directories:
 	mkdir -p bin
@@ -46,8 +43,7 @@ $(OBJECTS):
 	$(CC) $(CFLAGS) $(CINCLUDES) $(patsubst %.o,%.cpp,$(patsubst $(OBJ_DIR)/%,$(SRC_DIR)/%,$@)) -o $@
 
 cathook: $(OBJECTS)
-	LIBRARY_PATH=lib $(CC) -o $(BIN_DIR)/$(OUT_NAME) $(LDFLAGS) $(LDLIBS) $(OBJECTS)
-	strip --strip-all $(BIN_DIR)/$(OUT_NAME)
+	$(CC) $(LDFLAGS) -o $(BIN_DIR)/$(OUT_NAME) $(OBJECTS) $(LDLIBS)
 
 clean:
 	rm -rf bin
