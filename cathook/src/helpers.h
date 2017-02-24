@@ -118,11 +118,10 @@ Vector CalcAngle(Vector src, Vector dst);
 void MakeVector(Vector ang, Vector& out);
 float GetFov(Vector ang, Vector src, Vector dst);
 
+const std::string tf_class_names[] = { "" };
+const std::string tf_powerup_names[] = { "" };
+
 extern const char* tfclasses[10];
 extern const char* powerups[POWERUP_COUNT];
-extern uint32 friends[256];
-extern int n_friends;
-extern int n_rage;
-extern uint32 rage[256];
 
 #endif /* HELPERS_H_ */

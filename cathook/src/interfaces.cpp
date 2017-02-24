@@ -81,7 +81,7 @@ void CreateInterfaces() {
 	g_ISteamFriends = g_ISteamClient->GetISteamFriends(su, sp, "SteamFriends002");
 	g_pGlobals = **(reinterpret_cast<CGlobalVarsBase***>((uintptr_t)11 + gSignatures.GetClientSignature("55 89 E5 83 EC ? 8B 45 08 8B 15 ? ? ? ? F3 0F 10")));
 	g_IPrediction = BruteforceInterface<IPrediction*>("VClientPrediction", sharedobj::client);
-	g_IGameMovement = BruteforceInterface<IGameMovement*>("GameMovement001", sharedobj::client);
+	g_IGameMovement = BruteforceInterface<IGameMovement*>("GameMovement", sharedobj::client);
 	if (TF2) g_IInput = **(reinterpret_cast<IInput***>((uintptr_t)1 + gSignatures.GetClientSignature("A1 ? ? ? ? C6 05 ? ? ? ? 01 8B 10 89 04 24 FF 92 B4 00 00 00 A1 ? ? ? ? 8B 10")));
 	else if (TF2C) g_IInput = **(reinterpret_cast<IInput***>((uintptr_t)1 + gSignatures.GetClientSignature("A1 ? ? ? ? C6 05 ? ? ? ? 01 8B 10 89 04 24 FF 92 A8 00 00 00 A1 ? ? ? ? 8B 10")));
 	else if (HL2DM)  g_IInput = **(reinterpret_cast<IInput***>((uintptr_t)1 + gSignatures.GetClientSignature("A1 ? ? ? ? 8B 10 89 04 24 FF 52 78 A1 ? ? ? ? 8B 10")));
