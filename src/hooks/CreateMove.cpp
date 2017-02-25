@@ -30,6 +30,8 @@ float AngleDiff( float destAngle, float srcAngle )
 	return delta;
 }//TODO temporary
 
+#include "../profiler.h"
+
 bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
 
@@ -39,6 +41,8 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		//RemoveCondition(LOCAL_E, TFCond_Taunting);
 	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+
+	PROF_SECTION(CreateMove);
 
 	if (!cmd) {
 		return ret;

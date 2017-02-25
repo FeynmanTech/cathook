@@ -41,7 +41,7 @@ public:
 #define ENABLE_PROFILER true
 #if ENABLE_PROFILER
 #define PROF_SECTION(id) \
-	static ProfilerSection __PROFILER__##id(id); \
+	static ProfilerSection __PROFILER__##id(#id); \
 	ProfilerNode __PROFILER_NODE__##id(__PROFILER__##id);
 #else
 #define PROF_SECTION(id)
