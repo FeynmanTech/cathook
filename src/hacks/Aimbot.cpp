@@ -9,11 +9,6 @@
 #include "../trace.h"
 #include "../targethelper.h"
 
-#include "../targeting/ITargetSystem.h"
-#include "../targeting/TargetSystemSmart.h"
-#include "../targeting/TargetSystemFOV.h"
-#include "../targeting/TargetSystemDistance.h"
-
 #include "../sdk.h"
 #include "../sdk/in_buttons.h"
 #include "Aimbot.h"
@@ -27,12 +22,7 @@ enum TargetSystem_t {
 	DISTANCE = 2
 };
 
-ITargetSystem* target_systems[3];
-
 Aimbot::Aimbot() {
-	target_systems[0] = new TargetSystemSmart();
-	target_systems[1] = new TargetSystemFOV();
-	target_systems[2] = new TargetSystemDistance();
 	m_bAimKeySwitch = false;
 	this->v_eAimKeyMode = new CatVar(CV_ENUM, "aimbot_aimkey_mode", "1", "Aimkey mode", new CatEnum({ "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" }),
 			"DISABLED: aimbot is always active\nAIMKEY: aimbot is active when key is down\nREVERSE: aimbot is disabled when key is down\nTOGGLE: pressing key toggles aimbot", false);

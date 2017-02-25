@@ -33,7 +33,6 @@
 #include "sharedobj.h"
 #include "hooks.h"
 #include "netmessage.h"
-#include "targeting/ITargetSystem.h"
 #include "profiler.h"
 #include "gui/GUI.h"
 //#include "gui/controls.h"

@@ -10,6 +10,8 @@
 
 class ConVar;
 
+#include "sdk.h"
+
 #include "beforecheaders.h"
 #include <string>
 #include <vector>
@@ -61,13 +63,13 @@ public:
 	inline void SetDescription(std::string description) { m_strDescription = description; }
 	inline std::string Description() { return m_strDescription; }
 
-	bool GetBool();
-	int GetInt();
-	float GetFloat();
-	const char* GetString();
-	void SetValue(float value);
-	void SetValue(std::string value);
-	void SetValue(int value);
+	inline bool GetBool() const { return m_pConVar->GetBool(); }
+	inline int GetInt() const { return m_pConVar->GetInt(); }
+	inline float GetFloat() const { return m_pConVar->GetFloat(); };
+	inline const char* GetString() const { return m_pConVar->GetString(); }
+	inline void SetValue(float value) { m_pConVar->SetValue(value); }
+	inline void SetValue(std::string value) { m_pConVar->SetValue(value.c_str()); }
+	inline void SetValue(int value) { m_pConVar->SetValue(value); }
 
 	void Increment(int factor = 1);
 	void Decrement(int factor = 1);

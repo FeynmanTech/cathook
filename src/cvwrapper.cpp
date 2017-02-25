@@ -42,23 +42,6 @@ int CatEnum::Minimum() {
 	return m_iMin;
 }
 
-bool CatVar::GetBool() { return m_pConVar->GetBool(); }
-int CatVar::GetInt() { return m_pConVar->GetInt(); }
-float CatVar::GetFloat() { return m_pConVar->GetFloat(); }
-const char* CatVar::GetString() { return m_pConVar->GetString(); }
-
-void CatVar::SetValue(float value) {
-	m_pConVar->SetValue(value);
-}
-
-void CatVar::SetValue(std::string value) {
-	m_pConVar->SetValue(value.c_str());
-}
-
-void CatVar::SetValue(int value) {
-	m_pConVar->SetValue(value);
-}
-
 void CatVar::Increment(int factor) {
 	if (!m_pConVar) return;
 	switch (m_Type) {
