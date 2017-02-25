@@ -21,7 +21,7 @@ OBJECTS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(patsubst %.cpp,%.o,$(SOURCES))
 
 .PHONY: clean directories
 
-all: directories cathook
+all: clean directories cathook
 
 directories:
 	mkdir -p bin

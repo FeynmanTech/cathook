@@ -15,8 +15,6 @@
 
 struct matrix3x4_t;
 
-#define ENTITY_CACHE_PROFILER false
-
 class IClientEntity;
 struct ESPStringCompound;
 struct player_info_s;
@@ -175,35 +173,6 @@ public:
 	int m_nMax;
 };
 
-enum ECPNodes {
-	ECPN_UPDATE,
-	ECPN_HITBOX_UPDATE,
-	ECPN_VISCHECK,
-	ECPN_TOTAL
-};
-
-class EntityCacheProfiling {
-public:
-	EntityCacheProfiling();
-	~EntityCacheProfiling();
-	void Reset();
-	long CurrentTime();
-	void StoreData(int id, long time);
-	void DoLog();
-	long  m_nLastReset;
-	long  m_nLastLog;
-	long* m_DataAvg;
-	long  m_DataAvgAmount;
-	long* m_DataMax;
-};
-
-extern EntityCacheProfiling gECP;
-
 extern EntityCache gEntityCache;
-
-#if ENTITY_CACHE_PROFILER == true
-	class CatVar;
-	extern CatVar* g_vEntityCacheProfiling;
-#endif
 
 #endif /* ENTITYCACHE_H_ */

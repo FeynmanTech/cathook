@@ -43,9 +43,6 @@ void EntityCache::Invalidate() {
 void CachedEntity::Update(int idx) {
 	SEGV_BEGIN
 
-#if ENTITY_CACHE_PROFILER == true
-	long p_begin = gECP.CurrentTime();
-#endif
 	m_ESPOrigin.Zero();
 
 	m_nESPStrings = 0;
@@ -76,18 +73,15 @@ void CachedEntity::Update(int idx) {
 
 	m_ItemType = ITEM_NONE;
 
+	m_lSeenTicks = 0;
+	m_lLastSeen = 0;
+
 	m_bGrenadeProjectile = false;
 	m_bBonesSetup = false;
 
 	m_bVisCheckComplete = false;
 	if (m_pHitboxCache) {
-#if ENTITY_CACHE_PROFILER == true
-		long p_begin = gECP.CurrentTime();
-#endif
 		SAFE_CALL(m_pHitboxCache->Update());
-#if ENTITY_CACHE_PROFILER == true
-		gECP.StoreData(ECPNodes::ECPN_HITBOX_UPDATE, p_begin);
-#endif
 	}
 
 	if (m_iClassID == g_pClassID->C_Player) {
@@ -153,37 +147,17 @@ void CachedEntity::Update(int idx) {
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_iHealth = CE_INT(this, netvar.iHealth);
 		m_iMaxHealth = g_pPlayerResource->GetMaxHealth(this);
-		if (IsVisible()) {
-			m_lLastSeen = 0;
-			m_lSeenTicks++;
-		} else {
-			m_lSeenTicks = 0;
-			m_lLastSeen++;
-		}
 	}
 	if (m_Type == EntityType::ENTITY_BUILDING) {
 		m_iTeam = CE_INT(this, netvar.iTeamNum); // TODO
 		m_bEnemy = (m_iTeam != g_pLocalPlayer->team);
 		m_iHealth = CE_INT(this, netvar.iBuildingHealth);
 		m_iMaxHealth = CE_INT(this, netvar.iBuildingMaxHealth);
-		if (IsVisible()) {
-			m_lLastSeen = 0;
-			m_lSeenTicks++;
-		} else {
-			m_lSeenTicks = 0;
-			m_lLastSeen++;
-		}
 	}
-
-#if ENTITY_CACHE_PROFILER == true
-	gECP.StoreData(ECPN_UPDATE, p_begin);
-#endif
-
 	SEGV_END_INFO("Updating entity")
 }
 
 bool CachedEntity::IsVisible() {
-	long p_begin = gECP.CurrentTime();
 	if (m_bVisCheckComplete) return m_bAnyHitboxVisible;
 
 	bool vischeck0 = false;
@@ -192,7 +166,6 @@ bool CachedEntity::IsVisible() {
 	if (vischeck0) {
 		m_bAnyHitboxVisible = true;
 		m_bVisCheckComplete = true;
-		gECP.StoreData(ECPN_VISCHECK, p_begin);
 		return true;
 	}
 
@@ -202,11 +175,9 @@ bool CachedEntity::IsVisible() {
 		if (vischeck) {
 			m_bAnyHitboxVisible = true;
 			m_bVisCheckComplete = true;
-			gECP.StoreData(ECPN_VISCHECK, p_begin);
 			return true;
 		}
 	}
-	gECP.StoreData(ECPN_VISCHECK, p_begin);
 	m_bAnyHitboxVisible = false;
 	m_bVisCheckComplete = true;
 
@@ -258,65 +229,11 @@ EntityCache::~EntityCache() {
 }
 
 void EntityCache::Update() {
-#if ENTITY_CACHE_PROFILER == true
-	long p_begin = gECP.CurrentTime();
-#endif
 	m_nMax = interfaces::entityList->GetHighestEntityIndex();
 	for (int i = 0; i < m_nMax && i < MAX_ENTITIES; i++) {
 		//logging::Info("Updating %i", i);
 		m_pArray[i].Update(i);
 		//logging::Info("Back!");
-	}
-#if ENTITY_CACHE_PROFILER == true
-	if (g_vEntityCacheProfiling->GetBool()) gECP.DoLog();
-#endif
-}
-
-EntityCacheProfiling::EntityCacheProfiling() {
-	m_DataAvg = new long[ECPNodes::ECPN_TOTAL];
-	m_DataMax = new long[ECPNodes::ECPN_TOTAL];
-	Reset();
-	m_DataAvgAmount = 0;
-	m_nLastLog = 0;
-}
-
-EntityCacheProfiling::~EntityCacheProfiling() {
-	delete [] m_DataAvg;
-	delete [] m_DataMax;
-}
-
-long EntityCacheProfiling::CurrentTime() {
-	timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	return ts.tv_nsec;
-}
-
-void EntityCacheProfiling::Reset() {
-	for (int i = 0; i < ECPNodes::ECPN_TOTAL; i++) {
-		m_DataAvg[i] = 0;
-		m_DataMax[i] = 0;
-	}
-	m_nLastReset = CurrentTime();
-	m_DataAvgAmount = 0;
-}
-
-void EntityCacheProfiling::StoreData(int id, long begin) {
-	m_DataAvg[id] = (m_DataAvg[id] + (CurrentTime() - begin)) / 2;
-	if ((CurrentTime() - begin) > m_DataMax[id]) {
-		m_DataMax[id] = (CurrentTime() - begin);
-	}
-}
-
-void EntityCacheProfiling::DoLog() {
-	//if (CurrentTime() - m_nLastReset > 5000000000l) Reset();
-	if (time(0) - m_nLastLog > 2) {
-		logging::Info("[ECP] AVG: U:%lu (%.1f%%) | H:%lu (%.1f%%) | V:%lu (%.1f%%)",
-			m_DataAvg[ECPNodes::ECPN_UPDATE], 100.0f * (float)((float)m_DataAvg[ECPNodes::ECPN_UPDATE] / (float)m_DataAvg[ECPNodes::ECPN_UPDATE]),
-			m_DataAvg[ECPNodes::ECPN_HITBOX_UPDATE], 100.0f * (float)((float)m_DataAvg[ECPNodes::ECPN_HITBOX_UPDATE] / (float)m_DataAvg[ECPNodes::ECPN_UPDATE]),
-			m_DataAvg[ECPNodes::ECPN_VISCHECK], 100.0f * (float)((float)m_DataAvg[ECPNodes::ECPN_VISCHECK] / (float)m_DataAvg[ECPNodes::ECPN_UPDATE])
-		);
-		logging::Info("[ECP] MAX: U:%lu | H:%lu | V:%lu", m_DataMax[ECPNodes::ECPN_UPDATE], m_DataMax[ECPNodes::ECPN_HITBOX_UPDATE], m_DataMax[ECPNodes::ECPN_UPDATE]);
-		m_nLastLog = time(0);
 	}
 }
 
@@ -328,5 +245,4 @@ CachedEntity* EntityCache::GetEntity(int idx) {
 	return &(m_pArray[idx]);
 }
 
-EntityCacheProfiling gECP;
 EntityCache gEntityCache;
