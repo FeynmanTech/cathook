@@ -97,8 +97,8 @@ Aimbot::Aimbot() {
 			"Aimbot only activates when you can instantly shoot, sometimes making the autoshoot invisible for spectators");
 	//v_fSmoothAutoshootTreshold = new CatVar(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
 	//this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
-	this->v_iSeenDelay = new CatVar(CV_INT, "aimbot_delay", "0", "Aimbot delay", NULL,
-			"# of ticks that should've passed since you can see any hitbox of enemy before aimbot will aim at them", true, 300.0f);
+//	this->v_iSeenDelay = new CatVar(CV_INT, "aimbot_delay", "0", "Aimbot delay", NULL,
+//			"# of ticks that should've passed since you can see any hitbox of enemy before aimbot will aim at them", true, 300.0f);
 	this->v_bProjPredVisibility = new CatVar(CV_SWITCH, "aimbot_proj_vispred", "0", "Projectile visibility prediction", NULL,
 			"If disabled, aimbot won't lock at enemies that are behind walls, but will come out soon");
 	this->v_bProjPredFOV = new CatVar(CV_SWITCH, "aimbot_proj_fovpred", "0", "Projectile FOV mode", NULL,
@@ -355,7 +355,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 #if NO_DEVIGNORE != true
 		if (Developer(entity)) return 2; // TODO developer relation
 #endif
-		if (entity->m_lSeenTicks < (unsigned)this->v_iSeenDelay->GetInt()) return 3;
+		//if (entity->m_lSeenTicks < (unsigned)this->v_iSeenDelay->GetInt()) return 3;
 		if (!entity->m_bAlivePlayer) return 5;
 		if (!entity->m_bEnemy && !v_bAimAtTeammates->GetBool()) return 7;
 		if (v_iMaxRange->GetInt() > 0) {

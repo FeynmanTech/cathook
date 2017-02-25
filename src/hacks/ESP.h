@@ -48,7 +48,7 @@ public:
 	CatVar* v_bVisCheck;
 	CatVar* v_bLegit;
 	CatVar* v_bShowHealthNumbers;
-	CatVar* v_iLegitSeenTicks;
+//	CatVar* v_iLegitSeenTicks;
 	CatVar* v_iShowRockets;
 	CatVar* v_iShowArrows;
 	CatVar* v_iShowPipes;

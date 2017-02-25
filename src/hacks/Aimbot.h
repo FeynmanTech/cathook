@@ -59,7 +59,7 @@ public:
 	CatVar* v_fFOV;
 	CatVar* v_eHitbox;
 	CatVar* v_bAutoHitbox;
-	CatVar* v_iSeenDelay;
+//	CatVar* v_iSeenDelay;
 	CatVar* v_bInterpolation;
 	CatVar* v_bAutoShoot;
 	CatVar* v_bSilent;
