@@ -42,7 +42,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 
-	PROF_SECTION(CreateMove);
+	//PROF_SECTION(CreateMove);
 
 	if (!cmd) {
 		return ret;
