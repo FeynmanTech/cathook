@@ -40,6 +40,7 @@
 #include <iserver.h>
 #include <view_shared.h>
 #include <KeyValues.h>
+#include <checksum_md5.h>
 #include <basehandle.h>
 #include <iachievementmgr.h>
 #include <VGuiMatSurface/IMatSystemSurface.h>

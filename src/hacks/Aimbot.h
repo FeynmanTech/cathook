@@ -52,13 +52,14 @@ public:
 
 	CatVar* v_kAimKey;
 	CatVar* v_eAimKeyMode;
+	CatVar* v_eHitboxMode;
 	//CatVar* v_bSmooth;
 	//CatVar* v_fSmoothValue;
 	//CatVar* v_bDebug;
 	CatVar* v_bEnabled;
 	CatVar* v_fFOV;
 	CatVar* v_eHitbox;
-	CatVar* v_bAutoHitbox;
+//	CatVar* v_bAutoHitbox;
 //	CatVar* v_iSeenDelay;
 	CatVar* v_bInterpolation;
 	CatVar* v_bAutoShoot;

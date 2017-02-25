@@ -31,7 +31,7 @@ void CMenuWindow::AddElements() {
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bEnabled));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAimAtTeammates));
 	if (TF) tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAimBuildings));
-	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAutoHitbox));
+	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_eHitboxMode));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAutoShoot));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bActiveOnlyWhenCanShoot));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bEnabledAttacking));

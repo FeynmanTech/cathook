@@ -33,11 +33,14 @@ Aimbot::Aimbot() {
 		"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
 		"KNEE R", "FOOT R" }),
 			"Hitbox to aim at. Ignored if AutoHitbox is on");
-	this->v_bAutoHitbox = new CatVar(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox", NULL,
+	/*this->v_bAutoHitbox = new CatVar(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox", NULL,
 			"Automatically decide the hitbox to aim at.\n"
 			"For example: Sniper rifles and Ambassador always aim at head, "
 			"rocket launchers aim at feet if enemy is standing and at body "
-			"if enemy is midair for easy airshots");
+			"if enemy is midair for easy airshots");*/
+	this->v_eHitboxMode = new CatVar(CV_ENUM, "aimbot_hitboxmode", "0", "Hitbox Mode", new CatEnum({
+		"AUTO-HEAD", "AUTO-CLOSEST", "STATIC"
+	}), "Defines hitbox selection mode");
 	this->v_bInterpolation = new CatVar(CV_SWITCH, "aimbot_interp", "1", "Latency interpolation", NULL,
 			"Enable basic latency interpolation");
 	this->v_bAutoShoot = new CatVar(CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot", NULL,
@@ -152,6 +155,9 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 			if (!CanHeadshot()) return false;
 		}
 	}
+	if (g_phMisc->v_bCritHack->GetBool()) {
+		if (RandomCrits() && WeaponCanCrit() && !IsAttackACrit(cmd)) return false;
+	}
 	return true;
 }
 
@@ -159,7 +165,7 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return;
 	if (g_pLocalPlayer->life_state) return;
-	//this->m_iLastTarget = -1;
+	//this->m_iLastTarget = -1
 
 	if (HasCondition(g_pLocalPlayer->entity, TFCond_Taunting)) return;
 
@@ -186,7 +192,7 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	m_bHeadOnly = false;
 
 	m_iPreferredHitbox = this->v_eHitbox->GetInt();
-	if (this->v_bAutoHitbox->GetBool()) {
+	if (v_eHitboxMode->GetInt() == 0) {
 		int ci = g_pLocalPlayer->weapon()->m_iClassID;
 		if (ci == g_pClassID->CTFSniperRifle ||
 			ci == g_pClassID->CTFSniperRifleDecap) {
@@ -312,21 +318,42 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 }
 
 int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
-	if (!v_bAutoHitbox->GetBool()) return preferred;
-	if (m_bHeadOnly) return hitbox_t::head;
-	int flags = CE_INT(target, netvar.iFlags);
-	bool ground = (flags & (1 << 0));
-	if (!ground) {
-		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_projectile) {
-			if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFCompoundBow) {
-				preferred = hitbox_t::spine_3;
+	switch (v_eHitboxMode->GetInt()) {
+	case 0: { // AUTO-HEAD
+		if (m_bHeadOnly) return hitbox_t::head;
+		int flags = CE_INT(target, netvar.iFlags);
+		bool ground = (flags & (1 << 0));
+		if (!ground) {
+			if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_projectile) {
+				if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFCompoundBow) {
+					preferred = hitbox_t::spine_3;
+				}
 			}
 		}
+		if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
+		for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
+			if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
+		}
+	} break;
+	case 1: { // AUTO-CLOSEST
+		int closest = -1;
+		float closest_fov = 256;
+		for (int i = 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
+			float fov = GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, target->m_pHitboxCache->GetHitbox(i)->center);
+			if (fov < closest_fov || closest == -1) {
+				closest = i;
+				closest_fov = fov;
+			}
+		}
+		return closest;
+	} break;
+	case 2: { // STATIC
+		return v_eHitbox->GetInt();;
+	} break;
 	}
-	if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
-	for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
-		if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
-	}
+	return -1;
+
+
 	return -1;
 }
 

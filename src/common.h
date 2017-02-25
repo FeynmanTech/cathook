@@ -36,6 +36,7 @@
 #include "textfile.h"
 #include "gui/GUI.h"
 #include "classid.h"
+#include "crits.h"
 
 #include "hacks/hacklist.h"
 #include "glowobjects.h"
