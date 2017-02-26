@@ -45,7 +45,6 @@ void CachedEntity::Update(int idx) {
 
 	m_ESPOrigin.Zero();
 
-	m_nESPStrings = 0;
 	m_IDX = idx;
 	m_pEntity = interfaces::entityList->GetClientEntity(idx);
 	if (!m_pEntity) {
@@ -226,6 +225,14 @@ EntityCache::EntityCache() {
 
 EntityCache::~EntityCache() {
 	delete [] m_pArray;
+}
+
+void CachedEntity::PruneStrings() {
+	m_nESPStrings = 0;
+}
+
+void EntityCache::PruneStrings() {
+	for (int i = 0; i < m_nMax && i < MAX_ENTITIES; i++) m_pArray[i].PruneStrings();
 }
 
 void EntityCache::Update() {

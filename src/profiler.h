@@ -38,7 +38,7 @@ public:
 	ProfilerSection& m_section;
 };
 
-#define ENABLE_PROFILER true
+#define ENABLE_PROFILER false
 #if ENABLE_PROFILER
 #define PROF_SECTION(id) \
 	static ProfilerSection __PROFILER__##id(#id); \

@@ -42,7 +42,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
 
-	//PROF_SECTION(CreateMove);
+	PROF_SECTION(CreateMove);
 
 	if (!cmd) {
 		return ret;
@@ -82,11 +82,13 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		gEntityCache.Invalidate();
 	}
 //	PROF_BEGIN();
-	SAFE_CALL(gEntityCache.Update());
+	{ PROF_SECTION(EntityCache); SAFE_CALL(gEntityCache.Update()); }
 //	PROF_END("Entity Cache updating");
 	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
 	g_Settings.bInvalid = false;
+	if (!cmd->command_number) return ret;
+	gEntityCache.PruneStrings();
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 //		PROF_BEGIN();
