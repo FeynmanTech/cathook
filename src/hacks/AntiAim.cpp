@@ -36,6 +36,7 @@ void AntiAim::ProcessUserCmd(CUserCmd* cmd) {
 	if (cmd->buttons & IN_USE) {
 		return;
 	}
+	if (CE_BAD(LOCAL_W)) return;
 
 	if ((cmd->buttons & IN_ATTACK) && (LOCAL_W->m_iClassID != g_pClassID->CTFCompoundBow)) {
 		if (CanShoot()) return;

@@ -87,7 +87,8 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
 	g_Settings.bInvalid = false;
-	if (!cmd->command_number) return ret;
+	// Disabled because this causes EXTREME aimbot inaccuracy
+	//if (!cmd->command_number) return ret;
 	gEntityCache.PruneStrings();
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
