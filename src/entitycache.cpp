@@ -168,6 +168,20 @@ bool CachedEntity::IsVisible() {
 		return true;
 	}
 
+	if (m_Type == ENTITY_PLAYER && g_Settings.bFastVischeck->GetBool()) {
+		static const int hitboxes[] = { hitbox_t::head, hitbox_t::foot_L, hitbox_t::hand_R, hitbox_t::spine_1 };
+		for (int i = 0; i < 4; i++) {
+			if (m_pHitboxCache->VisibilityCheck(hitboxes[i])) {
+				m_bAnyHitboxVisible = true;
+				m_bVisCheckComplete = true;
+				return true;
+			}
+		}
+		m_bAnyHitboxVisible = false;
+		m_bVisCheckComplete = true;
+		return false;
+	}
+
 	for (int i = 0; i < m_pHitboxCache->m_nNumHitboxes; i++) {
 		bool vischeck = false;
 		SAFE_CALL(vischeck = m_pHitboxCache->VisibilityCheck(i));
