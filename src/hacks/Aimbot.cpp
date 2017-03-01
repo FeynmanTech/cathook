@@ -192,25 +192,6 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	m_bHeadOnly = false;
 
 	m_iPreferredHitbox = this->v_eHitbox->GetInt();
-	if (v_eHitboxMode->GetInt() == 0) {
-		int ci = g_pLocalPlayer->weapon()->m_iClassID;
-		if (ci == g_pClassID->CTFSniperRifle ||
-			ci == g_pClassID->CTFSniperRifleDecap) {
-			m_bHeadOnly = CanHeadshot();
-		} else if (ci == g_pClassID->CTFCompoundBow) {
-			m_bHeadOnly = true;
-		} else if (ci == g_pClassID->CTFRevolver) {
-			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon());
-		} else if (ci == g_pClassID->CTFRocketLauncher ||
-				ci == g_pClassID->CTFRocketLauncher_AirStrike ||
-				ci == g_pClassID->CTFRocketLauncher_DirectHit ||
-				ci == g_pClassID->CTFRocketLauncher_Mortar) {
-			m_iPreferredHitbox = hitbox_t::foot_L;
-		} else {
-			m_iPreferredHitbox = hitbox_t::pelvis;
-		}
-	}
-
 	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFGrapplingHook) return;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
@@ -316,11 +297,39 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	if (this->v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
 	return;
 }
+// FIXME move
+int ClosestHitbox(CachedEntity* target) {
+	int closest = -1;
+	float closest_fov = 256;
+	for (int i = 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
+		float fov = GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, target->m_pHitboxCache->GetHitbox(i)->center);
+		if (fov < closest_fov || closest == -1) {
+			closest = i;
+			closest_fov = fov;
+		}
+	}
+	return closest;
+}
 
 int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 	switch (v_eHitboxMode->GetInt()) {
 	case 0: { // AUTO-HEAD
-		if (m_bHeadOnly) return hitbox_t::head;
+		int ci = g_pLocalPlayer->weapon()->m_iClassID;
+		if (ci == g_pClassID->CTFSniperRifle ||
+			ci == g_pClassID->CTFSniperRifleDecap) {
+			m_bHeadOnly = CanHeadshot();
+		} else if (ci == g_pClassID->CTFCompoundBow) {
+			m_bHeadOnly = true;
+		} else if (ci == g_pClassID->CTFRevolver) {
+			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon());
+		} else if (ci == g_pClassID->CTFRocketLauncher ||
+				ci == g_pClassID->CTFRocketLauncher_AirStrike ||
+				ci == g_pClassID->CTFRocketLauncher_DirectHit ||
+				ci == g_pClassID->CTFRocketLauncher_Mortar) {
+			preferred = hitbox_t::foot_L;
+		} else {
+			preferred = hitbox_t::pelvis;
+		}
 		int flags = CE_INT(target, netvar.iFlags);
 		bool ground = (flags & (1 << 0));
 		if (!ground) {
@@ -330,30 +339,26 @@ int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
 				}
 			}
 		}
+		if (LOCAL_W->m_iClassID == g_pClassID->CTFSniperRifle || LOCAL_W->m_iClassID == g_pClassID->CTFSniperRifleDecap) {
+			float cdmg = CE_FLOAT(LOCAL_W, netvar.flChargedDamage);
+			if (CanHeadshot() && cdmg > target->m_iHealth) {
+				preferred = ClosestHitbox(target);
+				m_bHeadOnly = false;
+			}
+		}
+		if (m_bHeadOnly) return hitbox_t::head;
 		if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
 		for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
 			if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
 		}
 	} break;
 	case 1: { // AUTO-CLOSEST
-		int closest = -1;
-		float closest_fov = 256;
-		for (int i = 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
-			float fov = GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, target->m_pHitboxCache->GetHitbox(i)->center);
-			if (fov < closest_fov || closest == -1) {
-				closest = i;
-				closest_fov = fov;
-			}
-		}
-		return closest;
+		return ClosestHitbox(target);
 	} break;
 	case 2: { // STATIC
 		return v_eHitbox->GetInt();;
 	} break;
 	}
-	return -1;
-
-
 	return -1;
 }
 
@@ -384,7 +389,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 		if (GetRelation(entity) == relation::FRIEND) return 11;
 		Vector resultAim;
 		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
-		if (m_bHeadOnly && hitbox) return 12;
+		//if (m_bHeadOnly && hitbox) return 12;
 		if (m_bProjectileMode) {
 			if (v_bProjPredFOV->GetBool()) {
 				if (v_bProjPredVisibility->GetBool()) {

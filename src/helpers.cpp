@@ -8,6 +8,7 @@
 #include "common.h"
 #include "hooks.h"
 #include "sdk.h"
+#include "profiler.h"
 
 #include <pwd.h>
 #include <sys/mman.h>
@@ -323,8 +324,10 @@ bool IsEntityVectorVisible(CachedEntity* entity, Vector endpos) {
 	Ray_t ray;
 	trace::g_pFilterDefault->SetSelf(RAW_ENT(g_pLocalPlayer->entity));
 	ray.Init(g_pLocalPlayer->v_Eye, endpos);
-	interfaces::trace->TraceRay(ray, MASK_SHOT_HULL, trace::g_pFilterDefault, &trace_object);
-	//logging::Info("%.2f expected %s got %s", trace_object.fraction, RAW_ENT(entity)->GetClientClass()->GetName(), trace_object.m_pEnt ? ((IClientEntity*)trace_object.m_pEnt)->GetClientClass()->GetName() : "NULL");
+	{
+		PROF_SECTION(IEVV_TraceRay);
+		interfaces::trace->TraceRay(ray, MASK_SHOT, trace::g_pFilterDefault, &trace_object);
+	}
 	return (trace_object.fraction >= 0.99f || (((IClientEntity*)trace_object.m_pEnt)) == RAW_ENT(entity));
 }
 

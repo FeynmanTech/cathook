@@ -9,10 +9,7 @@
 #include "sdk.h"
 
 #include <time.h>
-
-#if ENTITY_CACHE_PROFILER == true
-	CatVar* g_vEntityCacheProfiling = 0;
-#endif
+#include "profiler.h"
 
 CachedEntity::CachedEntity() {
 	m_pEntity = nullptr;
@@ -157,6 +154,7 @@ void CachedEntity::Update(int idx) {
 }
 
 bool CachedEntity::IsVisible() {
+	PROF_SECTION(CE_IsVisible);
 	if (m_bVisCheckComplete) return m_bAnyHitboxVisible;
 
 	bool vischeck0 = false;
