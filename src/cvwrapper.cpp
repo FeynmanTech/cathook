@@ -10,7 +10,7 @@
 #include "common.h"
 #include "sdk.h"
 
-CatVar::CatVar(CatVar_t type, std::string name, std::string value, std::string help, ICatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
+CatVar::CatVar(CatVar_t type, std::string name, std::string value, std::string help, CatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
 	m_Type = type;
 	m_pConVar = CreateConVar(CON_PREFIX + name, value, help);
 	m_EnumType = enum_type;
@@ -40,51 +40,5 @@ int CatEnum::Maximum() {
 
 int CatEnum::Minimum() {
 	return m_iMin;
-}
-
-void CatVar::Increment(int factor) {
-	if (!m_pConVar) return;
-	switch (m_Type) {
-	case CatVar_t::CV_SWITCH: {
-		m_pConVar->SetValue(!m_pConVar->GetInt());
-	} break;
-	case CatVar_t::CV_INT:
-		m_pConVar->SetValue(m_pConVar->GetInt() + factor * m_fStep);
-		break;
-	case CatVar_t::CV_FLOAT:
-		m_pConVar->SetValue(m_pConVar->GetFloat() + (float)factor * m_fStep);
-		break;
-	case CatVar_t::CV_ENUM: {
-		int cur = m_pConVar->GetInt();
-		int newv = cur + 1;
-		if (newv > m_EnumType->Maximum()) {
-			newv = m_EnumType->Minimum();
-		}
-		m_pConVar->SetValue(newv);
-	} break;
-	}
-}
-
-void CatVar::Decrement(int factor) {
-	if (!m_pConVar) return;
-	switch (m_Type) {
-	case CatVar_t::CV_SWITCH:
-		m_pConVar->SetValue((int)!m_pConVar->GetInt());
-		break;
-	case CatVar_t::CV_INT:
-		m_pConVar->SetValue(m_pConVar->GetInt() - factor * m_fStep);
-		break;
-	case CatVar_t::CV_FLOAT:
-		m_pConVar->SetValue(m_pConVar->GetFloat() - (float)factor * m_fStep);
-		break;
-	case CatVar_t::CV_ENUM: {
-		int cur = m_pConVar->GetInt();
-		int newv = cur - 1;
-		if (newv < m_EnumType->Minimum()) {
-			newv = m_EnumType->Maximum() - 1;
-		}
-		m_pConVar->SetValue(newv);
-	} break;
-	}
 }
 
