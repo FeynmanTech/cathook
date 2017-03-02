@@ -21,7 +21,6 @@
 #include "../hack.h"
 #include "../common.h"
 #include "../sdk.h"
-#include <checksum_md5.h>
 #include "../hooks/hookedmethods.h"
 #include "../netmessage.h"
 #include "../copypasted/CSignature.h"
@@ -411,112 +410,13 @@ void Misc::ProcessUserCmd(CUserCmd* cmd) {
 */
 	if (TF2C && v_bTauntSlide->GetBool())
 		RemoveCondition(LOCAL_E, TFCond_Taunting);
-
-	static ConVar* criticals = interfaces::cvar->FindVar("tf_weapon_criticals");
-	bool crit = false;
-	if (CE_GOOD(LOCAL_W) && TF && criticals->GetBool()) {
-		IClientEntity* weapon = RAW_ENT(LOCAL_W);
-		if (TF2C) {
-			if (vfunc<bool(*)(IClientEntity*)>(weapon, 1824 / 4, 0)(weapon)) {
-				static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 56 53 83 EC 10 8B 5D 08 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 59 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 4A A1 ? ? ? ? 8B 40 04 3B 83 A8 09 00 00 74 3A");
-				typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
-				CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
-				*(float*)((uintptr_t)weapon + 2468ul) = 0.0f;
-				int tries = 0;
-				static int lcmdn = 0;
-				crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-				static int& seed = *(int*)(sharedobj::client->lmap->l_addr + 0x00D53F68ul);
-				bool cmds = false;
-				seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
-				RandomSeed(seed);
-				CIACFn(RAW_ENT(LOCAL_W));
-				crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-				/*while (!crit && (tries < 200)) {
-					*(int*)(weapon + 2472) = 0;
-					seed = MD5_PseudoRandom(++lcmdn) & 0x7fffffff;
-					tries++;
-					RandomSeed(seed);
-					CIACFn(RAW_ENT(LOCAL_W));
-					crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2454ul);
-					cmds = true;
-				}*/
-				//logging::Info("Seed: %i", seed);
-				/*while (!crit && tries < 50) {
-					tries++;
-					//crit = (vfunc<bool(*)(IClientEntity*)>(RAW_ENT(LOCAL_W), 1764 / 4, 0))(RAW_ENT(LOCAL_W));
-				}*/
-			}
-		} else if (TF2) {
-			if (vfunc<bool(*)(IClientEntity*)>(weapon, 1944 / 4, 0)(weapon)) {
-				static uintptr_t CalcIsAttackCritical_s = gSignatures.GetClientSignature("55 89 E5 83 EC 28 89 5D F4 8B 5D 08 89 75 F8 89 7D FC 89 1C 24 E8 ? ? ? ? 85 C0 89 C6 74 60 8B 00 89 34 24 FF 90 E0 02 00 00 84 C0 74 51 A1 ? ? ? ? 8B 40 04");
-				typedef void(*CalcIsAttackCritical_t)(IClientEntity*);
-				CalcIsAttackCritical_t CIACFn = (CalcIsAttackCritical_t)(CalcIsAttackCritical_s);
-					//*(float*)((uintptr_t)weapon + 2468ul) = 0.0f;
-					//bool crit = *(bool*)((uintptr_t)RAW_ENT(LOCAL_W) + 2830ul);
-				if (cmd->command_number) {
-					int tries = 0;
-					static int cmdn = 0;
-					crit = false;
-					bool chc = false;
-					if (false) {
-						while (!crit && (tries < 4000)) {
-							cmdn++;
-							tries++;
-							int md5seed = MD5_PseudoRandom(cmdn) & 0x7fffffff;
-							int rseed = md5seed;//*(int*)(weapon + 52ul);
-							int& a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x1F6D4A8);
-							a = md5seed;
-							int c = LOCAL_W->m_IDX << 8;
-							int b = LOCAL_E->m_IDX;
-							rseed = rseed ^ (b | c);
-							*(float*)(weapon + 2856ul) = 0.0f;
-							RandomSeed(rseed);
-							crit = vfunc<bool(*)(IClientEntity*)>(weapon, 1836 / 4, 0)(weapon);
-						}
-					} else {
-						int md5seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
-						int rseed = md5seed;
-						int& a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x01F8B228);
-						a = md5seed;
-						int c = LOCAL_W->m_IDX << 8;
-						int b = LOCAL_E->m_IDX;
-						rseed = rseed ^ (b | c);
-						*(float*)(weapon + 2856ul) = 0.0f;
-						RandomSeed(rseed);
-						crit = vfunc<bool(*)(IClientEntity*)>(weapon, 1836 / 4, 0)(weapon);
-					}
-					//if (!crit) cmd->buttons &= ~IN_ATTACK;
-					//else {
-						/*logging::Info("found crit at cmd # %i # %i # %i", cmdn, cmd->command_number, tries);
-						if (chc) {
-							cmd->random_seed = MD5_PseudoRandom(cmdn) & 0x7fffffff;
-							cmd->command_number = cmdn;
-						}*/
-					//}
-					/*float bucket = *(float*)(weapon + 2612ul);
-					int md5seed = MD5_PseudoRandom(cmd->command_number) & 0x7fffffff;
-					int rseed = md5seed;
-					int& a = *(int*)((uintptr_t)(sharedobj::client->lmap->l_addr) + 0x1F6D4A8);
-					a = md5seed;
-					int c = LOCAL_W->m_IDX << 8;
-					int b = LOCAL_E->m_IDX;
-					rseed = rseed ^ (b | c);
-					*(float*)(weapon + 2856ul) = 0.0f;
-					RandomSeed(rseed);
-					bool cancrit = vfunc<bool(*)(IClientEntity*)>(weapon, 1836 / 4, 0)(weapon);
-					if (!cancrit) {
-						cmd->buttons &= ~IN_ATTACK;
-					}*/
-				}
-			}
-		}
-	}
-	if (v_bSuppressCrits->GetBool() && !v_bCritHack->GetBool()) {
-		if (crit) {
+	bool crit = IsAttackACrit(cmd);
+	if (v_bSuppressCrits->GetBool() && !v_bCritHack->GetBool() && WeaponCanCrit()) {
+		if (crit && !IsPlayerCritBoosted(LOCAL_E)) {
 			cmd->buttons &= ~IN_ATTACK;
 			//logging::Info("suppressing crit");
 		}
-	} else if (v_bCritHack->GetBool()) {
+	} else if (v_bCritHack->GetBool() && RandomCrits() && WeaponCanCrit()) {
 		if (!crit) cmd->buttons &= ~IN_ATTACK;
 	}
 

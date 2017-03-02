@@ -39,7 +39,9 @@ CatGUI::~CatGUI() {
 void CatGUI::Setup() {
 	m_pRootWindow = new RootWindow();
 	m_pRootWindow->Setup();
-	v_bGUIVisible->m_pConVar->InstallChangeCallback(GUIVisibleCallback);
+	v_bGUIVisible->OnRegister([](CatVar* var) {
+		var->convar->InstallChangeCallback(GUIVisibleCallback);
+	});
 }
 
 void CatGUI::ShowTooltip(std::string text) {

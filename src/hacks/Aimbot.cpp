@@ -9,11 +9,6 @@
 #include "../trace.h"
 #include "../targethelper.h"
 
-#include "../targeting/ITargetSystem.h"
-#include "../targeting/TargetSystemSmart.h"
-#include "../targeting/TargetSystemFOV.h"
-#include "../targeting/TargetSystemDistance.h"
-
 #include "../sdk.h"
 #include "../sdk/in_buttons.h"
 #include "Aimbot.h"
@@ -27,12 +22,7 @@ enum TargetSystem_t {
 	DISTANCE = 2
 };
 
-ITargetSystem* target_systems[3];
-
 Aimbot::Aimbot() {
-	target_systems[0] = new TargetSystemSmart();
-	target_systems[1] = new TargetSystemFOV();
-	target_systems[2] = new TargetSystemDistance();
 	m_bAimKeySwitch = false;
 	this->v_eAimKeyMode = new CatVar(CV_ENUM, "aimbot_aimkey_mode", "1", "Aimkey mode", new CatEnum({ "DISABLED", "AIMKEY", "REVERSE", "TOGGLE" }),
 			"DISABLED: aimbot is always active\nAIMKEY: aimbot is active when key is down\nREVERSE: aimbot is disabled when key is down\nTOGGLE: pressing key toggles aimbot", false);
@@ -43,11 +33,14 @@ Aimbot::Aimbot() {
 		"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
 		"KNEE R", "FOOT R" }),
 			"Hitbox to aim at. Ignored if AutoHitbox is on");
-	this->v_bAutoHitbox = new CatVar(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox", NULL,
+	/*this->v_bAutoHitbox = new CatVar(CV_SWITCH, "aimbot_autohitbox", "1", "Autohitbox", NULL,
 			"Automatically decide the hitbox to aim at.\n"
 			"For example: Sniper rifles and Ambassador always aim at head, "
 			"rocket launchers aim at feet if enemy is standing and at body "
-			"if enemy is midair for easy airshots");
+			"if enemy is midair for easy airshots");*/
+	this->v_eHitboxMode = new CatVar(CV_ENUM, "aimbot_hitboxmode", "0", "Hitbox Mode", new CatEnum({
+		"AUTO-HEAD", "AUTO-CLOSEST", "STATIC"
+	}), "Defines hitbox selection mode");
 	this->v_bInterpolation = new CatVar(CV_SWITCH, "aimbot_interp", "1", "Latency interpolation", NULL,
 			"Enable basic latency interpolation");
 	this->v_bAutoShoot = new CatVar(CV_SWITCH, "aimbot_autoshoot", "1", "Autoshoot", NULL,
@@ -97,8 +90,8 @@ Aimbot::Aimbot() {
 			"Aimbot only activates when you can instantly shoot, sometimes making the autoshoot invisible for spectators");
 	//v_fSmoothAutoshootTreshold = new CatVar(CV_FLOAT, "aimbot_smooth_autoshoot_treshold", "0.01", "Smooth autoshoot");
 	//this->v_fSmoothRandomness = CREATE_CV(CV_FLOAT, "aimbot_smooth_randomness", "1.0", "Smooth randomness");
-	this->v_iSeenDelay = new CatVar(CV_INT, "aimbot_delay", "0", "Aimbot delay", NULL,
-			"# of ticks that should've passed since you can see any hitbox of enemy before aimbot will aim at them", true, 300.0f);
+//	this->v_iSeenDelay = new CatVar(CV_INT, "aimbot_delay", "0", "Aimbot delay", NULL,
+//			"# of ticks that should've passed since you can see any hitbox of enemy before aimbot will aim at them", true, 300.0f);
 	this->v_bProjPredVisibility = new CatVar(CV_SWITCH, "aimbot_proj_vispred", "0", "Projectile visibility prediction", NULL,
 			"If disabled, aimbot won't lock at enemies that are behind walls, but will come out soon");
 	this->v_bProjPredFOV = new CatVar(CV_SWITCH, "aimbot_proj_fovpred", "0", "Projectile FOV mode", NULL,
@@ -162,6 +155,9 @@ bool Aimbot::ShouldAim(CUserCmd* cmd) {
 			if (!CanHeadshot()) return false;
 		}
 	}
+	if (g_phMisc->v_bCritHack->GetBool()) {
+		if (RandomCrits() && WeaponCanCrit() && !IsAttackACrit(cmd)) return false;
+	}
 	return true;
 }
 
@@ -169,7 +165,7 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	if (!this->v_bEnabled->GetBool()) return;
 	if (CE_BAD(g_pLocalPlayer->entity) || CE_BAD(g_pLocalPlayer->weapon())) return;
 	if (g_pLocalPlayer->life_state) return;
-	//this->m_iLastTarget = -1;
+	//this->m_iLastTarget = -1
 
 	if (HasCondition(g_pLocalPlayer->entity, TFCond_Taunting)) return;
 
@@ -196,25 +192,6 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	m_bHeadOnly = false;
 
 	m_iPreferredHitbox = this->v_eHitbox->GetInt();
-	if (this->v_bAutoHitbox->GetBool()) {
-		int ci = g_pLocalPlayer->weapon()->m_iClassID;
-		if (ci == g_pClassID->CTFSniperRifle ||
-			ci == g_pClassID->CTFSniperRifleDecap) {
-			m_bHeadOnly = CanHeadshot();
-		} else if (ci == g_pClassID->CTFCompoundBow) {
-			m_bHeadOnly = true;
-		} else if (ci == g_pClassID->CTFRevolver) {
-			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon());
-		} else if (ci == g_pClassID->CTFRocketLauncher ||
-				ci == g_pClassID->CTFRocketLauncher_AirStrike ||
-				ci == g_pClassID->CTFRocketLauncher_DirectHit ||
-				ci == g_pClassID->CTFRocketLauncher_Mortar) {
-			m_iPreferredHitbox = hitbox_t::foot_L;
-		} else {
-			m_iPreferredHitbox = hitbox_t::pelvis;
-		}
-	}
-
 	if (g_pLocalPlayer->weapon()->m_iClassID == g_pClassID->CTFGrapplingHook) return;
 
 	m_bProjectileMode = (GetProjectileData(g_pLocalPlayer->weapon(), m_flProjSpeed, m_flProjGravity));
@@ -320,22 +297,67 @@ void Aimbot::ProcessUserCmd(CUserCmd* cmd) {
 	if (this->v_bSilent->GetBool()) g_pLocalPlayer->bUseSilentAngles = true;
 	return;
 }
-
-int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
-	if (!v_bAutoHitbox->GetBool()) return preferred;
-	if (m_bHeadOnly) return hitbox_t::head;
-	int flags = CE_INT(target, netvar.iFlags);
-	bool ground = (flags & (1 << 0));
-	if (!ground) {
-		if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_projectile) {
-			if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFCompoundBow) {
-				preferred = hitbox_t::spine_3;
-			}
+// FIXME move
+int ClosestHitbox(CachedEntity* target) {
+	int closest = -1;
+	float closest_fov = 256;
+	for (int i = 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
+		float fov = GetFov(g_pLocalPlayer->v_OrigViewangles, g_pLocalPlayer->v_Eye, target->m_pHitboxCache->GetHitbox(i)->center);
+		if (fov < closest_fov || closest == -1) {
+			closest = i;
+			closest_fov = fov;
 		}
 	}
-	if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
-	for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
-		if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
+	return closest;
+}
+
+int Aimbot::BestHitbox(CachedEntity* target, int preferred) {
+	switch (v_eHitboxMode->GetInt()) {
+	case 0: { // AUTO-HEAD
+		int ci = g_pLocalPlayer->weapon()->m_iClassID;
+		if (ci == g_pClassID->CTFSniperRifle ||
+			ci == g_pClassID->CTFSniperRifleDecap) {
+			m_bHeadOnly = CanHeadshot();
+		} else if (ci == g_pClassID->CTFCompoundBow) {
+			m_bHeadOnly = true;
+		} else if (ci == g_pClassID->CTFRevolver) {
+			m_bHeadOnly = IsAmbassador(g_pLocalPlayer->weapon());
+		} else if (ci == g_pClassID->CTFRocketLauncher ||
+				ci == g_pClassID->CTFRocketLauncher_AirStrike ||
+				ci == g_pClassID->CTFRocketLauncher_DirectHit ||
+				ci == g_pClassID->CTFRocketLauncher_Mortar) {
+			preferred = hitbox_t::foot_L;
+		} else {
+			preferred = hitbox_t::pelvis;
+		}
+		int flags = CE_INT(target, netvar.iFlags);
+		bool ground = (flags & (1 << 0));
+		if (!ground) {
+			if (GetWeaponMode(g_pLocalPlayer->entity) == weaponmode::weapon_projectile) {
+				if (g_pLocalPlayer->weapon()->m_iClassID != g_pClassID->CTFCompoundBow) {
+					preferred = hitbox_t::spine_3;
+				}
+			}
+		}
+		if (LOCAL_W->m_iClassID == g_pClassID->CTFSniperRifle || LOCAL_W->m_iClassID == g_pClassID->CTFSniperRifleDecap) {
+			float cdmg = CE_FLOAT(LOCAL_W, netvar.flChargedDamage);
+			if (CanHeadshot() && cdmg > target->m_iHealth) {
+				preferred = ClosestHitbox(target);
+				m_bHeadOnly = false;
+			}
+		}
+		if (m_bHeadOnly) return hitbox_t::head;
+		if (target->m_pHitboxCache->VisibilityCheck(preferred)) return preferred;
+		for (int i = m_bProjectileMode ? 1 : 0; i < target->m_pHitboxCache->GetNumHitboxes(); i++) {
+			if (target->m_pHitboxCache->VisibilityCheck(i)) return i;
+		}
+	} break;
+	case 1: { // AUTO-CLOSEST
+		return ClosestHitbox(target);
+	} break;
+	case 2: { // STATIC
+		return v_eHitbox->GetInt();;
+	} break;
 	}
 	return -1;
 }
@@ -355,7 +377,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 #if NO_DEVIGNORE != true
 		if (Developer(entity)) return 2; // TODO developer relation
 #endif
-		if (entity->m_lSeenTicks < (unsigned)this->v_iSeenDelay->GetInt()) return 3;
+		//if (entity->m_lSeenTicks < (unsigned)this->v_iSeenDelay->GetInt()) return 3;
 		if (!entity->m_bAlivePlayer) return 5;
 		if (!entity->m_bEnemy && !v_bAimAtTeammates->GetBool()) return 7;
 		if (v_iMaxRange->GetInt() > 0) {
@@ -367,7 +389,7 @@ int Aimbot::ShouldTarget(CachedEntity* entity) {
 		if (GetRelation(entity) == relation::FRIEND) return 11;
 		Vector resultAim;
 		int hitbox = BestHitbox(entity, m_iPreferredHitbox);
-		if (m_bHeadOnly && hitbox) return 12;
+		//if (m_bHeadOnly && hitbox) return 12;
 		if (m_bProjectileMode) {
 			if (v_bProjPredFOV->GetBool()) {
 				if (v_bProjPredVisibility->GetBool()) {

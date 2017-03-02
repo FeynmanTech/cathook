@@ -275,8 +275,8 @@ void draw::Initialize() {
 		interfaces::engineClient->GetScreenSize(draw::width, draw::height);
 	}
 
-	interfaces::surface->SetFontGlyphSet(fonts::ESP, "TF2 Build", fonts::ESP_HEIGHT, 0, 0, 0, 0x0); // or Ubuntu Mono Bold
-	interfaces::surface->SetFontGlyphSet(fonts::MENU, "Verdana", fonts::MENU_HEIGHT, 0, 0, 0, 0x0);
+	interfaces::surface->SetFontGlyphSet(fonts::ESP, "TF2 Build", fonts::ESP_HEIGHT, 0, 0, 0, interfaces::surface->FONTFLAG_DROPSHADOW); // or Ubuntu Mono Bold
+	interfaces::surface->SetFontGlyphSet(fonts::MENU, "Verdana", fonts::MENU_HEIGHT, 0, 0, 0, interfaces::surface->FONTFLAG_DROPSHADOW);
 	interfaces::surface->SetFontGlyphSet(fonts::MENU_BIG, "Verdana Bold", fonts::MENU_BIG_HEIGHT, 0, 0, 0, 0x0);
 }
 
@@ -379,7 +379,7 @@ void draw::WString(unsigned long font, int x, int y, int color, int shadow, cons
 	if (shadow) {
 		unsigned char alpha = (color >> 24);
 		int black_t = ((alpha == 255) ? colors::black : colors::Create(0, 0, 0, alpha / shadow));
-		if (shadow > 0) {
+		/*if (shadow > 0) {
 			draw::WString(font, x + 1, y + 1, black_t, false, text);
 		}
 		if (shadow > 1 && !g_Settings.bFastOutline->GetBool()) {
@@ -390,7 +390,7 @@ void draw::WString(unsigned long font, int x, int y, int color, int shadow, cons
 			draw::WString(font, x, y + 1, black_t, false, text);
 			draw::WString(font, x, y - 1, black_t, false, text);
 			draw::WString(font, x - 1, y, black_t, false, text);
-		}
+		}*/
 	}
 	interfaces::surface->DrawSetTextPos(x, y);
 	interfaces::surface->DrawSetTextColor(*reinterpret_cast<Color*>(&color));

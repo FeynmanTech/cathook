@@ -15,8 +15,6 @@
 
 struct matrix3x4_t;
 
-#define ENTITY_CACHE_PROFILER false
-
 class IClientEntity;
 struct ESPStringCompound;
 struct player_info_s;
@@ -36,7 +34,7 @@ struct mstudiobbox_t;
 #define CE_VECTOR(entity, offset) CE_VAR(entity, offset, Vector)
 
 #define CE_GOOD_NO_DORMANT_CHECK(entity) (!g_Settings.bInvalid && dynamic_cast<CachedEntity*>(entity) && dynamic_cast<IClientEntity*>(entity->m_pEntity))
-#define CE_GOOD(entity) (!g_Settings.bInvalid && dynamic_cast<CachedEntity*>(entity) && dynamic_cast<IClientEntity*>(entity->m_pEntity) && !entity->m_pEntity->IsDormant())
+#define CE_GOOD(entity) (!g_Settings.bInvalid && dynamic_cast<CachedEntity*>(entity) && dynamic_cast<IClientEntity*>(entity->m_pEntity) && entity->m_pEntity->GetIClientEntity() && !entity->m_pEntity->GetIClientEntity()->IsDormant())
 #define CE_BAD(entity) (!CE_GOOD(entity))
 
 #define IDX_GOOD(idx) (idx >= 0 && idx < HIGHEST_ENTITY && idx < MAX_ENTITIES)
@@ -109,6 +107,7 @@ public:
 	~CachedEntity();
 
 	void Update(int idx);
+	void PruneStrings();
 	void AddESPString(const char* string, ...);
 	ESPStringCompound& GetESPString(int idx);
 
@@ -168,6 +167,7 @@ public:
 	~EntityCache();
 
 	void Update();
+	void PruneStrings();
 	void Invalidate();
 	CachedEntity* GetEntity(int idx);
 
@@ -175,35 +175,6 @@ public:
 	int m_nMax;
 };
 
-enum ECPNodes {
-	ECPN_UPDATE,
-	ECPN_HITBOX_UPDATE,
-	ECPN_VISCHECK,
-	ECPN_TOTAL
-};
-
-class EntityCacheProfiling {
-public:
-	EntityCacheProfiling();
-	~EntityCacheProfiling();
-	void Reset();
-	long CurrentTime();
-	void StoreData(int id, long time);
-	void DoLog();
-	long  m_nLastReset;
-	long  m_nLastLog;
-	long* m_DataAvg;
-	long  m_DataAvgAmount;
-	long* m_DataMax;
-};
-
-extern EntityCacheProfiling gECP;
-
 extern EntityCache gEntityCache;
-
-#if ENTITY_CACHE_PROFILER == true
-	class CatVar;
-	extern CatVar* g_vEntityCacheProfiling;
-#endif
 
 #endif /* ENTITYCACHE_H_ */

@@ -7,38 +7,44 @@
 
 #include "profiler.h"
 
-#include "common.h"
-#include "sdk.h"
+#include "logging.h"
 
-#if ENABLE_PROFILER
-
-int g_ProfilerDepth = 0;
-long g_ProfilerSections[MAX_PROFILER_SECTIONS];
-
-void PROFILER_BeginSection() {
-	if (!ENABLE_PROFILER) return;
-	if (g_ProfilerDepth == MAX_PROFILER_SECTIONS - 1) {
-		logging::Info("Max profiler depth reached!");
-		return;
-	}
-	g_ProfilerDepth++;
-	timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	g_ProfilerSections[g_ProfilerDepth] = ts.tv_nsec;
+ProfilerSection::ProfilerSection(std::string name) {
+	m_name = name;
+	m_calls = 0;
+	m_log = std::chrono::high_resolution_clock::now();
+	m_min = std::chrono::nanoseconds::zero();
+	m_max = std::chrono::nanoseconds::zero();
+	m_sum = std::chrono::nanoseconds::zero();
 }
 
-void PROFILER_EndSection(char* name) {
-	if (!ENABLE_PROFILER) return;
-	if (g_ProfilerDepth == 0) {
-		logging::Info("Profiler underflow!");
-		return;
+void ProfilerSection::OnNodeDeath(ProfilerNode& node) {
+	auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - node.m_start);
+	if (m_min == std::chrono::nanoseconds::zero()) m_min = dur;
+	else if (dur < m_min) m_min = dur;
+
+	if (m_max == std::chrono::nanoseconds::zero()) m_max = dur;
+	else if (dur > m_max) m_max = dur;
+	m_sum += dur;
+	m_calls++;
+
+	if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_log).count() > 3) {
+		logging::Info("[P] stats for '%-32s': MIN{%12llu} MAX{%12llu} AVG{%12llu}", m_name.c_str(),
+			std::chrono::duration_cast<std::chrono::nanoseconds>(m_min).count(),
+			std::chrono::duration_cast<std::chrono::nanoseconds>(m_max).count(),
+			std::chrono::duration_cast<std::chrono::nanoseconds>(m_sum).count() / (m_calls ? m_calls : 1));
+		m_log = std::chrono::high_resolution_clock::now();
+		m_min = std::chrono::nanoseconds::zero();
+		m_max = std::chrono::nanoseconds::zero();
+		m_sum = std::chrono::nanoseconds::zero();
+		m_calls = 0;
 	}
-	if (g_ProfilerDepth <= PROFILER_OUTPUT_DEPTH && g_Settings.bProfiler->GetBool()) {
-		timespec ts;
-		clock_gettime(CLOCK_REALTIME, &ts);
-		logging::Info("[PROF] %s took %ldus!", name, (ts.tv_nsec - g_ProfilerSections[g_ProfilerDepth]));
-	}
-	g_ProfilerDepth--;
 }
 
-#endif
+ProfilerNode::ProfilerNode(ProfilerSection& section) : m_section(section) {
+	m_start = std::chrono::high_resolution_clock::now();
+}
+
+ProfilerNode::~ProfilerNode() {
+	m_section.OnNodeDeath(*this);
+}

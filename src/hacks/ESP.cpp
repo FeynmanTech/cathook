@@ -45,7 +45,7 @@ ESP::ESP() {
 	this->v_bShowFriends = new CatVar(CV_SWITCH, "esp_friends", "1", "Show friends", NULL, "Always show friends");
 	this->v_bVisCheck = new CatVar(CV_SWITCH, "esp_vischeck", "1", "VisCheck", NULL, "ESP visibility check - makes enemy info behind walls darker, disable this if you get FPS drops");
 	this->v_bLegit = new CatVar(CV_SWITCH, "esp_legit", "0", "Legit Mode", NULL, "Don't show invisible enemies");
-	this->v_iLegitSeenTicks = new CatVar(CV_INT, "esp_legit_seenticks", "150", "Legit delay", NULL, "Delay after enemy gone behind a wall where you can still see them", true, 200.0);
+//	this->v_iLegitSeenTicks = new CatVar(CV_INT, "esp_legit_seenticks", "150", "Legit delay", NULL, "Delay after enemy gone behind a wall where you can still see them", true, 200.0);
 	v_bShowDroppedWeapons = new CatVar(CV_SWITCH, "esp_item_weapons", "0", "Dropped weapons", NULL, "Show dropped weapons");
 	v_bShowAmmoPacks = new CatVar(CV_SWITCH, "esp_item_ammo", "0", "Ammo packs", NULL, "Show ammo packs");
 	v_bShowHealthPacks = new CatVar(CV_SWITCH, "esp_item_health", "1", "Health packs", NULL, "Show health packs");
@@ -130,9 +130,9 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 		bool cloak = IsPlayerInvisible(ent);
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team && !GetRelation(ent)) {
 			if (cloak) return;
-			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+			/*if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
-			}
+			}*/
 		}
 		if (!ent->m_bEnemy && !v_bTeammates->GetBool() && !GetRelation(ent)) break;
 		if (!ent->m_bAlivePlayer) break;
@@ -142,9 +142,9 @@ void ESP::ProcessEntityPT(CachedEntity* ent) {
 	}
 	case ENTITY_BUILDING: {
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
-			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+			/*if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
-			}
+			}*/
 		}
 		if (CE_INT(ent, netvar.iTeamNum) == g_pLocalPlayer->team && !v_bTeammates->GetBool()) break;
 		DrawBox(ent, fg, 1.0f, 0.0f, true, CE_INT(ent, netvar.iBuildingHealth), CE_INT(ent, netvar.iBuildingMaxHealth));
@@ -279,9 +279,9 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		int level = CE_INT(ent, netvar.iUpgradeLevel);
 		const char* name = (ent->m_iClassID == g_pClassID->CObjectTeleporter ? "Teleporter" : (ent->m_iClassID == g_pClassID->CObjectSentrygun ? "Sentry Gun" : "Dispenser"));
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team) {
-			if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
+			/*if (ent->m_lLastSeen > v_iLegitSeenTicks->GetInt()) {
 				return;
-			}
+			}*/
 		}
 		ent->AddESPString("LV %i %s", level, name);
 		if (this->v_bShowHealthNumbers->GetBool()) {
@@ -308,9 +308,9 @@ void ESP::ProcessEntity(CachedEntity* ent) {
 		// only if bTeammatePowerup or bTeammates is true
 		if (v_bLegit->GetBool() && ent->m_iTeam != g_pLocalPlayer->team  && !GetRelation(ent)) {
 			if (IsPlayerInvisible(ent)) return;
-			if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {
+			/*if (ent->m_lLastSeen > (unsigned)v_iLegitSeenTicks->GetInt()) {
 				return;
-			}
+			}*/
 		}
 		if (power >= 0 && (ent->m_bEnemy || this->v_bTeammatePowerup->GetBool() || this->v_bTeammates->GetBool())) {
 			ent->AddESPString("HAS [%s]", powerups[power]);

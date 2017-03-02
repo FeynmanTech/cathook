@@ -42,6 +42,7 @@ public:
 	Vector last_angles;
 	CatVar* bFastOutline;
 	CatVar* kRollSpeedhack;
+	CatVar* bFastVischeck;
 	bool bInvalid;
 };
 

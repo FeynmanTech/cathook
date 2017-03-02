@@ -11,6 +11,7 @@
 #include "hookedmethods.h"
 #include "../gui/GUI.h"
 #include "../segvcatch/segvcatch.h"
+#include "../profiler.h"
 
 void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 #if DEBUG_SEGV == true
@@ -33,6 +34,7 @@ void PaintTraverse_hook(void* p, unsigned int vp, bool fr, bool ar) {
 
 
 	if (call_default) SAFE_CALL(((PaintTraverse_t*)hooks::hkPanel->GetMethod(hooks::offPaintTraverse))(p, vp, fr, ar));
+	PROF_SECTION(PaintTraverse);
 	if (vp == panel_top) draw_flag = true;
 	if (!g_Settings.bHackEnabled->GetBool()) return;
 	// Because of single-multi thread shit I'm gonna put this thing riiiight here.

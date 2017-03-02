@@ -30,6 +30,8 @@ float AngleDiff( float destAngle, float srcAngle )
 	return delta;
 }//TODO temporary
 
+#include "../profiler.h"
+
 bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 	SEGV_BEGIN;
 
@@ -39,6 +41,8 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		//RemoveCondition(LOCAL_E, TFCond_Taunting);
 	}
 	bool ret = ((CreateMove_t*)hooks::hkClientMode->GetMethod(hooks::offCreateMove))(thisptr, inputSample, cmd);
+
+	PROF_SECTION(CreateMove);
 
 	if (!cmd) {
 		return ret;
@@ -78,11 +82,14 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 		gEntityCache.Invalidate();
 	}
 //	PROF_BEGIN();
-	SAFE_CALL(gEntityCache.Update());
+	{ PROF_SECTION(EntityCache); SAFE_CALL(gEntityCache.Update()); }
 //	PROF_END("Entity Cache updating");
 	SAFE_CALL(g_pPlayerResource->Update());
 	SAFE_CALL(g_pLocalPlayer->Update());
 	g_Settings.bInvalid = false;
+	// Disabled because this causes EXTREME aimbot inaccuracy
+	//if (!cmd->command_number) return ret;
+	gEntityCache.PruneStrings();
 	if (CE_GOOD(g_pLocalPlayer->entity)) {
 			g_pLocalPlayer->v_OrigViewangles = cmd->viewangles;
 //		PROF_BEGIN();

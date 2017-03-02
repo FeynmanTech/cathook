@@ -31,7 +31,7 @@ void CMenuWindow::AddElements() {
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bEnabled));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAimAtTeammates));
 	if (TF) tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAimBuildings));
-	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAutoHitbox));
+	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_eHitboxMode));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bAutoShoot));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bActiveOnlyWhenCanShoot));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_bEnabledAttacking));
@@ -51,7 +51,7 @@ void CMenuWindow::AddElements() {
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_fOverrideProjSpeed));
 	//tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_iMaxAutoshootRange));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_iMaxRange));
-	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_iSeenDelay));
+	//tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_iSeenDelay));
 	tab->AddChild(new CCVarContainer(tab, g_phAimbot->v_kAimKey));
 	AddTab("esp", "ESP");
 	tab = GetTab("esp");
@@ -62,7 +62,7 @@ void CMenuWindow::AddElements() {
 	ADDCVAR(g_phESP->v_bBox);
 	ADDCVAR(g_phESP->v_bTeammates);
 	ADDCVAR(g_phESP->v_bLegit);
-	ADDCVAR(g_phESP->v_iLegitSeenTicks);
+	//ADDCVAR(g_phESP->v_iLegitSeenTicks);
 	ADDCVAR(g_phESP->v_bShowHealthNumbers);
 	ADDCVAR(g_phESP->v_bShowName);
 	if (TF) ADDCVAR(g_phESP->v_bShowClass);

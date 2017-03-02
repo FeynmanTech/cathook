@@ -36,6 +36,7 @@
 #include "textfile.h"
 #include "gui/GUI.h"
 #include "classid.h"
+#include "crits.h"
 
 #include "hacks/hacklist.h"
 #include "glowobjects.h"
@@ -52,7 +53,7 @@
 #ifndef CATHOOK_BUILD_NUMBER
 #define CATHOOK_BUILD_NUMBER "LATEST"
 #endif
-#define CATHOOK_BUILD_NAME "Butterscotch Pie"
+#define CATHOOK_BUILD_NAME "Cat's Eye"
 
 #define CON_NAME "cat"
 #define CON_PREFIX CON_NAME "_"

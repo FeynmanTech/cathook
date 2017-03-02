@@ -33,7 +33,6 @@
 #include "sharedobj.h"
 #include "hooks.h"
 #include "netmessage.h"
-#include "targeting/ITargetSystem.h"
 #include "profiler.h"
 #include "gui/GUI.h"
 //#include "gui/controls.h"
@@ -141,8 +140,8 @@ void hack::Initialize() {
 	hack::InitHacks();
 	g_Settings.Init();
 	g_pGUI = new CatGUI();
-	g_pGUI->Setup();
 	EndConVars();
+	g_pGUI->Setup();
 	gNetvars.init();
 	InitNetVars();
 	g_pLocalPlayer = new LocalPlayer();

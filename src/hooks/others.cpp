@@ -50,7 +50,7 @@ void Shutdown_hook(void* thisptr, const char* reason) {
 	SEGV_BEGIN;
 	if (g_Settings.bHackEnabled->GetBool()) {
 		const char* new_reason = reason;
-		if (g_Settings.sDisconnectMsg->m_pConVar->m_StringLength > 3) {
+		if (g_Settings.sDisconnectMsg->convar->m_StringLength > 3) {
 			new_reason = g_Settings.sDisconnectMsg->GetString();
 		}
 		((Shutdown_t*)hooks::hkNetChannel->GetMethod(hooks::offShutdown))(thisptr, new_reason);
