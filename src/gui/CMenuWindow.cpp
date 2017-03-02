@@ -22,7 +22,7 @@ CMenuWindow::CMenuWindow(std::string name, IWidget* parent) : CBaseWindow(name, 
 	AddChild(m_pTitle = new CTitleBar(this, "cathook menu"));
 }
 
-#define ADDCVAR(x) tab->AddChild(new CCVarContainer(tab, x))
+#define ADDCVAR(x) tab->AddChild(new CCVarContainer(tab, (x)))
 #define ADDLABEL(x) tab->AddChild(new CTextLabel("label", tab, x, true))
 
 void CMenuWindow::AddElements() {
@@ -171,14 +171,15 @@ void CMenuWindow::AddElements() {
 	ADDCVAR(g_phBunnyhop->v_iAutoJumpSpeed);
 	AddTab("antiaim", "Anti-Aim");
 	tab = GetTab("antiaim");
-	ADDCVAR(g_phAntiAim->v_bEnabled);
-	ADDCVAR(g_phAntiAim->v_PitchMode);
-	ADDCVAR(g_phAntiAim->v_flPitch);
-	ADDCVAR(g_phAntiAim->v_YawMode);
-	ADDCVAR(g_phAntiAim->v_flYaw);
-	ADDCVAR(g_phAntiAim->v_flSpinSpeed);
-	ADDCVAR(g_phAntiAim->v_bNoClamping);
-	ADDCVAR(g_phAntiAim->v_flRoll);
+	ADDCVAR(&hacks::shared::antiaim::enabled);
+	/*ADDCVAR(&hacks::shared::antiaim::lisp);
+	ADDCVAR(&hacks::shared::antiaim::yaw_mode;
+	ADDCVAR(&hacks::shared::antiaim::yaw);
+	ADDCVAR(&hacks::shared::antiaim::pitch);
+	ADDCVAR(&hacks::shared::antiaim::pitch_mode);
+	ADDCVAR(&hacks::shared::antiaim::no_clamping);
+	ADDCVAR(&hacks::shared::antiaim::roll);
+	ADDCVAR(&hacks::shared::antiaim::spin);*/
 	AddTab("spam", "Spam/Killsay");
 	tab = GetTab("spam");
 	ADDLABEL("Spam");

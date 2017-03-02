@@ -101,7 +101,7 @@ bool CreateMove_hook(void* thisptr, float inputSample, CUserCmd* cmd) {
 			SAFE_CALL(HACK_PROCESS_USERCMD(AutoStrafe, cmd));
 			SAFE_CALL(HACK_PROCESS_USERCMD(Aimbot, cmd));
 			SAFE_CALL(HACK_PROCESS_USERCMD(Airstuck, cmd));
-			SAFE_CALL(HACK_PROCESS_USERCMD(AntiAim, cmd));
+			SAFE_CALL(hacks::shared::antiaim::ProcessUserCmd(cmd));
 			if (TF) SAFE_CALL(HACK_PROCESS_USERCMD(AutoSticky, cmd));
 			if (TF) SAFE_CALL(HACK_PROCESS_USERCMD(AutoReflect, cmd));
 			SAFE_CALL(HACK_PROCESS_USERCMD(Triggerbot, cmd));

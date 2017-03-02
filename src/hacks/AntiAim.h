@@ -8,27 +8,29 @@
 #ifndef ANTIAIM_H_
 #define ANTIAIM_H_
 
-#include "IHack.h"
+class CatVar;
+class CUserCmd;
 
-class AntiAim : public IHack {
-public:
-	AntiAim();
+namespace hacks { namespace shared { namespace antiaim {
 
-	virtual void ProcessUserCmd(CUserCmd*) override;
+// TODO paste AA from AimTux
 
-	void AddSafeTicks(int ticks);
-	int m_iSafeTicks;
+extern CatVar enabled;
+extern CatVar yaw;
+extern CatVar pitch;
+extern CatVar yaw_mode;
+extern CatVar pitch_mode;
+extern CatVar roll;
+extern CatVar no_clamping;
+extern CatVar spin;
+extern CatVar lisp;
 
-	CatVar* v_bEnabled;
-	CatVar* v_flSpinSpeed;
-	CatVar* v_flYaw;
-	CatVar* v_flPitch;
-	CatVar* v_PitchMode;
-	CatVar* v_YawMode;
-	CatVar* v_bNoClamping;
-	CatVar* v_flRoll;
-};
+extern int safe_space;
 
-DECLARE_HACK_SINGLETON(AntiAim);
+void SetSafeSpace(int safespace);
+bool ShouldAA(CUserCmd* cmd);
+void ProcessUserCmd(CUserCmd* cmd);
+
+}}}
 
 #endif /* ANTIAIM_H_ */

@@ -57,7 +57,6 @@ bool hack::shutdown = false;
 
 void hack::InitHacks() {
 	ADD_HACK(AutoStrafe);
-	ADD_HACK(AntiAim);
 	if (TF) ADD_HACK(AntiDisguise);
 	if (TF) ADD_HACK(AutoReflect);
 	//ADD_HACK(FollowBot);
@@ -198,7 +197,6 @@ void hack::Shutdown() {
 	if (hooks::hkStudioRender) hooks::hkStudioRender->Kill();
 	ConVar_Unregister();
 	DELETE_HACK(AutoStrafe);
-	DELETE_HACK(AntiAim);
 	if (TF) DELETE_HACK(AntiDisguise);
 	if (TF) DELETE_HACK(AutoReflect);
 	//DELETE_HACK(FollowBot);

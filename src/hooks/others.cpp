@@ -135,7 +135,6 @@ void LevelInit_hook(void* thisptr, const char* newmap) {
 	interfaces::engineClient->ExecuteClientCmd("exec cat_matchexec");
 	LEVEL_INIT(Aimbot);
 	LEVEL_INIT(Airstuck);
-	LEVEL_INIT(AntiAim);
 	if (TF) LEVEL_INIT(AntiDisguise);
 	if (TF) LEVEL_INIT(AutoHeal);
 	if (TF) LEVEL_INIT(AutoReflect);
@@ -158,7 +157,6 @@ void LevelShutdown_hook(void* thisptr) {
 	g_Settings.bInvalid = true;
 	LEVEL_SHUTDOWN(Aimbot);
 	LEVEL_SHUTDOWN(Airstuck);
-	LEVEL_SHUTDOWN(AntiAim);
 	if (TF) LEVEL_SHUTDOWN(AntiDisguise);
 	if (TF) LEVEL_SHUTDOWN(AutoHeal);
 	if (TF) LEVEL_SHUTDOWN(AutoReflect);

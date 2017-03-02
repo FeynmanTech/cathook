@@ -54,7 +54,7 @@ public:
 	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long);
 	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long, float max_val);
 	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long, float min_val, float max_val);
-	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long, CatEnum& cat_enum);
+	CatVar(CatEnum& cat_enum, std::string name, std::string defaults, std::string desc_short, std::string desc_long);
 
 	inline explicit operator bool() const { return !!convar_parent->m_nValue; }
 	inline explicit operator int() const { return convar_parent->m_nValue; }

@@ -40,8 +40,8 @@ CatVar::CatVar(CatVar_t type, std::string name, std::string defaults, std::strin
 	g_UnregisteredCatVars.push(this);
 }
 
-CatVar::CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long, CatEnum& cat_enum)
-	: type(type), name(name), defaults(defaults), desc_short(desc_short), desc_long(desc_long), enum_type(&cat_enum), restricted(true) {
+CatVar::CatVar(CatEnum& cat_enum, std::string name, std::string defaults, std::string desc_short, std::string desc_long)
+	: type(CV_ENUM), name(name), defaults(defaults), desc_short(desc_short), desc_long(desc_long), enum_type(&cat_enum), restricted(true) {
 	min = cat_enum.Minimum();
 	max = cat_enum.Maximum();
 	g_UnregisteredCatVars.push(this);
