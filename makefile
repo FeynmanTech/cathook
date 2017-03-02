@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-std=gnu++11 -D_POSIX=1 -DRAD_TELEMETRY_DISABLED -DLINUX=1 -D_LINUX=1 -DPOSIX=1 -DGNUC=1 -D_DEVELOPER=1 -DNO_MALLOC_OVERRIDE -O0 -g3 -ggdb -w -c -shared -Wall -Wno-unknown-pragmas -fmessage-length=0 -m32 -fvisibility=hidden -fPIC
+CFLAGS=-std=gnu++11 -D_POSIX=1 -DRAD_TELEMETRY_DISABLED -DLINUX=1 -D_LINUX=1 -DPOSIX=1 -DGNUC=1 -D_DEVELOPER=1 -DNO_MALLOC_OVERRIDE -O3 -g3 -ggdb -w -c -shared -Wall -Wno-unknown-pragmas -fmessage-length=0 -m32 -fvisibility=hidden -fPIC
 SDKFOLDER=$(realpath source-sdk-2013/mp/src)
 CINCLUDES=-I$(SDKFOLDER)/public -I$(SDKFOLDER)/mathlib -I$(SDKFOLDER)/common -I$(SDKFOLDER)/public/tier1 -I$(SDKFOLDER)/public/tier0 -I$(SDKFOLDER)
 LDFLAGS=-m32 -fno-gnu-unique -D_GLIBCXX_USE_CXX11_ABI=0 -shared -L$(realpath lib)

@@ -24,7 +24,7 @@ CCVarContainer::CCVarContainer(IWidget* parent, CatVar* var) : CBaseContainer("c
 	m_pLabel = new CTextLabel(GetName() + "_desc", this, var->desc_short);
 	m_pControl = 0;
 	if (var->desc_short.length()) {
-		Props()->SetString("tooltip", var->desc_short.c_str());
+		Props()->SetString("tooltip", var->desc_long.c_str());
 	}
 	bool needsinput = false;
 	switch (var->type) {
