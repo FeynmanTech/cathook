@@ -78,7 +78,7 @@ KillSay::~KillSay() {
 }
 
 void KillSay::Reload() {
-	m_TextFile->LoadFile(v_sFileName->m_pConVar->GetString());
+	m_TextFile->LoadFile(v_sFileName->GetString());
 }
 
 void CC_KillSay_ReloadFile(const CCommand& args) {

@@ -140,8 +140,8 @@ void hack::Initialize() {
 	hack::InitHacks();
 	g_Settings.Init();
 	g_pGUI = new CatGUI();
-	g_pGUI->Setup();
 	EndConVars();
+	g_pGUI->Setup();
 	gNetvars.init();
 	InitNetVars();
 	g_pLocalPlayer = new LocalPlayer();

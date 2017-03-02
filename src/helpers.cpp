@@ -34,6 +34,7 @@ void BeginConVars() {
 }
 
 void EndConVars() {
+	RegisterCatVars();
 	if (hConVarsFile) {
 		fprintf(hConVarsFile, "\nexec cat_autoexec\n");
 		fprintf(hConVarsFile, "cat_killsay_reload\ncat_spam_reload\n");

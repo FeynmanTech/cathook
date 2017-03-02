@@ -41,7 +41,9 @@ void GlobalSettings::Init() {
 	this->bNoVisuals = new CatVar(CV_SWITCH, "novisuals", "0", "Disable visuals", NULL, "Disable all visuals");
 	this->bCleanScreenshots = new CatVar(CV_SWITCH, "clean_screenshot", "1", "Clean screenshots", NULL, "Clean screenshots");
 	this->bDebugLog = new CatVar(CV_SWITCH, "log", "1", "Debug Log", NULL, "Disable this if you don't need cathook messages in your console");
-	this->bThirdperson->m_pConVar->InstallChangeCallback(ThirdpersonCallback);
+	this->bThirdperson->OnRegister([](CatVar* var) {
+		var->convar->InstallChangeCallback(ThirdpersonCallback);
+	});
 	this->bFastOutline = new CatVar(CV_SWITCH, "fastoutline", "0", "Low quality outline", NULL, "Might increase performance when there is a lot of ESP text to draw");
 	this->kRollSpeedhack = new CatVar(CV_KEY, "rollspeedhack", "0", "Roll Speedhack", NULL, "Roll speedhack key");
 	bInvalid = true;

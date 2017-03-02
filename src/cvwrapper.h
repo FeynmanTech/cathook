@@ -15,6 +15,7 @@ class ConVar;
 #include "beforecheaders.h"
 #include <string>
 #include <vector>
+#include <functional>
 #include <stack>
 #include "aftercheaders.h"
 
@@ -37,9 +38,9 @@ class CatEnum {
 public:
 	CatEnum(std::vector<std::string> values, int min = 0);
 	std::string Name(int value);
-	int Maximum();
-	int Minimum();
-	std::vector<std::string> m_values;
+	int Maximum() const ;
+	int Minimum() const ;
+	const std::vector<std::string> m_values;
 	int m_iMin;
 	int m_iMax;
 	int m_iLength;
@@ -47,42 +48,55 @@ public:
 
 class CatVar {
 public:
+	[[deprecated]]
 	CatVar(CatVar_t type, std::string name, std::string value, std::string help, CatEnum* enum_type = 0, std::string long_description = "no description", bool hasminmax = false, float max = 1.0f, float min = 0.0f);
-	inline CatVar_t GetType() { return m_Type; }
-	inline CatEnum* GetEnum() { return m_EnumType; }
-	inline ConVar* GetConVar() { return m_pConVar; }
-	inline void SetDescription(std::string description) { m_strDescription = description; }
-	inline std::string Description() { return m_strDescription; }
+
+	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long);
+	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long, float max_val);
+	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long, float min_val, float max_val);
+	CatVar(CatVar_t type, std::string name, std::string defaults, std::string desc_short, std::string desc_long, CatEnum& cat_enum);
 
 	inline explicit operator bool() const { return !!convar_parent->m_nValue; }
 	inline explicit operator int() const { return convar_parent->m_nValue; }
 	inline explicit operator float() const { return convar_parent->m_fValue; }
 	inline void operator =(const int& value) { convar_parent->InternalSetIntValue(value); }
 	inline void operator =(const float& value) { convar_parent->InternalSetFloatValue(value); }
-	inline bool operator ==(const int& value) { return convar_parent->m_nValue == value; }
-	inline bool operator ==(const float& value) { return convar_parent->m_fValue == value; }
+	inline bool operator ==(const int& value) const { return convar_parent->m_nValue == value; }
+	inline bool operator ==(const float& value) const { return convar_parent->m_fValue == value; }
+
+	void Register();
+	typedef std::function<void(CatVar*)> RegisterCallbackFn;
+	std::stack<RegisterCallbackFn> callbacks;
+	inline void OnRegister(RegisterCallbackFn fn) {
+		if (registered) fn(this);
+		else callbacks.push(fn);
+	}
 
 	[[deprecated]]
-	inline bool GetBool() const { return m_pConVar->GetBool(); }
+	inline bool GetBool() const { return this->operator bool();  }
 	[[deprecated]]
-	inline int GetInt() const { return m_pConVar->GetInt(); }
+	inline int GetInt() const { return this->operator int(); }
 	[[deprecated]]
-	inline float GetFloat() const { return m_pConVar->GetFloat(); };
-	inline const char* GetString() const { return m_pConVar->GetString(); }
+	inline float GetFloat() const { return this->operator float(); };
+	inline const char* GetString() const { return convar_parent->GetString(); }
 	[[deprecated]]
-	inline void SetValue(float value) { m_pConVar->SetValue(value); }
-	inline void SetValue(std::string value) { m_pConVar->SetValue(value.c_str()); }
+	inline void SetValue(float value) { this->operator =(value); }
+	inline void SetValue(std::string value) { convar_parent->SetValue(value.c_str()); }
 	[[deprecated]]
-	inline void SetValue(int value) { m_pConVar->SetValue(value); }
+	inline void SetValue(int value) { this->operator =(value); }
 
-	bool m_bHasMinmax;
-	float m_flMaxValue;
-	float m_flMinValue;
+	bool restricted;
+	float max;
+	float min;
+	bool registered;
 
-	std::string m_strDescription;
-	CatEnum* m_EnumType;
-	CatVar_t m_Type;
-	ConVar* m_pConVar;
+	const CatVar_t type;
+	const std::string name;
+	const std::string defaults;
+	const std::string desc_short;
+	const std::string desc_long;
+	CatEnum* enum_type;
+	ConVar* convar;
 	ConVar* convar_parent;
 };
 
