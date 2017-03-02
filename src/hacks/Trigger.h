@@ -10,7 +10,7 @@
 
 #include "IHack.h"
 
-class CatVar_DEPRECATED;
+class CatVar;
 
 class Triggerbot : public IHack {
 public:
@@ -20,17 +20,17 @@ public:
 	virtual void ProcessUserCmd(CUserCmd*) override;
 	virtual void Draw() override;
 
-	CatVar_DEPRECATED* v_bEnabled;
-	CatVar_DEPRECATED* v_bRespectCloak;
-	CatVar_DEPRECATED* v_bZoomedOnly;
-	CatVar_DEPRECATED* v_iHitbox;
-	CatVar_DEPRECATED* v_bBodyshot;
-	CatVar_DEPRECATED* v_bFinishingHit;
-	CatVar_DEPRECATED* v_iMaxRange;
-	CatVar_DEPRECATED* v_bBuildings;
-	CatVar_DEPRECATED* v_bIgnoreVaccinator;
-	CatVar_DEPRECATED* v_bAmbassadorCharge;
-	CatVar_DEPRECATED* v_bImproveAccuracy;
+	CatVar* v_bEnabled;
+	CatVar* v_bRespectCloak;
+	CatVar* v_bZoomedOnly;
+	CatVar* v_iHitbox;
+	CatVar* v_bBodyshot;
+	CatVar* v_bFinishingHit;
+	CatVar* v_iMaxRange;
+	CatVar* v_bBuildings;
+	CatVar* v_bIgnoreVaccinator;
+	CatVar* v_bAmbassadorCharge;
+	CatVar* v_bImproveAccuracy;
 };
 
 DECLARE_HACK_SINGLETON(Triggerbot);

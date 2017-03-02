@@ -14,7 +14,7 @@
 
 class CUserCmd;
 class ConVar;
-class CatVar_DEPRECATED;
+class CatVar;
 class ConCommand;
 class CCommand;
 class CachedEntity;

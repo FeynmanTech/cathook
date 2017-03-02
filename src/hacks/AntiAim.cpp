@@ -13,14 +13,14 @@
 DEFINE_HACK_SINGLETON(AntiAim);
 
 AntiAim::AntiAim() {
-	this->v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "aa_enabled", "0", "Enable AntiAim", NULL, "Master AntiAim switch");
-	this->v_flPitch = new CatVar_DEPRECATED(CV_FLOAT, "aa_pitch", "-89.0", "Pitch", NULL, "Static pitch (up/down)", true, 89.0, -89.0);
-	this->v_flYaw = new CatVar_DEPRECATED(CV_FLOAT, "aa_yaw", "0.0", "Yaw", NULL, "Static yaw (left/right)", true, 360.0);
-	this->v_flSpinSpeed = new CatVar_DEPRECATED(CV_FLOAT, "aa_spin", "10.0", "Spin speed", NULL, "Spin speed (in deg/sec)");
-	this->v_PitchMode = new CatVar_DEPRECATED(CV_ENUM, "aa_pitch_mode", "1", "Pitch mode", new CatEnum({ "KEEP", "STATIC", "RANDOM" }), "Pitch mode");
-	this->v_YawMode = new CatVar_DEPRECATED(CV_ENUM, "aa_yaw_mode", "3", "Yaw mode", new CatEnum({ "KEEP", "STATIC", "RANDOM", "SPIN" }), "Yaw mode");
-	this->v_bNoClamping = new CatVar_DEPRECATED(CV_SWITCH, "aa_no_clamp", "0", "Don't clamp angles", NULL, "Use this with STATIC mode for unclamped manual angles");
-	this->v_flRoll = new CatVar_DEPRECATED(CV_FLOAT, "aa_roll", "0", "Roll", NULL, "Roll angle. ???", true, -180, 180);
+	this->v_bEnabled = new CatVar(CV_SWITCH, "aa_enabled", "0", "Enable AntiAim", NULL, "Master AntiAim switch");
+	this->v_flPitch = new CatVar(CV_FLOAT, "aa_pitch", "-89.0", "Pitch", NULL, "Static pitch (up/down)", true, 89.0, -89.0);
+	this->v_flYaw = new CatVar(CV_FLOAT, "aa_yaw", "0.0", "Yaw", NULL, "Static yaw (left/right)", true, 360.0);
+	this->v_flSpinSpeed = new CatVar(CV_FLOAT, "aa_spin", "10.0", "Spin speed", NULL, "Spin speed (in deg/sec)");
+	this->v_PitchMode = new CatVar(CV_ENUM, "aa_pitch_mode", "1", "Pitch mode", new CatEnum({ "KEEP", "STATIC", "RANDOM" }), "Pitch mode");
+	this->v_YawMode = new CatVar(CV_ENUM, "aa_yaw_mode", "3", "Yaw mode", new CatEnum({ "KEEP", "STATIC", "RANDOM", "SPIN" }), "Yaw mode");
+	this->v_bNoClamping = new CatVar(CV_SWITCH, "aa_no_clamp", "0", "Don't clamp angles", NULL, "Use this with STATIC mode for unclamped manual angles");
+	this->v_flRoll = new CatVar(CV_FLOAT, "aa_roll", "0", "Roll", NULL, "Roll angle. ???", true, -180, 180);
 	AddSafeTicks(0);
 }
 

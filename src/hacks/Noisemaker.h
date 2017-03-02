@@ -16,7 +16,7 @@ public:
 
 	virtual void ProcessUserCmd(CUserCmd*) override;
 
-	CatVar_DEPRECATED* v_bEnabled;
+	CatVar* v_bEnabled;
 };
 
 DECLARE_HACK_SINGLETON(Noisemaker);

@@ -18,7 +18,7 @@
 #include "../common.h"
 #include "../sdk.h"
 
-CCVarContainer::CCVarContainer(IWidget* parent, CatVar_DEPRECATED* var) : CBaseContainer(("cvc_" + std::string(var->m_pConVar->GetName())), parent) {
+CCVarContainer::CCVarContainer(IWidget* parent, CatVar* var) : CBaseContainer(("cvc_" + std::string(var->m_pConVar->GetName())), parent) {
 	m_pVar = var;
 	m_pInput = 0;
 	m_pLabel = new CTextLabel(GetName() + "_desc", this, std::string(var->m_pConVar->GetHelpText()));

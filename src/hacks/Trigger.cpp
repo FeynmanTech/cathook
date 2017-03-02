@@ -19,21 +19,21 @@ trace::FilterDefault* filter;
 Triggerbot::Triggerbot() {
 	filter = new trace::FilterDefault();
 	enemy_trace = new trace_t();
-	this->v_bBodyshot = new CatVar_DEPRECATED(CV_SWITCH, "trigger_bodyshot", "1", "Bodyshot", NULL, "Triggerbot will bodyshot enemies if you have enough charge to 1tap them");
-	this->v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "trigger_enabled", "0", "Enable", NULL, "Master Triggerbot switch");
-	this->v_bFinishingHit = new CatVar_DEPRECATED(CV_SWITCH, "trigger_finish", "1", "Noscope weak enemies", NULL, "If enemy has <50 HP, noscope them");
-	this->v_bRespectCloak = new CatVar_DEPRECATED(CV_SWITCH, "trigger_respect_cloak", "1", "Respect cloak", NULL, "Don't shoot at cloaked spies");
-	this->v_bZoomedOnly = new CatVar_DEPRECATED(CV_SWITCH, "trigger_zoomed", "1", "Zoomed only", NULL, "Don't shoot if you aren't zoomed in");
-	this->v_iHitbox = new CatVar_DEPRECATED(CV_ENUM, "trigger_hitbox", "-1", "Hitbox", new CatEnum({
+	this->v_bBodyshot = new CatVar(CV_SWITCH, "trigger_bodyshot", "1", "Bodyshot", NULL, "Triggerbot will bodyshot enemies if you have enough charge to 1tap them");
+	this->v_bEnabled = new CatVar(CV_SWITCH, "trigger_enabled", "0", "Enable", NULL, "Master Triggerbot switch");
+	this->v_bFinishingHit = new CatVar(CV_SWITCH, "trigger_finish", "1", "Noscope weak enemies", NULL, "If enemy has <50 HP, noscope them");
+	this->v_bRespectCloak = new CatVar(CV_SWITCH, "trigger_respect_cloak", "1", "Respect cloak", NULL, "Don't shoot at cloaked spies");
+	this->v_bZoomedOnly = new CatVar(CV_SWITCH, "trigger_zoomed", "1", "Zoomed only", NULL, "Don't shoot if you aren't zoomed in");
+	this->v_iHitbox = new CatVar(CV_ENUM, "trigger_hitbox", "-1", "Hitbox", new CatEnum({
 		"ANY", "HEAD", "PELVIS", "SPINE 0", "SPINE 1", "SPINE 2", "SPINE 3", "UPPER ARM L", "LOWER ARM L",
 		"HAND L", "UPPER ARM R", "LOWER ARM R", "HAND R", "HIP L", "KNEE L", "FOOT L", "HIP R",
 		"KNEE R", "FOOT R"
 	}, -1), "Triggerbot hitbox. Only useful settings are ANY and HEAD. Use ANY for scatter or any other shotgun-based weapon, HEAD for ambassador/sniper rifle");
-	this->v_iMaxRange = new CatVar_DEPRECATED(CV_INT, "trigger_range", "0", "Max range", NULL, "Triggerbot won't shoot if enemy is too far away", true, 4096.0f);
-	this->v_bBuildings = new CatVar_DEPRECATED(CV_SWITCH, "trigger_buildings", "1", "Trigger at buildings", NULL, "Shoot buildings");
-	this->v_bIgnoreVaccinator = new CatVar_DEPRECATED(CV_SWITCH, "trigger_respect_vaccinator", "1", "Respect vaccinator", NULL, "Don't shoot at bullet-vaccinated enemies");
-	this->v_bAmbassadorCharge = new CatVar_DEPRECATED(CV_SWITCH, "trigger_ambassador", "1", "Smart Ambassador", NULL, "Don't shoot if yuor ambassador can't headshot yet");
-	this->v_bImproveAccuracy = new CatVar_DEPRECATED(CV_SWITCH, "trigger_accuracy", "0", "Improve accuracy (NOT WORKING)", NULL, "Might cause more lag (NOT WORKING YET!)");
+	this->v_iMaxRange = new CatVar(CV_INT, "trigger_range", "0", "Max range", NULL, "Triggerbot won't shoot if enemy is too far away", true, 4096.0f);
+	this->v_bBuildings = new CatVar(CV_SWITCH, "trigger_buildings", "1", "Trigger at buildings", NULL, "Shoot buildings");
+	this->v_bIgnoreVaccinator = new CatVar(CV_SWITCH, "trigger_respect_vaccinator", "1", "Respect vaccinator", NULL, "Don't shoot at bullet-vaccinated enemies");
+	this->v_bAmbassadorCharge = new CatVar(CV_SWITCH, "trigger_ambassador", "1", "Smart Ambassador", NULL, "Don't shoot if yuor ambassador can't headshot yet");
+	this->v_bImproveAccuracy = new CatVar(CV_SWITCH, "trigger_accuracy", "0", "Improve accuracy (NOT WORKING)", NULL, "Might cause more lag (NOT WORKING YET!)");
 }
 
 void Triggerbot::ProcessUserCmd(CUserCmd* cmd) {

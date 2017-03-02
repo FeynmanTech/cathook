@@ -13,9 +13,9 @@
 DEFINE_HACK_SINGLETON(SpyAlert);
 
 SpyAlert::SpyAlert() {
-	this->v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "spyalert_enabled", "0", "Enable", NULL, "Master SpyAlert switch");
-	this->v_flWarningDistance = new CatVar_DEPRECATED(CV_FLOAT, "spyalert_warning", "500.0", "Warning distance", NULL, "Distance where yellow warning shows");
-	this->v_flBackstabDistance = new CatVar_DEPRECATED(CV_FLOAT, "spyalert_backstab", "200.0", "Backstab distance", NULL, "Distance where red warning shows");
+	this->v_bEnabled = new CatVar(CV_SWITCH, "spyalert_enabled", "0", "Enable", NULL, "Master SpyAlert switch");
+	this->v_flWarningDistance = new CatVar(CV_FLOAT, "spyalert_warning", "500.0", "Warning distance", NULL, "Distance where yellow warning shows");
+	this->v_flBackstabDistance = new CatVar(CV_FLOAT, "spyalert_backstab", "200.0", "Backstab distance", NULL, "Distance where red warning shows");
 }
 
 void SpyAlert::Draw() {

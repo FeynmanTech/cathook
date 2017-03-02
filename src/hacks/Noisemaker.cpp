@@ -14,7 +14,7 @@
 DEFINE_HACK_SINGLETON(Noisemaker);
 
 Noisemaker::Noisemaker() {
-	v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "noisemaker", "0", "Noisemaker spam", NULL, "Spams noisemakers really fast");
+	v_bEnabled = new CatVar(CV_SWITCH, "noisemaker", "0", "Noisemaker spam", NULL, "Spams noisemakers really fast");
 }
 
 void Noisemaker::ProcessUserCmd(CUserCmd*) {

@@ -18,7 +18,7 @@ public:
 	virtual void OnLevelInit() override;
 	virtual void OnLevelShutdown() override;
 
-	CatVar_DEPRECATED* v_bEnabled;
+	CatVar* v_bEnabled;
 	bool m_bEnabledOnce;
 };
 

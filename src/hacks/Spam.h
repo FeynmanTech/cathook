@@ -24,9 +24,9 @@ public:
 	virtual void OnLevelInit() override;
 
 	void Reload();
-	CatVar_DEPRECATED* v_bSpam;
-	CatVar_DEPRECATED* v_sSpamFile;
-	CatVar_DEPRECATED* v_bSpamNewlines;
+	CatVar* v_bSpam;
+	CatVar* v_sSpamFile;
+	CatVar* v_bSpamNewlines;
 	ConCommand* c_Reload;
 	int m_iCurrentIndex;
 	TextFile* m_TextFile;

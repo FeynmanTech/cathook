@@ -26,8 +26,8 @@ public:
 	const char* ComposeKillSay(IGameEvent* evt);
 	void Reload();
 
-	CatVar_DEPRECATED* v_bEnabled;
-	CatVar_DEPRECATED* v_sFileName;
+	CatVar* v_bEnabled;
+	CatVar* v_sFileName;
 
 	TextFile* m_TextFile;
 	KillSayEventListener m_Listener;

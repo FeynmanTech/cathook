@@ -18,11 +18,11 @@ public:
 
 	virtual void ProcessUserCmd(CUserCmd*) override;
 
-	CatVar_DEPRECATED* v_bEnabled;
-	CatVar_DEPRECATED* v_iPerfectJumpLimit;
-	CatVar_DEPRECATED* v_bImperfect;
-	CatVar_DEPRECATED* v_bAutoJump;
-	CatVar_DEPRECATED* v_iAutoJumpSpeed;
+	CatVar* v_bEnabled;
+	CatVar* v_iPerfectJumpLimit;
+	CatVar* v_bImperfect;
+	CatVar* v_bAutoJump;
+	CatVar* v_iAutoJumpSpeed;
 	bool m_bFakeLagFix;
 };
 

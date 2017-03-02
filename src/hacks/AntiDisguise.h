@@ -16,7 +16,7 @@ public:
 
 	virtual void Draw() override;
 
-	CatVar_DEPRECATED* v_bEnabled;
+	CatVar* v_bEnabled;
 };
 
 DECLARE_HACK_SINGLETON(AntiDisguise);

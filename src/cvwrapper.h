@@ -52,15 +52,11 @@ public:
 	int m_iLength;
 };
 
-template<typename T>
-class CVNew {
-
-};
-
-class CatVar_DEPRECATED {
+class CatVar {
 public:
-	CatVar_DEPRECATED(CatVar_t type, std::string name, std::string value, std::string help, ICatEnum* enum_type = 0, std::string long_description = "no description", bool hasminmax = false, float max = 1.0f, float min = 0.0f);
-	void Register();
+	CatVar(CatVar_t type, std::string name, std::string value, std::string help, ICatEnum* enum_type = 0, std::string long_description = "no description", bool hasminmax = false, float max = 1.0f, float min = 0.0f);
+	//inline CatVar(ConVar* var, CatVar_t type, std::string desc = "") { m_fStep = 1; m_fStep = 0.5f; m_pConVar = var; m_Type = type; SetDescription(desc); }
+	//inline CatVar(ConVar* var, ICatEnum* catenum, std::string desc = "") { m_pConVar = var; m_Type = CatVar_t::CV_ENUM; m_EnumType = catenum; SetDescription(desc); }
 	inline CatVar_t GetType() { return m_Type; }
 	inline ICatEnum* GetEnum() { return m_EnumType; }
 	inline ConVar* GetConVar() { return m_pConVar; }
