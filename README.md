@@ -7,3 +7,6 @@ I know that the style sucks. There is a lot of design errors and cancerous patte
 
 # Injection
 `sudo ./attach-backtrace` if you want to see backtrace after the game crashes.
+
+# Discord Server
+[Official Discord Server](https://discord.gg/RywBUSc)
