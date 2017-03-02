@@ -28,8 +28,8 @@ void GUIVisibleCallback(IConVar* var, const char* pOldValue, float flOldValue) {
 
 CatGUI::CatGUI() {
 	m_pRootWindow = 0;
-	v_bGUIVisible = new CatVar(CV_SWITCH, "gui_visible", "0", "GUI Active", NULL, "GUI switch (bind it to a key!)");
-	v_bDrawBounds = new CatVar(CV_SWITCH, "gui_bounds", "0", "Draw Bounds", NULL, "Draw GUI elements' bounding boxes");
+	v_bGUIVisible = new CatVar_DEPRECATED(CV_SWITCH, "gui_visible", "0", "GUI Active", NULL, "GUI switch (bind it to a key!)");
+	v_bDrawBounds = new CatVar_DEPRECATED(CV_SWITCH, "gui_bounds", "0", "Draw Bounds", NULL, "Draw GUI elements' bounding boxes");
 }
 
 CatGUI::~CatGUI() {

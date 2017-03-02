@@ -16,9 +16,9 @@ public:
 
 	virtual void Draw() override;
 
-	CatVar* v_bEnabled;
-	CatVar* v_flWarningDistance;
-	CatVar* v_flBackstabDistance;
+	CatVar_DEPRECATED* v_bEnabled;
+	CatVar_DEPRECATED* v_flWarningDistance;
+	CatVar_DEPRECATED* v_flBackstabDistance;
 };
 
 DECLARE_HACK_SINGLETON(SpyAlert);

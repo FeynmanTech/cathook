@@ -13,7 +13,7 @@
 DEFINE_HACK_SINGLETON(AutoStrafe);
 
 AutoStrafe::AutoStrafe() {
-	v_bEnabled = new CatVar(CV_SWITCH, "autostrafe", "0", "Enable AutoStrafe", NULL, "AutoStrafe switch. Doesn't work.");
+	v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "autostrafe", "0", "Enable AutoStrafe", NULL, "AutoStrafe switch. Doesn't work.");
 }
 
 

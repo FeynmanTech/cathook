@@ -19,14 +19,14 @@ public:
 	void AddSafeTicks(int ticks);
 	int m_iSafeTicks;
 
-	CatVar* v_bEnabled;
-	CatVar* v_flSpinSpeed;
-	CatVar* v_flYaw;
-	CatVar* v_flPitch;
-	CatVar* v_PitchMode;
-	CatVar* v_YawMode;
-	CatVar* v_bNoClamping;
-	CatVar* v_flRoll;
+	CatVar_DEPRECATED* v_bEnabled;
+	CatVar_DEPRECATED* v_flSpinSpeed;
+	CatVar_DEPRECATED* v_flYaw;
+	CatVar_DEPRECATED* v_flPitch;
+	CatVar_DEPRECATED* v_PitchMode;
+	CatVar_DEPRECATED* v_YawMode;
+	CatVar_DEPRECATED* v_bNoClamping;
+	CatVar_DEPRECATED* v_flRoll;
 };
 
 DECLARE_HACK_SINGLETON(AntiAim);

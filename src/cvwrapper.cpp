@@ -10,7 +10,7 @@
 #include "common.h"
 #include "sdk.h"
 
-CatVar::CatVar(CatVar_t type, std::string name, std::string value, std::string help, ICatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
+CatVar_DEPRECATED::CatVar_DEPRECATED(CatVar_t type, std::string name, std::string value, std::string help, ICatEnum* enum_type, std::string long_description, bool hasminmax, float maxv, float minv) {
 	m_Type = type;
 	m_pConVar = CreateConVar(CON_PREFIX + name, value, help);
 	m_EnumType = enum_type;
@@ -42,7 +42,7 @@ int CatEnum::Minimum() {
 	return m_iMin;
 }
 
-void CatVar::Increment(int factor) {
+void CatVar_DEPRECATED::Increment(int factor) {
 	if (!m_pConVar) return;
 	switch (m_Type) {
 	case CatVar_t::CV_SWITCH: {
@@ -65,7 +65,7 @@ void CatVar::Increment(int factor) {
 	}
 }
 
-void CatVar::Decrement(int factor) {
+void CatVar_DEPRECATED::Decrement(int factor) {
 	if (!m_pConVar) return;
 	switch (m_Type) {
 	case CatVar_t::CV_SWITCH:

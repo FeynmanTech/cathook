@@ -13,7 +13,7 @@
 DEFINE_HACK_SINGLETON(AntiDisguise);
 
 AntiDisguise::AntiDisguise() {
-	v_bEnabled = new CatVar(CV_SWITCH, "antidisguise", "0", "Remove spy disguise", 0, "Remove disguise from all spies");
+	v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "antidisguise", "0", "Remove spy disguise", 0, "Remove disguise from all spies");
 }
 
 void AntiDisguise::Draw() {

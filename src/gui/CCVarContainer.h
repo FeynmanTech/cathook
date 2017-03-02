@@ -10,13 +10,13 @@
 
 #include "CBaseContainer.h"
 
-class CatVar;
+class CatVar_DEPRECATED;
 class CTextInput;
 class CTextLabel;
 
 class CCVarContainer : public CBaseContainer {
 public:
-	CCVarContainer(IWidget* parent, CatVar* var);
+	CCVarContainer(IWidget* parent, CatVar_DEPRECATED* var);
 
 	virtual void MoveChildren() override;
 	virtual void Update() override;
@@ -25,7 +25,7 @@ public:
 	IWidget* m_pControl;
 	CTextLabel* m_pLabel;
 
-	CatVar* m_pVar;
+	CatVar_DEPRECATED* m_pVar;
 };
 
 #endif /* CCVARCONTAINER_H_ */

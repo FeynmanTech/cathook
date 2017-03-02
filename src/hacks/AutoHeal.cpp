@@ -63,8 +63,8 @@ bool AutoHeal::CanHeal(int idx) {
 }
 
 AutoHeal::AutoHeal() {
-	this->v_bEnabled = new CatVar(CV_SWITCH, "autoheal_enabled", "0", "AutoHeal", NULL, "Automatically heals nearby teammates");
-	this->v_bSilent = new CatVar(CV_SWITCH, "autoheal_silent", "1", "Silent AutoHeal", NULL, "Silent AutoHeal.\nIt's better to keep this enabled");
+	this->v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "autoheal_enabled", "0", "AutoHeal", NULL, "Automatically heals nearby teammates");
+	this->v_bSilent = new CatVar_DEPRECATED(CV_SWITCH, "autoheal_silent", "1", "Silent AutoHeal", NULL, "Silent AutoHeal.\nIt's better to keep this enabled");
 	m_iCurrentHealingTarget = -1;
 }
 

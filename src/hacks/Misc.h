@@ -21,19 +21,19 @@ public:
 	virtual void Draw() override;
 
 	//ConVar* v_bNoShootUntilCanHeadshot;
-	CatVar* v_bDebugInfo;
+	CatVar_DEPRECATED* v_bDebugInfo;
 	ConCommand* c_Name;
 	ConVar* v_bInfoSpam;
 	ConVar* v_bFastCrouch;
-	CatVar* v_bFlashlightSpam;
-	CatVar* v_bMinigunJump; // TF2C
-	CatVar* v_bDebugCrits; // TF2C
-	CatVar* v_bAntiAFK;
-	CatVar* v_bHookInspect;
-	CatVar* v_iFakeLag;
-	CatVar* v_bCritHack;
-	CatVar* v_bTauntSlide;
-	CatVar* v_bSuppressCrits;
+	CatVar_DEPRECATED* v_bFlashlightSpam;
+	CatVar_DEPRECATED* v_bMinigunJump; // TF2C
+	CatVar_DEPRECATED* v_bDebugCrits; // TF2C
+	CatVar_DEPRECATED* v_bAntiAFK;
+	CatVar_DEPRECATED* v_bHookInspect;
+	CatVar_DEPRECATED* v_iFakeLag;
+	CatVar_DEPRECATED* v_bCritHack;
+	CatVar_DEPRECATED* v_bTauntSlide;
+	CatVar_DEPRECATED* v_bSuppressCrits;
 	//ConVar* v_bDumpEventInfo;
 	ConCommand* c_SaveSettings;
 	ConCommand* c_Unrestricted;
@@ -53,7 +53,7 @@ public:
 	ConCommand* c_Schema;
 	ConCommand* c_DisconnectVAC;
 
-	CatVar* v_bCleanChat;
+	CatVar_DEPRECATED* v_bCleanChat;
 };
 
 void Schema_Reload();

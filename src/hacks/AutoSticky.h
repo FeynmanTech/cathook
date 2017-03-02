@@ -19,10 +19,10 @@ public:
 	virtual void ProcessUserCmd(CUserCmd*) override;
 
 	bool ShouldDetonate(CachedEntity* bomb);
-	CatVar* v_bEnabled;
-	CatVar* v_bBuildings;
-	CatVar* v_bScottish;
-	CatVar* v_flDetonateDistance;
+	CatVar_DEPRECATED* v_bEnabled;
+	CatVar_DEPRECATED* v_bBuildings;
+	CatVar_DEPRECATED* v_bScottish;
+	CatVar_DEPRECATED* v_flDetonateDistance;
 };
 
 DECLARE_HACK_SINGLETON(AutoSticky);

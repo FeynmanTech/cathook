@@ -13,9 +13,9 @@
 DEFINE_HACK_SINGLETON(Spam);
 
 Spam::Spam() {
-	v_bSpam = new CatVar(CV_SWITCH, "spam", "0", "Chat spam", NULL, "Enable Spam");
-	v_bSpamNewlines = new CatVar(CV_SWITCH, "spam_newlines", "1", "Prepend newlines to messages", NULL, "If enabled, several newlines will be added before each message");
-	v_sSpamFile = new CatVar(CV_STRING, "spam_file", "spam.txt", "Spam file (~/.cathook/...)", NULL, "Spam file name. Each line should be no longer than 100 characters, file must be located in ~/.cathook folder");
+	v_bSpam = new CatVar_DEPRECATED(CV_SWITCH, "spam", "0", "Chat spam", NULL, "Enable Spam");
+	v_bSpamNewlines = new CatVar_DEPRECATED(CV_SWITCH, "spam_newlines", "1", "Prepend newlines to messages", NULL, "If enabled, several newlines will be added before each message");
+	v_sSpamFile = new CatVar_DEPRECATED(CV_STRING, "spam_file", "spam.txt", "Spam file (~/.cathook/...)", NULL, "Spam file name. Each line should be no longer than 100 characters, file must be located in ~/.cathook folder");
 	c_Reload = CreateConCommand(CON_PREFIX "spam_reload", &CC_Spam_ReloadFile, "Reloads spam file");
 	m_iCurrentIndex = 0;
 	m_fLastSpam = 0;

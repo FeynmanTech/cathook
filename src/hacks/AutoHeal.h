@@ -21,8 +21,8 @@ public:
 	bool CanHeal(int idx);
 	int m_iCurrentHealingTarget;
 	int m_iNewTarget;
-	CatVar* v_bEnabled;
-	CatVar* v_bSilent;
+	CatVar_DEPRECATED* v_bEnabled;
+	CatVar_DEPRECATED* v_bSilent;
 };
 
 DECLARE_HACK_SINGLETON(AutoHeal);

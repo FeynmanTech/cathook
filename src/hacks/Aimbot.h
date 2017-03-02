@@ -50,42 +50,42 @@ public:
 	int m_nMinigunFixTicks;
 	bool m_bHeadOnly;
 
-	CatVar* v_kAimKey;
-	CatVar* v_eAimKeyMode;
-	CatVar* v_eHitboxMode;
+	CatVar_DEPRECATED* v_kAimKey;
+	CatVar_DEPRECATED* v_eAimKeyMode;
+	CatVar_DEPRECATED* v_eHitboxMode;
 	//CatVar* v_bSmooth;
 	//CatVar* v_fSmoothValue;
 	//CatVar* v_bDebug;
-	CatVar* v_bEnabled;
-	CatVar* v_fFOV;
-	CatVar* v_eHitbox;
+	CatVar_DEPRECATED* v_bEnabled;
+	CatVar_DEPRECATED* v_fFOV;
+	CatVar_DEPRECATED* v_eHitbox;
 //	CatVar* v_bAutoHitbox;
 //	CatVar* v_iSeenDelay;
-	CatVar* v_bInterpolation;
-	CatVar* v_bAutoShoot;
-	CatVar* v_bSilent;
-	CatVar* v_bZoomedOnly;
-	CatVar* v_bAimAtTeammates;
+	CatVar_DEPRECATED* v_bInterpolation;
+	CatVar_DEPRECATED* v_bAutoShoot;
+	CatVar_DEPRECATED* v_bSilent;
+	CatVar_DEPRECATED* v_bZoomedOnly;
+	CatVar_DEPRECATED* v_bAimAtTeammates;
 	//CatVar* v_iAutoShootCharge;
-	CatVar* v_fAutoShootHuntsmanCharge;
-	CatVar* v_iMaxRange;
-	CatVar* v_iMaxAutoshootRange; // TODO IMPLEMENT
-	CatVar* v_bRespectCloak;
+	CatVar_DEPRECATED* v_fAutoShootHuntsmanCharge;
+	CatVar_DEPRECATED* v_iMaxRange;
+	CatVar_DEPRECATED* v_iMaxAutoshootRange; // TODO IMPLEMENT
+	CatVar_DEPRECATED* v_bRespectCloak;
 	//CatVar* v_bCharge;
-	CatVar* v_bEnabledAttacking;
+	CatVar_DEPRECATED* v_bEnabledAttacking;
 	//CatVar* v_bTriggerMode;
-	CatVar* v_bProjectileAimbot;
-	CatVar* v_fOverrideProjSpeed;
-	CatVar* v_fOverrideProjGravity; // TODO IMPLEMENT
+	CatVar_DEPRECATED* v_bProjectileAimbot;
+	CatVar_DEPRECATED* v_fOverrideProjSpeed;
+	CatVar_DEPRECATED* v_fOverrideProjGravity; // TODO IMPLEMENT
 	//CatVar* v_bMachinaPenetration;
-	CatVar* v_bAimBuildings;
-	CatVar* v_bActiveOnlyWhenCanShoot;
+	CatVar_DEPRECATED* v_bAimBuildings;
+	CatVar_DEPRECATED* v_bActiveOnlyWhenCanShoot;
 	//CatVar* v_fSmoothAutoshootTreshold;
 	//CatVar* v_fSmoothRandomness;
-	CatVar* v_ePriorityMode;
-	CatVar* v_bProjPredVisibility;
-	CatVar* v_bProjPredFOV;
-	CatVar* v_bAdvancedSapperAim;
+	CatVar_DEPRECATED* v_ePriorityMode;
+	CatVar_DEPRECATED* v_bProjPredVisibility;
+	CatVar_DEPRECATED* v_bProjPredFOV;
+	CatVar_DEPRECATED* v_bAdvancedSapperAim;
 };
 
 DECLARE_HACK_SINGLETON(Aimbot);

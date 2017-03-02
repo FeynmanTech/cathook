@@ -12,7 +12,7 @@
 DEFINE_HACK_SINGLETON(Glow);
 
 Glow::Glow() {
-	v_bEnabled = new CatVar(CV_SWITCH, "glow_enabled", "0", "Glow ESP", NULL, "Simply adds glow to all entities - DO NOT USE!");
+	v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "glow_enabled", "0", "Glow ESP", NULL, "Simply adds glow to all entities - DO NOT USE!");
 	m_bEnabledOnce = false;
 }
 

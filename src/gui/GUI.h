@@ -9,7 +9,7 @@
 #define GUI_H_
 
 class IWidget;
-class CatVar;
+class CatVar_DEPRECATED;
 
 #define GUI_ENABLED true
 
@@ -37,8 +37,8 @@ public:
 
 	CTooltip* m_pTooltip;
 	RootWindow* m_pRootWindow;
-	CatVar* v_bGUIVisible;
-	CatVar* v_bDrawBounds;
+	CatVar_DEPRECATED* v_bGUIVisible;
+	CatVar_DEPRECATED* v_bDrawBounds;
 
 	bool m_bShowTooltip;
 	bool m_bConsumeKeys;

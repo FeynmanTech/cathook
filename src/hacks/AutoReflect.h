@@ -17,10 +17,10 @@ public:
 	virtual void ProcessUserCmd(CUserCmd*) override;
 
 	bool ShouldReflect(CachedEntity* ent);
-	CatVar* v_bEnabled;
-	CatVar* v_bDisableWhenAttacking;
-	CatVar* v_bReflectStickies;
-	CatVar* v_iReflectDistance;
+	CatVar_DEPRECATED* v_bEnabled;
+	CatVar_DEPRECATED* v_bDisableWhenAttacking;
+	CatVar_DEPRECATED* v_bReflectStickies;
+	CatVar_DEPRECATED* v_iReflectDistance;
 };
 
 DECLARE_HACK_SINGLETON(AutoReflect);

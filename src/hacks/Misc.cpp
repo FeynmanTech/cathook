@@ -323,11 +323,11 @@ void CC_Misc_Schema(const CCommand& args) {
 }
 
 Misc::Misc() {
-	if (TF2C) v_bMinigunJump = new CatVar(CV_SWITCH, "minigun_jump", "0", "Minigun Jump", NULL, "Allows you to jump while with minigun spun up");
-	v_bDebugInfo = new CatVar(CV_SWITCH, "misc_debug", "0", "Debug info", NULL, "Log stuff to console, enable this if tf2 crashes");
+	if (TF2C) v_bMinigunJump = new CatVar_DEPRECATED(CV_SWITCH, "minigun_jump", "0", "Minigun Jump", NULL, "Allows you to jump while with minigun spun up");
+	v_bDebugInfo = new CatVar_DEPRECATED(CV_SWITCH, "misc_debug", "0", "Debug info", NULL, "Log stuff to console, enable this if tf2 crashes");
 	c_Name = CreateConCommand(CON_PREFIX "name", CC_SetName, "Sets custom name");
 	if (TF2) c_DumpItemAttributes = CreateConCommand(CON_PREFIX "dump_item_attribs", CC_DumpAttribs, "Dump active weapon attributes");
-	v_bAntiAFK = new CatVar(CV_SWITCH, "noafk", "0", "Anti AFK", NULL, "Sends random stuff to server to not be kicked for idling");
+	v_bAntiAFK = new CatVar_DEPRECATED(CV_SWITCH, "noafk", "0", "Anti AFK", NULL, "Sends random stuff to server to not be kicked for idling");
 	c_SayLine = CreateConCommand(CON_PREFIX "say_lines", CC_SayLines, "Uses ^ as a newline character");
 	c_Shutdown = CreateConCommand(CON_PREFIX "shutdown", CC_Shutdown, "Stops the hack");
 	c_AddFriend = CreateConCommand(CON_PREFIX "addfriend", CC_AddFriend, "Adds a friend");
@@ -342,19 +342,19 @@ Misc::Misc() {
 	c_DisconnectVAC = CreateConCommand(CON_PREFIX "disconnect_vac", CC_Misc_Disconnect_VAC, "Disconnect (VAC)");
 	v_bInfoSpam = CreateConVar(CON_PREFIX "info_spam", "0", "Info spam");
 	v_bFastCrouch = CreateConVar(CON_PREFIX "fakecrouch", "0", "Fast crouch");
-	v_bFlashlightSpam = new CatVar(CV_SWITCH, "flashlight_spam", "0", "Flashlight Spam", NULL, "Quickly turns flashlight on and off");
-	v_iFakeLag = new CatVar(CV_INT, "fakelag", "0", "Fakelag", NULL, "# of packets jammed", true, 25.0f);
+	v_bFlashlightSpam = new CatVar_DEPRECATED(CV_SWITCH, "flashlight_spam", "0", "Flashlight Spam", NULL, "Quickly turns flashlight on and off");
+	v_iFakeLag = new CatVar_DEPRECATED(CV_INT, "fakelag", "0", "Fakelag", NULL, "# of packets jammed", true, 25.0f);
 	c_Unrestricted = CreateConCommand(CON_PREFIX "cmd", CC_Unrestricted, "Execute a ConCommand");
 	c_SaveSettings = CreateConCommand(CON_PREFIX "save", CC_SaveConVars, CON_PREFIX "save [file]\nSave settings to cfg/cat_[file].cfg, file is lastcfg by default\n");
 	//v_bDumpEventInfo = CreateConVar(CON_PREFIX "debug_event_info", "0", "Show event info");
 	CreateConCommand(CON_PREFIX "set", CC_SetValue, "Set ConVar value (if third argument is 1 the ^'s will be converted into newlines)");
-	if (TF2C) v_bTauntSlide = new CatVar(CV_SWITCH, "tauntslide", "0", "Taunt Slide", NULL, "Works only in TF2 Classic!");
-	if (TF) v_bCritHack = new CatVar(CV_SWITCH, "crits", "0", "Crit Hack", NULL, "BindToggle that to a key, while enabled, you can only shoot criticals. Be careful not to exhaust the crit bucket!");
+	if (TF2C) v_bTauntSlide = new CatVar_DEPRECATED(CV_SWITCH, "tauntslide", "0", "Taunt Slide", NULL, "Works only in TF2 Classic!");
+	if (TF) v_bCritHack = new CatVar_DEPRECATED(CV_SWITCH, "crits", "0", "Crit Hack", NULL, "BindToggle that to a key, while enabled, you can only shoot criticals. Be careful not to exhaust the crit bucket!");
 	//v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "Debug Crits", NULL, "???");
-	v_bCleanChat = new CatVar(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
+	v_bCleanChat = new CatVar_DEPRECATED(CV_SWITCH, "clean_chat", "1", "Remove newlines from messages", NULL, "Removes newlines from messages, at least it should do that. Might be broken.");
 	if (TF2) c_Schema = CreateConCommand(CON_PREFIX "schema", CC_Misc_Schema, "Load item schema");
-	if (TF) v_bDebugCrits = new CatVar(CV_SWITCH, "debug_crits", "0", "???", NULL, "???");
-	if (TF) v_bSuppressCrits = new CatVar(CV_SWITCH, "suppress_crits", "1", "Suppress non-forced crits", NULL, "Helps to save the crit bucket");
+	if (TF) v_bDebugCrits = new CatVar_DEPRECATED(CV_SWITCH, "debug_crits", "0", "???", NULL, "???");
+	if (TF) v_bSuppressCrits = new CatVar_DEPRECATED(CV_SWITCH, "suppress_crits", "1", "Suppress non-forced crits", NULL, "Helps to save the crit bucket");
 	//if (TF2) v_bHookInspect = new CatVar(CV_SWITCH, "hook_inspect", "0", "Hook CanInspect", NULL, "Once enabled, can't be turned off. cathook can't be unloaded after enabling it");
 	//interfaces::eventManager->AddListener(&listener, "player_death", false);
 }

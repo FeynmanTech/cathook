@@ -13,11 +13,11 @@
 DEFINE_HACK_SINGLETON(Bunnyhop);
 
 Bunnyhop::Bunnyhop() {
-	this->v_bEnabled = new CatVar(CV_SWITCH, "bhop_enabled", "0", "Enable", NULL, "Enable Bunnyhop");
-	this->v_iPerfectJumpLimit = new CatVar(CV_SWITCH, "bhop_pjumps", "0", "Perfect Jump Limit", NULL, "Bunny Hop perfect jump limit. 0 = Disabled");
-	this->v_bAutoJump = new CatVar(CV_SWITCH, "bhop_autojump", "0", "AutoJump", NULL, "Autojump if you reach certain speed");
-	this->v_iAutoJumpSpeed = new CatVar(CV_INT, "bhop_autojump_speed", "300", "AutoJump speed", NULL, "Minimum autojump speed");
-	this->v_bImperfect = new CatVar(CV_INT, "bhop_imperfect", "0", "Miss bhop jumps randomly", NULL, "To avoid auto bans");
+	this->v_bEnabled = new CatVar_DEPRECATED(CV_SWITCH, "bhop_enabled", "0", "Enable", NULL, "Enable Bunnyhop");
+	this->v_iPerfectJumpLimit = new CatVar_DEPRECATED(CV_SWITCH, "bhop_pjumps", "0", "Perfect Jump Limit", NULL, "Bunny Hop perfect jump limit. 0 = Disabled");
+	this->v_bAutoJump = new CatVar_DEPRECATED(CV_SWITCH, "bhop_autojump", "0", "AutoJump", NULL, "Autojump if you reach certain speed");
+	this->v_iAutoJumpSpeed = new CatVar_DEPRECATED(CV_INT, "bhop_autojump_speed", "300", "AutoJump speed", NULL, "Minimum autojump speed");
+	this->v_bImperfect = new CatVar_DEPRECATED(CV_INT, "bhop_imperfect", "0", "Miss bhop jumps randomly", NULL, "To avoid auto bans");
 }
 
 bool bDoubleJumpFix = false;
