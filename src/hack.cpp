@@ -80,9 +80,9 @@ void hack::InitHacks() {
 ConCommand* hack::c_Cat = 0;
 
 void hack::CC_Cat(const CCommand& args) {
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "cathook");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "Hemipene");
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), " by ");
-	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "d4rkc4t\n");
+	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::blu), "Thyrell\n");
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::white), "build: " CATHOOK_BUILD_NUMBER " \"" CATHOOK_BUILD_NAME "\"\n");
 #if _DEVELOPER
 	interfaces::cvar->ConsoleColorPrintf(*reinterpret_cast<Color*>(&colors::red), "[DEVELOPER BUILD]\n");
