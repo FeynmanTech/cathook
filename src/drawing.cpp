@@ -118,7 +118,7 @@ int colors::Create(int r, int g, int b, int a) {
 
 void colors::Init() {
 	using namespace colors;
-	pink = Create(255, 105, 180, 255);
+	pink = Create(255, 105, 0, 255);
 	white = Create(255, 255, 255, 255);
 	black = Create(0, 0, 0, 255);
 	red = Create(237, 42, 42, 255);
